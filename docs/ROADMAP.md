@@ -37,9 +37,10 @@ detalles, formatos soportados y límites están en `SAVE_CODEC.md`.
 Decisión de integración: se aisló el codec en `save_document.*`/`save_validation.cpp`
 porque el intento de `saveload.cpp` mezcla serialización y arranque de sistemas aún
 ausentes. El documento posee sus datos, conserva IDs/palabras históricas y ofrece
-resolución de referencias sin tocar `gs`, `gg`, pools globales ni RNG. La conversión
-a estado activo, las listas de ejecución y las normalizaciones de campaña siguen
-pendientes antes de iniciar una partida jugable; no se consideran implementadas.
+resolución de referencias sin tocar `gs`, `gg`, pools globales ni RNG. El avance de
+preparación propietaria descrito en la etapa 3 ya resuelve referencias conocidas;
+las normalizaciones y la activación completa de una partida jugable siguen
+pendientes y no se consideran implementadas.
 
 Plan de referencia del hito (la activación se mantiene como trabajo pendiente):
 
@@ -95,17 +96,31 @@ no exige una simulación completa ni IA.
 
 ## 3. Simulación de un turno local determinista
 
-**Siguiente hito funcional.** Antes de ejecutar las fases de turno, implementar
-la conversión transaccional del documento a estado de ejecución: IDs y coordenadas
-resueltos en pools propios, reconstrucción de listas y postprocesamiento real.
-Un fallo debe preservar la partida anterior, sin activar callbacks históricos ni
-reutilizar direcciones nativas que el archivo conserve como palabras opacas.
+**En curso; todavía no hay turno completo.** `runtime::State` ya prepara una copia
+propietaria y un grafo tipado de referencias de edificios, unidades, territorios,
+tiles, colas, ministros y jobs. La preparación es transaccional, deja intacto el
+estado anterior si falla y no interpreta palabras históricas como código ni
+activa `gs`/`gg`. Una captura en estado `Prepared` conserva el documento.
+
+La primera subfase económica implementada es la recaudación original de impuestos
+(`FUN_0046c728` y sus dependencias), con orden de redondeo, modificadores guardados,
+cast por territorio y wrap definido. Se aplica una sola vez por preparación,
+únicamente en memoria. No avanza el contador de turno; el estado `TaxesApplied`
+no puede exportarse como partida reanudable y `advanceTurn` falla explícitamente.
+El CLI `dl2sim` permite examinar el grafo, copiar una preparación y consultar el
+experimento fiscal. Contratos y límites: `RUNTIME_STATE.md`.
+
+Antes de activar más fases, completar perfiles de normalización del cargador
+original para versiones antiguas, campañas, IA, visibilidad y reinicio de RNG,
+además de la gestión de creación/destrucción y las listas libres necesarias.
+Resolver referencias conocidas no demuestra haber realizado ese postprocesamiento.
 
 Completar primero economía, población, recursos, trabajo y colas de producción;
 después unidades, movimiento y las fases de turno que los coordinan. Establecer
 una única secuencia de fases a partir de `WinMain` y sus llamadas originales.
 
 Integrar RNG, investigación y las reglas necesarias para el escenario de prueba.
+No reemplazar sistemas ausentes por callbacks vacíos o un incremento del turno.
 Las pruebas deben observar cambios verificables: consumo/producción, progreso de
 colas, creación de entidades, movimiento y persistencia tras guardar/cargar.
 

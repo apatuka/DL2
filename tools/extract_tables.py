@@ -48,9 +48,11 @@ A = dict(
     path_delta1=0x4DCBD8,           # int16[4]
     path_delta2=0x4DCBE0,           # int16[4]
     tile_move_cost=0x4DCBE8,        # int32[7] (FUN_0047dd58)
-    tax_rates=0x4D57EC,             # int32[6]
+    tax_rates=0x4D57EC,             # int32[6], historical key: TAX MORALE, not income
+    tax_income=0x4D5838,            # int32[6] (FUN_0046ae1c)
+    population_growth=0x4D5808,     # int32[6] by terrain (FUN_0046b1ac)
     terrain_max_pop=0x4D5820,       # int32[6] (FUN_0046bdfc)
-    pop_growth=0x4D583C,            # int32[5] (FUN_0046b1ac)
+    pop_growth=0x4D583C,            # historical key: tax income entries 1..5, NOT growth
     morale_by_level=0x4D5850,       # int32[8] (FUN_0046bdfc)
     map_sizes=0x4D5144,             # uint16[4]
     terrain_pct=0x4D514C,           # uint16[5][6]
@@ -317,6 +319,8 @@ def extract(x):
     t['path_delta2'] = x.arr(A['path_delta2'], 'h', 4)
     t['tile_move_cost'] = x.arr(A['tile_move_cost'], 'i', 7)
     t['tax_rates'] = x.arr(A['tax_rates'], 'i', 6)
+    t['tax_income'] = x.arr(A['tax_income'], 'i', 6)
+    t['population_growth'] = x.arr(A['population_growth'], 'i', 6)
     t['terrain_max_pop'] = x.arr(A['terrain_max_pop'], 'i', 6)
     t['pop_growth'] = x.arr(A['pop_growth'], 'i', 5)
     t['morale_by_level'] = x.arr(A['morale_by_level'], 'i', 8)
@@ -612,9 +616,12 @@ extern const int16_t kPathDelta2[4];                 // DAT_004dcbe0
 extern const int32_t kTileMoveCost[7];               // DAT_004dcbe8 por Tile::terrain
 
 // ---- Economia / poblacion ----
-extern const int32_t  kTaxRates[6];                  // DAT_004d57ec: % por Player::taxLevel
+extern const int32_t  kTaxMoraleByLevel[6];          // DAT_004d57ec: morale, NOT tax income
+extern const int32_t  kTaxIncomePercent[6];         // DAT_004d5838: FUN_0046ae1c
+extern const int32_t  kPopulationGrowthByTerrain[6];// DAT_004d5808: FUN_0046b1ac
+extern const int32_t  kTaxRates[6];                 // Legacy name: same MORALE values as kTaxMoraleByLevel
 extern const int32_t  kTerrainMaxPopulation[6];      // DAT_004d5820: por Terrain (x fila 24 / 100)
-extern const int32_t  kPopGrowthTable[5];            // DAT_004d583c (FUN_0046b1ac)
+extern const int32_t  kPopGrowthTable[5];            // Legacy misnomer: tax income[1..5], NOT growth
 extern const int32_t  kMoraleByLevel[8];             // DAT_004d5850: por Territory+0x29 (FUN_0046bdfc)
 
 // ---- Opciones de partida / mundo ----
@@ -759,6 +766,9 @@ def gen_cpp(t):
     w('const int32_t kTileMoveCost[7] = %s;' % ilist(t['tile_move_cost']))
     w('')
     w('const int32_t  kTaxRates[6]             = %s;' % ilist(t['tax_rates']))
+    w('const int32_t  kTaxMoraleByLevel[6]     = %s;' % ilist(t['tax_rates']))
+    w('const int32_t  kTaxIncomePercent[6]     = %s;' % ilist(t['tax_income']))
+    w('const int32_t  kPopulationGrowthByTerrain[6] = %s;' % ilist(t['population_growth']))
     w('const int32_t  kTerrainMaxPopulation[6] = %s;' % ilist(t['terrain_max_pop']))
     w('const int32_t  kPopGrowthTable[5]       = %s;' % ilist(t['pop_growth']))
     w('const int32_t  kMoraleByLevel[8]        = %s;' % ilist(t['morale_by_level']))

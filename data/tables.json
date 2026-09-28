@@ -23,6 +23,8 @@
   "path_delta2": "0x004dcbe0",
   "tile_move_cost": "0x004dcbe8",
   "tax_rates": "0x004d57ec",
+  "tax_income": "0x004d5838",
+  "population_growth": "0x004d5808",
   "terrain_max_pop": "0x004d5820",
   "pop_growth": "0x004d583c",
   "morale_by_level": "0x004d5850",
@@ -11809,6 +11811,22 @@
    -5,
    -10,
    -15
+  ],
+  "tax_income": [
+   0,
+   40,
+   75,
+   100,
+   125,
+   150
+  ],
+  "population_growth": [
+   3,
+   12,
+   10,
+   7,
+   7,
+   1
   ],
   "terrain_max_pop": [
    1000,

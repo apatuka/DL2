@@ -57,8 +57,8 @@ public:
     bool selectTile(const save::Document& document, int x, int y);
     bool selectTerritory(const save::Document& document, uint32_t index);
     bool selectObject(const save::Document& document, ObjectKind kind, uint32_t id);
-    // Buildings in file order, then armies whose current territory matches.
-    // Destination lists are intentionally not followed: units may be in transit.
+    // Buildings in file order, then armies whose current (+0x3c) territory
+    // matches. Turn-start (+0x38) is not location; saved lists are not followed.
     bool cycleObject(const save::Document& document, int step);
     const Selection& selection() const { return selection_; }
 

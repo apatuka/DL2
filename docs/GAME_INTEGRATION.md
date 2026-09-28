@@ -28,7 +28,12 @@ publicación exclusiva de copias, compartida por `dl2save` y la aplicación.
 `world_view.h/.cpp` aporta cámara y selección headless sobre `const Document&`:
 guarda sólo coordenadas/IDs, no referencias a elementos de vectores ni punteros
 del estado global. Los edificios se asocian por `Building::territory`; las
-unidades, por `Army::territory.raw`, mostrando su destino por separado.
+unidades, por `army::current` (+0x3C, alias físico `Army::dest`). Los getters
+de `army_state.h` mantienen el ABI y distinguen el inicio de turno (+0x38)
+del territorio actual: lo demuestran `ReLinkArmy`/`MoveUnit` y Army 8204 del
+corpus (inicio 15, actual 4). La vista muestra `At`/`Start`, movimiento de +0x0A
+y umbral de retirada de +0x26; no interpreta +0x24 como movimiento ni +0x26
+como salud. Las listas de territorio describen ubicación actual, no destinos.
 
 `app/inspector_session.*` posee el documento y prepara la nueva selección/cámara
 antes de reemplazarlo. Si falla una carga, conserva fuente y sesión anteriores.
@@ -39,10 +44,31 @@ turno ni se aplica niebla de guerra; tampoco se simulan posiciones de objetos en
 tiles a partir de sus marcadores agregados por territorio.
 
 Esta capa ya consume el codec desde la aplicación, pero no introduce llamadas
-a `loadGame`, reinicios de `gs`/`gg`, callbacks de IA o fases de turno. El siguiente
-trabajo es la activación transaccional y posteriormente un turno determinista,
-no completar más visuales antes de resolver las dependencias siguientes. Véase
+a `loadGame`, reinicios de `gs`/`gg`, callbacks de IA o fases de turno. Véase
 `WORLD_INSPECTOR.md` para controles, garantías de copia y pruebas del hito.
+
+## Avance posterior: preparación propia y fase fiscal
+
+`runtime_state.h/.cpp` añade `runtime::State`: copia propietaria del documento y
+grafo separado de handles tipados para referencias conocidas. La preparación es
+transaccional; colas y ministros se reconstruyen sin conservar direcciones del
+ejecutable original. Los IDs, palabras opacas y bytes archivados permanecen en
+el documento. No se conecta el estado global heredado ni se llama a `loadGame`.
+
+`tax_phase.h/.cpp` calcula la recaudación a partir de la población, nivel fiscal,
+estadísticas raciales guardadas, centros urbanos y opción de producción rápida.
+Conserva las divisiones, truncación a 16 bits y desbordamiento de créditos del
+original. Usa la tabla canónica `data::kTaxIncomePercent`, no los nombres
+históricos incorrectos `kTaxRates` o `kPopGrowthTable`.
+
+`State::collectTaxes` permite aplicar esa fase una sola vez por preparación;
+sólo modifica créditos y no incrementa el turno. La captura para guardar se
+bloquea después de esa fase parcial. `dl2sim` permite probar preparación,
+roundtrip y recaudación desde consola; el turno completo sigue rechazándose
+explícitamente. Véase `RUNTIME_STATE.md` para alcance y comandos.
+
+Esto resuelve la propiedad, referencias y rollback de la preparación, pero no
+las normalizaciones de carga, campañas/IA, RNG local ni el resto del turno.
 
 ## Detalle de la infraestructura recuperada
 
@@ -151,15 +177,16 @@ excluido:
 El consumo de documentos desde una vista del mundo ya está implementado mediante
 el inspector de sólo lectura. Para pasar de inspección a juego falta:
 
-1. Diseñar una conversión transaccional de IDs/coordenadas/listas a estado activo
-   y pools propios, con propiedad explícita y rollback de fallos.
+1. Completar las referencias y normalizaciones pendientes sobre la preparación
+   transaccional ya implementada en `runtime::State`; no activar palabras opacas.
 2. Unificar tablas/API de colas, portar reinicio y reconstrucción de listas,
    resolver las dependencias reales de postprocesamiento y probarlas.
 3. Comparar las normalizaciones de escenarios/versiones antiguas con el original:
    nombres, IA, campañas, eventos, flags y temporizadores. Son distintas de la
    conservación del formato físico que garantiza el codec.
-4. Verificar cargar → activar → capturar estado → guardar → recargar, incluyendo
-   fallos de activación sin alterar la partida anterior.
+4. Extender el recorrido ya verificado de cargar → preparar → capturar → guardar
+   → recargar hasta un turno completo, incluyendo fallos sin alterar la partida
+   anterior. La captura de la fase fiscal incompleta está prohibida.
 
 El ejecutable gráfico ahora es un inspector de documentos; la prueba anterior de
 motor y recursos sigue disponible con `--demo`. Cargar y guardar un documento,

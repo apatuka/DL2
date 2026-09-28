@@ -20,8 +20,11 @@ v1.20 analizado en Ghidra. No son offsets de un ejecutable arbitrario de otra ve
 | Campañas | `0x4C6194` | 43, paso `0xD8` |
 | Llegadas IA | `0x4DC434` | 10, paso `0x9C` |
 | Ofertas Skirineen | `0x4C42F8` | 25, paso `0x0E` |
+| Moral por nivel de impuestos | `0x4D57EC` | 6 valores: 10, 5, 0, −5, −10, −15 |
+| Porcentaje de ingresos fiscales | `0x4D5838` | 6 valores: 0, 40, 75, 100, 125, 150 |
+| Crecimiento por terreno | `0x4D5808` | 6 valores: 3, 12, 10, 7, 7, 1 |
 
-Las 51 agrupaciones extraídas incluyen también impuestos, población, costes de movimiento,
+Las 53 agrupaciones extraídas incluyen también impuestos, población, costes de movimiento,
 opciones de mundo, personalidad/ministros IA y cadenas de nombres. `data/tables.json` conserva
 el mapa completo `addresses` y sus valores bajo `tables`.
 
@@ -37,13 +40,24 @@ py -3 -B tests/test_game_data.py tables "C:\GOG Games\Deadlock 2"
 ```
 
 Esta prueba vuelve a extraer en memoria, ejecuta los controles de coherencia del extractor y
-compara las 51 agrupaciones con el JSON y el C++ generado. En la recuperación del 27/09/2026
+compara las 53 agrupaciones con el JSON y el C++ generado. En la recuperación del 27/09/2026
 pasó con cero diferencias. No prueba aún el comportamiento de economía, IA ni combate.
 Se registra también como `original_tables` en CTest si hay Python; sin datos o `pefile` se
 informa como omitida, nunca como una validación realizada.
 
 `extract_tables.py` es el **generador**, no el verificador: al ejecutarlo sobrescribe los tres
 archivos generados. Cambiar el extractor y revisar su diff es preferible a editar a mano la salida.
+
+## Nombres fiscales corregidos
+
+La fase fiscal usa `data::kTaxIncomePercent`, no el antiguo `kTaxRates`:
+este último contiene efectos sobre la moral, ahora expuestos también como
+`kTaxMoraleByLevel`. El antiguo `kPopGrowthTable` tampoco contiene crecimiento:
+son las entradas 1..5 de la tabla de ingresos fiscales. Ambos nombres heredados
+se conservan por compatibilidad, con comentarios explícitos; el crecimiento
+por terreno se expone como `kPopulationGrowthByTerrain`. La regeneración añade
+los grupos `tax_income` y `population_growth`, sin reinterpretar silenciosamente
+las claves anteriores. Véase `RUNTIME_STATE.md` para la fase de impuestos.
 
 ## Integración pendiente
 

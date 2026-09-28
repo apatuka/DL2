@@ -169,9 +169,12 @@ extern const int16_t kPathDelta2[4];                 // DAT_004dcbe0
 extern const int32_t kTileMoveCost[7];               // DAT_004dcbe8 por Tile::terrain
 
 // ---- Economia / poblacion ----
-extern const int32_t  kTaxRates[6];                  // DAT_004d57ec: % por Player::taxLevel
+extern const int32_t  kTaxMoraleByLevel[6];          // DAT_004d57ec: morale, NOT tax income
+extern const int32_t  kTaxIncomePercent[6];         // DAT_004d5838: FUN_0046ae1c
+extern const int32_t  kPopulationGrowthByTerrain[6];// DAT_004d5808: FUN_0046b1ac
+extern const int32_t  kTaxRates[6];                 // Legacy name: same MORALE values as kTaxMoraleByLevel
 extern const int32_t  kTerrainMaxPopulation[6];      // DAT_004d5820: por Terrain (x fila 24 / 100)
-extern const int32_t  kPopGrowthTable[5];            // DAT_004d583c (FUN_0046b1ac)
+extern const int32_t  kPopGrowthTable[5];            // Legacy misnomer: tax income[1..5], NOT growth
 extern const int32_t  kMoraleByLevel[8];             // DAT_004d5850: por Territory+0x29 (FUN_0046bdfc)
 
 // ---- Opciones de partida / mundo ----

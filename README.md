@@ -7,8 +7,9 @@ reimplementación progresiva en C++20 sobre SDL2.
 
 El ejecutable abre un **inspector gráfico de partidas**: muestra el mundo, territorios, edificios
 y unidades del archivo, permite seleccionarlos y guarda copias nuevas sin modificar los datos.
-Todavía no activa la simulación ni permite jugar turnos. La demostración previa del motor y del
-panel SMenu `D000` se conserva mediante `--demo`.
+Todavía no permite jugar turnos. El nuevo CLI `dl2sim` prepara un estado propio y ejecuta
+la recaudación fiscal de forma aislada, sin guardar ni presentar un turno parcial como completo.
+La demostración previa del motor y del panel SMenu `D000` se conserva mediante `--demo`.
 
 - [Recuperación de la sesión de Claude](docs/RECOVERY.md): entregables, evidencias y archivos recuperables.
 - [Plan por hitos verificables](docs/ROADMAP.md): orden de continuación y criterios de cierre.
@@ -16,6 +17,7 @@ panel SMenu `D000` se conserva mediante `--demo`.
 - [API del motor](docs/ENGINE_API.md): recursos, dibujo y SMenu.
 - [Carga/guardado C++ verificable](docs/SAVE_CODEC.md): documentos de partida, CLI y límites.
 - [Inspector gráfico del mundo](docs/WORLD_INSPECTOR.md): controles, copias seguras y límites visuales.
+- [Estado de ejecución y primera fase fiscal](docs/RUNTIME_STATE.md): referencias propias, pruebas y CLI.
 
 El codec C++ ya lee, valida, edita y vuelve a escribir las 46 muestras disponibles sin perder
 bytes. El inspector ya consume ese documento directamente, sin convertir IDs/palabras históricas
@@ -63,10 +65,11 @@ o usar otra instalación del juego:
 powershell -NoProfile -ExecutionPolicy Bypass -File tools/build.ps1 -BuildDir build-clean -DataDir "C:\GOG Games\Deadlock 2" -Test
 ```
 
-El hito previo de serialización se verificó en `build-verified` con ocho pruebas
-aprobadas sin omisiones, incluidas serialización C++ sintética y contraste con 46 guardados reales.
-El inspector amplía la suite a **15/15 aprobadas**, también con AddressSanitizer, e incluye
-modelo, sesión, archivos, entrada y renderizado. Alcance y evidencia en `docs/RECOVERY.md`.
+El hito de serialización pasó 8/8 y el del inspector 15/15. La suite actual, que
+añade preparación del estado, fiscalidad y CLI, pasa **18/18 sin omisiones**, tanto
+en `build-verified` como con AddressSanitizer en `build-save-asan`. Incluye 46
+capturas exactas del estado preparado y fases fiscales deterministas; no valida
+un turno completo. Alcance y evidencia en `docs/RECOVERY.md`.
 El script armoniza la codificación de consola para que Ninja detecte las cabeceras con MSVC
 localizado. Si una caché antigua muestra cientos de líneas `Nota: inclusión del archivo`,
 configurar un directorio nuevo con el script; no reutilizar esa caché defectuosa.
@@ -132,6 +135,19 @@ Para inspeccionar una partida o guardar una copia nueva con el codec C++:
 
 Los destinos deben ser nuevos; no se sobrescribe el origen ni un guardado existente. Véase
 `docs/SAVE_CODEC.md` antes de editar campos o usar los datos en la simulación.
+
+Para preparar un estado con referencias tipadas o ejecutar sólo la fase fiscal:
+
+```powershell
+.\build-verified\src\dl2sim.exe prepare "C:\GOG Games\Deadlock 2\TUTORIAL.SAV"
+.\build-verified\src\dl2sim.exe taxes "C:\GOG Games\Deadlock 2\TUTORIAL.SAV"
+.\build-verified\src\dl2sim.exe taxes-archive "C:\GOG Games\Deadlock 2\LEVELS" CHCHT1
+```
+
+Los comandos fiscales devuelven JSON y no escriben partidas. El turno no aumenta:
+producción, consumo, logística, población, investigación, movimiento/combate, IA
+y demás fases aún no están integrados. `dl2sim turn` devuelve un error explícito.
+La aplicación gráfica permanece en modo de inspección.
 
 ## Regenerar la exportación de Ghidra
 

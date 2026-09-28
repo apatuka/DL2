@@ -3,6 +3,7 @@
 #include "app/world_inspector.h"
 #include "engine/pixel.h"
 #include "formats/hdx_archive.h"
+#include "game/army_state.h"
 #include "game/save_files.h"
 
 #include <algorithm>
@@ -202,11 +203,12 @@ void optionalCorpus(WorldInspector& inspector, const fs::path& dataDirectory) {
         // once across the corpus, including mine portrait fallbacks when present.
         bool first = true;
         for (const auto& army : document.armies) {
+            require(session.selection().selectObject(document, ObjectKind::Army, army.id) &&
+                    session.selection().selection().territory == dl2::army::current(army),
+                    "corpus army selection must follow current territory +0x3c");
             const bool newType = renderedUnitTypes.insert(army.type).second;
             if (!first && !newType) continue;
             first = false;
-            require(session.selection().selectObject(document, ObjectKind::Army, army.id),
-                    "cannot select corpus army");
             inspector.draw(session);
         }
         unchanged(session, original);
@@ -230,6 +232,25 @@ void optionalCorpus(WorldInspector& inspector, const fs::path& dataDirectory) {
         InspectorSession session;
         if (!session.load(path)) throw std::runtime_error(std::string(relative) + ": " + session.status());
         renderLoaded(session);
+        if (std::string(relative) == "Campaign/ChCht001.CPN") {
+            const auto& document = *session.document();
+            const auto original = bytes(document);
+            const auto* moved = document.armyById(8204);
+            require(moved && army::turnStart(*moved) == 15 && army::current(*moved) == 4 &&
+                    army::routeOrigin(*moved) == 15, "ChCht001 Army 8204 movement regression fixture changed");
+            const worldview::ObjectRef reference{ObjectKind::Army, 8204};
+            const auto currentObjects = worldview::objectsInTerritory(document, 4);
+            const auto startObjects = worldview::objectsInTerritory(document, 15);
+            require(std::find(currentObjects.begin(), currentObjects.end(), reference) != currentObjects.end() &&
+                    std::find(startObjects.begin(), startObjects.end(), reference) == startObjects.end(),
+                    "Army 8204 must be listed at current territory 4, never turn-start territory 15");
+            require(session.selection().selectObject(document, ObjectKind::Army, 8204) &&
+                    session.selection().selection().territory == 4,
+                    "Army 8204 must select current territory 4");
+            inspector.draw(session);
+            screenChecks(inspector);
+            unchanged(session, original);
+        }
         ++saves;
     }
     std::cout << "world inspector optional corpus: " << scenarios << " scenarios, " << saves
@@ -248,11 +269,12 @@ struct Scratch {
         throw std::runtime_error("cannot create exclusive render-test directory");
     }
     ~Scratch() {
-        // Remove only the two named files within our exclusively created child.
+        // Remove only the named files within our exclusively created child.
         if (path.empty()) return;
         std::error_code ignored;
         fs::remove(path / "paged.sav", ignored);
         fs::remove(path / "map.sav", ignored);
+        fs::remove(path / "army-semantics.sav", ignored);
         fs::remove(path, ignored);
     }
 };
@@ -262,22 +284,68 @@ void writeFixture(const fs::path& path, const save::Document& document) {
     if (!save::writeDocumentCopy(path, document, error)) throw std::runtime_error(error.message);
 }
 
+void armySemantics(WorldInspector& inspector) {
+    Scratch scratch;
+    auto document = std::make_unique<save::Document>();
+    std::memcpy(document->header.text, save::kHeaderText, sizeof(save::kHeaderText));
+    document->header.version = kSaveVersion; document->header.minusOne = -1;
+    document->options.numPlayers = 2; document->options.localPlayer = 0;
+    document->world.width = 2; document->world.height = 1; document->world.numTerritories = 2;
+    for (auto& jobs : document->ministerJobs) jobs.resize(1);
+    document->territories.resize(2);
+    document->tiles.resize(2);
+    for (uint16_t i = 0; i < 2; ++i) {
+        auto& territory = document->territories[i].data;
+        territory.index = i + 1; territory.terrain = 1; territory.owner = 0;
+        territory.numTiles = 1; territory.tiles[0].raw = i;
+        document->tiles[i].x = uint8_t(i); document->tiles[i].territory = i + 1;
+    }
+    Army moved{};
+    moved.id = 41; moved.type = 1; moved.owner = 0;
+    moved.strength = 3; moved.moves = 26; moved.health = 75;
+    moved.territory.raw = moved.origin.raw = 1; moved.dest.raw = 2;
+    document->armies.push_back(moved);
+    document->territories[1].data.armies.raw = moved.id;
+    writeFixture(scratch.path / "army-semantics.sav", *document);
+    InspectorSession session;
+    require(session.load(scratch.path / "army-semantics.sav"), "cannot load asymmetric army fixture");
+    const auto original = bytes(*session.document());
+    require(session.selection().selectObject(*session.document(), ObjectKind::Army, moved.id) &&
+            session.selection().selection().territory == 2,
+            "asymmetric inspector army selects current territory 2");
+    inspector.draw(session);
+    const auto pixels = inspector.screen().toRgb555();
+    const auto markerPixel = [&](int x) {
+        const auto rectangle = session.camera().tileRect({x, 0});
+        const int centerX = rectangle.x + rectangle.w / 2;
+        const int centerY = rectangle.y + rectangle.h / 2 + 3;
+        return pixels[size_t(centerY) * 640 + centerX];
+    };
+    const auto unitMarker = engine::rgbTo555(245, 198, 95);
+    require(markerPixel(1) == unitMarker && markerPixel(0) != unitMarker,
+            "unit marker must appear at current +0x3c, not turn-start +0x38");
+    unchanged(session, original);
+}
+
 void pagedObjectsAndMap(WorldInspector& inspector, const fs::path& dataDirectory) {
     Scratch scratch;
     InspectorSession session;
     require(session.load(dataDirectory / "TUTORIAL.SAV"), "cannot reload tutorial fixture");
     auto paged = std::make_unique<save::Document>(*session.document());
     require(!paged->armies.empty(), "tutorial needs an army for paged fixture");
-    const auto territory = paged->armies[0].territory.raw;
+    const auto territory = army::current(paged->armies[0]);
     int added = 0;
+    std::set<uint16_t> addedIds;
     for (uint16_t id = 60000; worldview::objectsInTerritory(*paged, territory).size() < 6; ++id) {
         require(id != 0, "cannot allocate unique fixture army ID");
         if (paged->buildingById(id) || paged->armyById(id)) continue;
         Army army{};
         army.id = id; army.type = added == 0 ? 37 : added == 1 ? 38 : 1;
-        army.health = 100; army.owner = 0;
-        army.territory.raw = army.dest.raw = army.origin.raw = territory;
+        army.strength = 3; army.moves = 26; army.health = 75; army.owner = 0;
+        army.dest.raw = territory;
+        army.territory.raw = army.origin.raw = territory % paged->world.numTerritories + 1;
         paged->armies.push_back(army);
+        addedIds.insert(id);
         ++added;
     }
     writeFixture(scratch.path / "paged.sav", *paged);
@@ -299,6 +367,10 @@ void pagedObjectsAndMap(WorldInspector& inspector, const fs::path& dataDirectory
         if (army.type != 37 && army.type != 38) continue;
         require(session.selection().selectObject(*session.document(), ObjectKind::Army, army.id),
                 "cannot select fixture mine");
+        if (addedIds.contains(army.id))
+            require(session.selection().selection().territory == dl2::army::current(army) &&
+                    dl2::army::current(army) != dl2::army::turnStart(army),
+                    "asymmetric fixture must select current territory, not turn-start");
         inspector.draw(session);
         spritePreviewCheck(inspector);
     }
@@ -370,6 +442,7 @@ int main(int argc, char** argv) {
         inspector.draw(empty);
         screenChecks(inspector);
         realSave(inspector, dataDirectory);
+        armySemantics(inspector);
         pagedObjectsAndMap(inspector, dataDirectory);
         optionalCorpus(inspector, dataDirectory);
         std::cout << "world inspector: real fonts/sprites, RGB555 rendering, selection, navigation, pages, actions, map and immutable documents passed\n";

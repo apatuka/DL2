@@ -486,6 +486,9 @@ const int16_t kPathDelta2[4]  = {-1, 0, 1, 0};
 const int32_t kTileMoveCost[7] = {2, 4, 5, 8, 10, 35, 2};
 
 const int32_t  kTaxRates[6]             = {10, 5, 0, -5, -10, -15};
+const int32_t  kTaxMoraleByLevel[6]     = {10, 5, 0, -5, -10, -15};
+const int32_t  kTaxIncomePercent[6]     = {0, 40, 75, 100, 125, 150};
+const int32_t  kPopulationGrowthByTerrain[6] = {3, 12, 10, 7, 7, 1};
 const int32_t  kTerrainMaxPopulation[6] = {1000, 2000, 1500, 1000, 1000, 500};
 const int32_t  kPopGrowthTable[5]       = {40, 75, 100, 125, 150};
 const int32_t  kMoraleByLevel[8]        = {0, -1, -1, -3, -5, -10, -15, -20};

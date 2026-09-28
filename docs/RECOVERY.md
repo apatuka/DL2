@@ -4,7 +4,9 @@ Fecha de recuperación: 27 de septiembre de 2026, zona `America/Asuncion` (UTC�
 
 Actualizaciones posteriores a la recuperación inicial: `SAVE_CODEC.md` documenta
 el codec C++ independiente, con 46 roundtrips exactos; `WORLD_INSPECTOR.md` describe
-la vista gráfica de partidas y escenarios. Las tablas de esta nota conservan el
+la vista gráfica de partidas y escenarios; `RUNTIME_STATE.md` documenta la
+preparación propietaria y la primera subfase económica. Las tablas históricas
+de esta nota conservan el
 estado/evidencia del primer hito; `saveload.cpp` integrado con activación de juego
 sigue pendiente.
 
@@ -13,6 +15,36 @@ sprites y el panel SMenu D000. Ahora también carga una partida como documento d
 inspección: mapa, territorios, edificios, unidades y copias sin modificación. La
 lógica de partida está parcialmente escrita y todavía no está integrada. Cargar
 el documento no equivale a activar el estado de juego, simular un turno ni jugar.
+
+## Verificación de preparación y fase fiscal
+
+La suite actual aprobó **18/18 pruebas, sin omisiones**, en `build-verified` y
+también en `build-save-asan` con AddressSanitizer. No se detectaron errores de
+memoria en esos recorridos. Se añadieron `tax_phase`, `runtime_state` y
+`simulation_cli`; los casos anteriores de inspección y archivos siguen pasando.
+
+`runtime::State` prepara un documento propio y referencias tipadas sin activar
+globales, callbacks ni RNG. El corpus confirmó **46 capturas exactas y fases
+fiscales deterministas**. Los tests sintéticos comprueban referencias, colas,
+ministros, jobs, propiedad, rollback y el rechazo de capturas tras una fase
+incompleta. El CLI verifica además publicación exclusiva, fuente inalterada y
+rechazo explícito del comando de turno completo.
+
+La fase fiscal reproduce el decompilado de `CollectTaxes`: sólo cambia créditos,
+se ejecuta una vez por preparación y no incrementa el turno. El tutorial da
+**+20 al jugador 0 y +32 al jugador 1**, de 500 a 520/532. Es un oráculo derivado
+del código y datos originales, no una comparación contra un turno ejecutado en
+el juego original. No se publican SAV de ese estado parcial.
+
+La revisión corrigió semántica heredada de unidades: ubicación actual en +0x3C,
+inicio en +0x38, movimiento en +0x0A y umbral de retirada en +0x26. Una regresión
+usa Army 8204 de `Campaign/ChCht001.CPN` (inicio 15, actual 4), además de un caso
+sintético de marcador gráfico. Se corrigió también la identificación de tablas
+fiscales y crecimiento: el extractor verifica ahora **53 grupos sin diferencias**.
+
+El inspector sigue siendo de sólo lectura. Faltan normalizaciones de carga,
+gestión dinámica de entidades y las demás fases económicas, movimiento/combate,
+IA, eventos y victoria. Este hito no cierra la etapa de turno local determinista.
 
 ## Verificación del inspector gráfico
 

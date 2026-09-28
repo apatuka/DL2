@@ -160,6 +160,32 @@ gráfica `DAT_004d553c`); `u8 overlay; u8; i16 pathCost` (temporal, 0x7FFF).
 (+0x38/+0x3C/+0x40 → índice); `ptr` (+0x44, se pone a 0); `Army* cargo[3]` (+0x48 → ID); `Army* next/prev`
 (+0x54/+0x58 → ID). Listas por territorio: `Territory::armies` (+0x76, propios) y `foreignArmies` (+0x7A).
 
+Los nombres físicos anteriores son **aliases legacy**, conservados por compatibilidad
+binaria y con las claves JSON de `savparse.py`; no describen todos su significado.
+`game/army_state.h` ofrece lecturas semánticas de los registros del documento:
+
+| Offset | Campo físico | Getter | Significado demostrado |
+|---|---|---|---|
+| +0x0A | `strength` | `movementPoints` | Movimiento restante, no fuerza de ataque |
+| +0x24 | `moves` | `combatOrders` | Código de orden de combate, no movimiento |
+| +0x26 | `health` | `retreatThreshold` | Umbral de retirada (% de defensa perdida), no salud restante |
+| +0x38 | `territory` | `turnStart` | Territorio al inicio del turno, base del coste de movimiento |
+| +0x3C | `dest` | `current` | Territorio actual/enlazado, no destino pendiente |
+| +0x40 | `origin` | `routeOrigin` | Origen/ancla amiga de ruta, no necesariamente el territorio anterior |
+
+`ReLinkArmy` (`00445898`) escribe +0x3C; `DeleteUnit` (`00445fd4`) usa ese
+territorio para retirar la unidad de su lista. `MoveUnit` (`00446084`) calcula
+el coste desde +0x38, cambia +0x3C y actualiza +0x0A; `004471c0` copia +0x3C a
++0x38 y +0x40 al restablecer movimiento. Su parámetro de origen procede de la
+ruta evaluada por `00401ac0`. `00447a68` copia +0x24 a la orden del combatiente.
+El panel de órdenes (`00417c00`/`00418f74`) escribe/lee +0x26 con las opciones
+0/25/50/75/100; el daño acumulado está en +0x2C (`00451b68`/`004526b0`).
+
+Comprobación del corpus local: las 504 unidades enlazadas en 46 documentos
+coinciden con +0x3C. En `Campaign/ChCht001.CPN`, Army 8204 está en la lista del
+territorio 4, con +0x38=15, +0x3C=4 y +0x40=15. No se deben agrupar unidades
+por +0x38 ni derivar su salud a partir del umbral de retirada.
+
 ### 3.7 Territory (0xADC) — `DAT_005a43d0 + i*0xADC`; se guardan 0x9B2 bytes + colas
 
 | Off | Tipo | Campo | Evidencia |
@@ -170,8 +196,9 @@ gráfica `DAT_004d553c`); `u8 overlay; u8; i16 pathCost` (temporal, 0x7FFF).
 | 0x020 | i8 | `owner` | -1 ninguno |
 | 0x021 | u8 | `terrain` | 0 Sea, 1 Plains, 2 Forest, 3 Swamp, 4 Mountains, 5 Wasteland |
 | 0x022 | i8 | `continent` | 0..31 (`FUN_004423b4`) |
+| 0x026 | i8 | `tradeState` (alias histórico) | ajuste local del **nivel fiscal**: `FUN_0046adac` lo suma a `Player::taxLevel` y limita a 0..5 |
 | 0x027 | i8 | `morale` | "Morale in %s"; 100 inicial |
-| 0x02A | i16 | `taxAdjust` | "Local Tax Adjustment" |
+| 0x02A | i16 | `taxAdjust` (alias histórico) | valor monetario mostrado por `FUN_00436a44` y agregado por `FUN_0046ab18`; **no** es el byte de nivel fiscal |
 | 0x02E | i16 | `tradeIncome` | `FUN_0046ab18` |
 | 0x030 | i16 | `population` | "Population %d/%d" |
 | 0x035 | u8 | `knowledge` | =100 al colonizar / en editor |

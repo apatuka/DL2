@@ -242,7 +242,8 @@ def deep_check(s):
             while aid and seen < 600:
                 r['alists'] += 1
                 a = A.get(aid)
-                # una unidad en tránsito cuelga de la lista del destino con territory = origen
+                # Alias legacy: dest (+3c) = actual/enlazado; territory (+38) = inicio del turno.
+                # Se conserva la comprobación permisiva histórica del parser.
                 if a and (a['territory'] == t['index'] or a['dest'] == t['index']):
                     r['alists_ok'] += 1
                 aid = a['next'] if a else 0
@@ -277,6 +278,9 @@ def parse_building(b):
 
 
 def parse_army(b):
+    # Claves legacy estables: territory (+38) = inicio de turno, dest (+3c) = actual,
+    # origin (+40) = ancla de ruta; moves (+24) = orden de combate, no movimiento;
+    # health (+26) = umbral de retirada %, no salud. El movimiento restante está en +0a.
     g = lambda fmt, off: struct.unpack_from(fmt, b, off)[0]
     return dict(id=g('<H', 0), type=b[6], cls=b[7], owner=g('<b', 8), name=cstr(b[0xb:0x23]),
                 moves=b[0x24], health=b[0x26], experience=g('<h', 0x28), job=g('<h', 0x36),

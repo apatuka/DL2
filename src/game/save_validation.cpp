@@ -234,8 +234,9 @@ bool validate(const Document& d, Error& error) {
                 if (!visited.insert(id).second)
                     return fail(error, ErrorCode::InvalidState, base + offsetof(Territory, armies), item("Territories", i + 1, "army list contains a cycle"));
                 const auto& army = d.armies[found->second];
-                // Units in transit are linked at their destination, while their
-                // territory field still names the origin.
+                // Legacy aliases: dest (+0x3c) is current/linked territory;
+                // territory (+0x38) is turn-start. Keep this codec's permissive
+                // historical check; stricter activation is a separate concern.
                 if (army.territory.raw != t.index && army.dest.raw != t.index)
                     return fail(error, ErrorCode::InvalidState, base + offsetof(Territory, armies), item("Territories", i + 1, "army list contains an army at a different location"));
                 id = army.next.raw;
@@ -260,6 +261,8 @@ bool validate(const Document& d, Error& error) {
     for (size_t i = 0; i < d.armies.size(); ++i) {
         const auto& a = d.armies[i];
         const size_t base = armyOffset + i * sizeof(Army);
+        // Legacy health (+0x26) is the retreat threshold, not health. The
+        // percentage bound and existing diagnostic vocabulary stay compatible.
         if (a.type == 0 || a.type >= 39 || a.owner < 0 || a.owner >= kMaxPlayers || a.health > 100)
             return fail(error, ErrorCode::InvalidState, base, item("Armies", i, "type, owner or health is out of range"));
         for (uint32_t territory : {a.territory.raw, a.dest.raw, a.origin.raw})

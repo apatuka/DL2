@@ -1,0 +1,186 @@
+# Preparación propietaria del estado y subfase fiscal
+
+`runtime::State` prepara un documento de partida y un grafo de referencias
+tipadas, separado de los globales heredados `gs` y `gg`. Ya permite resolver
+objetos, consultar sus relaciones, capturar una preparación sin cambios y
+ejecutar **una subfase fiscal real, sólo en memoria**.
+
+Esto no equivale a activar completamente `LoadGame` ni a ejecutar un turno.
+No hay incremento ficticio del contador de turno ni éxito silencioso para las
+fases aún ausentes. El inspector gráfico sigue siendo de sólo lectura.
+
+## Propiedad y preparación transaccional
+
+`State::prepare(const save::Document&, Error&)` valida el documento, construye una
+copia propia y resuelve sus referencias en un `Graph` independiente. Sólo sustituye
+el estado anterior después de completar toda la operación. Los errores de
+validación, referencias o asignación conservan el estado anterior. Un documento
+de mapa reducido puede inspeccionarse, pero se rechaza como estado de ejecución.
+
+El documento de origen no se modifica ni queda compartido mediante punteros. El
+estado preparado tampoco escribe en `gs`, `gg`, pools globales o generadores RNG,
+y no invoca callbacks históricos. Los campos que el archivo conserva como
+direcciones antiguas nunca se convierten en código ejecutable.
+
+Los `Handle<Tag>` son slots tipados de 1 a N, con cero como nulo. No son IDs de
+archivo: `buildingById` y `armyById` realizan la conversión correspondiente.
+El mismo número puede representar objetos distintos en estados diferentes.
+No tienen generación ni identificador de propietario incorporado: el llamador
+debe conservarlos únicamente durante la vida de su estado y **descartarlos después
+de una nueva preparación exitosa**. Un fallo de preparación no los invalida.
+Los punteros const que devuelven los accesores tienen la misma restricción.
+Mover un `State` transfiere juntos documento y grafo y deja vacío el origen.
+
+## Referencias resueltas y palabras conservadas
+
+| Dato de archivo | Representación preparada |
+|---|---|
+| ID de edificio/unidad | Handle tipado dentro del array propietario correspondiente |
+| Índice de territorio 1..N | `TerritoryHandle`; asociaciones por propietario en `playerTerritories` |
+| Coordenada de tile `x \| y<<16` | `TileHandle` sobre el array denso de ancho × alto; `(0,0)` es válido, no nulo |
+| Casillas de construcción y adyacencias | Handles de edificio y territorio verificados |
+| Cinco colas de cada territorio | Cabeceras y nodos propios; cursor inicial en el primer nodo |
+| Lista de ministros de cada jugador | Enlaces prev/next reconstruidos por orden de archivo, incluida la cabecera |
+| Jobs | Destino por índice y unidades por `armyIds`; no por las palabras crudas de `Job::armies` |
+| Enlaces prev/next, carga de unidades y cabeceras guardadas | Referencias conocidas resueltas, conservadas aparte de la pertenencia canónica |
+
+La pertenencia de edificios se obtiene de `Building::territory`, no recorriendo
+listas históricas para enumerarlos. Para unidades, la evidencia de `ReLinkArmy`
+(`FUN_00445898`) distingue tres ubicaciones: `+0x3c` es la actual, `+0x38` la
+base/al inicio del turno y `+0x40` el origen de ruta. Los nombres antiguos de
+`Army::dest` y `Army::territory` pueden inducir a error. El grafo expone
+`current`, `turnStart` y `routeOrigin` y agrupa por la ubicación actual.
+
+Los nodos de cola copiados al grafo tienen `record.next.raw` limpio; el enlace
+válido es `QueueNode::next`. El documento archivado conserva sus propios bytes.
+Las cabeceras crudas `Territory::queues`, direcciones de IA, vtables, funciones
+de ministros y otros campos opacos no se interpretan como handles ni punteros
+nativos. No se completan mediante callbacks vacíos.
+
+`localList` y los eventos continúan dentro del documento propietario: no se
+recrean listas con direcciones del ejecutable original. El texto de eventos es
+un vector de bytes con longitud explícita; se conservan NUL internos y bytes
+no ASCII. La presentación de texto de la UI no cambia estos datos binarios.
+
+## Estados y operaciones permitidas
+
+| Estado en memoria | Significado y restricciones |
+|---|---|
+| `Empty` | Sin documento preparado; no permite captura ni impuestos |
+| `Prepared` | Documento validado y referencias resueltas; permite captura exacta o una aplicación fiscal |
+| `TaxesApplied` | Sólo créditos modificados por impuestos; no permite repetir la subfase ni exportar una partida reanudable |
+
+`prepare` puede construir una preparación nueva desde cualquier estado. La fase
+actual es una propiedad **en memoria**, no una marca añadida al formato SAV.
+`collectTaxes` requiere `Prepared` y, al tener éxito, pasa a `TaxesApplied` sin
+modificar `options.turn`. El informe y el estado permanecen intactos ante fallo.
+
+`capture` sólo acepta `Prepared`: copia el documento conservado, valida el
+resultado y reemplaza su destino al finalizar. Tras aplicar impuestos falla
+explícitamente; una partida con sólo una fase económica aplicada no puede
+presentarse como un turno terminado o reanudable. `advanceTurn` devuelve siempre
+un error explícito hasta integrar el turno completo, sin modificar el estado.
+
+Es un contrato del API de captura y del CLI, no una frontera de seguridad:
+`document()` ofrece una vista const para diagnóstico, que un consumidor C++
+podría copiar y serializar por su cuenta. Los consumidores no deben usar esa
+vista para eludir el estado de fase ni volver a preparar datos parcialmente
+simulados. El CLI no expone esa ruta.
+
+## Subfase fiscal fiel al original
+
+`simulation::planTaxes` calcula un `TaxPlan` sin mutaciones. `State::collectTaxes`
+prepara primero ese plan y, cuando ya no quedan operaciones susceptibles de
+fallo, escribe únicamente los siete campos `Player::credits`. El plan conserva
+`creditsBefore`, `creditsAfter`, `collected` y un informe por territorio con
+`calculated` (`int32_t`) y `applied` (`int16_t`).
+
+Fuentes de la implementación:
+
+- `FUN_0046c728`, `CollectTaxes`: recorre territorios 1..N, omite propietario -1,
+  convierte cada ingreso a entero con signo de 16 bits y lo suma al jugador.
+- `FUN_0046adac`, `EffectiveTaxLevel`: suma el nivel de impuestos del jugador y
+  el byte **con signo de `Territory+0x26`**, limitado a 0..5. El nombre heredado
+  de ese campo es `tradeState`; no debe sustituirse por `taxAdjust` en `+0x2a`.
+- `FUN_0046ae1c`, `TerritoryTaxIncome`: aplica la raíz original, tasas, modificador
+  racial guardado en fila 26 y multiplicadores, conservando el orden.
+- `FUN_0046a9d8`, `ISqrt`: su algoritmo conserva incluso el caso peculiar en que
+  `2` devuelve `2` y `-2` devuelve `-2`; no se reemplaza por `std::sqrt`.
+- `FUN_0044d1e4`, búsqueda de edificio terminado por categoría: categoría 9 y
+  trabajo restante exactamente cero habilitan el multiplicador City Center,
+  sin exigir flags Built o Active. Varios centros no apilan el multiplicador.
+
+La tabla compartida `data::kTaxIncomePercent` en `DAT_004d5838` es
+`{0,40,75,100,125,150}`. El extractor también identifica por separado
+`data::kTaxMoraleByLevel` y `data::kPopulationGrowthByTerrain`; esta última es
+`{3,12,10,7,7,1}`. Se conservan por compatibilidad dos nombres históricos
+equívocos: `data::kTaxRates` contiene efectos sobre la moral y `kPopGrowthTable`
+corresponde a las posiciones 1..5 de ingresos, no al crecimiento poblacional.
+El port fiscal usa la tabla canónica compartida, sin duplicarla localmente.
+
+Se conservan dos divisiones enteras consecutivas, truncadas hacia cero: primero
+raíz × tasa / 100, después ese resultado × modificador racial / 100. City Center
+duplica el resultado y cualquier `fastProduction` distinto de cero lo duplica
+otra vez. El cast con signo de 16 bits ocurre **por territorio**, antes de sumar
+créditos; las operaciones de 32 bits reproducen el wrap de forma definida, sin
+overflow con signo indefinido de C++.
+
+La fase usa modificadores raciales del archivo, no impone los predeterminados.
+Preserva la semántica firmada de población y modificadores, incluso para valores
+negativos. Rechaza expresamente propietarios fuera de -1..6, razas fuera de 0..6
+cuando tienen un territorio y discrepancias entre slot del propietario y
+`Player::index`; no normaliza silenciosamente esos dominios.
+
+Como oráculo del tutorial, la derivación independiente del decompilado y de los
+datos de `TUTORIAL.SAV` da **jugador 0: +20, jugador 1: +32**, pasando sus créditos
+de 500 a 520 y de 500 a 532. Es un resultado derivado y usado como comprobación;
+**no es una captura de ejecución del juego original** ni una prueba de paridad
+de un turno completo.
+
+## CLI de laboratorio
+
+Después de compilar, `dl2sim` separa preparación, round-trip e impuestos:
+
+```powershell
+.\build\src\dl2sim.exe prepare "C:\GOG Games\Deadlock 2\TUTORIAL.SAV"
+.\build\src\dl2sim.exe prepare-archive "C:\GOG Games\Deadlock 2\LEVELS" CHCHT1
+.\build\src\dl2sim.exe roundtrip "C:\GOG Games\Deadlock 2\TUTORIAL.SAV" build/prepared-copy.sav
+.\build\src\dl2sim.exe taxes "C:\GOG Games\Deadlock 2\TUTORIAL.SAV"
+.\build\src\dl2sim.exe taxes-archive "C:\GOG Games\Deadlock 2\LEVELS" CHCHT1
+.\build\src\dl2sim.exe turn "C:\GOG Games\Deadlock 2\TUTORIAL.SAV"
+```
+
+`prepare` y `prepare-archive` imprimen un resumen JSON del grafo y del turno
+guardado. `roundtrip` prepara, captura y publica una copia nueva mediante la
+escritura exclusiva de `save_files`; no sobrescribe destinos existentes.
+`taxes` y `taxes-archive` ejecutan la subfase una vez, imprimen el informe JSON y
+terminan: **no escriben un SAV parcial ni admiten un destino de guardado**.
+`turn` falla con un mensaje que enumera lo pendiente. Los datos originales sólo
+se leen. `--help` describe las formas admitidas por el CLI.
+
+## Verificación y límites pendientes
+
+Las pruebas de `tax_phase` contienen oráculos numéricos de redondeo, tasas,
+modificadores, centros, producción rápida, narrowing y overflow de créditos,
+además de rollback de errores y aislamiento de globales/RNG. Las de
+`runtime_state` comprueban el grafo tipado, preparación/captura, propiedad de
+datos, transacciones, aplicación fiscal única y bloqueo de exportaciones
+parciales. El resultado de las ejecuciones integradas se registra en
+[RECOVERY.md](RECOVERY.md), sin deducirlo de que exista el código de pruebas.
+
+Faltan perfiles explícitos de normalización del cargador original para versiones
+antiguas, campañas, opciones, IA, visibilidad, semillas y reinicios de RNG. La
+preparación actual conserva los datos; no afirma que cada palabra histórica sea
+semánticamente correcta para una nueva simulación. Tampoco incorpora todavía
+pools de creación/destrucción, listas libres equivalentes o el resto de fases.
+
+La secuencia económica observada en `FUN_0046c7d4` es impuestos, producción 1,
+registro de necesidades, importación de déficits, comida, energía, mantenimiento,
+producción 2, costes de edificios, población, moral, investigación, revueltas y
+balance final. Ejecutar sólo impuestos no permite omitir ese resto ni incrementar
+el turno. Producción y colas requieren logística, creación de entidades y
+eventos reales; comida incluye unidades y suministro, no sólo población.
+
+Para ampliar la capacidad, seguir [ROADMAP.md](ROADMAP.md) y
+[GAME_INTEGRATION.md](GAME_INTEGRATION.md), con criterios de aceptación por fase
+y exportación habilitada sólo cuando exista un punto coherente para reanudar.

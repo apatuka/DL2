@@ -1,4 +1,5 @@
 #include "game/world_view.h"
+#include "game/army_state.h"
 #include "game/data_tables.h"
 
 #include <algorithm>
@@ -140,7 +141,7 @@ bool SelectionModel::selectObject(const save::Document& d, ObjectKind kind, uint
     } else if (kind == ObjectKind::Army) {
         const auto* a = d.armyById(id);
         if (!a) return false;
-        territory = a->territory.raw;
+        territory = army::current(*a);
     } else return false;
     if (!selectTerritory(d, territory)) return false;
     selection_.kind = kind;
@@ -154,7 +155,7 @@ std::vector<ObjectRef> objectsInTerritory(const save::Document& d, uint32_t inde
     for (const auto& b : d.buildings)
         if (b.id && b.territory == int(index)) objects.push_back({ObjectKind::Building, b.id});
     for (const auto& a : d.armies)
-        if (a.id && a.territory.raw == index) objects.push_back({ObjectKind::Army, a.id});
+        if (a.id && army::current(a) == index) objects.push_back({ObjectKind::Army, a.id});
     return objects;
 }
 

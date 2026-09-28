@@ -17,6 +17,15 @@ add_executable(test_world_view test_world_view.cpp)
 target_link_libraries(test_world_view PRIVATE dl2game)
 add_test(NAME world_view COMMAND test_world_view)
 
+add_executable(test_tax_phase test_tax_phase.cpp)
+target_link_libraries(test_tax_phase PRIVATE dl2game)
+add_test(NAME tax_phase COMMAND test_tax_phase)
+
+add_executable(test_runtime_state test_runtime_state.cpp)
+target_link_libraries(test_runtime_state PRIVATE dl2game)
+add_test(NAME runtime_state COMMAND test_runtime_state "${DL2_DATA_DIR}")
+set_tests_properties(runtime_state PROPERTIES TIMEOUT 60)
+
 add_executable(test_inspector_session test_inspector_session.cpp)
 target_link_libraries(test_inspector_session PRIVATE dl2viewer)
 add_test(NAME inspector_session COMMAND test_inspector_session "${CMAKE_CURRENT_BINARY_DIR}")
@@ -42,6 +51,12 @@ set_tests_properties(resources PROPERTIES SKIP_RETURN_CODE 77 TIMEOUT 60)
 
 find_package(Python3 QUIET COMPONENTS Interpreter)
 if(Python3_Interpreter_FOUND)
+    if(TARGET dl2sim)
+        add_test(NAME simulation_cli COMMAND "${Python3_EXECUTABLE}" -B
+            "${CMAKE_CURRENT_SOURCE_DIR}/test_sim_cli.py" $<TARGET_FILE:dl2sim>
+            "${DL2_DATA_DIR}" "${CMAKE_CURRENT_BINARY_DIR}")
+        set_tests_properties(simulation_cli PROPERTIES SKIP_RETURN_CODE 77 TIMEOUT 60)
+    endif()
     if(TARGET dl2save)
         add_test(NAME save_corpus COMMAND "${Python3_EXECUTABLE}" -B
             "${CMAKE_CURRENT_SOURCE_DIR}/test_save_corpus.py" $<TARGET_FILE:dl2save>

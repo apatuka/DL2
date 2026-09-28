@@ -13,6 +13,8 @@ set(GAME_SOURCES
     save_validation.cpp
     save_files.cpp
     world_view.cpp
+    runtime_state.cpp
+    tax_phase.cpp
     # END MODULE SOURCES
 )
 

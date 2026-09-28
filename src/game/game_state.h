@@ -328,10 +328,10 @@ struct Territory {
     uint8_t  terrain;            // 0x021 Terrain (0 = mar; guardado también en modo mapa)
     int8_t   continent;          // 0x022 id de continente 0..31 (FUN_004423b4; tabla DAT_0055a820)
     uint8_t  unk_23[3];
-    int8_t   tradeState;         // 0x026 -1/0/1 (FUN_00436ef4, mercado)
+    int8_t   tradeState;         // 0x026 alias legacy: ajuste local del NIVEL fiscal (FUN_0046adac)
     int8_t   morale;             // 0x027 moral 0..100 ("Morale in %s", escándalos la reducen)
     uint8_t  unk_28[2];
-    int16_t  taxAdjust;          // 0x02a "Local Tax Adjustment" (FUN_00436a44; FUN_0046ab18 suma)
+    int16_t  taxAdjust;          // 0x02a valor monetario en UI/estadisticas (00436a44/0046ab18); NO nivel fiscal
     int16_t  unk_2c;
     int16_t  tradeIncome;        // 0x02e FUN_0046ab18: stats[4] += *(s16*)(T+0x2e)
     int16_t  population;         // 0x030 población ("Population %d/%d"; "Territories must have population")
@@ -428,21 +428,21 @@ struct Army {
     uint8_t  unitClass;          // 0x07 = UnitTypeDef+0x0b (clase: 3 = ?, 0x0d = ?; DeleteUnit)
     int8_t   owner;              // 0x08 jugador
     uint8_t  unk_09;
-    uint8_t  strength;           // 0x0a FUN_00447190(army) al crear
+    uint8_t  strength;           // 0x0a alias legacy: movimiento restante (FUN_00447190 al crear; MoveUnit lo resta)
     char     name[24];           // 0x0b "%s %s #%d" (raza, tipo, id&0x3ff); FUN_004a6b48(...,0x18)
     uint8_t  unk_23;
-    uint8_t  moves;              // 0x24 puntos de movimiento (0x1a para clases 4,6,0xb,0xd,0x11)
-    uint8_t  unk_25;             // 0x25 = 0
-    uint8_t  health;             // 0x26 salud % (100 al crear)
+    uint8_t  moves;              // 0x24 alias legacy: orden de combate (0x1a para clases 4,6,0xb,0xd,0x11)
+    uint8_t  unk_25;             // 0x25 misión (0 al crear; NetArmyStats 00476e80)
+    uint8_t  health;             // 0x26 alias legacy: umbral de retirada %, no salud (100 al crear; UI 00417c00)
     uint8_t  unk_27;
     int16_t  experience;         // 0x28 veteranía (200 para unidades de campaña; FUN_00447a40)
     int16_t  unk_2a;             // 0x2a = 0
-    int16_t  unk_2c;
+    int16_t  unk_2c;             // 0x2c daño acumulado (combate 00451b68 / 004526b0)
     uint8_t  unk_2e[8];
     int16_t  job;                // 0x36 índice+1 del Job (task force) al que pertenece (FUN_00461078)
-    Ptr32<Territory> territory;  // 0x38 territorio actual; save: Territory::index
-    Ptr32<Territory> dest;       // 0x3c destino (Task Force "%s, %s, %s"); save: índice
-    Ptr32<Territory> origin;     // 0x40 origen; save: índice
+    Ptr32<Territory> territory;  // 0x38 alias legacy: territorio al inicio del turno; save: índice
+    Ptr32<Territory> dest;       // 0x3c alias legacy: territorio ACTUAL/enlazado (ReLinkArmy); save: índice
+    Ptr32<Territory> origin;     // 0x40 origen/ancla amiga de ruta (MoveUnit param_3), no siempre anterior; save: índice
     Ptr32<void> unk_44;          // 0x44 transitorio (load lo pone a 0)
     Ptr32<Army> cargo[3];        // 0x48 unidades transportadas / enlace transporte<->carga; save: ID
     Ptr32<Army> next;            // 0x54 siguiente en la lista del territorio (o lista libre); save: ID

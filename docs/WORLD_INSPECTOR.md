@@ -88,9 +88,13 @@ una garantía de durabilidad frente a un corte eléctrico.
 - Los marcadores son agregados por territorio: cuadrado para edificios y línea
   para unidades. No indican posiciones exactas de objetos dentro de un tile ni
   inventan coordenadas a partir de las casillas de construcción.
-- Las unidades se agrupan por su territorio actual guardado; el destino se
-  muestra aparte. Una unidad en tránsito no se duplica en el destino porque
-  aparezca en una lista enlazada de ese territorio.
+- Las unidades se agrupan, seleccionan y marcan por el territorio actual
+  (+0x3C, alias físico `Army::dest`), mostrado como `At`. `Start` es el territorio
+  al inicio del turno (+0x38, alias `territory`), no un destino pendiente. Una
+  unidad que se movió no aparece también en su territorio inicial.
+- En unidades, `Moves` es el movimiento restante (+0x0A, alias `strength`) y
+  `Retreat` es el umbral de retirada (+0x26, alias `health`), no la salud.
+  El campo físico `moves` (+0x24) representa órdenes de combate.
 - El panel consulta población, moral, comida, energía, cantidades y atributos
   del objeto directamente del archivo. No calcula producción ni resultados de
   turno. Los mapas reducidos no muestran economía que no contienen.
@@ -131,6 +135,8 @@ recursos). Los smoke tests distinguen demo, tutorial y escenario. Las pruebas
 con datos originales necesitan la instalación indicada por `DL2_DATA_DIR`; las
 de modelo y sesión construyen documentos sintéticos. El resultado de la ejecución
 integrada se registra en [RECOVERY.md](RECOVERY.md).
+Las regresiones de unidades usan campos asimétricos y, si está disponible,
+Army 8204 de `Campaign/ChCht001.CPN`: inicio 15, actual 4, ancla de ruta 15.
 
 ## Separación de responsabilidades y siguiente hito
 

@@ -1,5 +1,6 @@
 // Headless, always-on assertions for new inspector support (not gameplay).
 #include "game/world_view.h"
+#include "game/army_state.h"
 
 #include <algorithm>
 #include <cstring>
@@ -70,10 +71,14 @@ std::unique_ptr<save::Document> fixture() {
         a.id = i == 0 ? 200 : 600;
         a.type = 1;
         a.owner = 0;
-        a.health = 100;
-        a.territory.raw = uint32_t(i + 1);
-        a.dest.raw = 2;
-        a.origin.raw = 1;
+        a.strength = 3;
+        a.moves = 26;
+        a.health = 75;
+        // Deliberately asymmetric: Army 200 moved from territory 2 to 1.
+        // None of the misleading physical aliases may drive UI semantics.
+        a.territory.raw = 2;
+        a.dest.raw = uint32_t(i + 1);
+        a.origin.raw = 3;
     }
     return d;
 }
@@ -147,6 +152,11 @@ void cameraTests(const save::Document& d) {
 }
 
 void selectionTests(const save::Document& d) {
+    const auto& moved = d.armies.front();
+    require(army::current(moved) == 1 && army::turnStart(moved) == 2 && army::routeOrigin(moved) == 3,
+            "semantic territory getters preserve the three distinct file indices");
+    require(army::movementPoints(moved) == 3 && army::combatOrders(moved) == 26 && army::retreatThreshold(moved) == 75,
+            "movement, combat orders and retreat threshold are distinct fields");
     SelectionModel model;
     require(model.selection().territory == 0 && !model.selection().tile, "selection starts empty");
     require(model.selectTile(d, 3, 4), "select a dense row-major tile");
@@ -160,7 +170,11 @@ void selectionTests(const save::Document& d) {
     require(objects == std::vector<ObjectRef>{{ObjectKind::Building, 200}, {ObjectKind::Building, 100},
                                              {ObjectKind::Army, 200}},
             "objects use file order and separate ID domains");
-    require(objectsInTerritory(d, 2).size() == 2, "transit army is not duplicated at destination");
+    require(objectsInTerritory(d, 2) == std::vector<ObjectRef>{{ObjectKind::Building, 300}, {ObjectKind::Army, 600}},
+            "moved army belongs only to current territory, not its turn-start territory");
+    require(model.selectObject(d, ObjectKind::Army, moved.id) && model.selection().territory == 1,
+            "asymmetric army selection follows current +0x3c, not turn-start +0x38");
+    require(model.selectTerritory(d, 1), "restore territory-only selection before cycling");
     require(objectsInTerritory(d, 0).empty() && objectsInTerritory(d, 4).empty(), "invalid territory has no objects");
     require(!model.cycleObject(d, 0), "zero cycle is a no-op");
     require(model.cycleObject(d, 1) && model.selection().objectId == 200 && model.selection().kind == ObjectKind::Building,
@@ -217,7 +231,7 @@ void textAndMapTests(const save::Document& d) {
     changed->buildings.reserve(100);
     changed->territories.reserve(100);
     require(model.selectObject(*changed, ObjectKind::Army, 600), "selection resolves IDs against supplied document");
-    changed->armies[1].territory.raw = 999;
+    changed->armies[1].dest.raw = 999;
     require(!model.selectObject(*changed, ObjectKind::Army, 600), "dangling object territory is rejected");
     changed->tiles[0].territory = -1;
     require(!model.selectTile(*changed, 0, 0), "malformed negative territory rejected");
@@ -240,7 +254,7 @@ int main() {
         textAndMapTests(*document);
         require(save::encode(*document, after, error), "inspection preserves validity");
         require(before == after, "all inspector operations leave save bytes identical");
-        std::cout << "world_view: camera, selection, transit IDs, text, maps and read-only checks passed\n";
+        std::cout << "world_view: camera, selection, asymmetric army semantics, text, maps and read-only checks passed\n";
         return 0;
     } catch (const std::exception& error) {
         std::cerr << "world_view: " << error.what() << '\n';

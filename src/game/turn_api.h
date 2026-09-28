@@ -138,13 +138,15 @@ int      randRangeTagged(int n, const char* tag);   // FUN_0046c9d8: n==0 ? 0 : 
 // ----------------------------------------------------------------------------------------
 // Acceso a campos de las estructuras cuyo significado se ha demostrado en este módulo
 // ----------------------------------------------------------------------------------------
-// Army: +0x38 es el DESTINO de la orden de movimiento y +0x3c el territorio ACTUAL (donde está enlazado):
-// ReLinkArmy pone +0x3c = territorio nuevo, DeleteUnit busca la lista en +0x3c, FUN_0045723c compara
-// +0x38 != +0x3c para saber si hay orden pendiente. game_state.h los nombra al revés (territory/dest).
+// Legacy gs-only helpers, NOT for save::Document. Army +0x3c is CURRENT location:
+// ReLinkArmy writes it and DeleteUnit removes the unit from that territory.
+// +0x38 is the turn-start/base location; _MoveUnit leaves it unchanged and
+// FUN_004471c0 later synchronizes it. It is NOT an order destination.
+// Use game/army_state.h for the owning document's file-index representation.
 inline Territory* armyCurrent(const Army& a)     { return ptr(a.dest); }
-inline Territory* armyDestination(const Army& a) { return ptr(a.territory); }
+inline Territory* armyTurnStart(const Army& a) { return ptr(a.territory); }
 inline void       setArmyCurrent(Army& a, Territory* t)     { a.dest = ref(t); }
-inline void       setArmyDestination(Army& a, Territory* t) { a.territory = ref(t); }
+inline void       setArmyTurnStart(Army& a, Territory* t) { a.territory = ref(t); }
 // Army+0x24 ("moves" en game_state.h) son las ÓRDENES de combate (FUN_00447a68 -> Warrior+9):
 // 1 asalto, 2 especial, 4 carga, 0x10 atacar shrine, 0x17 misil sin Targetting Computers, 0x1a evadir, 5+cat atacar edificios.
 inline uint8_t& armyOrders(Army& a) { return a.moves; }

@@ -1,5 +1,6 @@
 #include "app/world_inspector.h"
 #include "engine/pixel.h"
+#include "game/army_state.h"
 #include "game/data_tables.h"
 #include "sprites/sprite_palette.h"
 
@@ -210,7 +211,7 @@ void WorldInspector::draw(InspectorSession& session) {
         auto& camera = session.camera();
         std::array<int, kMaxTerritories> count{}, sx{}, sy{}, buildings{}, units{};
         for (const auto& b : d.buildings) if (b.territory > 0 && b.territory < kMaxTerritories) ++buildings[b.territory];
-        for (const auto& a : d.armies) if (a.territory.raw < kMaxTerritories) ++units[a.territory.raw];
+        for (const auto& a : d.armies) if (army::current(a) < kMaxTerritories) ++units[army::current(a)];
         Pixel::pushClip(); Pixel::clipTo(mapRect);
         for (int y = 0; y < d.world.height; ++y) for (int x = 0; x < d.world.width; ++x) {
             const auto* tile = d.tileAt(uint32_t(x), uint32_t(y)); if (!tile) continue;
@@ -268,8 +269,8 @@ void WorldInspector::draw(InspectorSession& session) {
         } else if (s.kind == ObjectKind::Army) {
             if (const auto* a = d.armyById(s.objectId)) {
                 text(438, 199, 188, worldview::boundedText(a->name, sizeof(a->name)), muted);
-                text(438, 213, 188, "Health " + number(a->health) + "%   Moves " + number(a->moves), white);
-                text(438, 227, 188, "At " + number(a->territory.raw) + "   Destination " + number(a->dest.raw), muted);
+                text(438, 213, 188, "Retreat " + number(army::retreatThreshold(*a)) + "%   Moves " + number(army::movementPoints(*a)), white);
+                text(438, 227, 188, "At " + number(army::current(*a)) + "   Start " + number(army::turnStart(*a)), muted);
             }
         }
         preview(d, s);

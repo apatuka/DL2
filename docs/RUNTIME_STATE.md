@@ -3,7 +3,9 @@
 `runtime::State` prepara un documento de partida y un grafo de referencias
 tipadas, separado de los globales heredados `gs` y `gg`. Ya permite resolver
 objetos, consultar sus relaciones, capturar una preparación sin cambios y
-ejecutar **una subfase fiscal real, sólo en memoria**.
+ejecutar **experimentos fiscales y de energía aislados, sólo en memoria**.
+También puede consultarse rendimiento de edificios y necesidades sobre el
+documento preparado; véase [ECONOMY_LAB.md](ECONOMY_LAB.md).
 
 Esto no equivale a activar completamente `LoadGame` ni a ejecutar un turno.
 No hay incremento ficticio del contador de turno ni éxito silencioso para las
@@ -66,17 +68,24 @@ no ASCII. La presentación de texto de la UI no cambia estos datos binarios.
 
 | Estado en memoria | Significado y restricciones |
 |---|---|
-| `Empty` | Sin documento preparado; no permite captura ni impuestos |
-| `Prepared` | Documento validado y referencias resueltas; permite captura exacta o una aplicación fiscal |
+| `Empty` | Sin documento preparado; no permite captura ni experimentos |
+| `Prepared` | Documento validado y referencias resueltas; permite captura exacta o un experimento aislado |
 | `TaxesApplied` | Sólo créditos modificados por impuestos; no permite repetir la subfase ni exportar una partida reanudable |
+| `EnergyApplied` | Sólo stock y porcentaje energético modificados; no permite repetir, encadenar impuestos ni capturar para guardar |
 
 `prepare` puede construir una preparación nueva desde cualquier estado. La fase
 actual es una propiedad **en memoria**, no una marca añadida al formato SAV.
 `collectTaxes` requiere `Prepared` y, al tener éxito, pasa a `TaxesApplied` sin
 modificar `options.turn`. El informe y el estado permanecen intactos ante fallo.
 
+`consumeEnergy` también requiere una preparación nueva y pasa a `EnergyApplied`.
+No puede ejecutarse después de impuestos ni viceversa: faltan producción,
+importaciones y consumo alimentario entre esas fases del turno original. Su
+informe incluye solicitudes semánticas de evento 0x33; no se añaden textos
+inventados al log SAV ni se ejecutan callbacks de IA.
+
 `capture` sólo acepta `Prepared`: copia el documento conservado, valida el
-resultado y reemplaza su destino al finalizar. Tras aplicar impuestos falla
+resultado y reemplaza su destino al finalizar. Tras aplicar cualquier experimento falla
 explícitamente; una partida con sólo una fase económica aplicada no puede
 presentarse como un turno terminado o reanudable. `advanceTurn` devuelve siempre
 un error explícito hasta integrar el turno completo, sin modificar el estado.
@@ -157,6 +166,11 @@ escritura exclusiva de `save_files`; no sobrescribe destinos existentes.
 terminan: **no escriben un SAV parcial ni admiten un destino de guardado**.
 `turn` falla con un mensaje que enumera lo pendiente. Los datos originales sólo
 se leen. `--help` describe las formas admitidas por el CLI.
+
+`economy`/`economy-archive` consultan rendimientos y necesidades sin modificar la
+preparación. `energy`/`energy-archive` realizan el experimento energético aislado,
+sin producir ni importar antes; tampoco escriben SAV. Ambos contratos se detallan
+en `ECONOMY_LAB.md`.
 
 ## Verificación y límites pendientes
 

@@ -7,8 +7,9 @@ reimplementación progresiva en C++20 sobre SDL2.
 
 El ejecutable abre un **inspector gráfico de partidas**: muestra el mundo, territorios, edificios
 y unidades del archivo, permite seleccionarlos y guarda copias nuevas sin modificar los datos.
-Todavía no permite jugar turnos. El nuevo CLI `dl2sim` prepara un estado propio y ejecuta
-la recaudación fiscal de forma aislada, sin guardar ni presentar un turno parcial como completo.
+Todavía no permite jugar turnos. El CLI `dl2sim` prepara un estado propio, consulta
+rendimientos de edificios y necesidades de recursos, y ejecuta experimentos aislados
+de impuestos o energía, sin guardar ni presentar un turno parcial como completo.
 La demostración previa del motor y del panel SMenu `D000` se conserva mediante `--demo`.
 
 - [Recuperación de la sesión de Claude](docs/RECOVERY.md): entregables, evidencias y archivos recuperables.
@@ -18,6 +19,7 @@ La demostración previa del motor y del panel SMenu `D000` se conserva mediante 
 - [Carga/guardado C++ verificable](docs/SAVE_CODEC.md): documentos de partida, CLI y límites.
 - [Inspector gráfico del mundo](docs/WORLD_INSPECTOR.md): controles, copias seguras y límites visuales.
 - [Estado de ejecución y primera fase fiscal](docs/RUNTIME_STATE.md): referencias propias, pruebas y CLI.
+- [Laboratorio económico](docs/ECONOMY_LAB.md): consultas de producción/necesidades y consumo energético aislado.
 
 El codec C++ ya lee, valida, edita y vuelve a escribir las 46 muestras disponibles sin perder
 bytes. El inspector ya consume ese documento directamente, sin convertir IDs/palabras históricas
@@ -65,10 +67,11 @@ o usar otra instalación del juego:
 powershell -NoProfile -ExecutionPolicy Bypass -File tools/build.ps1 -BuildDir build-clean -DataDir "C:\GOG Games\Deadlock 2" -Test
 ```
 
-El hito de serialización pasó 8/8 y el del inspector 15/15. La suite actual, que
-añade preparación del estado, fiscalidad y CLI, pasa **18/18 sin omisiones**, tanto
+El hito de serialización pasó 8/8, el del inspector 15/15 y el de preparación/fiscalidad 18/18.
+La suite actual, que añade producción consultiva, necesidades y energía, pasa **20/20 sin omisiones**, tanto
 en `build-verified` como con AddressSanitizer en `build-save-asan`. Incluye 46
-capturas exactas del estado preparado y fases fiscales deterministas; no valida
+capturas exactas del estado preparado, consultas sobre 983 registros de edificios
+y experimentos fiscales/energéticos deterministas; no valida
 un turno completo. Alcance y evidencia en `docs/RECOVERY.md`.
 El script armoniza la codificación de consola para que Ninja detecte las cabeceras con MSVC
 localizado. Si una caché antigua muestra cientos de líneas `Nota: inclusión del archivo`,
@@ -148,6 +151,20 @@ Los comandos fiscales devuelven JSON y no escriben partidas. El turno no aumenta
 producción, consumo, logística, población, investigación, movimiento/combate, IA
 y demás fases aún no están integrados. `dl2sim turn` devuelve un error explícito.
 La aplicación gráfica permanece en modo de inspección.
+
+El laboratorio económico añade:
+
+```powershell
+.\build-verified\src\dl2sim.exe economy "C:\GOG Games\Deadlock 2\TUTORIAL.SAV"
+.\build-verified\src\dl2sim.exe energy "C:\GOG Games\Deadlock 2\TUTORIAL.SAV"
+```
+
+`economy` devuelve el rendimiento calculado por tarea y las necesidades actuales,
+sin aplicar producción ni redistribuir trabajadores. `energy` consume sólo la
+energía de la instantánea guardada, sin ejecutar producción o importaciones antes.
+Es un experimento independiente de impuestos, no la continuación de un turno.
+Los comandos correspondientes `economy-archive` y `energy-archive` aceptan base
+HDX/HDD y entrada. Detalles y límites: [ECONOMY_LAB.md](docs/ECONOMY_LAB.md).
 
 ## Regenerar la exportación de Ghidra
 

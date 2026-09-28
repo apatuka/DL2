@@ -306,6 +306,94 @@ void taxes(const Document& source, bool tutorial = false) {
             left.capture(*snapshot, error) && encoded(*snapshot) == original, "fresh prepare must reset phase safely");
 }
 
+bool sameEnergy(const simulation::EnergyPlan& a, const simulation::EnergyPlan& b) {
+    if (a.territories.size() != b.territories.size() || a.shortfalls.size() != b.shortfalls.size()) return false;
+    for (size_t i = 0; i < a.territories.size(); ++i) {
+        const auto& x = a.territories[i]; const auto& y = b.territories[i];
+        if (x.territory != y.territory || x.energyBefore != y.energyBefore || x.need != y.need ||
+            x.consumed != y.consumed || x.energyAfter != y.energyAfter ||
+            x.energyPercentBefore != y.energyPercentBefore || x.energyPercentAfter != y.energyPercentAfter) return false;
+    }
+    for (size_t i = 0; i < a.shortfalls.size(); ++i) {
+        const auto& x = a.shortfalls[i]; const auto& y = b.shortfalls[i];
+        if (x.type != y.type || x.recipient != y.recipient || x.territory != y.territory || x.shortage != y.shortage) return false;
+    }
+    return true;
+}
+
+void energy(const Document& source) {
+    const auto original = encoded(source);
+    rt::State left, right; save::Error error;
+    simulation::EnergyPlan a, b;
+    require(!left.consumeEnergy(a, error), "empty energy experiment must fail"); diagnostics(error);
+    require(left.prepare(source, error) && right.prepare(source, error), "prepare energy experiments");
+    require(left.consumeEnergy(a, error) && right.consumeEnergy(b, error), "isolated energy failed");
+    require(error.code == save::ErrorCode::None && left.stage() == rt::Stage::EnergyApplied,
+            "energy stage must be explicit");
+    require(sameEnergy(a, b) && encoded(*left.document()) == encoded(*right.document()), "energy determinism");
+    auto expected = std::make_unique<Document>(source);
+    for (const auto& t : a.territories) {
+        require(t.energyBefore == source.territories[t.territory - 1].data.materials[2], "energy before differs");
+        expected->territories[t.territory - 1].data.materials[2] = t.energyAfter;
+        expected->territories[t.territory - 1].data.knowledge = t.energyPercentAfter;
+    }
+    require(encoded(*expected) == encoded(*left.document()), "energy changed bytes beyond stock and percentage");
+    require(encoded(source) == original && source.options.turn == left.document()->options.turn,
+            "energy changed source or turn");
+    const auto partial = encoded(*left.document()); const auto reportBefore = a;
+    require(!left.consumeEnergy(a, error) && sameEnergy(a, reportBefore), "energy repeated or report damaged");
+    require(!left.capture(*expected, error), "energy partial snapshot must not be exported");
+    require(encoded(*expected) == partial, "failed energy capture changed destination");
+    auto taxReport = sentinelReport(); const auto savedTax = taxReport;
+    require(!left.collectTaxes(taxReport, error) && samePlan(taxReport, savedTax), "taxes must not follow isolated energy");
+    require(!left.advanceTurn(error) && encoded(*left.document()) == partial, "energy must not complete a turn");
+    auto bad = std::make_unique<Document>(source); bad->territories[0].data.owner = 7;
+    require(!left.prepare(*bad, error) && left.stage() == rt::Stage::EnergyApplied &&
+            encoded(*left.document()) == partial, "failed prepare lost isolated energy state");
+    require(left.prepare(source, error) && left.capture(*expected, error) && encoded(*expected) == original,
+            "fresh prepare must reset energy stage");
+    require(left.collectTaxes(taxReport, error), "fresh tax preparation failed");
+    const auto taxed = encoded(*left.document());
+    require(!left.consumeEnergy(a, error) && sameEnergy(a, reportBefore) && encoded(*left.document()) == taxed,
+            "energy must not skip production and imports after taxes");
+}
+
+void invalidEnergy() {
+    auto d = fixture();
+    // Structurally valid, but original stock<need branch would divide by zero.
+    for (auto& b : d->buildings) b.turnsLeft = 1;
+    d->territories[0].data.materials[2] = -1;
+    rt::State state; save::Error error;
+    require(state.prepare(*d, error), "invalid energy arithmetic fixture must pass structural preparation");
+    const auto before = encoded(*state.document());
+    simulation::EnergyPlan report; report.shortfalls.push_back({0x33, 5, 3, 42});
+    const auto saved = report;
+    require(!state.consumeEnergy(report, error), "undefined energy division must fail"); diagnostics(error);
+    require(state.stage() == rt::Stage::Prepared && encoded(*state.document()) == before && sameEnergy(report, saved),
+            "energy arithmetic failure must be transactional");
+}
+
+void energyGolden() {
+    auto d = fixture();
+    d->buildings[0].type = 4; d->buildings[0].flags = 4; // Cloning Center, 25 energy.
+    d->buildings[1].type = 17; d->buildings[1].flags = 4; // Hospital, 2 energy.
+    d->territories[0].data.materials[2] = 20;
+    d->territories[0].data.knowledge = 12;
+    d->territories[1].data.materials[2] = 0;
+    rt::State state; save::Error error; simulation::EnergyPlan report;
+    require(state.prepare(*d, error) && state.consumeEnergy(report, error), "energy runtime golden failed");
+    require(report.territories[0].consumed == 20 && report.territories[0].energyAfter == 0 &&
+            report.territories[0].energyPercentAfter == 80 && state.document()->territories[0].data.knowledge == 80,
+            "partial supply must produce 80 percent and subtract energy");
+    require(report.territories[1].consumed == 0 && report.territories[1].energyPercentAfter == 50 &&
+            state.document()->territories[1].data.knowledge == 50, "starved energy must retain the original 50 percent floor");
+    require(report.shortfalls.size() == 2 && report.shortfalls[0].type == 0x33 &&
+            report.shortfalls[0].recipient == 0 && report.shortfalls[0].shortage == 20 &&
+            report.shortfalls[1].recipient == 1 && report.shortfalls[1].shortage == 50, "energy semantic events differ");
+    require(state.document()->events.size() == d->events.size(), "semantic energy events must not invent saved log text");
+    energy(*d);
+}
+
 std::vector<std::string> scenarioNames(const fs::path& indexPath) {
     // Enumerate only index names; each scenario is read/validated through save_files.
     // Keeping this helper local avoids a graphics/formats library dependency.
@@ -337,20 +425,20 @@ void optionalCorpus(const fs::path& directory) {
         if (!fs::is_regular_file(path)) continue;
         auto d = std::make_unique<Document>(); save::Error error;
         if (!save::readDocument(path, *d, error)) throw std::runtime_error(std::string(relative) + ": " + error.message);
-        taxes(*d, std::string(relative) == "TUTORIAL.SAV"); ++count;
+        taxes(*d, std::string(relative) == "TUTORIAL.SAV"); energy(*d); ++count;
     }
     if (fs::is_regular_file(directory / "LEVELS.HDX") && fs::is_regular_file(directory / "LEVELS.HDD")) {
         for (const auto& entry : scenarioNames(directory / "LEVELS.HDX")) {
             auto d = std::make_unique<Document>(); save::Error error;
             if (!save::readScenario(directory / "LEVELS", entry, *d, error))
                 throw std::runtime_error(entry + ": " + error.message);
-            try { taxes(*d); } catch (const std::exception& e) {
+            try { taxes(*d); energy(*d); } catch (const std::exception& e) {
                 throw std::runtime_error(entry + ": " + e.what());
             }
             ++count;
         }
     }
-    std::cout << "runtime corpus: " << count << " exact captures and deterministic fiscal phases\n";
+    std::cout << "runtime corpus: " << count << " exact captures and deterministic isolated tax/energy experiments\n";
 }
 } // namespace
 
@@ -366,7 +454,7 @@ int main(int argc, char** argv) {
         const std::vector<uint8_t> gsBefore(gsBytes, gsBytes + sizeof(gs));
         const std::vector<uint8_t> ggBefore(ggBytes, ggBytes + sizeof(gg));
         prepareAndTransactions();
-        auto d = fixture(); taxes(*d);
+        auto d = fixture(); taxes(*d); energy(*d); invalidEnergy(); energyGolden();
         optionalCorpus(argc > 1 ? fs::path(argv[1]) : fs::path{});
         require(std::memcmp(gsBefore.data(), &gs, sizeof(gs)) == 0 &&
                 std::memcmp(ggBefore.data(), &gg, sizeof(gg)) == 0, "runtime changed legacy globals");

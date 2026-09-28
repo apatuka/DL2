@@ -110,10 +110,25 @@ no puede exportarse como partida reanudable y `advanceTurn` falla explícitament
 El CLI `dl2sim` permite examinar el grafo, copiar una preparación y consultar el
 experimento fiscal. Contratos y límites: `RUNTIME_STATE.md`.
 
+El laboratorio económico incorpora consultas de outputs por edificio/ranura y
+necesidades actuales de comida/energía, sin mutar el documento. `economy` no es
+un pase de producción aplicado: no termina construcciones ni fabrica unidades.
+También incorpora consumo energético aislado desde `Prepared`, con efectos
+numéricos y solicitudes semánticas de déficit `0x33`; pasa a `EnergyApplied`
+sólo en memoria. No se encadena con impuestos, no publica SAV parciales y no
+avanza el turno. API, aritmética, desviación deliberada de ranuras vacías y CLI:
+[ECONOMY_LAB.md](ECONOMY_LAB.md). Los resultados integrados de las nuevas pruebas
+se registran en `RECOVERY.md`.
+
 Antes de activar más fases, completar perfiles de normalización del cargador
 original para versiones antiguas, campañas, IA, visibilidad y reinicio de RNG,
 además de la gestión de creación/destrucción y las listas libres necesarias.
 Resolver referencias conocidas no demuestra haber realizado ese postprocesamiento.
+En particular, la carga original reconstruye tareas y balancea trabajadores;
+los informes actuales consultan la asignación guardada sin aplicar ese cambio.
+La integración económica debe respetar los reinicios explícitos y el orden:
+producción 1 antes de reservas/importaciones/comida/energía. No puede sustituir
+ese primer pase por la suma de los outputs consultivos.
 
 Completar primero economía, población, recursos, trabajo y colas de producción;
 después unidades, movimiento y las fases de turno que los coordinan. Establecer

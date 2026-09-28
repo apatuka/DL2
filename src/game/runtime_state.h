@@ -8,6 +8,7 @@
 #include <vector>
 #include "game/save_document.h"
 #include "game/tax_phase.h"
+#include "game/resource_needs.h"
 
 namespace dl2::runtime {
 template<class Tag> struct Handle {
@@ -73,7 +74,7 @@ struct Graph {
     std::array<std::vector<TerritoryHandle>, kMaxPlayers> playerTerritories;
 };
 
-enum class Stage { Empty, Prepared, TaxesApplied };
+enum class Stage { Empty, Prepared, TaxesApplied, EnergyApplied };
 class State {
 public:
     State() = default;
@@ -89,6 +90,10 @@ public:
     // One real fiscal phase, once per preparation. Does not advance options.turn.
     // Failure preserves state and report; no RNG, hooks, globals or I/O involved.
     bool collectTaxes(simulation::TaxPlan& report, save::Error& error);
+    // Isolated ConsumeEnergy experiment on the prepared snapshot, NOT the next
+    // economic step after taxes: production/imports/food must precede it in a turn.
+    // Changes only energy stock and energy percentage; reports semantic events.
+    bool consumeEnergy(simulation::EnergyPlan& report, save::Error& error);
     bool advanceTurn(save::Error& error); // Explicit unsupported operation, never a no-op success.
     Stage stage() const { return stage_; }
     const save::Document* document() const { return document_.get(); }

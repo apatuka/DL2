@@ -21,6 +21,16 @@ add_executable(test_tax_phase test_tax_phase.cpp)
 target_link_libraries(test_tax_phase PRIVATE dl2game)
 add_test(NAME tax_phase COMMAND test_tax_phase)
 
+add_executable(test_resource_needs test_resource_needs.cpp)
+target_link_libraries(test_resource_needs PRIVATE dl2game)
+add_test(NAME resource_needs COMMAND test_resource_needs "${DL2_DATA_DIR}")
+set_tests_properties(resource_needs PROPERTIES TIMEOUT 60)
+
+add_executable(test_production_plan test_production_plan.cpp)
+target_link_libraries(test_production_plan PRIVATE dl2game dl2engine)
+add_test(NAME production_plan COMMAND test_production_plan "${DL2_DATA_DIR}")
+set_tests_properties(production_plan PROPERTIES TIMEOUT 60)
+
 add_executable(test_runtime_state test_runtime_state.cpp)
 target_link_libraries(test_runtime_state PRIVATE dl2game)
 add_test(NAME runtime_state COMMAND test_runtime_state "${DL2_DATA_DIR}")
@@ -96,7 +106,7 @@ endif()
 if(WIN32 AND TARGET SDL2::SDL2)
     get_target_property(_dl2_sdl_type SDL2::SDL2 TYPE)
     if(_dl2_sdl_type STREQUAL "SHARED_LIBRARY")
-        foreach(_target test_engine test_resources test_input test_inspector_session test_world_inspector)
+        foreach(_target test_engine test_resources test_input test_inspector_session test_world_inspector test_production_plan)
             add_custom_command(TARGET ${_target} POST_BUILD
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different
                     $<TARGET_FILE:SDL2::SDL2> $<TARGET_FILE_DIR:${_target}>)

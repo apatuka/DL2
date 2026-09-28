@@ -289,7 +289,7 @@ constexpr int kTileRowBytes = 400;
 // 6. Casilla de construcción dentro del territorio (36 x 0x34 en Territory+0x142)
 // ----------------------------------------------------------------------------------------
 struct BuildingSite {            // Territory+0x140 + i*0x34 (FUN_0044e600 lee T+0x142+i*0x34, FUN_00405d54 T+0x154+i*0x34)
-    uint16_t unk_00;             // 0x00 (0 en todos los ficheros)
+    uint16_t unk_00;             // 0x00 bytes x=site%6, y=site/6 (0046686c); persistidos, no siempre cero
     uint16_t terrainFlags;       // 0x02 bits 0-3 = terreno de la casilla (FUN_0044e600), bits 8-11 (0x200 = elevada; DrawSTileBuilding)
     uint8_t  value;              // 0x04 guardado en modo mapa (FUN_00460d84)
     uint8_t  unk_05[0x0f];       // 0x05
@@ -337,7 +337,7 @@ struct Territory {
     int16_t  population;         // 0x030 población ("Population %d/%d"; "Territories must have population")
     int16_t  unk_32;
     uint8_t  unk_34;
-    uint8_t  knowledge;          // 0x035 =100 al colonizar / en editor (FUN_0047c730, FUN_00460870)
+    uint8_t  knowledge;          // 0x035 alias legacy: % energia disponible (0046bc28); produccion lee char con signo
     int16_t  unk_36;
     int16_t  knownPopulation;    // 0x038 última población conocida (FUN_0047fc84 si visibility != 4)
     int32_t  materials[11];      // 0x03a almacén por Material (Money..Art); FUN_00432fc0 muestra [1..10]
@@ -366,8 +366,8 @@ struct Territory {
     // ---- a partir de aquí NO se guarda (0xadc - 0x12a = 0x9b2) ----
     uint16_t colonyFlag;         // 0x9b2 =0 al colonizar (FUN_0046d2e8, FUN_0047c730)
     uint8_t  unk_9b4[0xca];      // 0x9b4 datos de IA (FUN_00442f68, FUN_0040d4a8)
-    int32_t  production[11];     // 0xa7e producción por turno por Material (FUN_0046ab18 memset 0x2c)
-    int32_t  consumption[11];    // 0xaaa consumo por turno (FUN_0046ab18)
+    int32_t  production[11];     // 0xa7e alias legacy INVERTIDO: demanda/reserva/scratch (0046b9a0,00472974)
+    int32_t  consumption[11];    // 0xaaa alias legacy INVERTIDO: saldo producido en preview (0044f3f0)
     uint8_t  unk_ad6[6];         // 0xad6
 };
 static_assert(sizeof(Territory) == 0xadc);

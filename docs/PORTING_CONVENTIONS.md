@@ -10,8 +10,8 @@ Estas reglas permiten que varios módulos se porten en paralelo y encajen sin fr
 - `src/game/game_state.h`: layouts **exactos** de las estructuras (no cambiar tamaños ni offsets; sí se pueden
   renombrar campos `unk_XX` cuando se demuestre su significado, actualizando `docs/SAVEFORMAT.md`).
 - `docs/SAVEFORMAT.md`, `docs/ARCHITECTURE.md`, `docs/ENGINE_API.md` (motor), `docs/SPRITES.md`.
-- `docs/SAVE_CODEC.md` y `docs/RUNTIME_STATE.md`: límites entre formato de archivo,
-  preparación propietaria y ejecución de fases. Los nombres de campos/tablas heredados
+- `docs/SAVE_CODEC.md`, `docs/RUNTIME_STATE.md` y `docs/ECONOMY_LAB.md`: límites entre
+  formato de archivo, preparación propietaria, consultas y ejecución de fases. Los nombres de campos/tablas heredados
   pueden ser inexactos: confirmar offsets y lectores originales antes de usarlos.
 
 ## Propiedad del estado: no mezclar las representaciones
@@ -35,6 +35,10 @@ Estas reglas permiten que varios módulos se porten en paralelo y encajen sin fr
 - Distinguir preparación de activación completa. Las normalizaciones de campañas/versiones/IA/RNG
   deben tener contrato y evidencia propios; no ejecutarlas implícitamente para lograr un round-trip.
   Un experimento de fase incompleta no puede exportarse como turno terminado o partida reanudable.
+- Separar una consulta sobre el documento guardado de la consulta posterior a `LoadGame` original:
+  éste también reconstruye tareas y balancea labor. Los planes económicos no deben hacer esas
+  mutaciones ni ejecutar los reinicios de turno como efecto oculto. Las fases aisladas sólo pueden
+  encadenarse cuando se hayan implementado sus predecesoras y exista un contrato de secuencia.
 
 ## Funciones
 
@@ -49,6 +53,14 @@ Estas reglas permiten que varios módulos se porten en paralelo y encajen sin fr
   Conservar divisiones intermedias y rarezas demostradas del original; no sustituirlas por fórmulas
   equivalentes sólo en números reales. En fases propietarias que necesiten azar, añadir un estado RNG
   propio explícito y probado; no consumir/resembrar silenciosamente el generador global de `rtl`.
+- Si el decompilado indica una lectura indeterminada, confirmar el flujo en assembly antes de
+  inventar semántica. Cualquier normalización deliberada debe ser visible en el contrato y probada;
+  no presentarla como paridad exacta. Caso conocido: TaskOutputs normaliza tareas vacías en el
+  informe, pero TaskOutput escalar conserva su comportamiento definido y no se unifica con aquél.
+- Validar índices y huellas de sitios sin corregir datos silenciosamente. `BuildingSite+0/+1`
+  son coordenadas persistidas x/y, y `Territory+0x35` es porcentaje energético, pese a nombres
+  heredados. Los arrays `+0xA7E/+0xAAA` son scratch de reservas/logística y saldo consultivo;
+  no inferir su uso por los nombres actuales `production`/`consumption`.
 - Llamadas a UI/motor (MessageBox `FUN_0042836c`, DebugMessage `FUN_00458990`, DebugLog `FUN_004587f0`,
   SMenu/InvalidateRect/sonido/animaciones) → `hooks::*` (`src/game/hooks.h`). Si necesitas un hook nuevo,
   añádelo a `UiHooks` (append) con valor por defecto no-op.
@@ -56,6 +68,9 @@ Estas reglas permiten que varios módulos se porten en paralelo y encajen sin fr
   necesita producción, logística, creación de objetos, eventos o campaña no implementados, devolver
   un error de capacidad explícito; no declarar éxito con callbacks vacíos. `advanceTurn` debe seguir
   fallando hasta que exista un turno coherente, sin incrementar artificialmente `options.turn`.
+- Un informe semántico de eventos no equivale a registros persistidos ni a efectos de UI/IA.
+  No fabricar texto de eventos ni serializar un experimento parcial. Los modos máximos por ranura
+  son consultas independientes, no planes de trabajadores ejecutables simultáneamente.
 - RTL de Borland: `malloc/free/strcpy/sprintf/qsort` → C++ estándar; `rand/srand/random` → `rtl::`.
 - Nada de SDL, Win32 ni `src/engine` dentro de `src/game`.
 

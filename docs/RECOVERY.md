@@ -16,9 +16,41 @@ inspección: mapa, territorios, edificios, unidades y copias sin modificación. 
 lógica de partida está parcialmente escrita y todavía no está integrada. Cargar
 el documento no equivale a activar el estado de juego, simular un turno ni jugar.
 
+## Verificación del laboratorio económico
+
+El nuevo hito pasó **20/20 pruebas, sin omisiones**, tanto en `build-verified`
+como con AddressSanitizer en `build-save-asan`. No se detectaron errores de
+memoria en esos recorridos. `production_plan` y `resource_needs` se suman a la
+suite previa; `runtime_state` y `simulation_cli` comprueban las nuevas rutas.
+
+Las consultas de producción recorrieron **46 documentos y 983 registros de
+edificios**, conservando sus bytes. Necesidades/energía se comprobaron también
+en las 46 muestras; se informaron nueve solicitudes semánticas de déficit en
+los experimentos aislados. No son déficits observados después de un turno del
+original: se calculan sin producir/importar antes sobre el stock guardado.
+
+Los oráculos sintéticos cubren recursos de casilla, huellas, santuarios,
+modificadores raciales, energía con signo, redondeo, overflow y diferencias entre
+consulta escalar y por edificio. Se corrigió un rechazo excesivo de slots de
+jugadores inactivos y se añadió una regresión: sólo se valida índice/raza del
+propietario relevante. El caso indeterminado original de ranuras vacías se
+normaliza deliberadamente a cero y se señala en el API, CLI y documentación.
+
+`State::consumeEnergy` aplica únicamente stock energético y porcentaje de
+energía, con validación previa y rollback ante fallo. El estado `EnergyApplied`
+no permite repetir, encadenar impuestos ni capturar para guardar. Los eventos
+son datos semánticos en el informe; no se inventan textos SAV ni efectos de IA.
+Las pruebas de bytes verifican que no cambia otros campos ni el turno.
+
+`dl2sim economy` ofrece consultas sin mutación; `energy` es el experimento
+aislado. Ambos tienen variantes HDX/HDD y rechazan destinos de guardado. Véase
+[ECONOMY_LAB.md](ECONOMY_LAB.md) para fórmulas y el próximo corte de integración.
+Todavía faltan balance laboral, producción aplicada, logística, unidades y la
+secuencia completa; el inspector sigue sin acciones de juego.
+
 ## Verificación de preparación y fase fiscal
 
-La suite actual aprobó **18/18 pruebas, sin omisiones**, en `build-verified` y
+La suite de ese hito aprobó **18/18 pruebas, sin omisiones**, en `build-verified` y
 también en `build-save-asan` con AddressSanitizer. No se detectaron errores de
 memoria en esos recorridos. Se añadieron `tax_phase`, `runtime_state` y
 `simulation_cli`; los casos anteriores de inspección y archivos siguen pasando.

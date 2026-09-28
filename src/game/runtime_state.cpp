@@ -160,6 +160,26 @@ bool State::collectTaxes(simulation::TaxPlan& report, save::Error& error) {
     }, error);
 }
 
+bool State::consumeEnergy(simulation::EnergyPlan& report, save::Error& error) {
+    return guarded([&] {
+        if (!document_ || stage_ != Stage::Prepared)
+            return fail(error, save::ErrorCode::InvalidState,
+                        "Isolated energy consumption requires a fresh prepared state; omitted phases cannot be chained");
+        simulation::EnergyPlan candidate;
+        if (!simulation::planEnergy(*document_, candidate, error)) return false;
+        // All validation/allocation precedes the first write. The full report
+        // owns shortage events; do not invent legacy event text or AI callbacks.
+        report = std::move(candidate);
+        for (const auto& result : report.territories) {
+            auto& territory = document_->territories[result.territory - 1].data;
+            territory.materials[2] = result.energyAfter;
+            territory.knowledge = result.energyPercentAfter;
+        }
+        stage_ = Stage::EnergyApplied;
+        error = {}; return true;
+    }, error);
+}
+
 bool State::advanceTurn(save::Error& error) {
     return fail(error, save::ErrorCode::InvalidState,
                 "Full turn unavailable: movement/combat, production/logistics, food/energy, upkeep, "

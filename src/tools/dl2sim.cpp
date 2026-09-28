@@ -1,5 +1,6 @@
-// Execution-state laboratory. A fiscal phase is not a completed game turn.
+// Execution-state laboratory. Isolated experiments are not completed game turns.
 #include "game/runtime_state.h"
+#include "game/production_plan.h"
 #include "game/save_files.h"
 #include <iostream>
 #include <memory>
@@ -35,15 +36,74 @@ void taxes(const runtime::State& state, const simulation::TaxPlan& plan, int bef
     }
     std::cout << "]}\n";
 }
+void energy(const runtime::State& state, const simulation::EnergyPlan& plan, int before) {
+    std::cout << "{\"stage\":\"energy_applied_in_memory\",\"isolated\":true,\"complete_turn\":false,\"turn_before\":" << before
+              << ",\"turn_after\":" << state.document()->options.turn << ",\"territories\":[";
+    for (size_t i = 0; i < plan.territories.size(); ++i) {
+        const auto& t = plan.territories[i];
+        std::cout << (i ? "," : "") << "{\"territory\":" << t.territory << ",\"before\":" << t.energyBefore
+                  << ",\"need\":" << t.need << ",\"consumed\":" << t.consumed << ",\"after\":" << t.energyAfter
+                  << ",\"percent_before\":" << int(t.energyPercentBefore)
+                  << ",\"percent_after\":" << int(t.energyPercentAfter) << "}";
+    }
+    std::cout << "],\"shortfalls\":[";
+    for (size_t i = 0; i < plan.shortfalls.size(); ++i) {
+        const auto& e = plan.shortfalls[i];
+        std::cout << (i ? "," : "") << "{\"type\":" << e.type << ",\"recipient\":" << e.recipient
+                  << ",\"territory\":" << e.territory << ",\"shortage\":" << e.shortage << "}";
+    }
+    std::cout << "]}\n";
+}
+void slots(const std::array<simulation::SlotProduction, 5>& values) {
+    std::cout << "[";
+    for (size_t i = 0; i < values.size(); ++i) {
+        const auto& s = values[i];
+        std::cout << (i ? "," : "") << "{\"task\":" << int(s.task) << ",\"labor\":" << s.labor
+                  << ",\"output\":" << s.output << "}";
+    }
+    std::cout << "]";
+}
+void economy(const runtime::State& state, const simulation::ProductionPlan& production,
+             const simulation::NeedsPlan& needs) {
+    std::cout << std::boolalpha
+              << "{\"stage\":\"prepared\",\"read_only\":true,\"complete_turn\":false,"
+                 "\"snapshot\":\"as_saved\",\"applies_production\":false,\"empty_task_slots\":\"normalized_zero\",\"turn\":"
+              << state.document()->options.turn << ",\"needs\":[";
+    for (size_t i = 0; i < needs.territories.size(); ++i) {
+        const auto& n = needs.territories[i];
+        std::cout << (i ? "," : "") << "{\"territory\":" << n.territory << ",\"food\":" << n.foodNeed
+                  << ",\"energy\":" << n.energyNeed << ",\"food_reserve\":" << n.foodReserve
+                  << ",\"energy_reserve\":" << n.energyReserve << "}";
+    }
+    std::cout << "],\"production\":[";
+    for (size_t i = 0; i < production.territories.size(); ++i) {
+        const auto& t = production.territories[i];
+        std::cout << (i ? "," : "") << "{\"territory\":" << t.territory << ",\"owner\":" << t.owner << ",\"buildings\":[";
+        for (size_t j = 0; j < t.buildings.size(); ++j) {
+            const auto& b = t.buildings[j];
+            std::cout << (j ? "," : "") << "{\"id\":" << b.buildingId << ",\"site\":" << int(b.site)
+                      << ",\"type\":" << int(b.type) << ",\"category\":" << int(b.category)
+                      << ",\"active\":" << b.active << ",\"built\":" << b.built << ",\"evaluated\":" << b.evaluated
+                      << ",\"max_labor\":" << b.maxLabor << ",\"assigned\":";
+            slots(b.assigned); std::cout << ",\"maximum\":"; slots(b.maximum); std::cout << "}";
+        }
+        std::cout << "]}";
+    }
+    std::cout << "]}\n";
+}
 int usage() {
-    std::cout << "Execution preparation / isolated fiscal phase. NOT a complete turn.\n"
+    std::cout << "Execution preparation / economic laboratory. NOT a complete turn.\n"
                  "  dl2sim prepare <save>\n"
                  "  dl2sim prepare-archive <HDX/HDD-base> <entry>\n"
                  "  dl2sim roundtrip <save> <new-copy>\n"
                  "  dl2sim taxes <save>\n"
                  "  dl2sim taxes-archive <HDX/HDD-base> <entry>\n"
+                 "  dl2sim economy <save>  (read-only building outputs and current needs)\n"
+                 "  dl2sim economy-archive <HDX/HDD-base> <entry>\n"
+                 "  dl2sim energy <save>  (isolated consumption, without production/imports)\n"
+                 "  dl2sim energy-archive <HDX/HDD-base> <entry>\n"
                  "  dl2sim turn <save>  (explicitly unavailable)\n"
-                 "Taxes run once in memory and print JSON. No partial SAV is written.\n";
+                 "Experiments print JSON. No partial SAV is written.\n";
     return 2;
 }
 }
@@ -52,8 +112,10 @@ int main(int argc, char** argv) {
         if (argc == 2 && std::string(argv[1]) == "--help") { usage(); return 0; }
         if (argc < 3) return usage();
         const std::string command = argv[1];
-        const bool archive = command == "prepare-archive" || command == "taxes-archive";
-        if (!((argc == 3 && (command == "prepare" || command == "taxes" || command == "turn")) ||
+        const bool archive = command == "prepare-archive" || command == "taxes-archive" ||
+                             command == "economy-archive" || command == "energy-archive";
+        if (!((argc == 3 && (command == "prepare" || command == "taxes" || command == "turn" ||
+                            command == "economy" || command == "energy")) ||
               (argc == 4 && (archive || command == "roundtrip")))) return usage();
         auto document = std::make_unique<save::Document>();
         save::Error error;
@@ -67,6 +129,17 @@ int main(int argc, char** argv) {
             const int before = document->options.turn;
             require(state.collectTaxes(plan, error), error);
             taxes(state, plan, before);
+        } else if (command == "energy" || command == "energy-archive") {
+            simulation::EnergyPlan plan;
+            const int before = document->options.turn;
+            require(state.consumeEnergy(plan, error), error);
+            energy(state, plan, before);
+        } else if (command == "economy" || command == "economy-archive") {
+            simulation::ProductionPlan production;
+            simulation::NeedsPlan needs;
+            require(simulation::planProduction(*state.document(), production, error), error);
+            require(simulation::planNeeds(*state.document(), needs, error), error);
+            economy(state, production, needs);
         } else {
             if (command == "roundtrip") {
                 require(state.capture(*document, error), error);

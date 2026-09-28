@@ -70,6 +70,27 @@ explícitamente. Véase `RUNTIME_STATE.md` para alcance y comandos.
 Esto resuelve la propiedad, referencias y rollback de la preparación, pero no
 las normalizaciones de carga, campañas/IA, RNG local ni el resto del turno.
 
+## Avance posterior: consultas económicas y energía aislada
+
+`production_plan.*` porta las consultas de rendimiento `TaskOutputs` y
+`TaskOutput`, con sus dependencias de labor, capacidad poblacional, recursos de
+casillas, santuarios y modificadores. Consulta las tareas guardadas y máximos por
+ranura; no llama a `ProcessTerritoryProduction`, no balancea trabajadores y no
+aplica recursos, construcción o fabricación de unidades. El comportamiento
+indeterminado de TaskOutputs para tarea cero se normaliza expresamente a cero.
+
+`resource_needs.*` calcula necesidades civiles de comida, necesidades energéticas
+y reservas truncadas. También proyecta la subfase `ConsumeEnergy`, incluidos
+porcentaje energético y solicitudes semánticas de déficit. `State::consumeEnergy`
+puede aplicarla una vez desde `Prepared`, pasando a `EnergyApplied`; no se permite
+encadenarla con impuestos ni exportar el estado parcial. Los eventos del informe
+no se convierten en textos SAV ni callbacks ficticios de IA.
+
+El CLI `economy`/`energy` y sus variantes de archivo HDX/HDD exponen estas
+capacidades. `ECONOMY_LAB.md` documenta fórmulas, validación y diferencias respecto
+de cargar/normalizar en el original. Las nuevas consultas no cierran los dos pases
+de producción aplicada ni el resto de dependencias de este inventario.
+
 ## Detalle de la infraestructura recuperada
 
 La API de `queue_pool.h/cpp` se recuperó de los mensajes `Write` del historial de

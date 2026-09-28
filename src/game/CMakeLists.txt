@@ -15,6 +15,8 @@ set(GAME_SOURCES
     world_view.cpp
     runtime_state.cpp
     tax_phase.cpp
+    resource_needs.cpp
+    production_plan.cpp
     # END MODULE SOURCES
 )
 

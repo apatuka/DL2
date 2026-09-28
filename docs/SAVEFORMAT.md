@@ -201,7 +201,7 @@ por +0x38 ni derivar su salud a partir del umbral de retirada.
 | 0x02A | i16 | `taxAdjust` (alias histórico) | valor monetario mostrado por `FUN_00436a44` y agregado por `FUN_0046ab18`; **no** es el byte de nivel fiscal |
 | 0x02E | i16 | `tradeIncome` | `FUN_0046ab18` |
 | 0x030 | i16 | `population` | "Population %d/%d" |
-| 0x035 | u8 | `knowledge` | =100 al colonizar / en editor |
+| 0x035 | u8 | `knowledge` (alias histórico) | porcentaje de energía disponible: `FUN_0046bc28` lo actualiza; producción lee el byte con signo; =100 al colonizar / en editor |
 | 0x038 | i16 | `knownPopulation` | última población vista |
 | 0x03A | i32[11] | `materials` | Money, Food, Energy, Wood, Iron, Steel, Endurium, Triidium, Electronic Parts, Anti-Matter Pods, Art |
 | 0x066 | u8[7] | `visibility` | por jugador: >2 visible, 4 = propio |
@@ -211,7 +211,7 @@ por +0x38 ni derivar su salud a partir del umbral de retirada.
 | 0x07A | ptr | `foreignArmies` | → ID de Army |
 | 0x07E | u8 | `numTiles` | ≤ 48 |
 | 0x080 | ptr[48] | `tiles` | → `x \| (y<<16)`; al cargar `&Tiles + y*400 + x*10` |
-| 0x140 | 36×0x34 | `sites` | `BuildingSite`: `u16` (+0), `u16 terrainFlags` (+2, bits 0-3 terreno), `u8 value` (+4), `Building*` (+0x14 → ID global) |
+| 0x140 | 36×0x34 | `sites` | `BuildingSite`: bytes x/y (+0/+1, índice%6 e índice/6), `u16 terrainFlags` (+2, bits 0-3 terreno), `u8 value` (+4), `Building*` (+0x14 → ID global) |
 | 0x890 | u16[7] | `adjacency` | máscara de 112 bits de territorios adyacentes (simétrica) |
 | 0x89F | u8 | `freeSites` | |
 | 0x8A0 | u32 | `adjContinents` | |
@@ -225,6 +225,14 @@ por +0x38 ni derivar su salud a partir del umbral de retirada.
 Tras los 0x9B2 bytes se escriben las **5 colas** (`FUN_004607d8`/`FUN_004609e8`): por cola `u8 n` y `n`
 registros de 0x30 bytes (`u8 unitType; u8; u16 count; i32 data[11]`); en memoria cada nodo mide 0x34
 (`next` en +0x30, `FUN_00484da8`). En modo editor (`DAT_004d5aa0 ≠ 0`) `knowledge` se fuerza a 100.
+
+Los nombres heredados de los dos arrays no persistentes están invertidos:
+`production` (+0xA7E) es demanda/reserva/scratch para importar materiales
+(`0046b9a0`, `00472974`), mientras `consumption` (+0xAAA) acumula el saldo
+producido en la consulta de `0044f3f0`. No se deben leer como previsiones guardadas.
+Las coordenadas de casilla sí están en el archivo: `0046686c` genera x=índice%6,
+y=índice/6 y `00460a74` las carga sin normalizarlas. Una huella de producción se
+extiende hacia x creciente e y decreciente. Véase `ECONOMY_LAB.md`.
 
 ### 3.8 Job / task force (0xC4) — `DAT_00522584 + player*0x2648 + j*0xC4`
 

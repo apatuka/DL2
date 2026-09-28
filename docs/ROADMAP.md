@@ -133,6 +133,13 @@ puras en `labor_balance.*` y CLI `labor`. Véase [LABOR_BALANCE.md](LABOR_BALANC
 No se aplican implícitamente al preparar; `economy` sigue consultando la asignación
 guardada. `LaborBalanced` no habilita todavía carga jugable, guardado parcial ni
 encadenamiento con fases fiscales/energéticas aisladas.
+
+El bloque de entidades añade handles estables, inserción/retirada estructural
+restringida y consultas puras de emplazamiento/huella. Véase
+[ENTITY_RUNTIME.md](ENTITY_RUNTIME.md). Falta completar efectos de creación/baja,
+huellas/caminos, pagos y fabricación antes de conectar las órdenes al jugador;
+`EntitiesEdited` sólo permite experimentos estructurales sin exportación SAV.
+
 La integración económica debe respetar los reinicios explícitos y el orden:
 producción 1 antes de reservas/importaciones/comida/energía. No puede sustituir
 ese primer pase por la suma de los outputs consultivos.

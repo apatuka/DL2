@@ -15,6 +15,8 @@ Estas reglas permiten que varios módulos se porten en paralelo y encajen sin fr
   pueden ser inexactos: confirmar offsets y lectores originales antes de usarlos.
 - `docs/LABOR_BALANCE.md`: normalización explícita de tareas/trabajadores, prioridades,
   resultados negativos originales y dominios rechazados; no es activación completa.
+- `docs/ENTITY_RUNTIME.md`: identidades estables, edición estructural limitada y consultas
+  de emplazamiento; no confundirlas con órdenes completas de construcción o bajas.
 
 ## Propiedad del estado: no mezclar las representaciones
 
@@ -24,8 +26,11 @@ Estas reglas permiten que varios módulos se porten en paralelo y encajen sin fr
   `(0,0)` codificado en una referencia de tile es una coordenada válida, no un puntero nulo.
 - **Preparación nueva (`runtime::State`)**: copia propietaria más `Graph` con handles tipados locales
   a esa instancia. Convertir referencias conocidas explícitamente; no reciclar palabras opacas
-  como handles ni callbacks. Los handles/punteros const dejan de ser utilizables tras reemplazar
-  con éxito la preparación; no hay detección automática de handles pertenecientes a otra instancia.
+  como handles ni callbacks. Los handles incorporan identidad: se rechazan los retirados,
+  ajenos o anteriores a un reemplazo exitoso. Sobreviven a ediciones de otras entidades;
+  no usar su slot como índice denso del documento/grafo, sino accesores y *Links(handle).
+  Los punteros const prestados dejan de ser utilizables tras una edición estructural o
+  reemplazo exitoso; sólo los handles supervivientes tienen estabilidad de identidad.
   Las fases nuevas reciben su estado explícito, sin tocar `gs`, `gg` ni RNG global.
 - **Código heredado global**: `dl2::gs` (`GameState`) y `dl2::gg` siguen sosteniendo módulos antiguos.
   Sólo en esa representación se usan `ptr/ref` y los pools globales de colas con índices 1-based

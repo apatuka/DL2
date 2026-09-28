@@ -1,16 +1,39 @@
 // Execution-state laboratory. Isolated experiments are not completed game turns.
 #include "game/runtime_state.h"
 #include "game/production_plan.h"
+#include "game/entity_rules.h"
 #include "game/save_files.h"
+#include <charconv>
 #include <iostream>
 #include <memory>
 #include <stdexcept>
 #include <string>
+#include <string_view>
 
 namespace {
 using namespace dl2;
 void require(bool success, const save::Error& error) {
     if (!success) throw std::runtime_error(error.message);
+}
+int integer(std::string_view value) {
+    int result = 0;
+    const auto parsed = std::from_chars(value.data(), value.data() + value.size(), result);
+    if (parsed.ec != std::errc{} || parsed.ptr != value.data() + value.size())
+        throw std::runtime_error("Placement arguments must be decimal integers in int32 range");
+    return result;
+}
+void placement(const runtime::State& state, const simulation::BuildingPlacement& result) {
+    std::cout << std::boolalpha
+              << "{\"stage\":\"prepared\",\"read_only\":true,\"complete_turn\":false,"
+                 "\"complete_build_permission\":false,\"applies_construction\":false,\"turn\":"
+              << state.document()->options.turn << ",\"territory\":" << result.territory
+              << ",\"building_type\":" << result.buildingType << ",\"site\":" << result.site
+              << ",\"placement_allowed\":" << (result.reason == simulation::PlacementReason::Allowed)
+              << ",\"reason\":" << int(result.reason) << ",\"footprint\":{\"size\":" << int(result.footprint.size)
+              << ",\"fits\":" << result.footprint.fits << ",\"sites\":[";
+    for (size_t i = 0; i < result.footprint.sites.size(); ++i)
+        std::cout << (i ? "," : "") << int(result.footprint.sites[i]);
+    std::cout << "]}}\n";
 }
 void summary(const runtime::State& state) {
     const auto& d = *state.document(); const auto& g = state.graph();
@@ -134,6 +157,9 @@ int usage() {
                  "  dl2sim energy-archive <HDX/HDD-base> <entry>\n"
                  "  dl2sim labor <save>  (isolated task/labor normalization and stock caps)\n"
                  "  dl2sim labor-archive <HDX/HDD-base> <entry>\n"
+                 "  dl2sim placement <save> <territory> <building-type> <site>\n"
+                 "  dl2sim placement-archive <HDX/HDD-base> <entry> <territory> <building-type> <site>\n"
+                 "    Read-only placement/footprint, NOT ownership/technology/affordability permission.\n"
                  "  dl2sim turn <save>  (explicitly unavailable)\n"
                  "Experiments print JSON. No partial SAV is written.\n";
     return 2;
@@ -144,11 +170,14 @@ int main(int argc, char** argv) {
         if (argc == 2 && std::string(argv[1]) == "--help") { usage(); return 0; }
         if (argc < 3) return usage();
         const std::string command = argv[1];
+        const bool isPlacement = command == "placement" || command == "placement-archive";
         const bool archive = command == "prepare-archive" || command == "taxes-archive" ||
-                             command == "economy-archive" || command == "energy-archive" || command == "labor-archive";
+                             command == "economy-archive" || command == "energy-archive" || command == "labor-archive" ||
+                             command == "placement-archive";
         if (!((argc == 3 && (command == "prepare" || command == "taxes" || command == "turn" ||
                             command == "economy" || command == "energy" || command == "labor")) ||
-              (argc == 4 && (archive || command == "roundtrip")))) return usage();
+              (argc == 4 && ((!isPlacement && archive) || command == "roundtrip")) ||
+              (isPlacement && argc == (archive ? 7 : 6)))) return usage();
         auto document = std::make_unique<save::Document>();
         save::Error error;
         require(archive ? save::readScenario(argv[2], argv[3], *document, error)
@@ -156,7 +185,15 @@ int main(int argc, char** argv) {
         runtime::State state;
         require(state.prepare(*document, error), error);
         if (command == "turn") { require(state.advanceTurn(error), error); return 1; }
-        if (command == "taxes" || command == "taxes-archive") {
+        if (isPlacement) {
+            const int offset = archive ? 4 : 3;
+            const int territory = integer(argv[offset]);
+            if (territory <= 0) throw std::runtime_error("Territory index must be positive");
+            simulation::BuildingPlacement result;
+            require(simulation::checkBuildingPlacement(*state.document(), uint32_t(territory),
+                integer(argv[offset + 1]), integer(argv[offset + 2]), result, error), error);
+            placement(state, result);
+        } else if (command == "taxes" || command == "taxes-archive") {
             simulation::TaxPlan plan;
             const int before = document->options.turn;
             require(state.collectTaxes(plan, error), error);

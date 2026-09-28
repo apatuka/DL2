@@ -10,6 +10,8 @@ y unidades del archivo, permite seleccionarlos y guarda copias nuevas sin modifi
 Todavía no permite jugar turnos. El CLI `dl2sim` prepara un estado propio, consulta
 rendimientos de edificios y necesidades de recursos, y ejecuta experimentos aislados
 de impuestos, energía o normalización laboral, sin guardar ni presentar un turno parcial como completo.
+También consulta emplazamientos de edificios. El estado propietario ya dispone de
+inserción/retirada estructural limitada con referencias estables; aún no son órdenes jugables.
 La demostración previa del motor y del panel SMenu `D000` se conserva mediante `--demo`.
 
 - [Recuperación de la sesión de Claude](docs/RECOVERY.md): entregables, evidencias y archivos recuperables.
@@ -22,6 +24,7 @@ La demostración previa del motor y del panel SMenu `D000` se conserva mediante 
 - [Estado de ejecución y primera fase fiscal](docs/RUNTIME_STATE.md): referencias propias, pruebas y CLI.
 - [Laboratorio económico](docs/ECONOMY_LAB.md): consultas de producción/necesidades y consumo energético aislado.
 - [Tareas y balance laboral](docs/LABOR_BALANCE.md): reconstrucción explícita, reparto de trabajadores y límites de almacén.
+- [Entidades y emplazamiento](docs/ENTITY_RUNTIME.md): referencias estables, edición estructural limitada y consultas de casillas.
 
 El codec C++ ya lee, valida, edita y vuelve a escribir las 46 muestras disponibles sin perder
 bytes. El inspector ya consume ese documento directamente, sin convertir IDs/palabras históricas
@@ -70,10 +73,11 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools/build.ps1 -BuildDir bu
 ```
 
 El hito de serialización pasó 8/8, el del inspector 15/15 y el de preparación/fiscalidad 18/18.
-La suite actual, que añade también reconstrucción de tareas y balance laboral, pasa **21/21 sin omisiones**, tanto
+La suite actual, que añade también gestión estructural de entidades y consultas de emplazamiento, pasa **23/23 sin omisiones**, tanto
 en `build-verified` como con AddressSanitizer en `build-save-asan`. Incluye 46
 capturas exactas del estado preparado, consultas sobre 983 registros de edificios
-y experimentos fiscales/energéticos y normalización laboral deterministas; no valida
+y experimentos fiscales/energéticos y normalización laboral deterministas, además
+de inserciones/retiradas reversibles y consultas sobre 2.753 territorios; no valida
 un turno completo. Alcance y evidencia en `docs/RECOVERY.md`.
 El script armoniza la codificación de consola para que Ninja detecte las cabeceras con MSVC
 localizado. Si una caché antigua muestra cientos de líneas `Nota: inclusión del archivo`,

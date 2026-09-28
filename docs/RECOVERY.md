@@ -16,6 +16,39 @@ inspección: mapa, territorios, edificios, unidades y copias sin modificación. 
 lógica de partida está parcialmente escrita y todavía no está integrada. Cargar
 el documento no equivale a activar el estado de juego, simular un turno ni jugar.
 
+## Verificación de entidades y emplazamiento — 2026-09-28
+
+El lote posterior a `3793805` pasó **23/23 pruebas, sin omisiones**, en
+`build-verified` (34,75 s) y con AddressSanitizer en `build-save-asan` (114,71 s).
+No se detectaron errores de memoria en los recorridos instrumentados. Logs en
+`build-verified/Testing/Temporary/LastTest.log` y su equivalente ASAN.
+
+`runtime::State` incorpora identidades de vida para rechazar handles retirados,
+ajenos o de otra preparación. Inserciones/retiradas estructurales de registros
+simples validan listas, conservan referencias supervivientes y publican documento
+y grafo juntos. Se rechazan dependencias de transporte, asedio y trabajos IA,
+incluidos ministros tipo 3 por ubicación y tipo 13 por ID. `EntitiesEdited`
+bloquea captura y fases de gameplay todavía incompletas.
+
+`entity_rules.*` reproduce la consulta original de emplazamiento y su geometría,
+incluidos motivos 0..10, prioridad de rechazos y salida temprana de plataforma.
+El CLI `placement`/`placement-archive` permite consultarla sin cambiar el estado;
+indica explícitamente que no comprueba permiso completo ni aplica construcción.
+
+La prueba de entidades recorrió **46 documentos con captura exacta y un ciclo
+reversible de inserción/retirada en cada uno**. La de emplazamiento recorrió los
+mismos 46 documentos, **2.753 territorios y 983 edificios**. Los sintéticos cubren
+47 tipos por las 36 anclas geométricas, motivos y precedencia, reutilización de
+slots/IDs, supervivientes, referencias ajenas/caducadas, movimiento del estado,
+fallos transaccionales, dependencias y límites de 1199/559 activos al insertar.
+Las fuentes físicas de 1200/560 registros continúan admitidas para preparación.
+
+Estos resultados proceden de la implementación y oráculos derivados del código
+original; no de ejecutar una partida completa del original. No se añadió una
+orden jugable de construcción/fabricación ni se activó `buildings.cpp`: su
+auditoría encontró errores de enlaces y de offsets, documentados para el
+siguiente port. Contrato y próximos pasos: [ENTITY_RUNTIME.md](ENTITY_RUNTIME.md).
+
 ## Verificación de tareas y balance laboral — 2026-09-28
 
 El nuevo bloque pasó **21/21 pruebas, sin omisiones**, tanto en `build-verified`

@@ -106,6 +106,24 @@ No es la activación completa de `loadGame` ni hace jugable el inspector. Véase
 [LABOR_BALANCE.md](LABOR_BALANCE.md), especialmente los límites firmados y rechazos
 de dominios inseguros; las órdenes manuales y el asistente completo siguen pendientes.
 
+## Avance posterior: entidades estables y emplazamiento
+
+El estado propietario añade identidades de vida y tablas slot→posición densa,
+rechazando referencias retiradas/ajenas sin cambiar el formato guardado. Las
+operaciones estructurales limitadas de inserción/retirada validan listas y
+dependencias, conservan identidades supervivientes y publican documento/grafo
+transaccionalmente. `EntitiesEdited` no permite exportar una partida parcial.
+
+`entity_rules.*` porta la consulta de emplazamiento `0044d600`, su precedencia de
+rechazos y geometría. `dl2sim placement`/`placement-archive` la exponen sin
+mutaciones. No comprueba todavía propiedad, tecnología o pago. No se integra
+`buildings.cpp`: la auditoría encontró además errores de enlaces y offsets que
+deben corregirse antes de aprovechar ese código. Véase [ENTITY_RUNTIME.md](ENTITY_RUNTIME.md).
+
+Esto no implementa `StartConstruction`, fabricación, transporte, demolición o
+bajas con efectos IA. Los registros insertados son suministrados por el llamador,
+no inicializados mediante callbacks o defaults incompletos de gameplay.
+
 ## Detalle de la infraestructura recuperada
 
 La API de `queue_pool.h/cpp` se recuperó de los mensajes `Write` del historial de

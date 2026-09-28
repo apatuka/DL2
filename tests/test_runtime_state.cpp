@@ -147,13 +147,18 @@ void safeAccessors(const rt::State& state) {
 
 void checkGraph(const rt::State& state) {
     const auto& g = state.graph();
+    const auto firstBuilding = state.buildingById(50000), secondBuilding = state.buildingById(7);
+    const auto firstArmy = state.armyById(60000), secondArmy = state.armyById(42);
+    const auto firstTerritory = state.territoryByIndex(1), secondTerritory = state.territoryByIndex(2);
     require(g.buildings.size() == 2 && g.armies.size() == 2 && g.territories.size() == 2,
             "runtime object arrays must be dense and omit a dummy slot");
     require(state.buildingById(50000).slot == 1 && state.buildingById(7).slot == 2,
             "building IDs are not dense handles");
     require(state.armyById(60000).slot == 1 && state.armyById(42).slot == 2,
             "army IDs are not dense handles");
-    require(state.building({1})->id == 50000 && state.army({1})->id == 60000,
+    require(firstBuilding.identity && secondBuilding.identity && firstArmy.identity && secondArmy.identity,
+            "live entities require lifetime identities");
+    require(state.building(firstBuilding)->id == 50000 && state.army(firstArmy)->id == 60000,
             "typed accessors resolve the owning document");
     require(g.buildings[0].territory.slot == 1 && g.buildings[0].next.slot == 2 &&
             g.buildings[1].previous.slot == 1 && !g.buildings[1].next, "building links");
@@ -161,20 +166,22 @@ void checkGraph(const rt::State& state) {
             g.armies[0].routeOrigin.slot == 1, "Army +0x3c is current, +0x38 is turn start");
     require(g.armies[0].previous.slot == 2 && !g.armies[0].next &&
             g.armies[0].cargo[0].slot == 2 && !g.armies[0].cargo[1], "army links and cargo");
-    require(g.territories[0].armies == std::vector<rt::ArmyHandle>{{2}} &&
-            g.territories[1].armies == std::vector<rt::ArmyHandle>{{1}}, "canonical current-territory membership");
+    require(g.territories[0].armies == std::vector<rt::ArmyHandle>{secondArmy} &&
+            g.territories[1].armies == std::vector<rt::ArmyHandle>{firstArmy}, "canonical current-territory membership");
     require(g.territories[0].savedOwnHead.slot == 2 && g.territories[1].savedForeignHead.slot == 1,
             "historical heads resolve separately from canonical membership");
-    require(g.territories[0].buildings == std::vector<rt::BuildingHandle>{{1}} &&
+    require(g.territories[0].buildings == std::vector<rt::BuildingHandle>{firstBuilding} &&
             g.territories[1].sites[0].slot == 2, "building membership and site links");
-    require(g.territories[0].tiles == std::vector<rt::TileHandle>{{1}, {3}} &&
-            g.territories[1].tiles == std::vector<rt::TileHandle>{{2}, {4}}, "file coordinates resolve to dense tile handles");
-    require(state.tile({1})->x == 0 && state.tile({1})->y == 0 &&
-            state.tile({4})->x == 1 && state.tile({4})->y == 1, "zero coordinate is not a null tile");
-    require(g.territories[0].adjacent == std::vector<rt::TerritoryHandle>{{2}} &&
-            g.territories[1].adjacent == std::vector<rt::TerritoryHandle>{{1}}, "adjacency bit numbering");
-    require(g.playerTerritories[0] == std::vector<rt::TerritoryHandle>{{1}} &&
-            g.playerTerritories[1] == std::vector<rt::TerritoryHandle>{{2}}, "player territory membership");
+    require(g.territories[0].tiles == std::vector<rt::TileHandle>{state.tileByIndex(1), state.tileByIndex(3)} &&
+            g.territories[1].tiles == std::vector<rt::TileHandle>{state.tileByIndex(2), state.tileByIndex(4)},
+            "file coordinates resolve to dense tile handles");
+    require(state.tile(state.tileByIndex(1))->x == 0 && state.tile(state.tileByIndex(1))->y == 0 &&
+            state.tile(state.tileByIndex(4))->x == 1 && state.tile(state.tileByIndex(4))->y == 1,
+            "zero coordinate is not a null tile");
+    require(g.territories[0].adjacent == std::vector<rt::TerritoryHandle>{secondTerritory} &&
+            g.territories[1].adjacent == std::vector<rt::TerritoryHandle>{firstTerritory}, "adjacency bit numbering");
+    require(g.playerTerritories[0] == std::vector<rt::TerritoryHandle>{firstTerritory} &&
+            g.playerTerritories[1] == std::vector<rt::TerritoryHandle>{secondTerritory}, "player territory membership");
     const auto* queue = state.queue(g.territories[0].queues[0]);
     require(g.queues.size() == 10 && g.queueNodes.size() == 2, "five owned queues per territory, including empty queues");
     require(queue && queue->count == 2 && queue->first == queue->cursor, "queue cursor starts at first node");
@@ -442,10 +449,10 @@ void laborGoldenAndFailure() {
     require(zero.morale == 100 && zero.population == 0, "empty territory resets morale, not population");
     require(zero.materials[0] == 12345 && zero.materials[1] == 10000 && zero.materials[2] == -20 &&
             zero.materials[10] == 10000, "stock caps exclude money and do not clamp negative stocks");
-    const auto* construction = state.building({1});
+    const auto* construction = state.building(state.buildingById(50000));
     require(construction->task[0] == 2 && construction->labor[0] == 0 && construction->flags == 6,
             "construction tasks rebuilt before zero-population labor reduction and unlock");
-    require(state.building({2})->task[1] == 20 && state.building({2})->labor[1] == 5,
+    require(state.building(state.buildingById(7))->task[1] == 20 && state.building(state.buildingById(7))->labor[1] == 5,
             "housing receives five of the seven available workers at population900/morale80");
     require(report.territories[1].laborPool == 7 && report.territories[1].unavailableLabor == 2 &&
             report.territories[1].assignedLabor == 5 && report.territories[1].unassignedLabor == 2,
@@ -457,7 +464,7 @@ void laborGoldenAndFailure() {
     overloaded->buildings[0].flags = 6;
     overloaded->buildings[0].labor[1] = 6; overloaded->buildings[0].labor[2] = 6;
     require(state.prepare(*overloaded, error) && state.normalizeLabor(report, error) &&
-            state.building({1})->labor[3] == -4, "runtime must preserve the original generated signed labor");
+            state.building(state.buildingById(50000))->labor[3] == -4, "runtime must preserve the original generated signed labor");
     labor(*overloaded);
     auto bad = fixture(); bad->players[1].race = 7;
     require(state.prepare(*bad, error), "out-of-range housing race must pass structural preparation");

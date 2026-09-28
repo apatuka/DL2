@@ -70,6 +70,21 @@ def main():
         assert after[1:] == [min(value, 10000) for value in before[1:]]
         assert territory["assigned_labor"] + territory["unassigned_labor"] == territory["labor_pool"]
     assert economy == run("economy", tutorial), "normalization must not modify the archived input"
+    placement = run("placement", tutorial, 1, 1, 0)
+    assert placement == run("placement", tutorial, 1, 1, 0), "placement queries must be deterministic"
+    assert placement["read_only"] and placement["stage"] == "prepared"
+    assert not placement["complete_turn"] and not placement["complete_build_permission"]
+    assert not placement["applies_construction"] and placement["turn"] == prepared["turn"]
+    assert placement["territory"] == 1 and placement["building_type"] == 1 and placement["site"] == 0
+    assert placement["footprint"] == {"size": 1, "fits": True, "sites": [0]}
+    assert placement["placement_allowed"] == (placement["reason"] == 0)
+    for site in (-1, 36, 2147483647, -2147483648):
+        outside = run("placement", tutorial, 1, 1, site)
+        assert outside["reason"] == 1 and not outside["placement_allowed"]
+        assert not outside["footprint"]["fits"] and not outside["footprint"]["sites"]
+    for args in ((0, 1, 0), (-1, 1, 0), (37, 1, 0), (1, 0, 0), (1, 48, 0),
+                 (1, "1junk", 0), (1, 1, "2147483648"), (1, 1, "")):
+        assert not run("placement", tutorial, *args, success=False).stdout
     assert "Full turn unavailable" in run("turn", tutorial, success=False).stderr
     with tempfile.TemporaryDirectory(prefix="sim-cli-", dir=output) as temporary:
         folder = Path(temporary)
@@ -86,15 +101,20 @@ def main():
                                       capture_output=True, text=True)
             assert rejected.returncode == 2 and not partial.exists(), "experiments must not accept a save destination"
         assert not list(folder.glob("*.dl2tmp-*"))
+        partial = folder / "forbidden-placement.sav"
+        rejected = subprocess.run([str(binary), "placement", str(tutorial), "1", "1", "0", str(partial)],
+                                  capture_output=True, text=True)
+        assert rejected.returncode == 2 and not partial.exists(), "placement cannot accept a save destination"
     if (data / "LEVELS.HDX").is_file() and (data / "LEVELS.HDD").is_file():
         assert run("prepare-archive", data / "LEVELS", "CHCHT1")["stage"] == "prepared"
         assert not run("taxes-archive", data / "LEVELS", "CHCHT1")["complete_turn"]
         assert run("economy-archive", data / "LEVELS", "CHCHT1")["read_only"]
         assert run("energy-archive", data / "LEVELS", "CHCHT1")["isolated"]
         assert run("labor-archive", data / "LEVELS", "CHCHT1")["isolated"]
+        assert run("placement-archive", data / "LEVELS", "CHCHT1", 1, 1, 0)["read_only"]
         run("prepare-archive", data / "LEVELS", "MISSING", success=False)
     assert hashlib.sha256(tutorial.read_bytes()).digest() == hashlib.sha256(original).digest()
-    print("simulation CLI: exact preparation, production/needs, isolated taxes/energy/labor, non-turn rejection and safe copies passed")
+    print("simulation CLI: exact preparation, production/needs/placement, isolated taxes/energy/labor, non-turn rejection and safe copies passed")
     return 0
 
 

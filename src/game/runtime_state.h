@@ -13,8 +13,9 @@
 
 namespace dl2::runtime {
 template<class Tag> struct Handle {
-    uint32_t slot = 0; // 1-based; zero is null. Valid only for its owning State.
-    explicit operator bool() const { return slot != 0; }
+    uint32_t slot = 0; // Stable, 1-based registry slot; NOT a document vector index.
+    uint64_t identity = 0; // Opaque lifetime token; never serialized or reused.
+    explicit operator bool() const { return slot != 0 && identity != 0; }
     bool operator==(const Handle&) const = default;
 };
 struct BuildingTag; struct ArmyTag; struct TerritoryTag; struct TileTag;
@@ -75,7 +76,19 @@ struct Graph {
     std::array<std::vector<TerritoryHandle>, kMaxPlayers> playerTerritories;
 };
 
-enum class Stage { Empty, Prepared, TaxesApplied, EnergyApplied, LaborBalanced };
+enum class EntityKind { Building, Army };
+enum class EntityEditOperation { Inserted, Retired };
+struct EntityEditReport {
+    EntityKind kind = EntityKind::Building;
+    EntityEditOperation operation = EntityEditOperation::Inserted;
+    uint32_t id = 0, territory = 0;
+    int32_t site = -1; // No building site for armies.
+    uint32_t beforeCount = 0, afterCount = 0;
+    uint32_t previousId = 0, nextId = 0; // Inserted/retired node's list neighbors.
+    bool operator==(const EntityEditReport&) const = default;
+};
+
+enum class Stage { Empty, Prepared, TaxesApplied, EnergyApplied, LaborBalanced, EntitiesEdited };
 class State {
 public:
     State() = default;
@@ -99,22 +112,56 @@ public:
     // cap material stocks. NOT full LoadGame activation or a production phase.
     // Once from Prepared; cannot chain experiments or publish a partial save.
     bool normalizeLabor(simulation::LaborBalancePlan& report, save::Error& error);
+    // Structural storage operations, NOT construction, manufacturing, demolition
+    // or combat orders. Callers supply complete payloads and explicit file IDs;
+    // only list references and the building's anchor-site reference are derived.
+    // No costs, defaults, terrain/roads/footprints, labor, AI, RNG or events change.
+    // Restricted to simple size-one non-platform/non-shrine buildings and armies
+    // without transport/siege/job dependencies. Coherent affected lists required.
+    // Counts retain the original allocator's reserved free node (1199 / 559).
+    // Success enters EntitiesEdited: more structural edits are allowed, but
+    // capture/economic experiments/full turns are not. Failure changes no output.
+    bool insertBuilding(const Building& record, BuildingHandle& created,
+                        EntityEditReport& report, save::Error& error);
+    bool retireBuilding(BuildingHandle handle, EntityEditReport& report, save::Error& error);
+    bool insertArmy(const Army& record, ArmyHandle& created,
+                    EntityEditReport& report, save::Error& error);
+    bool retireArmy(ArmyHandle handle, EntityEditReport& report, save::Error& error);
     bool advanceTurn(save::Error& error); // Explicit unsupported operation, never a no-op success.
     Stage stage() const { return stage_; }
     const save::Document* document() const { return document_.get(); }
     const Graph& graph() const { return graph_; }
     BuildingHandle buildingById(uint32_t id) const;
     ArmyHandle armyById(uint32_t id) const;
+    TerritoryHandle territoryByIndex(uint32_t fileIndex) const;
+    TileHandle tileByIndex(uint32_t oneBasedIndex) const;
     const Building* building(BuildingHandle h) const;
     const Army* army(ArmyHandle h) const;
+    const BuildingLinks* buildingLinks(BuildingHandle h) const;
+    const ArmyLinks* armyLinks(ArmyHandle h) const;
     const save::TerritoryRecord* territory(TerritoryHandle h) const;
     const Tile* tile(TileHandle h) const;
     const Queue* queue(QueueHandle h) const;
     const QueueNode* queueNode(QueueNodeHandle h) const;
     const MinisterNode* minister(MinisterHandle h) const;
 private:
+    struct EntitySlot {
+        uint64_t identity = 0; // Zero denotes a reusable free slot.
+        uint32_t denseIndex = 0;
+    };
+    // The document remains densely ordered; stable slots resolve through these
+    // registries. Erasure preserves the order and identities of all survivors.
+    std::vector<EntitySlot> buildingSlots_, armySlots_;
+    std::vector<uint32_t> buildingDenseSlots_, armyDenseSlots_;
+    uint64_t preparationIdentity_ = 0; // Static graph handles' owning lifetime.
+    bool rebuildGraph(save::Error& error);
+    bool copyForEdit(State& candidate, save::Error& error) const;
+    bool finishEdit(State&& candidate, save::Error& error);
     std::unique_ptr<save::Document> document_;
     Graph graph_;
     Stage stage_ = Stage::Empty;
 };
+// All returned pointers and Graph references are borrowed until the next
+// successful structural mutation or prepare/move assignment. Keep handles,
+// not pointers: surviving entity handles remain valid across structural edits.
 } // namespace dl2::runtime

@@ -24,14 +24,16 @@ estado preparado tampoco escribe en `gs`, `gg`, pools globales o generadores RNG
 y no invoca callbacks históricos. Los campos que el archivo conserva como
 direcciones antiguas nunca se convierten en código ejecutable.
 
-Los `Handle<Tag>` son slots tipados de 1 a N, con cero como nulo. No son IDs de
-archivo: `buildingById` y `armyById` realizan la conversión correspondiente.
-El mismo número puede representar objetos distintos en estados diferentes.
-No tienen generación ni identificador de propietario incorporado: el llamador
-debe conservarlos únicamente durante la vida de su estado y **descartarlos después
-de una nueva preparación exitosa**. Un fallo de preparación no los invalida.
-Los punteros const que devuelven los accesores tienen la misma restricción.
-Mover un `State` transfiere juntos documento y grafo y deja vacío el origen.
+Los `Handle<Tag>` son slots tipados con identidad de vida, con cero como nulo.
+No son IDs de archivo: `buildingById` y `armyById` realizan la conversión.
+Los accesores rechazan handles retirados, de otra instancia o de una preparación
+anterior. Una preparación fallida no los invalida. Los supervivientes conservan
+su identidad tras insertar/retirar entidades, incluso si cambia su posición en
+el documento denso. No indexar `Graph::buildings/armies` mediante `handle.slot`:
+usar `buildingLinks`/`armyLinks`. Los punteros prestados sí deben descartarse tras
+una mutación estructural o sustitución exitosa. Mover un `State` transfiere juntos
+documento, identidades y grafo y deja vacío el origen.
+Contrato detallado y límites: [ENTITY_RUNTIME.md](ENTITY_RUNTIME.md).
 
 ## Referencias resueltas y palabras conservadas
 
@@ -73,6 +75,7 @@ no ASCII. La presentación de texto de la UI no cambia estos datos binarios.
 | `TaxesApplied` | Sólo créditos modificados por impuestos; no permite repetir la subfase ni exportar una partida reanudable |
 | `EnergyApplied` | Sólo stock y porcentaje energético modificados; no permite repetir, encadenar impuestos ni capturar para guardar |
 | `LaborBalanced` | Tareas/labor/flags, moral y topes de almacén normalizados explícitamente; no es activación completa ni permite encadenar fases o capturar para guardar |
+| `EntitiesEdited` | Inserciones/retiradas estructurales limitadas; admite más ediciones estructurales, pero no captura ni fases económicas ni turno completo |
 
 `prepare` puede construir una preparación nueva desde cualquier estado. La fase
 actual es una propiedad **en memoria**, no una marca añadida al formato SAV.
@@ -90,6 +93,12 @@ tareas, balance de trabajadores y tope de materiales. No cambia las identidades
 ni referencias del grafo, y no se encadena con los otros experimentos. El contrato,
 los casos firmados peculiares del original y los límites seguros se describen en
 [LABOR_BALANCE.md](LABOR_BALANCE.md). No sustituye la normalización completa de carga.
+
+`insertBuilding`/`retireBuilding`/`insertArmy`/`retireArmy` requieren `Prepared` o
+`EntitiesEdited`. Son operaciones transaccionales de almacenamiento, con registros
+completos y IDs explícitos; no son construcción, fabricación, demolición o bajas
+de combate. Su dominio limitado y las dependencias rechazadas se detallan en
+[ENTITY_RUNTIME.md](ENTITY_RUNTIME.md). El inspector sigue sin estas órdenes.
 
 `capture` sólo acepta `Prepared`: copia el documento conservado, valida el
 resultado y reemplaza su destino al finalizar. Tras aplicar cualquier experimento falla
@@ -183,6 +192,11 @@ en `ECONOMY_LAB.md`.
 memoria. Informan `complete_load:false` y `complete_turn:false`, no aceptan un
 destino de guardado y no cambian el inspector gráfico.
 
+`placement`/`placement-archive` consultan emplazamiento y huella de un edificio sin
+mutación. Requieren territorio, tipo e índice de casilla. No autorizan por sí solos
+construir: no comprueban propiedad, tecnología o recursos. Ejemplos y códigos de
+rechazo en `ENTITY_RUNTIME.md`.
+
 ## Verificación y límites pendientes
 
 Las pruebas de `tax_phase` contienen oráculos numéricos de redondeo, tasas,
@@ -197,7 +211,9 @@ Faltan perfiles explícitos de normalización del cargador original para version
 antiguas, campañas, opciones, IA, visibilidad, semillas y reinicios de RNG. La
 preparación actual conserva los datos; no afirma que cada palabra histórica sea
 semánticamente correcta para una nueva simulación. Tampoco incorpora todavía
-pools de creación/destrucción, listas libres equivalentes o el resto de fases.
+creación/destrucción con efectos de gameplay ni el resto de fases. Ya dispone
+del backend estructural limitado e identidades estables descritos arriba; no son
+una reproducción del layout ni del orden físico de los pools Borland.
 
 La secuencia económica observada en `FUN_0046c7d4` es impuestos, producción 1,
 registro de necesidades, importación de déficits, comida, energía, mantenimiento,

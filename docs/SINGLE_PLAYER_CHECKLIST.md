@@ -1,7 +1,7 @@
 # Checklist de cierre: Deadlock II individual
 
-Revisión: 2026-09-28. Base auditada: `d7fe2db`, ampliada con el lote de tareas y
-balance laboral descrito en [LABOR_BALANCE.md](LABOR_BALANCE.md).
+Revisión: 2026-09-28. Base previa: `3793805`, ampliada con el lote de entidades
+propietarias y emplazamiento descrito en [ENTITY_RUNTIME.md](ENTITY_RUNTIME.md).
 
 ## Qué significa «100% funcionando»
 
@@ -35,11 +35,13 @@ funcional descubre comportamientos originales aún no identificados.
 - [x] Preparación propietaria y transaccional del estado, con referencias tipadas conocidas.
 - [x] Cálculos de impuestos, rendimiento de edificios y necesidades; experimentos aislados de impuestos y energía.
 - [x] Normalización explícita de tareas, trabajadores y topes de almacén, integrada en el estado propietario y el CLI.
+- [x] Identidades estables y edición estructural limitada de edificios/unidades, con transacciones y rechazo de referencias retiradas o ajenas; todavía no son órdenes de gameplay.
+- [x] Consultas de huella y emplazamiento originales, con motivos de rechazo y CLI de sólo lectura; no autorizan por sí solas construir.
 
-Última verificación: **21/21 pruebas**, sin omisiones, normal y con
-AddressSanitizer. La normalización laboral se comprobó sobre 46 documentos y
-983 edificios, además de los casos sintéticos. Estas pruebas sí se ejecutaron
-para el nuevo lote; siguen sin acreditar **una partida completa**.
+Última verificación: **23/23 pruebas**, sin omisiones, normal y con
+AddressSanitizer. El nuevo lote comprobó 46 preparaciones e inserciones/retiradas
+reversibles, y consultas sobre 2.753 territorios y 983 edificios, además de los
+casos sintéticos. Siguen sin acreditar **una partida completa**.
 
 ## 1. Estado activo e integración de reglas — bloqueante
 
@@ -47,6 +49,9 @@ para el nuevo lote; siguen sin acreditar **una partida completa**.
 - [ ] **EST-02** Reconstruir continentes, caminos, santuarios, contactos, visibilidad y datos derivados al cargar.
 - [x] **EST-03** Reconstruir tareas, equilibrar trabajadores y aplicar topes de almacén como normalización explícita (`State::normalizeLabor`). La activación de toda la carga sigue pendiente en EST-01/02.
 - [ ] **EST-04** Implementar creación/destrucción de edificios y unidades, listas libres/activas, límites y referencias estables durante la simulación.
+  - [x] **EST-04a** Handles estables y rechazo de referencias retiradas, ajenas o de una preparación anterior, incluso tras reutilizar slots/IDs.
+  - [x] **EST-04b** Backend estructural de inserción/retirada para registros simples explícitos, validación de listas, reserva de capacidad y rechazo de dependencias; sin efectos de gameplay ni exportación SAV.
+  - [ ] **EST-04c** Inicialización real, IDs de partida y efectos completos de construcción/bajas: huellas, transporte, empleos, IA, costes, eventos y casos especiales.
 - [ ] **EST-05** Integrar un estado RNG de partida: semillas, orden de consumo y restauración/inicialización conforme al original.
 - [ ] **EST-06** Unificar tablas y contratos heredados; resolver duplicados y discrepancias, incluida la tabla de campañas de 32 frente a 43 entradas.
 - [ ] **EST-07** Conectar efectos reales entre módulos, sustituyendo los callbacks ausentes necesarios; no aceptar operaciones vacías como éxito.
@@ -83,6 +88,8 @@ actual no satisface este bloque.
 
 - [ ] **CON-01** Integrar o adaptar el trabajo recuperado de `buildings.cpp`, actualmente fuera de la compilación, sobre los contratos definitivos.
 - [ ] **CON-02** Validar emplazamiento, huella, terreno, propiedad, tecnología y recursos antes de construir.
+  - [x] **CON-02a** Consulta pura `0044d600`: huella 1×1/2×2/5×5, casillas, terreno, duplicados, mar adyacente y plataformas, con precedencia original de motivos.
+  - [ ] **CON-02b** Completar propiedad, tecnología, población, fondos/materiales y logística; conectar todas las comprobaciones a la orden real.
 - [ ] **CON-03** Iniciar, avanzar y finalizar construcciones y mejoras, pagando sus costes y actualizando tareas/capacidad.
 - [ ] **CON-04** Resolver activación/desactivación, demolición, daños y reparación según las reglas de cada edificio.
 - [ ] **CON-05** Conectar las cinco colas de fabricación: añadir, ordenar/cancelar según permita el original, progresar y producir unidades reales.

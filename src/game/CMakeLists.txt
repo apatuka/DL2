@@ -18,6 +18,7 @@ set(GAME_SOURCES
     resource_needs.cpp
     production_plan.cpp
     labor_balance.cpp
+    entity_rules.cpp
     # END MODULE SOURCES
 )
 

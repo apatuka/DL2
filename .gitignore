@@ -1,0 +1,12 @@
+# Local build products and diagnostic output.
+/build*/
+/out/
+/.recovery/
+/.vs/
+
+# Ghidra's local database stays on disk; textual exports and scripts are versioned.
+/ghidra_project/
+
+# Python runtime caches.
+__pycache__/
+*.py[cod]

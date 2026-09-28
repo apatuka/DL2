@@ -1,0 +1,88 @@
+# m09_memory_sprites_anim_armies: 0x441000-0x446000  functions=87 bytes=17476
+004410fc     44 FUN_004410fc                     strings: 
+00441128    405 FUN_00441128                     strings: 
+004412d4    118 FUN_004412d4                     strings: 
+0044134c     59 FUN_0044134c                     strings: 
+00441388    118 FUN_00441388                     strings: 
+00441400    397 FUN_00441400                     strings: 
+00441590     61 FUN_00441590                     strings: 
+004415d0    303 FUN_004415d0                     strings: 
+00441700    359 FUN_00441700                     strings: 
+00441868     66 FUN_00441868                     strings: 
+004418ac     55 FUN_004418ac                     strings: 
+004418e4      7 FUN_004418e4                     strings: 
+004418ec    220 FUN_004418ec                     strings: "Memory Allocation of %s buffer of %ld bytes failed! Error code %#08x"|"On AllocMem error:\r\n"|"Too many Allocations to record!"
+004419c8    123 FUN_004419c8                     strings: "Number of allocations and de-allocations doesn't match!"
+00441a44     33 FUN_00441a44                     strings: 
+00441adc    151 FUN_00441adc                     strings: 
+00441b74    127 FUN_00441b74                     strings: 
+00441bf4     49 FUN_00441bf4                     strings: 
+00441c28    103 FUN_00441c28                     strings: 
+00441c90    205 FUN_00441c90                     strings: 
+00441d60    184 FUN_00441d60                     strings: 
+00441e18    158 FUN_00441e18                     strings: 
+00441eb8    235 FUN_00441eb8                     strings: 
+00441fa4    480 FUN_00441fa4                     strings: 
+00442184    309 FUN_00442184                     strings: 
+004422bc    245 FUN_004422bc                     strings: 
+004423b4    684 FUN_004423b4                     strings: 
+00442678    125 FUN_00442678                     strings: 
+004426f8    520 FUN_004426f8                     strings: 
+00442900    117 FUN_00442900                     strings: 
+00442978    716 FUN_00442978                     strings: 
+00442c44    802 FUN_00442c44                     strings: 
+00442f68    270 FUN_00442f68                     strings: 
+00443078    321 FUN_00443078                     strings: 
+004431bc    278 FUN_004431bc                     strings: 
+004432d4     40 FUN_004432d4                     strings: 
+004432fc    159 FUN_004432fc                     strings: 
+0044339c    269 FUN_0044339c                     strings: 
+004434ac    258 FUN_004434ac                     strings: 
+004435b0    201 FUN_004435b0                     strings: 
+0044367c     80 FUN_0044367c                     strings: 
+004436cc    246 FUN_004436cc                     strings: 
+004437c4    106 FUN_004437c4                     strings: 
+00443830    143 FUN_00443830                     strings: 
+00444274    102 FUN_00444274                     strings: 
+004442dc    145 FUN_004442dc                     strings: 
+00444370     40 FUN_00444370                     strings: 
+00444398   1454 FUN_00444398                     strings: 
+00444948     35 FUN_00444948                     strings: 
+0044496c    147 @WinGWndProc$qqspvuiuil          strings: 
+00444a00    185 FUN_00444a00                     strings: 
+00444abc     39 FUN_00444abc                     strings: 
+00444ae4    142 FUN_00444ae4                     strings: "Freeing an invalid ANIM."
+00444b74    374 FUN_00444b74                     strings: 
+00444cec      7 FUN_00444cec                     strings: 
+00444cf4    379 DrawSprite                       strings: "Sprite #%d, type#%d, has bad parent %d, type#%d"|"Null pointer in DrawSprite: sprite #%d, type#%d"|"Null sprite in DrawSprite"
+00444e70     22 FUN_00444e70                     strings: 
+00444e88    152 FUN_00444e88                     strings: 
+00444f20    178 FUN_00444f20                     strings: 
+00444fd4    108 FUN_00444fd4                     strings: 
+00445040     48 FUN_00445040                     strings: 
+00445074    106 FUN_00445074                     strings: 
+004450e0     31 FUN_004450e0                     strings: 
+00445100     86 FUN_00445100                     strings: 
+00445190     60 FUN_00445190                     strings: 
+004451cc      8 FUN_004451cc                     strings: 
+004451d4    155 FUN_004451d4                     strings: 
+00445270    857 FUN_00445270                     strings: 
+004455fc    157 FUN_004455fc                     strings: 
+0044569c    114 FUN_0044569c                     strings: 
+00445710    106 FUN_00445710                     strings: 
+0044577c    129 FUN_0044577c                     strings: "freeArmies[6] is invalid."
+00445800    152 DeleteArmy                       strings: "Freeing invalid army in DeleteArmy"
+00445898    168 ReLinkArmy                       strings: "Re-linking invalid army in ReLinkArmy"
+00445940    123 FUN_00445940                     strings: 
+004459bc     32 FUN_004459bc                     strings: 
+004459dc     40 FUN_004459dc                     strings: 
+00445a04    110 FUN_00445a04                     strings: 
+00445a74     53 FUN_00445a74                     strings: 
+00445aac     54 FUN_00445aac                     strings: 
+00445ae4    175 FUN_00445ae4                     strings: 
+00445b94    321 FUN_00445b94                     strings: 
+00445cd8     85 FUN_00445cd8                     strings: 
+00445d30    432 FUN_00445d30                     strings: "%s %s #%d"
+00445ee0     39 FUN_00445ee0                     strings: 
+00445f08    201 FUN_00445f08                     strings: 
+00445fd4    176 DeleteUnit                       strings: "Deleted unit not in specified territory in DeleteUnit"

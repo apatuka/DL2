@@ -1,0 +1,1078 @@
+DIALOG 5000 "Minister Stats (Debug)" 308x232 style=0x90C800C0 class= font=MS Sans Serif
+   ctl id=1     BUTTON       "OK" @243,209 40x14 style=0x50010001
+   ctl id=65535 STATIC       "Credits
+labor
+building" @6,33 42x38 style=0x50020000
+   ctl id=38    STATIC       "100/150
+1
+2
+3" @48,33 32x34 style=0x50020000
+   ctl id=39    STATIC       "100/100" @80,33 32x40 style=0x50020000
+   ctl id=40    STATIC       "100/100" @112,33 32x40 style=0x50020000
+   ctl id=41    STATIC       "100/100" @144,33 32x40 style=0x50020000
+   ctl id=42    STATIC       "100/100" @176,33 32x40 style=0x50020001
+   ctl id=43    STATIC       "100/100" @208,33 32x40 style=0x50020001
+   ctl id=65535 STATIC       "Defense" @47,20 33x13 style=0x50020001
+   ctl id=65535 STATIC       "War" @81,20 28x13 style=0x50020001
+   ctl id=65535 STATIC       "Gov." @112,20 28x13 style=0x50020001
+   ctl id=65535 STATIC       "Commerce" @141,20 37x13 style=0x50020001
+   ctl id=65535 STATIC       "Tech." @178,20 28x13 style=0x50020001
+   ctl id=65535 STATIC       "Labor" @208,20 28x13 style=0x50020001
+   ctl id=50    STATIC       "0" @45,150 29x13 style=0x50020000
+   ctl id=51    STATIC       "0" @77,150 29x13 style=0x50020000
+   ctl id=52    STATIC       "0" @109,150 29x13 style=0x50020000
+   ctl id=53    STATIC       "0" @141,150 29x13 style=0x50020000
+   ctl id=54    STATIC       "0" @173,150 29x13 style=0x50020000
+   ctl id=55    STATIC       "0" @205,150 29x13 style=0x50020000
+   ctl id=65535 STATIC       "Priority:" @3,151 38x13 style=0x50020002
+   ctl id=61    STATIC       "100/150
+1
+2
+3
+4" @48,73 32x71 style=0x50020000
+   ctl id=65535 STATIC       "Food
+Wood
+Energy
+Power
+Metal
+Anti-Matter Pods
+Electronic Parts
+Art" @6,73 42x71 style=0x50020000
+   ctl id=62    STATIC       "100/150
+1
+2
+3
+4" @80,73 32x71 style=0x50020000
+   ctl id=63    STATIC       "100/150
+1
+2
+3
+4" @112,73 32x71 style=0x50020000
+   ctl id=64    STATIC       "100/150
+1
+2
+3
+4" @144,73 32x71 style=0x50020000
+   ctl id=65    STATIC       "100/150
+1
+2
+3
+4" @176,73 32x71 style=0x50020000
+   ctl id=66    STATIC       "100/150
+1
+2
+3
+4" @208,73 32x71 style=0x50020000
+   ctl id=44    STATIC       "100/100" @240,33 43x40 style=0x50020001
+   ctl id=65535 STATIC       "Res./Stock" @240,20 43x13 style=0x50020001
+   ctl id=56    STATIC       "0" @237,150 47x13 style=0x50020000
+   ctl id=67    STATIC       "100/150
+1
+2
+3
+4" @240,73 43x71 style=0x50020000
+   ctl id=14    STATIC       "Computer AI" @2,4 108x13 style=0x50020000
+   ctl id=21    BUTTON       "Next AI" @130,209 50x14 style=0x50010000
+   ctl id=5     STATIC       "Wars:" @178,4 108x13 style=0x50000002
+   ctl id=80    STATIC       "0/0" @45,185 29x13 style=0x50020000
+   ctl id=81    STATIC       "0/0" @80,185 29x13 style=0x50020000
+   ctl id=82    STATIC       "0/0" @115,185 29x13 style=0x50020000
+   ctl id=83    STATIC       "0/0" @150,185 29x13 style=0x50020000
+   ctl id=84    STATIC       "0/0" @185,185 29x13 style=0x50020000
+   ctl id=85    STATIC       "0/0" @220,185 29x13 style=0x50020000
+   ctl id=86    STATIC       "0/0" @255,185 29x13 style=0x50020000
+   ctl id=65535 STATIC       "Feelings:" @2,185 38x13 style=0x50020002
+   ctl id=70    STATIC       "None" @45,170 35x13 style=0x50020000
+   ctl id=71    STATIC       "None" @80,170 35x13 style=0x50020000
+   ctl id=72    STATIC       "None" @115,170 35x13 style=0x50020000
+   ctl id=73    STATIC       "None" @150,170 35x13 style=0x50020000
+   ctl id=74    STATIC       "None" @185,170 35x13 style=0x50020000
+   ctl id=75    STATIC       "None" @220,170 35x13 style=0x50020000
+   ctl id=76    STATIC       "None" @255,170 35x13 style=0x50020000
+DIALOG 8800 "Command Code Input" 159x59 style=0x90C800C0 class= font=MS Sans Serif
+   ctl id=1     BUTTON       "OK" @104,37 50x14 style=0x50010001
+   ctl id=8     STATIC       "Please enter your command." @7,4 94x8 style=0x50020000
+   ctl id=14    EDIT         "" @7,16 148x15 style=0x50810000
+DIALOG 8900 "Deadlock: Planetary Conquest" 222x124 style=0x90C800C0 class= font=MS Sans Serif
+   ctl id=14    BUTTON       "&Quick Start" @104,7 112x14 style=0x50030001
+   ctl id=15    BUTTON       "&Tutorial" @104,23 112x14 style=0x50010000
+   ctl id=13    BUTTON       "New &Single Player Game" @104,46 112x14 style=0x50010000
+   ctl id=11    BUTTON       "New &Multi-Player Game" @104,62 112x14 style=0x50010000
+   ctl id=12    BUTTON       "&Load Game" @104,78 112x14 style=0x50010000
+   ctl id=2     BUTTON       "E&xit Game" @104,102 112x14 style=0x50010000
+   ctl id=7     BUTTON       "Button" @9,8 91x105 style=0x5802000B
+DIALOG 8950 "Game Style" 218x111 style=0x90C800C0 class= font=MS Sans Serif
+   ctl id=10    BUTTON       "&Single Player vs. Computer Opponents" @65,11 150x17 style=0x50030001
+   ctl id=11    BUTTON       "&Multi-player via LAN or Modem" @65,30 150x17 style=0x50010000
+   ctl id=12    BUTTON       "&E-mail" @65,50 150x17 style=0x50010000
+   ctl id=2     BUTTON       "Cancel" @111,89 50x14 style=0x50010000
+   ctl id=9     BUTTON       "&Advice" @164,89 50x14 style=0x50010000
+   ctl id=7     BUTTON       "Button" @6,11 53x53 style=0x5802000B
+DIALOG 8975 "Multi-Player Setup" 232x136 style=0x90C800C0 class= font=MS Sans Serif
+   ctl id=1     BUTTON       "OK" @62,116 50x14 style=0x50030001
+   ctl id=2     BUTTON       "Cancel" @117,116 50x14 style=0x50010000
+   ctl id=9     BUTTON       "&Advice..." @174,116 50x14 style=0x50010000
+   ctl id=11    BUTTON       "&Start New Game" @116,19 87x12 style=0x50030009
+   ctl id=12    BUTTON       "&Join Game" @116,32 87x12 style=0x50000009
+   ctl id=7     BUTTON       "Button" @15,9 49x43 style=0x5802000B
+   ctl id=65535 BUTTON       "" @8,57 215x49 style=0x50000007
+   ctl id=65535 STATIC       "Type of Connection" @16,57 67x8 style=0x50020001
+   ctl id=65535 BUTTON       "" @111,6 111x44 style=0x50000007
+   ctl id=65535 STATIC       "Master Options" @117,7 54x8 style=0x50020001
+   ctl id=10802 BUTTON       "Modem" @136,68 74x12 style=0x50030009
+   ctl id=10803 BUTTON       "Serial" @136,84 74x12 style=0x50030009
+   ctl id=10800 BUTTON       "TCP/IP" @20,68 74x12 style=0x50030009
+   ctl id=10801 BUTTON       "IPX" @20,84 74x12 style=0x50030009
+DIALOG 8980 "Enter Name" 166x74 style=0x90C800C0 class= font=MS Sans Serif
+   ctl id=1     BUTTON       "OK" @56,53 50x14 style=0x50030001
+   ctl id=2     BUTTON       "Cancel" @108,53 50x14 style=0x50010000
+   ctl id=8     STATIC       "Type in the new name" @8,11 134x8 style=0x50020000
+   ctl id=14    EDIT         "" @10,26 149x14 style=0x50830000
+DIALOG 9000 "Game Options" 364x204 style=0x90C800C0 class= font=MS Sans Serif
+   ctl id=7     BUTTON       "Button" @33,8 42x38 style=0x5800000B
+   ctl id=60    STATIC       "" @29,157 140x38 style=0x50000007
+   ctl id=101   BUTTON       "" @81,4 47x95 style=0x50000007
+   ctl id=65535 STATIC       "# of Players" @84,4 40x8 style=0x50020001
+   ctl id=100   STATIC       "Choose During Race Selection" @84,30 40x40 style=0x40020001
+   ctl id=65535 BUTTON       "" @134,4 131x95 style=0x50000007
+   ctl id=65535 STATIC       "Victory Conditions" @138,4 60x8 style=0x50020001
+   ctl id=65535 BUTTON       "" @271,4 86x95 style=0x50000007
+   ctl id=65535 STATIC       "Computer Skill Level" @274,4 68x8 style=0x50020001
+   ctl id=65535 BUTTON       "" @81,105 88x45 style=0x50000007
+   ctl id=65535 STATIC       "Rules Options" @84,105 50x8 style=0x50020001
+   ctl id=65535 BUTTON       "" @175,105 182x72 style=0x50000007
+   ctl id=65535 STATIC       "Advanced Options" @179,105 62x8 style=0x50020001
+   ctl id=1     BUTTON       "OK" @197,186 50x14 style=0x50030001
+   ctl id=2     BUTTON       "Cancel" @251,186 50x14 style=0x50010000
+   ctl id=9     BUTTON       "&Advice" @306,186 50x14 style=0x50010000
+   ctl id=30    BUTTON       "T&wo" @88,16 33x12 style=0x50030009
+   ctl id=31    BUTTON       "T&hree" @88,29 33x12 style=0x50000009
+   ctl id=32    BUTTON       "&Four" @88,42 33x12 style=0x50000009
+   ctl id=33    BUTTON       "Fi&ve" @88,55 33x12 style=0x50000009
+   ctl id=34    BUTTON       "Si&x" @88,68 33x12 style=0x50000009
+   ctl id=35    BUTTON       "Seve&n" @88,81 33x12 style=0x50000009
+   ctl id=102   COMBOBOX     "" @140,15 70x42 style=0x50030003
+   ctl id=103   STATIC       "Win by totally eliminating your opponents." @140,30 119x24 style=0x50020000
+   ctl id=42    BUTTON       "&2 Cities" @151,57 37x12 style=0x50020009
+   ctl id=43    BUTTON       "&3 Cities" @151,71 37x12 style=0x50000009
+   ctl id=44    BUTTON       "&5 Cities" @208,57 37x12 style=0x50000009
+   ctl id=45    BUTTON       "&7 Cities" @208,71 37x12 style=0x50000009
+   ctl id=46    BUTTON       "&10 Cities" @178,85 39x12 style=0x50000009
+   ctl id=104   BUTTON       "2 Shrines" @151,57 41x12 style=0x50020009
+   ctl id=105   BUTTON       "3 Shrines" @151,71 41x12 style=0x50000009
+   ctl id=106   BUTTON       "5 Shrines" @151,85 41x12 style=0x50000009
+   ctl id=107   BUTTON       "3 Turns" @208,57 38x12 style=0x50020009
+   ctl id=108   BUTTON       "5 Turns" @208,71 38x12 style=0x50000009
+   ctl id=109   BUTTON       "8 Turns" @208,85 38x12 style=0x50000009
+   ctl id=36    BUTTON       "Ho&g Tied" @283,16 62x12 style=0x50030009
+   ctl id=37    BUTTON       "H&indered" @283,27 62x12 style=0x50000009
+   ctl id=38    BUTTON       "Fai&r Fight" @283,39 62x12 style=0x50000009
+   ctl id=39    BUTTON       "&Boosted" @283,51 62x12 style=0x50000009
+   ctl id=40    BUTTON       "Su&percharged" @283,63 62x12 style=0x50000009
+   ctl id=41    BUTTON       "C&ustom" @289,79 50x14 style=0x50030000
+   ctl id=47    BUTTON       "Random &Events" @86,114 79x12 style=0x50030003
+   ctl id=110   BUTTON       "A&llow Alliances" @86,125 79x12 style=0x50010003
+   ctl id=48    BUTTON       "Fas&t Production" @86,136 79x12 style=0x50010003
+   ctl id=51    BUTTON       "Last Pla&yer has" @184,119 89x12 style=0x50030003
+   ctl id=50    EDIT         "" @277,119 38x12 style=0x50830000
+   ctl id=52    BUTTON       "Aut&o End turn in" @184,134 89x12 style=0x50030003
+   ctl id=49    EDIT         "" @277,134 38x12 style=0x50830000
+   ctl id=65535 STATIC       "seconds." @317,119 37x12 style=0x50000000
+   ctl id=65535 STATIC       "seconds." @317,134 37x12 style=0x50000000
+   ctl id=65535 STATIC       "Racial Abilities" @194,155 39x17 style=0x50000000
+   ctl id=6     COMBOBOX     "Standard Abilities" @238,154 97x46 style=0x50230003
+   ctl id=61    STATIC       "SPECIAL NOTE
+To enjoy all of the features of Deadlock, you must play with a non-demo Deadlock CD in your CD-ROM drive." @33,160 132x32 style=0x50020000
+   ctl id=62    STATIC       "Current Difficulty Rating
+
+100%" @9,50 66x59 style=0x50020001
+DIALOG 9050 "AI Task Forces" 353x264 style=0x90C800C0 class= font=MS Sans Serif
+   ctl id=1     BUTTON       "OK" @182,243 50x14 style=0x50010001
+   ctl id=10    EDIT         "" @7,5 166x27 style=0x50A10004
+   ctl id=30    BUTTON       "Next Player" @236,243 50x14 style=0x50010000
+   ctl id=18    EDIT         "" @179,5 166x27 style=0x50A10004
+   ctl id=11    EDIT         "" @7,34 166x27 style=0x50A10004
+   ctl id=19    EDIT         "" @179,34 166x27 style=0x50A10004
+   ctl id=12    EDIT         "" @7,63 166x27 style=0x50A10004
+   ctl id=20    EDIT         "" @179,63 166x27 style=0x50A10004
+   ctl id=13    EDIT         "" @7,92 166x27 style=0x50A10004
+   ctl id=21    EDIT         "" @179,92 166x27 style=0x50A10004
+   ctl id=14    EDIT         "" @7,121 166x27 style=0x50A10004
+   ctl id=22    EDIT         "" @179,121 166x27 style=0x50A10004
+   ctl id=15    EDIT         "" @7,150 166x27 style=0x50A10004
+   ctl id=23    EDIT         "" @179,150 166x27 style=0x50A10004
+   ctl id=16    EDIT         "" @7,179 166x27 style=0x50A10004
+   ctl id=24    EDIT         "" @179,179 166x27 style=0x50A10004
+   ctl id=17    EDIT         "" @7,208 166x27 style=0x50A10004
+   ctl id=25    EDIT         "" @179,208 166x27 style=0x50A10004
+DIALOG 9100 "Modem/Serial Link Configuration" 271x183 style=0x90C800C0 class= font=MS Sans Serif
+   ctl id=32    BUTTON       "Port To Configure" @7,4 117x60 style=0x50000007
+   ctl id=27    BUTTON       "How To Connect" @131,4 135x60 style=0x50000007
+   ctl id=26    BUTTON       "Connect Rate" @7,70 118x80 style=0x50000007
+   ctl id=25    BUTTON       "Modem Initialization Commands" @130,70 137x80 style=0x50000007
+   ctl id=1     BUTTON       "OK" @105,162 50x14 style=0x50030001
+   ctl id=2     BUTTON       "Cancel" @160,162 50x14 style=0x50010000
+   ctl id=9     BUTTON       "&Advice..." @216,162 50x14 style=0x58010000
+   ctl id=25    BUTTON       "COM &1" @43,14 41x12 style=0x50030009
+   ctl id=26    BUTTON       "COM &2" @43,26 41x12 style=0x50000009
+   ctl id=27    BUTTON       "COM &3" @43,38 41x12 style=0x50000009
+   ctl id=28    BUTTON       "COM &4" @43,50 41x12 style=0x50000009
+   ctl id=22    BUTTON       "&Call on Modem" @159,14 73x12 style=0x50030009
+   ctl id=23    BUTTON       "&Answer Modem" @159,30 73x12 style=0x50000009
+   ctl id=24    BUTTON       "&Direct Connect" @159,46 73x12 style=0x50000009
+   ctl id=10    BUTTON       "24&00" @25,82 39x12 style=0x50030009
+   ctl id=11    BUTTON       "9600" @25,97 39x12 style=0x50000009
+   ctl id=12    BUTTON       "14400" @25,112 39x12 style=0x50000009
+   ctl id=13    BUTTON       "19200" @25,127 39x12 style=0x50000009
+   ctl id=14    BUTTON       "28800" @68,82 39x12 style=0x50000009
+   ctl id=15    BUTTON       "38400" @68,97 39x12 style=0x50000009
+   ctl id=16    BUTTON       "57600" @68,112 39x12 style=0x50000009
+   ctl id=17    BUTTON       "115200" @68,127 39x12 style=0x50000009
+   ctl id=65535 STATIC       "Init Modem" @145,87 54x8 style=0x50020000
+   ctl id=65535 STATIC       "Dial Modem" @145,103 54x8 style=0x50020000
+   ctl id=65535 STATIC       "Answer Modem" @145,119 54x8 style=0x50020000
+   ctl id=65535 STATIC       "Number To Call" @145,135 54x8 style=0x50020000
+   ctl id=21    EDIT         "AT&F&D2" @201,84 50x12 style=0x50830000
+   ctl id=20    EDIT         "ATDT" @201,99 50x12 style=0x50810000
+   ctl id=19    EDIT         "ATA^M" @201,115 50x12 style=0x50810000
+   ctl id=18    EDIT         "408-555-1234" @201,132 50x12 style=0x50810000
+DIALOG 9200 "Join a Network Game" 178x101 style=0x90C800C0 class= font=MS Sans Serif
+   ctl id=1     BUTTON       "&Join" @7,80 50x14 style=0x50030001
+   ctl id=2     BUTTON       "Cancel" @63,80 50x14 style=0x50010000
+   ctl id=9     BUTTON       "&Advice" @121,80 50x14 style=0x50010000
+   ctl id=11    LISTBOX      "" @7,18 164x52 style=0x50A30001
+   ctl id=65535 STATIC       "Current Games" @6,8 60x8 style=0x50020000
+DIALOG 9700 "Planet Type" 192x123 style=0x90C800C0 class= font=MS Sans Serif
+   ctl id=65535 STATIC       "" @102,7 82x88 style=0x50000008
+   ctl id=1     BUTTON       "OK" @89,104 45x14 style=0x50030001
+   ctl id=2     BUTTON       "Cancel" @138,104 45x14 style=0x50010000
+   ctl id=21    BUTTON       "&Small" @114,14 65x12 style=0x50030009
+   ctl id=22    BUTTON       "&Medium" @114,28 65x12 style=0x50000009
+   ctl id=23    BUTTON       "&Large" @114,42 65x12 style=0x50000009
+   ctl id=24    BUTTON       "&Huge" @114,56 65x12 style=0x50000009
+   ctl id=25    BUTTON       "&Custom" @114,76 65x12 style=0x50000009
+   ctl id=7     BUTTON       "Button" @7,7 90x89 style=0x5802000B
+DIALOG 9750 "World Creation" 247x211 style=0x90C800C0 class= font=MS Sans Serif
+   ctl id=7     BUTTON       "Button" @12,7 85x86 style=0x5800000B
+   ctl id=27    BUTTON       "" @7,96 85x89 style=0x50000007
+   ctl id=65535 BUTTON       "" @109,3 132x178 style=0x50000007
+   ctl id=65535 STATIC       "Terrain Colors" @11,96 48x8 style=0x50020001
+   ctl id=65535 STATIC       "World Generation Parameters" @113,3 98x8 style=0x50020001
+   ctl id=1     BUTTON       "OK" @80,191 50x14 style=0x50030001
+   ctl id=2     BUTTON       "Cancel" @134,191 50x14 style=0x50010000
+   ctl id=9     BUTTON       "&Advice" @188,191 50x14 style=0x50010000
+   ctl id=11    BUTTON       "&Earth like" @23,105 65x12 style=0x50030009
+   ctl id=12    BUTTON       "&Tropical" @23,116 65x12 style=0x50000009
+   ctl id=13    BUTTON       "&Martian" @23,127 65x12 style=0x50000009
+   ctl id=14    BUTTON       "&Icy" @23,138 65x12 style=0x50000009
+   ctl id=15    BUTTON       "&Dry" @23,149 65x12 style=0x50000009
+   ctl id=16    BUTTON       "&Volcanic" @23,160 65x12 style=0x50000009
+   ctl id=17    BUTTON       "A&lien" @23,171 65x12 style=0x50000009
+   ctl id=65535 STATIC       "Size" @111,24 45x10 style=0x50020000
+   ctl id=65535 STATIC       "Height" @111,39 45x10 style=0x40000000
+   ctl id=65535 STATIC       "Territory Size" @111,59 45x20 style=0x40000000
+   ctl id=65535 STATIC       "Oceans" @111,88 45x10 style=0x50000000
+   ctl id=65535 STATIC       "Plains" @111,103 45x10 style=0x50000000
+   ctl id=65535 STATIC       "Forests" @111,117 45x10 style=0x50000000
+   ctl id=65535 STATIC       "Marshes" @111,133 45x10 style=0x50000000
+   ctl id=65535 STATIC       "Mountains" @111,148 45x10 style=0x50000000
+   ctl id=65535 STATIC       "Wasteland" @111,163 45x10 style=0x50000000
+   ctl id=18    BUTTON       " 30" @158,22 77x12 style=0x5000000B
+   ctl id=19    BUTTON       " 30" @158,38 77x12 style=0x4000000B
+   ctl id=20    BUTTON       " 12" @158,61 77x12 style=0x4000000B
+   ctl id=21    BUTTON       "3O%" @158,87 77x12 style=0x5000000B
+   ctl id=22    BUTTON       "20%" @158,102 77x12 style=0x5000000B
+   ctl id=23    BUTTON       "20%" @158,117 77x12 style=0x5000000B
+   ctl id=24    BUTTON       "20%" @158,132 77x12 style=0x5000000B
+   ctl id=25    BUTTON       "20%" @158,147 77x12 style=0x5000000B
+   ctl id=26    BUTTON       "0%" @158,162 77x12 style=0x5000000B
+DIALOG 9800 "Select Your Race" 241x250 style=0x90C000C0 class= font=MS Sans Serif
+   ctl id=17    XenoVideo    "Alien Picture Here" @8,10 115x161 style=0x5000000B
+   ctl id=1     BUTTON       "OK" @127,233 50x14 style=0x50030001
+   ctl id=9     BUTTON       "&Advice..." @182,233 50x14 style=0x50010000
+   ctl id=10    BUTTON       "&ChCh't" @131,14 44x13 style=0x50030009
+   ctl id=11    BUTTON       "C&yth" @131,26 44x13 style=0x50000009
+   ctl id=12    BUTTON       "&Human" @131,38 44x13 style=0x50000009
+   ctl id=13    BUTTON       "&Maug" @131,50 44x13 style=0x50000009
+   ctl id=14    BUTTON       "&Re'Lu" @131,62 44x13 style=0x50000009
+   ctl id=15    BUTTON       "&Tarth" @131,74 44x13 style=0x50000009
+   ctl id=16    BUTTON       "&Uva Mosk" @131,86 44x13 style=0x50000009
+   ctl id=18    BUTTON       "&ChCh't" @178,14 44x13 style=0x50030002
+   ctl id=19    BUTTON       "C&yth" @178,26 44x13 style=0x50000002
+   ctl id=20    BUTTON       "&Human" @178,38 44x13 style=0x50000002
+   ctl id=21    BUTTON       "&Maug" @178,50 44x13 style=0x50000002
+   ctl id=22    BUTTON       "&Re'Lu" @178,62 44x13 style=0x50000002
+   ctl id=23    BUTTON       "&Tarth" @178,74 44x13 style=0x50000002
+   ctl id=24    BUTTON       "&Uva Mosk" @178,86 44x13 style=0x50000002
+   ctl id=65535 XenoCustom   "" @127,10 109x92 style=0x54020009
+   ctl id=65535 XenoCustom   "" @127,107 109x87 style=0x54000009
+   ctl id=65535 XenoCustom   "" @7,198 228x31 style=0x54000009
+   ctl id=46    STATIC       "Text Here
+1
+2
+3
+4
+5
+6
+7" @129,110 104x81 style=0x50000000
+   ctl id=8     STATIC       "Text" @9,201 224x24 style=0x50000000
+DIALOG 9850 "Approaching Gallius IV" 161x202 style=0x90C800C0 class= font=MS Sans Serif
+   ctl id=12    BUTTON       "0%" @7,160 145x13 style=0x5800000B
+   ctl id=7     XenoVideo    "Picture" @7,6 147x134 style=0x5800000B
+   ctl id=2     BUTTON       "Cancel" @102,181 50x14 style=0x50010001
+   ctl id=8     STATIC       "Loading Colonizer" @8,147 144x10 style=0x50020000
+DIALOG 9875 "Select Your Landing Site" 222x255 style=0x90C800C0 class= font=MS Sans Serif
+   ctl id=1     BUTTON       "OK" @7,235 50x14 style=0x50030001
+   ctl id=2     BUTTON       "Cancel" @65,235 50x14 style=0x50010000
+   ctl id=9     BUTTON       "&Advice" @119,235 50x14 style=0x50010000
+   ctl id=43    STATIC       "" @4,201 215x29 style=0x50020007
+   ctl id=8     STATIC       "" @7,205 209x19 style=0x50020001
+   ctl id=10    BUTTON       "New Map" @173,235 48x14 style=0x40010000
+DIALOG 10000 "About Deadlock" 179x136 style=0x90C800C0 class= font=MS Sans Serif
+   ctl id=7     BUTTON       "Button" @10,7 55x56 style=0x5800000B
+   ctl id=65535 STATIC       "" @68,5 99x76 style=0x50000008
+   ctl id=1     STATIC       "Deadlock
+version 1.31
+
+
+©1996
+Accolade Inc.
+All Rights Reserved" @74,11 86x65 style=0x50020001
+   ctl id=65535 STATIC       "" @12,86 155x21 style=0x50000008
+   ctl id=65535 STATIC       "Have a nice game, Human!" @41,92 96x9 style=0x50020001
+   ctl id=1     BUTTON       "OK" @117,115 50x14 style=0x50010001
+DIALOG 10100 "Event Log" 278x170 style=0x90C800C0 class= font=MS Sans Serif
+   ctl id=1     BUTTON       "OK" @136,148 43x16 style=0x50030001
+   ctl id=2     BUTTON       "Cancel" @183,148 43x16 style=0x50010000
+   ctl id=9     BUTTON       "&Advice" @230,148 43x16 style=0x50010000
+   ctl id=6     LISTBOX      "" @8,9 264x130 style=0x50A30051
+DIALOG 10150 "Current Events" 270x178 style=0x90C800C0 class= font=MS Sans Serif
+   ctl id=99    STATIC       "" @5,7 93x142 style=0x50000008
+   ctl id=1     BUTTON       "Next Event" @51,159 69x14 style=0x50030001
+   ctl id=2     BUTTON       "Close" @123,159 69x14 style=0x50010000
+   ctl id=9     BUTTON       "&Advice" @195,159 69x14 style=0x50010000
+   ctl id=43    STATIC       "" @102,7 160x143 style=0x50020008
+   ctl id=8     STATIC       "" @106,11 152x137 style=0x50020000
+   ctl id=5     STATIC       "Text" @7,11 88x135 style=0x50000000
+DIALOG 10200 "Oolan's Advice" 270x178 style=0x90C800C0 class= font=MS Sans Serif
+   ctl id=99    STATIC       "" @5,7 93x142 style=0x50000008
+   ctl id=1     BUTTON       "Continue" @71,159 61x14 style=0x50030001
+   ctl id=10    BUTTON       "Repeat" @136,159 61x14 style=0x50010000
+   ctl id=2     BUTTON       "End Tutorial" @201,159 61x14 style=0x50010000
+   ctl id=43    STATIC       "" @102,7 160x143 style=0x50020008
+   ctl id=8     STATIC       "" @106,11 152x137 style=0x50020000
+   ctl id=5     STATIC       "Text" @7,11 88x135 style=0x50000000
+DIALOG 10250 "Assign Research Project" 324x205 style=0x90C800C0 class= font=MS Sans Serif
+   ctl id=1     BUTTON       "OK" @143,184 54x14 style=0x50030001
+   ctl id=2     BUTTON       "Cancel" @202,184 54x14 style=0x50010000
+   ctl id=10    BUTTON       "&Advice" @261,184 54x14 style=0x50010000
+   ctl id=6     LISTBOX      "" @111,125 203x49 style=0x50A30001
+   ctl id=43    STATIC       "" @109,7 206x114 style=0x50000008
+   ctl id=99    STATIC       "" @8,7 95x167 style=0x50000008
+   ctl id=8     STATIC       "Phase Disruptor Cannon
+
+Tech Level
+3
+
+Research Cost
+400
+
+Leads To
+1
+2
+3" @212,11 100x107 style=0x50000001
+   ctl id=5     STATIC       "Text" @11,12 88x157 style=0x50000000
+   ctl id=101   BUTTON       "Add/Remove" @84,184 54x14 style=0x50010000
+   ctl id=102   BUTTON       "Clear" @25,184 54x14 style=0x50010000
+DIALOG 10300 "Deadlock Help" 345x210 style=0x90C800C0 class= font=MS Sans Serif
+   ctl id=43    STATIC       "" @107,4 236x111 style=0x50020008
+   ctl id=99    STATIC       "" @8,5 95x183 style=0x50000008
+   ctl id=65535 STATIC       "" @107,118 236x70 style=0x50000007
+   ctl id=2     BUTTON       "Done" @67,192 46x14 style=0x50030001
+   ctl id=23    BUTTON       "&Overview..." @119,192 46x14 style=0x50010000
+   ctl id=22    BUTTON       "&Detail..." @167,192 46x14 style=0x50010000
+   ctl id=20    BUTTON       "<< &Previous" @219,192 46x14 style=0x50010000
+   ctl id=21    BUTTON       "&Next >>" @267,192 46x14 style=0x50010000
+   ctl id=6     LISTBOX      "" @198,10 141x92 style=0x50A30001
+   ctl id=8     STATIC       "1
+2
+3
+4
+5" @114,122 228x63 style=0x50000000
+   ctl id=5     STATIC       "Text" @11,9 88x174 style=0x50000000
+   ctl id=14    STATIC       "Phase Disruptor Cannon
+
+Tech Level
+3
+
+Research Cost
+400
+
+Leads To
+1
+2
+3" @209,7 123x105 style=0x40000001
+DIALOG 10400 "3 Button Dialog" 212x132 style=0x90C800C0 class= font=MS Sans Serif
+   ctl id=65535 STATIC       "" @72,7 132x100 style=0x50000008
+   ctl id=8     STATIC       "Text" @75,11 126x93 style=0x50000001
+   ctl id=7     BUTTON       "Button" @8,8 56x41 style=0x5800000B
+   ctl id=1     BUTTON       "OK" @45,112 50x14 style=0x50030001
+   ctl id=2     BUTTON       "Cancel" @100,112 50x14 style=0x50010000
+   ctl id=9     BUTTON       "&Advice" @154,112 50x14 style=0x50010000
+   ctl id=10    BUTTON       "&Shut Down" @8,57 57x12 style=0x50030003
+DIALOG 10401 "2 Button Dialog" 212x132 style=0x90C800C0 class= font=MS Sans Serif
+   ctl id=65535 STATIC       "" @72,7 132x100 style=0x50000008
+   ctl id=8     STATIC       "Text" @75,11 126x93 style=0x50000001
+   ctl id=7     BUTTON       "Button" @8,8 56x41 style=0x5800000B
+   ctl id=1     BUTTON       "OK" @100,112 50x14 style=0x50030001
+   ctl id=2     BUTTON       "Cancel" @154,112 50x14 style=0x50010000
+   ctl id=10    BUTTON       "&Shut Down" @8,57 57x12 style=0x50030003
+DIALOG 10402 "1 Button Dialog" 212x132 style=0x90C800C0 class= font=MS Sans Serif
+   ctl id=65535 STATIC       "" @72,7 132x100 style=0x50000008
+   ctl id=8     STATIC       "Text" @75,11 126x93 style=0x50000001
+   ctl id=7     BUTTON       "Button" @8,8 56x41 style=0x5800000B
+   ctl id=1     BUTTON       "OK" @154,112 50x14 style=0x50030001
+   ctl id=10    BUTTON       "&Shut Down" @8,57 57x12 style=0x50030003
+DIALOG 10500 "Save Game" 177x101 style=0x90C800C0 class= font=MS Sans Serif
+   ctl id=65535 STATIC       "" @54,9 117x62 style=0x50000008
+   ctl id=65535 STATIC       "Would you like to save the current game before continuing?" @57,18 111x35 style=0x50020001
+   ctl id=1     BUTTON       "&Yes" @11,80 50x14 style=0x50030001
+   ctl id=7     BUTTON       "&No" @66,80 50x14 style=0x50010000
+   ctl id=2     BUTTON       "Cancel" @120,80 50x14 style=0x50010000
+   ctl id=7     BUTTON       "Button" @6,9 41x41 style=0x5802000B
+DIALOG 10510 "Show Video" 130x200 style=0x90C800C0 class= font=MS Sans Serif
+   ctl id=1     BUTTON       "Show Video" @13,179 50x14 style=0x50010001
+   ctl id=2     BUTTON       "Done" @68,179 50x14 style=0x50010000
+   ctl id=10511 LISTBOX      "" @6,4 119x169 style=0x50A00001
+DIALOG 10601 "Add Technology" 130x200 style=0x90C800C0 class= font=MS Sans Serif
+   ctl id=1     BUTTON       "Add Tech" @13,179 50x14 style=0x50010001
+   ctl id=2     BUTTON       "Done" @68,179 50x14 style=0x50010000
+   ctl id=10600 LISTBOX      "" @6,4 119x169 style=0x50A00001
+DIALOG 10701 "View Jobs" 292x255 style=0x90C800C0 class= font=MS Sans Serif
+   ctl id=21    BUTTON       "Next AI" @8,232 50x14 style=0x50010001
+   ctl id=2     BUTTON       "Done" @64,232 50x14 style=0x50010000
+   ctl id=10700 LISTBOX      "" @6,4 278x220 style=0x50A00001
+DIALOG 11000 "Set Tax Rates" 245x200 style=0x90C800C0 class= font=MS Sans Serif
+   ctl id=7     BUTTON       "Button" @8,9 32x32 style=0x5800000B
+   ctl id=65535 STATIC       "" @49,8 94x158 style=0x50000008
+   ctl id=65535 STATIC       "" @149,8 88x158 style=0x50000008
+   ctl id=65535 STATIC       "" @53,13 86x22 style=0x50000008
+   ctl id=65535 STATIC       "" @153,13 81x22 style=0x50000008
+   ctl id=8     STATIC       "Tarth
+General Tax Rate" @56,16 80x16 style=0x50020001
+   ctl id=46    STATIC       "Tax Adjustment for
+Territory #32" @157,16 74x18 style=0x50020001
+   ctl id=65535 BorShade     "" @52,115 87x2 style=0x50000002
+   ctl id=65535 BorShade     "" @152,115 82x2 style=0x50000002
+   ctl id=1     BUTTON       "OK" @79,178 50x14 style=0x50030001
+   ctl id=2     BUTTON       "Cancel" @133,178 50x14 style=0x50010000
+   ctl id=9     BUTTON       "&Advice" @187,178 50x14 style=0x50010000
+   ctl id=513   BUTTON       "&No Taxes" @59,40 72x12 style=0x50030009
+   ctl id=514   BUTTON       "&Minimal Taxes" @59,52 72x12 style=0x50000009
+   ctl id=515   BUTTON       "&Light Taxes" @59,64 72x12 style=0x50000009
+   ctl id=516   BUTTON       "Mo&derate Taxes" @59,76 72x12 style=0x50000009
+   ctl id=517   BUTTON       "&Heavy Taxes" @59,88 72x12 style=0x50000009
+   ctl id=518   BUTTON       "&Oppressive Taxes" @59,100 72x12 style=0x50000009
+   ctl id=16    STATIC       "Morale Effect
++10" @56,122 81x20 style=0x50020001
+   ctl id=15    STATIC       "Total Revenue
+3,400 cr." @56,143 81x20 style=0x50020001
+   ctl id=10    BUTTON       "&Reduced Taxes" @158,40 72x12 style=0x50030009
+   ctl id=11    BUTTON       "&Standard Taxes" @158,52 72x12 style=0x50000009
+   ctl id=12    BUTTON       "&Increased Taxes" @158,64 72x12 style=0x50000009
+   ctl id=17    STATIC       "You can only tax land territories that you own." @154,76 80x19 style=0x50020000
+   ctl id=20    BUTTON       "Prev." @154,98 38x14 style=0x50010000
+   ctl id=21    BUTTON       "Next" @195,98 38x14 style=0x50010000
+   ctl id=14    STATIC       "Morale Effect
++10" @153,121 81x20 style=0x50020001
+   ctl id=13    STATIC       "Local Revenue
+3,400 cr." @153,142 81x20 style=0x50020001
+DIALOG 12500 "Building Production" 315x207 style=0x90C800C0 class= font=MS Sans Serif
+   ctl id=1     BUTTON       "OK" @149,187 50x14 style=0x50030001
+   ctl id=2     BUTTON       "Cancel" @203,187 50x14 style=0x50010000
+   ctl id=9     BUTTON       "&Advice" @257,187 50x14 style=0x50010000
+   ctl id=65535 STATIC       "" @79,5 114x43 style=0x50020008
+   ctl id=65535 STATIC       "" @199,5 109x172 style=0x50000007
+   ctl id=65535 STATIC       "" @6,55 188x122 style=0x50000007
+   ctl id=7     BUTTON       "Button" @15,5 58x43 style=0x5800000B
+   ctl id=10    STATIC       "Stats" @83,8 107x37 style=0x50000000
+   ctl id=65535 STATIC       "Worker Assignments" @58,60 73x8 style=0x50000001
+   ctl id=33    STATIC       "Construction" @10,79 47x10 style=0x50000000
+   ctl id=38    BUTTON       "Button" @83,79 53x10 style=0x5000000B
+   ctl id=48    STATIC       "18 turns" @151,80 42x10 style=0x50000000
+   ctl id=34    STATIC       "Wood" @10,94 47x10 style=0x50000000
+   ctl id=39    BUTTON       "Button" @83,94 53x10 style=0x5000000B
+   ctl id=49    STATIC       "10" @151,93 42x10 style=0x50000000
+   ctl id=35    STATIC       "Steel" @10,109 47x10 style=0x50000000
+   ctl id=40    BUTTON       "Button" @83,109 53x10 style=0x5000000B
+   ctl id=50    STATIC       "100" @151,108 42x10 style=0x50000000
+   ctl id=36    STATIC       "Triidium" @10,124 47x10 style=0x50000000
+   ctl id=41    BUTTON       "Button" @83,124 53x10 style=0x5000000B
+   ctl id=51    STATIC       "3" @151,123 42x10 style=0x50000000
+   ctl id=37    STATIC       "Build Units" @10,139 47x17 style=0x50000000
+   ctl id=42    BUTTON       "Button" @83,139 53x10 style=0x5000000B
+   ctl id=52    STATIC       "10" @151,138 42x10 style=0x50000000
+   ctl id=78    BUTTON       "&Shut Down" @12,157 48x12 style=0x50010003
+   ctl id=65535 STATIC       "Unit Queue" @231,10 44x8 style=0x50000001
+   ctl id=6     LISTBOX      "" @204,22 99x94 style=0x50810051
+   ctl id=11    BUTTON       "Add &Unit.." @216,115 75x14 style=0x50010000
+   ctl id=12    BUTTON       "&Delete Unit" @216,131 75x14 style=0x50010000
+   ctl id=14    BUTTON       "Set &Port.." @216,147 75x14 style=0x50010000
+   ctl id=13    BUTTON       "&Circular Queue" @223,163 60x12 style=0x50030003
+   ctl id=73    BUTTON       "" @59,78 9x12 style=0x50000003
+   ctl id=53    BUTTON       "" @70,79 12x10 style=0x5000000B
+   ctl id=63    BUTTON       "" @137,79 12x10 style=0x5000000B
+   ctl id=74    BUTTON       "" @59,93 9x12 style=0x50000003
+   ctl id=54    BUTTON       "" @70,94 12x10 style=0x5000000B
+   ctl id=64    BUTTON       "" @137,94 12x10 style=0x5000000B
+   ctl id=75    BUTTON       "" @59,108 9x12 style=0x50000003
+   ctl id=55    BUTTON       "" @70,109 12x10 style=0x5000000B
+   ctl id=65    BUTTON       "" @137,109 12x10 style=0x5000000B
+   ctl id=76    BUTTON       "" @59,123 9x12 style=0x50000003
+   ctl id=56    BUTTON       "" @70,124 12x10 style=0x5000000B
+   ctl id=66    BUTTON       "" @137,124 12x10 style=0x5000000B
+   ctl id=77    BUTTON       "" @59,138 9x12 style=0x50000003
+   ctl id=57    BUTTON       "" @70,139 12x10 style=0x5000000B
+   ctl id=67    BUTTON       "" @137,139 12x10 style=0x5000000B
+DIALOG 12600 "Building Production" 200x207 style=0x90C800C0 class= font=MS Sans Serif
+   ctl id=1     BUTTON       "OK" @34,186 50x14 style=0x50030001
+   ctl id=2     BUTTON       "Cancel" @87,186 50x14 style=0x50010000
+   ctl id=9     BUTTON       "&Advice" @140,186 50x14 style=0x50010000
+   ctl id=65535 STATIC       "" @74,5 114x43 style=0x50020008
+   ctl id=65535 STATIC       "" @11,55 178x122 style=0x50000007
+   ctl id=7     BUTTON       "Button" @10,5 58x43 style=0x5800000B
+   ctl id=10    STATIC       "Stats" @78,8 107x37 style=0x50000000
+   ctl id=65535 STATIC       "Worker Assignments" @12,60 154x8 style=0x50020001
+   ctl id=33    STATIC       "Construction" @15,79 49x8 style=0x50020000
+   ctl id=38    BUTTON       "Button" @88,79 53x10 style=0x5000000B
+   ctl id=48    STATIC       "18 turns" @156,80 30x10 style=0x50000000
+   ctl id=34    STATIC       "Wood" @15,94 49x8 style=0x50020000
+   ctl id=39    BUTTON       "Button" @88,94 53x10 style=0x5000000B
+   ctl id=49    STATIC       "10" @156,93 30x10 style=0x50000000
+   ctl id=35    STATIC       "Tritanium" @15,109 49x8 style=0x50020000
+   ctl id=40    BUTTON       "Button" @88,109 53x10 style=0x5000000B
+   ctl id=50    STATIC       "100" @156,108 30x10 style=0x50000000
+   ctl id=36    STATIC       "Endurium" @15,124 49x8 style=0x50020000
+   ctl id=41    BUTTON       "Button" @88,124 53x10 style=0x5000000B
+   ctl id=51    STATIC       "3" @156,123 30x10 style=0x50000000
+   ctl id=37    STATIC       "Unit Construction" @15,139 49x8 style=0x50020000
+   ctl id=42    BUTTON       "Button" @88,139 53x10 style=0x5000000B
+   ctl id=52    STATIC       "10" @156,138 30x10 style=0x50000000
+   ctl id=73    BUTTON       "" @65,78 9x12 style=0x50020003
+   ctl id=53    BUTTON       "" @75,79 12x10 style=0x5000000B
+   ctl id=63    BUTTON       "" @142,79 12x10 style=0x5000000B
+   ctl id=74    BUTTON       "" @65,93 9x12 style=0x50000003
+   ctl id=54    BUTTON       "" @75,94 12x10 style=0x5000000B
+   ctl id=64    BUTTON       "" @142,94 12x10 style=0x5000000B
+   ctl id=75    BUTTON       "" @65,108 9x12 style=0x50000003
+   ctl id=55    BUTTON       "" @75,109 12x10 style=0x5000000B
+   ctl id=65    BUTTON       "" @142,109 12x10 style=0x5000000B
+   ctl id=76    BUTTON       "" @65,123 9x12 style=0x50000003
+   ctl id=56    BUTTON       "" @75,124 12x10 style=0x5000000B
+   ctl id=66    BUTTON       "" @142,124 12x10 style=0x5000000B
+   ctl id=77    BUTTON       "" @65,138 9x12 style=0x50000003
+   ctl id=57    BUTTON       "" @75,139 12x10 style=0x5000000B
+   ctl id=67    BUTTON       "" @142,139 12x10 style=0x5000000B
+   ctl id=78    BUTTON       "&Shut Down" @18,158 60x12 style=0x50030003
+DIALOG 12700 "Build Unit" 246x191 style=0x90C800C0 class= font=MS Sans Serif
+   ctl id=65535 STATIC       "" @5,74 110x80 style=0x50000008
+   ctl id=1     BUTTON       "OK" @80,171 50x14 style=0x50030001
+   ctl id=2     BUTTON       "Cancel" @135,171 50x14 style=0x50010000
+   ctl id=9     BUTTON       "&Advice" @189,171 50x14 style=0x50010000
+   ctl id=6     LISTBOX      "" @120,7 120x131 style=0x50A30051
+   ctl id=16    BUTTON       "&Show All Units" @120,142 85x12 style=0x50010003
+   ctl id=65535 STATIC       "Requires" @20,79 79x8 style=0x50020001
+   ctl id=22    STATIC       " " @20,91 79x8 style=0x50020001
+   ctl id=23    STATIC       " " @20,101 79x8 style=0x50020001
+   ctl id=24    STATIC       " " @20,111 79x8 style=0x50020001
+   ctl id=25    STATIC       " " @20,121 79x8 style=0x50020001
+   ctl id=26    STATIC       " " @20,131 79x8 style=0x50020001
+   ctl id=27    STATIC       " " @20,141 79x8 style=0x50020001
+   ctl id=65535 STATIC       "" @5,7 110x62 style=0x50000008
+   ctl id=65535 STATIC       "Attack
+Defense
+Speed
+Firing Rate
+Range
+Move Pts.
+Upkeep" @8,9 38x58 style=0x50020000
+   ctl id=15    STATIC       "0
+0
+Ultra Slow
+500 rounds/sec.
+2.6 squares
+5 territories
+8 credits" @56,9 56x57 style=0x50020002
+DIALOG 12800 "Select Building" 319x231 style=0x90C800C0 class= font=MS Sans Serif
+   ctl id=65535 STATIC       "" @9,9 151x191 style=0x50000008
+   ctl id=65535 STATIC       "" @14,61 141x74 style=0x50000007
+   ctl id=65535 STATIC       "" @14,152 142x44 style=0x50000007
+   ctl id=1     BUTTON       "&Build" @152,210 50x14 style=0x50030001
+   ctl id=2     BUTTON       "Cancel" @206,210 50x14 style=0x50010000
+   ctl id=9     BUTTON       "&Advice" @261,210 50x14 style=0x50010000
+   ctl id=6     LISTBOX      "" @170,9 140x161 style=0x50A30011
+   ctl id=16    BUTTON       "&Show All Buildings" @169,179 93x12 style=0x50030003
+   ctl id=14    STATIC       "" @14,19 141x12 style=0x50000001
+   ctl id=65535 STATIC       "Required To Build" @50,48 67x11 style=0x50000001
+   ctl id=20    STATIC       "" @17,64 136x10 style=0x50000001
+   ctl id=21    STATIC       "" @17,74 136x10 style=0x50000001
+   ctl id=22    STATIC       "" @17,84 136x10 style=0x50000001
+   ctl id=23    STATIC       "" @17,94 136x10 style=0x50000001
+   ctl id=24    STATIC       "" @17,104 136x10 style=0x50000001
+   ctl id=25    STATIC       "" @17,114 136x10 style=0x50000001
+   ctl id=26    STATIC       "" @17,123 136x10 style=0x50000001
+   ctl id=65535 STATIC       "Produces" @64,140 40x10 style=0x50000001
+   ctl id=28    STATIC       "" @17,155 136x10 style=0x50000001
+   ctl id=29    STATIC       "" @17,165 136x10 style=0x50000001
+   ctl id=30    STATIC       "" @17,175 136x10 style=0x50000001
+   ctl id=31    STATIC       "" @17,184 136x10 style=0x50000001
+   ctl id=32    STATIC       "Power Usage: None" @14,35 141x12 style=0x50000001
+DIALOG 12900 "Unit Orders" 240x138 style=0x90C800C0 class= font=MS Sans Serif
+   ctl id=1     BUTTON       "OK" @74,119 50x14 style=0x50010001
+   ctl id=2     BUTTON       "Cancel" @129,119 50x14 style=0x50010000
+   ctl id=9     BUTTON       "&Advice" @184,119 50x14 style=0x50010000
+   ctl id=65535 STATIC       "" @4,6 128x108 style=0x50000008
+   ctl id=65535 STATIC       "Name" @141,6 60x8 style=0x50020000
+   ctl id=10    EDIT         "" @141,15 93x12 style=0x50810000
+   ctl id=65535 STATIC       "Battle Orders" @141,33 60x8 style=0x50020000
+   ctl id=25    COMBOBOX     "" @141,42 93x76 style=0x50210003
+   ctl id=65535 STATIC       "Mission" @141,62 60x8 style=0x50020000
+   ctl id=23    COMBOBOX     "" @141,71 93x63 style=0x50210403
+   ctl id=65535 STATIC       "Retreat at" @139,95 35x8 style=0x50020002
+   ctl id=16    EDIT         "100" @178,94 17x11 style=0x50811002
+   ctl id=65535 STATIC       "% damage." @198,95 38x8 style=0x50020000
+   ctl id=65535 STATIC       "Type
+Experience
+Rank
+Accuracy
+Health" @8,10 41x41 style=0x50020000
+   ctl id=11    STATIC       "Colonizer
+0
+Veteran
+100%
+100%" @45,10 83x42 style=0x50020002
+   ctl id=65535 STATIC       "Attack
+Defense
+Speed
+Firing Rate
+Range
+Move Pts.
+Upkeep" @9,54 41x58 style=0x50020000
+   ctl id=15    STATIC       "0
+0
+Ultra Slow
+500 rounds/sec.
+2.6 squares
+5 territories
+8 credits" @69,55 59x57 style=0x50020002
+DIALOG 13000 "Choose Your Poison" 229x178 style=0x90C800C0 class= font=MS Sans Serif
+   ctl id=43    STATIC       "" @112,5 110x90 style=0x50000008
+   ctl id=2     BUTTON       "Done" @114,156 50x14 style=0x50030000
+   ctl id=9     BUTTON       "&Advice" @170,156 50x14 style=0x50010000
+   ctl id=10    BUTTON       "Purchase &Resources..." @120,11 92x15 style=0x50010001
+   ctl id=11    BUTTON       "Purchase &Information..." @120,30 92x15 style=0x50010001
+   ctl id=12    BUTTON       "Purchase &Technology..." @120,50 92x15 style=0x50010001
+   ctl id=13    BUTTON       "Purchase Ar&ms..." @120,71 92x15 style=0x50010001
+   ctl id=99    STATIC       "" @7,5 95x166 style=0x50020008
+   ctl id=5     STATIC       "Text" @10,9 88x159 style=0x50000000
+   ctl id=60    STATIC       "" @113,100 109x51 style=0x50000008
+   ctl id=61    STATIC       "SPECIAL NOTE:
+To use all of the features of the black market, you must play with a non-demo CD in your CD-ROM drive." @117,104 101x44 style=0x50000000
+DIALOG 13050 "Trading Materials" 275x125 style=0x90C800C0 class= font=MS Sans Serif
+   ctl id=10    BUTTON       "&ChCh't" @10,14 44x13 style=0x50030009
+   ctl id=11    BUTTON       "C&yth" @10,26 44x13 style=0x50000009
+   ctl id=12    BUTTON       "&Human" @10,38 44x13 style=0x50000009
+   ctl id=13    BUTTON       "&Maug" @10,50 44x13 style=0x50000009
+   ctl id=14    BUTTON       "&Re'Lu" @10,62 44x13 style=0x50000009
+   ctl id=15    BUTTON       "&Tarth" @10,74 44x13 style=0x50000009
+   ctl id=16    BUTTON       "&Uva Mosk" @10,86 44x13 style=0x50000009
+   ctl id=65535 STATIC       "" @128,8 139x91 style=0x50000008
+   ctl id=7     BUTTON       "Button" @88,8 33x28 style=0x5801000B
+   ctl id=1     BUTTON       "OK" @164,106 50x14 style=0x50030001
+   ctl id=2     BUTTON       "Cancel" @217,106 50x14 style=0x50030000
+   ctl id=8     STATIC       "How much Food do you wish to buy?" @133,13 130x20 style=0x50000001
+   ctl id=53    BUTTON       "" @155,37 17x15 style=0x5001000B
+   ctl id=63    BUTTON       "" @221,37 17x15 style=0x5001000B
+   ctl id=201   EDIT         "" @175,38 43x14 style=0x50830000
+   ctl id=65535 STATIC       "Price per unit:
+Your Stockpile:
+
+Total Cost:" @134,58 62x37 style=0x50000002
+   ctl id=80    STATIC       " " @198,58 51x37 style=0x50000002
+DIALOG 13100 "Personal Settings" 309x181 style=0x90C800C0 class= font=MS Sans Serif
+   ctl id=65535 BorShade     "" @101,109 198x1 style=0x50000002
+   ctl id=65535 BorShade     "" @102,52 197x1 style=0x50000002
+   ctl id=65535 BorShade     "" @101,129 198x1 style=0x50000002
+   ctl id=65535 STATIC       "Volume" @186,21 36x9 style=0x50020002
+   ctl id=65535 STATIC       "Volume" @186,36 37x9 style=0x50020002
+   ctl id=30    BUTTON       " 30" @222,19 77x12 style=0x5000000B
+   ctl id=29    BUTTON       " 30" @222,35 77x12 style=0x5000000B
+   ctl id=65535 BUTTON       "" @10,74 76x77 style=0x50000007
+   ctl id=65535 STATIC       "Settlement Detail" @14,74 61x8 style=0x50020001
+   ctl id=24    BUTTON       "&No Detail" @18,85 48x12 style=0x50030009
+   ctl id=25    BUTTON       "&Really Low" @18,97 48x12 style=0x50000009
+   ctl id=26    BUTTON       "&Low" @18,109 48x12 style=0x50000009
+   ctl id=27    BUTTON       "&Medium" @18,121 48x12 style=0x50000009
+   ctl id=28    BUTTON       "&High" @18,132 48x12 style=0x50000009
+   ctl id=65535 BUTTON       "" @98,10 204x140 style=0x50020007
+   ctl id=65535 STATIC       "Audio/Video Options" @102,10 72x8 style=0x50020001
+   ctl id=11    BUTTON       "&Sound Effects On" @103,19 81x12 style=0x50010003
+   ctl id=12    BUTTON       "&Background Music On" @103,35 81x12 style=0x50010003
+   ctl id=13    BUTTON       "&Video Playback On" @103,56 75x12 style=0x50010003
+   ctl id=14    BUTTON       "V&ideo Subtitles On" @103,68 74x12 style=0x50010003
+   ctl id=16    BUTTON       "&Use Enlarged Talking Heads on Hi-Res displays" @103,81 168x12 style=0x50010003
+   ctl id=17    BUTTON       "Us&e Large Cinematics (4x or faster CD-ROM)" @103,94 197x12 style=0x50010003
+   ctl id=19    BUTTON       "&Force Small Sprites (don't load building animations)" @103,113 196x12 style=0x50010003
+   ctl id=15    BUTTON       "Ball&oon Help Enabled" @103,132 87x12 style=0x50010003
+   ctl id=1     BUTTON       "OK" @143,158 50x14 style=0x50030001
+   ctl id=2     BUTTON       "Cancel" @197,158 50x14 style=0x50010000
+   ctl id=9     BUTTON       "&Advice" @251,158 50x14 style=0x50010000
+   ctl id=7     BUTTON       "Button" @11,7 74x61 style=0x5802000B
+DIALOG 13400 "Statistics" 308x208 style=0x90C800C0 class= font=MS Sans Serif
+   ctl id=65535 STATIC       "" @215,6 86x90 style=0x50000008
+   ctl id=65535 STATIC       "" @215,99 86x77 style=0x50000008
+   ctl id=1     BUTTON       "OK" @197,186 50x14 style=0x50030001
+   ctl id=9     BUTTON       "&Advice" @251,186 50x14 style=0x50010000
+   ctl id=10    BUTTON       "&ChCht" @220,10 49x12 style=0x50030003
+   ctl id=11    BUTTON       "C&yth" @220,22 49x12 style=0x50010003
+   ctl id=12    BUTTON       "&Humans" @220,34 49x12 style=0x50010003
+   ctl id=13    BUTTON       "&Maug" @220,46 49x12 style=0x50010003
+   ctl id=14    BUTTON       "&Re'lu" @220,58 49x12 style=0x50010003
+   ctl id=15    BUTTON       "&Tarth" @220,70 49x12 style=0x50010003
+   ctl id=16    BUTTON       "&Uva Mosk" @220,82 49x12 style=0x50010003
+   ctl id=18    BUTTON       "View T&erritories" @220,107 76x12 style=0x50030003
+   ctl id=19    BUTTON       "View &Buildings" @220,120 76x12 style=0x50010003
+   ctl id=20    BUTTON       "View U&nits" @220,133 76x12 style=0x50010003
+   ctl id=22    BUTTON       "View Re&search" @220,146 76x12 style=0x50010003
+   ctl id=23    BUTTON       "View &Pacts" @220,158 76x12 style=0x50010003
+   ctl id=6     LISTBOX      "" @8,7 199x169 style=0x50A300D1
+DIALOG 13600 "Send Message" 329x186 style=0x90C800C0 class= font=MS Sans Serif
+   ctl id=65535 STATIC       "" @58,10 129x147 style=0x50000008
+   ctl id=65535 STATIC       "" @195,10 125x146 style=0x50000008
+   ctl id=65535 STATIC       "Message Type" @65,6 52x8 style=0x50020001
+   ctl id=65535 STATIC       "Send To" @198,6 33x8 style=0x50020001
+   ctl id=7     BUTTON       "Button" @8,10 48x45 style=0x5800000B
+   ctl id=1     BUTTON       "Send" @134,166 50x14 style=0x50010001
+   ctl id=2     BUTTON       "Cancel" @188,166 50x14 style=0x50010000
+   ctl id=9     BUTTON       "&Advice" @242,166 50x14 style=0x50010000
+   ctl id=65535 BorShade     "" @198,130 119x1 style=0x50000002
+   ctl id=10    BUTTON       "Random &Insult" @66,19 119x12 style=0x50030009
+   ctl id=11    BUTTON       "Random &Threat" @66,34 119x12 style=0x50000009
+   ctl id=12    BUTTON       "Random &Brag" @66,49 119x12 style=0x50000009
+   ctl id=13    BUTTON       "Random &Complaint" @66,64 119x12 style=0x50000009
+   ctl id=14    BUTTON       "C&ustom (you type it)" @66,79 119x12 style=0x50000009
+   ctl id=8     EDIT         "" @66,96 82x55 style=0x50831004
+   ctl id=15    BUTTON       "Opp. 1" @199,19 88x12 style=0x50030003
+   ctl id=16    BUTTON       "Opp. 2" @199,32 88x12 style=0x50010003
+   ctl id=17    BUTTON       "Opp. 3" @199,45 88x12 style=0x50010003
+   ctl id=18    BUTTON       "Opp. 4" @199,58 88x12 style=0x50010003
+   ctl id=19    BUTTON       "Opp. 5" @199,71 88x12 style=0x50010003
+   ctl id=20    BUTTON       "Opp. 6" @199,84 88x12 style=0x50010003
+   ctl id=23    BUTTON       "&Select All" @200,107 55x14 style=0x50010000
+   ctl id=22    BUTTON       "C&lear" @260,107 55x14 style=0x50010000
+   ctl id=21    BUTTON       "&View Sent Messages" @199,138 119x12 style=0x50030003
+DIALOG 13700 "Global Production" 290x214 style=0x90C800C0 class= font=MS Sans Serif
+   ctl id=1     BUTTON       "OK" @120,191 50x14 style=0x50010001
+   ctl id=2     BUTTON       "Cancel" @175,190 50x14 style=0x50010000
+   ctl id=9     BUTTON       "&Advice" @230,189 50x14 style=0x50010000
+   ctl id=65535 STATIC       "" @147,96 134x40 style=0x50000008
+   ctl id=65535 STATIC       "" @5,6 134x40 style=0x50000008
+   ctl id=65535 STATIC       "" @147,6 134x40 style=0x50000008
+   ctl id=65535 STATIC       "" @5,51 134x40 style=0x50000008
+   ctl id=65535 STATIC       "" @147,51 134x40 style=0x50000008
+   ctl id=65535 STATIC       "" @5,96 134x40 style=0x50000008
+   ctl id=65535 STATIC       "" @5,142 134x40 style=0x50000008
+   ctl id=65535 STATIC       "Food" @55,15 40x10 style=0x50020002
+   ctl id=65535 STATIC       "Wood" @55,27 40x10 style=0x50020002
+   ctl id=65535 STATIC       "Culture" @55,60 40x10 style=0x50020002
+   ctl id=65535 STATIC       "Trade" @55,73 40x10 style=0x50020002
+   ctl id=65535 STATIC       "Iron" @55,106 40x10 style=0x50020002
+   ctl id=65535 STATIC       "Endurium" @55,118 40x10 style=0x50020002
+   ctl id=65535 STATIC       "Trade" @55,146 40x10 style=0x50020002
+   ctl id=65535 STATIC       "Steel" @55,157 40x10 style=0x50020002
+   ctl id=65535 STATIC       "Triidium" @55,170 40x10 style=0x50020002
+   ctl id=65535 STATIC       "Energy" @197,15 40x10 style=0x50020002
+   ctl id=65535 STATIC       "Anti-Matter Pods" @197,27 40x10 style=0x50020002
+   ctl id=65535 STATIC       "Research" @197,60 40x10 style=0x50020002
+   ctl id=65535 STATIC       "Electronic Parts" @197,73 40x10 style=0x50020002
+   ctl id=65535 STATIC       "Build Units" @158,104 40x10 style=0x50020002
+   ctl id=65535 STATIC       "Upgrade" @158,119 40x10 style=0x50020002
+   ctl id=10    BUTTON       "B" @9,9 45x34 style=0x5000000B
+   ctl id=11    BUTTON       "B" @9,54 45x34 style=0x5000000B
+   ctl id=12    BUTTON       "B" @9,99 45x34 style=0x5000000B
+   ctl id=13    BUTTON       "B" @9,145 45x34 style=0x5000000B
+   ctl id=14    BUTTON       "B" @150,9 45x34 style=0x5000000B
+   ctl id=15    BUTTON       "B" @150,54 45x34 style=0x5000000B
+   ctl id=20    BUTTON       "B" @99,15 35x8 style=0x5000000B
+   ctl id=21    BUTTON       "B" @99,27 35x8 style=0x5000000B
+   ctl id=22    BUTTON       "B" @99,60 35x8 style=0x5000000B
+   ctl id=23    BUTTON       "B" @99,73 35x8 style=0x5000000B
+   ctl id=24    BUTTON       "B" @99,106 35x8 style=0x5000000B
+   ctl id=25    BUTTON       "B" @99,121 35x8 style=0x5000000B
+   ctl id=26    BUTTON       "B" @99,146 35x8 style=0x5000000B
+   ctl id=27    BUTTON       "B" @99,158 35x8 style=0x5000000B
+   ctl id=28    BUTTON       "B" @99,170 35x8 style=0x5000000B
+   ctl id=29    BUTTON       "B" @240,15 37x8 style=0x5000000B
+   ctl id=30    BUTTON       "B" @240,27 37x8 style=0x5000000B
+   ctl id=31    BUTTON       "B" @240,60 37x8 style=0x5000000B
+   ctl id=32    BUTTON       "B" @240,73 37x8 style=0x5000000B
+   ctl id=33    BUTTON       "B" @212,102 64x10 style=0x5000000B
+   ctl id=34    BUTTON       "B" @212,118 64x10 style=0x5000000B
+DIALOG 13900 "Black Market Resources" 288x233 style=0x90C800C0 class= font=MS Sans Serif
+   ctl id=1     BUTTON       "OK" @127,216 50x14 style=0x50010001
+   ctl id=2     BUTTON       "Cancel" @180,216 50x14 style=0x50010000
+   ctl id=9     BUTTON       "&Advice" @233,216 50x14 style=0x50010000
+   ctl id=34    STATIC       "Treasury: 0 cr." @40,5 173x11 style=0x50020001
+   ctl id=65535 STATIC       "" @6,21 136x34 style=0x50000008
+   ctl id=65535 STATIC       "Food" @11,17 29x8 style=0x50020001
+   ctl id=38    BUTTON       "Button" @12,28 21x20 style=0x5800000B
+   ctl id=80    STATIC       "Buy Price: 1
+Sell Price: 3
+Stock: 512" @36,26 62x26 style=0x50020000
+   ctl id=53    BUTTON       "Buy" @99,24 40x13 style=0x50010000
+   ctl id=63    BUTTON       "Sell" @99,39 40x13 style=0x50010000
+   ctl id=65535 STATIC       "" @6,59 136x34 style=0x50000008
+   ctl id=65535 STATIC       "Energy" @9,55 29x8 style=0x50020001
+   ctl id=39    BUTTON       "Button" @12,66 21x20 style=0x5800000B
+   ctl id=81    STATIC       "Buy Price: 1
+Sell Price: 3
+Stock: 512" @36,64 62x26 style=0x50020000
+   ctl id=54    BUTTON       "Buy" @99,62 40x13 style=0x50010000
+   ctl id=64    BUTTON       "Sell" @99,77 40x13 style=0x50010000
+   ctl id=65535 STATIC       "" @6,98 136x34 style=0x50000008
+   ctl id=65535 STATIC       "Wood" @9,94 26x8 style=0x50020001
+   ctl id=40    BUTTON       "Button" @12,105 21x20 style=0x5800000B
+   ctl id=82    STATIC       "Buy Price: 1
+Sell Price: 3
+Stock: 512" @36,103 62x26 style=0x50020000
+   ctl id=55    BUTTON       "Buy" @99,101 40x13 style=0x50010000
+   ctl id=65    BUTTON       "Sell" @99,116 40x13 style=0x50010000
+   ctl id=65535 STATIC       "" @6,137 136x34 style=0x50000008
+   ctl id=65535 STATIC       "Iron" @9,133 21x8 style=0x50020001
+   ctl id=41    BUTTON       "Button" @12,144 21x20 style=0x5800000B
+   ctl id=83    STATIC       "Buy Price: 1
+Sell Price: 3
+Stock: 512" @36,142 62x26 style=0x50020000
+   ctl id=56    BUTTON       "Buy" @99,140 40x13 style=0x50010000
+   ctl id=66    BUTTON       "Sell" @99,155 40x13 style=0x50010000
+   ctl id=65535 STATIC       "" @6,177 136x34 style=0x50000008
+   ctl id=65535 STATIC       "Steel" @9,173 24x8 style=0x50020001
+   ctl id=42    BUTTON       "Button" @12,184 21x20 style=0x5800000B
+   ctl id=84    STATIC       "Buy Price: 1
+Sell Price: 3
+Stock: 512" @36,182 62x26 style=0x50020000
+   ctl id=57    BUTTON       "Buy" @99,180 40x13 style=0x50010000
+   ctl id=67    BUTTON       "Sell" @99,195 40x13 style=0x50010000
+   ctl id=65535 STATIC       "" @146,21 136x34 style=0x50000008
+   ctl id=65535 STATIC       "Endurium" @149,17 36x8 style=0x50020001
+   ctl id=43    BUTTON       "Button" @152,28 21x20 style=0x5800000B
+   ctl id=85    STATIC       "Buy Price: 1
+Sell Price: 3
+Stock: 512" @176,26 62x26 style=0x50020000
+   ctl id=58    BUTTON       "Buy" @239,24 40x13 style=0x50010000
+   ctl id=68    BUTTON       "Sell" @239,39 40x13 style=0x50010000
+   ctl id=65535 STATIC       "" @146,59 136x34 style=0x50000008
+   ctl id=65535 STATIC       "Triidium" @149,55 32x8 style=0x50020001
+   ctl id=44    BUTTON       "Button" @152,66 21x20 style=0x5800000B
+   ctl id=86    STATIC       "Buy Price: 1
+Sell Price: 3
+Stock: 512" @176,64 62x26 style=0x50020000
+   ctl id=59    BUTTON       "Buy" @239,62 40x13 style=0x50010000
+   ctl id=69    BUTTON       "Sell" @239,77 40x13 style=0x50010000
+   ctl id=65535 STATIC       "" @146,98 136x34 style=0x50000008
+   ctl id=65535 STATIC       "Electronic Partss" @149,94 42x8 style=0x50020001
+   ctl id=45    BUTTON       "Button" @152,105 21x20 style=0x5800000B
+   ctl id=87    STATIC       "Buy Price: 1
+Sell Price: 3
+Stock: 512" @176,103 62x26 style=0x50020000
+   ctl id=60    BUTTON       "Buy" @239,101 40x13 style=0x50010000
+   ctl id=70    BUTTON       "Sell" @239,116 40x13 style=0x50010000
+   ctl id=65535 STATIC       "" @146,137 136x34 style=0x50000008
+   ctl id=65535 STATIC       "Anti-Matter Pods" @149,133 42x8 style=0x50020001
+   ctl id=46    BUTTON       "Button" @152,144 21x20 style=0x5800000B
+   ctl id=88    STATIC       "Buy Price: 1
+Sell Price: 3
+Stock: 512" @176,142 62x26 style=0x50020000
+   ctl id=61    BUTTON       "Buy" @239,140 40x13 style=0x50010000
+   ctl id=71    BUTTON       "Sell" @239,155 40x13 style=0x50010000
+   ctl id=65535 STATIC       "" @146,177 136x34 style=0x50000008
+   ctl id=65535 STATIC       "Art" @149,173 24x8 style=0x50020001
+   ctl id=47    BUTTON       "Button" @152,184 21x20 style=0x5800000B
+   ctl id=89    STATIC       "Buy Price: 1
+Sell Price: 3
+Stock: 512" @176,182 62x26 style=0x50020000
+   ctl id=62    BUTTON       "Buy" @239,180 40x13 style=0x50010000
+   ctl id=72    BUTTON       "Sell" @239,195 40x13 style=0x50010000
+DIALOG 14100 "Transfer Materials" 307x139 style=0x90C800C0 class= font=MS Sans Serif
+   ctl id=8     STATIC       "Transferring FOOD from Territory #3 to Territory #7" @159,8 137x27 style=0x50000001
+   ctl id=65535 STATIC       "" @125,26 172x83 style=0x50000008
+   ctl id=1     BUTTON       "OK" @139,118 50x14 style=0x50030001
+   ctl id=2     BUTTON       "Cancel" @193,118 50x14 style=0x50030000
+   ctl id=9     BUTTON       "&Advice" @247,118 50x14 style=0x50030000
+   ctl id=65535 STATIC       "How much do you wish to transfer?" @132,46 115x13 style=0x50000002
+   ctl id=201   EDIT         "" @251,45 33x12 style=0x50830000
+   ctl id=15    STATIC       "Asking Price" @191,72 51x7 style=0x50000002
+   ctl id=11    EDIT         "" @251,69 33x12 style=0x50830000
+   ctl id=65535 STATIC       "Total Cost:" @194,91 53x8 style=0x50000002
+   ctl id=12    STATIC       "3000" @251,91 33x12 style=0x50000000
+   ctl id=7     BUTTON       "Button" @118,6 33x28 style=0x5801000B
+DIALOG 14500 "Message Viewing Options" 275x189 style=0x90C800C0 class= font=MS Sans Serif
+   ctl id=65535 STATIC       "" @5,6 264x115 style=0x50000008
+   ctl id=65535 STATIC       "" @5,128 264x31 style=0x50000008
+   ctl id=8     STATIC       "CHECKED means log the event and show it to me.
+GRAY means log it, but don't show me.
+UNCHECKED means ignore the event completely." @9,131 257x27 style=0x50000000
+   ctl id=1     BUTTON       "OK" @164,166 50x14 style=0x50010001
+   ctl id=2     BUTTON       "Cancel" @219,166 50x14 style=0x50010000
+   ctl id=10    BUTTON       "Combat Results" @10,12 117x12 style=0x50010006
+   ctl id=11    BUTTON       "Technology Results" @10,27 117x12 style=0x50010006
+   ctl id=12    BUTTON       "Special Events" @10,42 117x12 style=0x50010006
+   ctl id=13    BUTTON       "Building Completions" @10,57 117x12 style=0x50010006
+   ctl id=23    BUTTON       "Energy Shortage Warnings" @10,72 117x12 style=0x50010006
+   ctl id=15    BUTTON       "Unit Mission Updates" @10,87 117x12 style=0x50010006
+   ctl id=17    BUTTON       "New Turn Announcement" @10,103 117x12 style=0x50010006
+   ctl id=18    BUTTON       "Morale Warnings" @131,12 133x12 style=0x50010006
+   ctl id=19    BUTTON       "Empty Queue Warnings" @131,27 133x12 style=0x50010006
+   ctl id=20    BUTTON       "Spy Mission Results" @131,42 133x12 style=0x50010006
+   ctl id=21    BUTTON       "New Settlement Built" @131,57 133x12 style=0x50010006
+   ctl id=22    BUTTON       "Population Warnings" @131,72 133x12 style=0x50010006
+   ctl id=14    BUTTON       "Unit Completions" @131,87 133x12 style=0x50010006
+   ctl id=16    BUTTON       "Transportation Records" @131,103 133x12 style=0x50010006
+DIALOG 15000 "Pact Dialog (placeholder)" 236x203 style=0x90C800C0 class= font=MS Sans Serif
+   ctl id=1     BUTTON       "Submit" @26,170 50x14 style=0x50010001
+   ctl id=2     BUTTON       "Cancel" @156,170 50x14 style=0x50010000
+   ctl id=101   BUTTON       "" @117,18 102x134 style=0x50000007
+   ctl id=102   BUTTON       "" @12,18 102x134 style=0x50000007
+   ctl id=10    BUTTON       "Ch'Cht" @130,35 60x12 style=0x50030009
+   ctl id=11    BUTTON       "Cyth" @130,50 60x12 style=0x50000009
+   ctl id=12    BUTTON       "Human" @130,65 60x12 style=0x50000009
+   ctl id=13    BUTTON       "Maug" @130,80 60x12 style=0x50000009
+   ctl id=14    BUTTON       "Relu" @130,95 60x12 style=0x50000009
+   ctl id=15    BUTTON       "Tarth" @130,110 60x12 style=0x50000009
+   ctl id=16    BUTTON       "Uva Mosk" @130,125 60x12 style=0x50000009
+   ctl id=65535 STATIC       "Send To:" @130,18 35x8 style=0x50020001
+   ctl id=110   BUTTON       "Non-agression" @25,35 60x12 style=0x50030005
+   ctl id=111   BUTTON       "Military" @25,55 60x12 style=0x50000005
+   ctl id=112   BUTTON       "Technology" @25,76 60x12 style=0x50000005
+   ctl id=113   BUTTON       "Intelligence" @25,95 60x12 style=0x50000005
+   ctl id=114   BUTTON       "Alliance" @25,115 60x12 style=0x50000005
+   ctl id=65535 STATIC       "Pact Type:" @25,18 41x8 style=0x50020001
+   ctl id=115   BUTTON       "Backstab" @91,170 50x14 style=0x50010000
+DIALOG 18000 "Game Options" 237x148 style=0x90C800C0 class= font=MS Sans Serif
+   ctl id=65535 STATIC       "" @56,8 175x113 style=0x50000008
+   ctl id=8     STATIC       "" @154,12 72x107 style=0x5002000C
+   ctl id=1     BUTTON       "OK" @181,128 50x14 style=0x50010001
+   ctl id=65535 STATIC       "Victory Conditions	:
+
+
+Racial Abilities		:
+Human players		:
+Computer players	:
+AI skill level		:
+
+Fast Production		:
+Alliances Allowed	:
+Random Events		:
+Last player limit		:
+Turn time limit		:" @64,12 87x107 style=0x50020000
+   ctl id=7     BUTTON       "Button" @7,8 43x40 style=0x5800000B
+DIALOG 18200 "Custom Difficulty Settings" 310x122 style=0x90C800C0 class= font=MS Sans Serif
+   ctl id=65535 STATIC       "" @8,8 126x85 style=0x50000008
+   ctl id=65535 STATIC       "" @140,8 162x85 style=0x50000008
+   ctl id=1     BUTTON       "OK" @147,100 50x14 style=0x50030001
+   ctl id=2     BUTTON       "Cancel" @200,100 50x14 style=0x50010000
+   ctl id=9     BUTTON       "&Advice" @253,100 50x14 style=0x50010000
+   ctl id=15    BUTTON       "AI doesn't research techs" @13,12 117x12 style=0x50030003
+   ctl id=13    BUTTON       "-20% production" @13,25 116x12 style=0x50010003
+   ctl id=17    BUTTON       "Extra Starting Resources" @147,12 152x12 style=0x50030003
+   ctl id=18    BUTTON       "+20% production" @147,25 152x12 style=0x50010003
+   ctl id=19    BUTTON       "Start with extra people" @147,38 152x12 style=0x50010003
+   ctl id=20    BUTTON       "Have Orbital Surveillance" @147,51 152x12 style=0x50010003
+   ctl id=21    BUTTON       "Start with Technology" @147,64 152x12 style=0x50010003
+   ctl id=16    BUTTON       "Computers Ally vs. Humans" @147,77 152x12 style=0x50010003
+   ctl id=65535 STATIC       "Disadvantages" @11,4 54x8 style=0x50020001
+   ctl id=65535 STATIC       "Advantages" @143,4 45x8 style=0x50020001
+DIALOG 18300 "Territory Morale" 172x128 style=0x90C800C0 class= font=MS Sans Serif
+   ctl id=65535 STATIC       "" @55,7 108x95 style=0x50000008
+   ctl id=7     BUTTON       "Button" @7,8 42x36 style=0x5801000B
+   ctl id=1     BUTTON       "OK" @60,107 50x14 style=0x50010001
+   ctl id=9     BUTTON       "&Advice" @113,107 50x14 style=0x50010000
+   ctl id=8     STATIC       "100" @134,11 22x85 style=0x50000002
+   ctl id=65535 STATIC       "Morale is currently:
+Morale will become:
+
+             MODIFIERS
+Over population:
+Starvation:
+Taxation:
+Cloning:
+Military Presence:
+Culture and Art:" @60,11 72x83 style=0x50020000
+   ctl id=10    STATIC       "" @61,91 66x9 style=0x50000001
+DIALOG 18400 "Deadlock Sales Pitch" 342x244 style=0x90C800C0 class= font=MS Sans Serif
+   ctl id=1     BUTTON       "OK" @273,226 50x14 style=0x50010001
+   ctl id=7     BUTTON       "Button" @13,13 46x41 style=0x5801000B
+   ctl id=8     STATIC       " " @69,11 257x209 style=0x50020000
+DIALOG 18500 "Downloading Save Game" 161x40 style=0x90C800C0 class= font=MS Sans Serif
+   ctl id=12    BUTTON       "0%" @7,15 145x13 style=0x5800000B
+DIALOG 25000 "Territory Name" 159x59 style=0x90C800C0 class= font=MS Sans Serif
+   ctl id=1     BUTTON       "OK" @104,37 50x14 style=0x50010001
+   ctl id=8     STATIC       "Please enter a new name for the territory." @7,4 147x8 style=0x50020000
+   ctl id=14    EDIT         "" @7,16 148x15 style=0x50810000
+DIALOG 25100 "Adjust Territory Resources" 222x159 style=0x90C800C0 class= font=MS Sans Serif
+   ctl id=8     STATIC       "Please enter the new resource values for this territory." @7,4 180x9 style=0x50020000
+   ctl id=65535 BUTTON       "Resources" @11,16 201x110 style=0x50000007
+   ctl id=65535 STATIC       "Population" @18,29 37x10 style=0x50020000
+   ctl id=65535 STATIC       "Credits" @18,44 38x8 style=0x50020000
+   ctl id=65535 STATIC       "Food" @18,59 38x8 style=0x50020000
+   ctl id=65535 STATIC       "Energy" @18,74 38x8 style=0x50020000
+   ctl id=65535 STATIC       "Wood" @18,89 38x8 style=0x50020000
+   ctl id=65535 STATIC       "Iron" @18,104 38x8 style=0x50020000
+   ctl id=65535 STATIC       "Steel" @113,29 38x8 style=0x50020000
+   ctl id=65535 STATIC       "Endurium" @114,44 38x8 style=0x50020000
+   ctl id=65535 STATIC       "Triidium" @114,59 38x8 style=0x50020000
+   ctl id=65535 STATIC       "Electronic Parts" @114,74 38x8 style=0x50020000
+   ctl id=65535 STATIC       "Anti-Matter Pods" @114,89 38x8 style=0x50020000
+   ctl id=65535 STATIC       "Art Objects" @114,104 38x8 style=0x50020000
+   ctl id=100   EDIT         "" @56,25 50x15 style=0x50830000
+   ctl id=101   EDIT         "" @56,40 50x15 style=0x50810000
+   ctl id=102   EDIT         "" @56,55 50x15 style=0x50810000
+   ctl id=103   EDIT         "" @56,70 50x15 style=0x50810000
+   ctl id=104   EDIT         "" @56,85 50x15 style=0x50810000
+   ctl id=105   EDIT         "" @56,100 50x15 style=0x50810000
+   ctl id=106   EDIT         "" @154,25 50x15 style=0x50810000
+   ctl id=107   EDIT         "" @154,40 50x15 style=0x50810000
+   ctl id=108   EDIT         "" @154,55 50x15 style=0x50810000
+   ctl id=109   EDIT         "" @154,70 50x15 style=0x50810000
+   ctl id=110   EDIT         "" @154,85 50x15 style=0x50810000
+   ctl id=111   EDIT         "" @154,100 50x15 style=0x50810000
+   ctl id=1     BUTTON       "OK" @100,136 50x14 style=0x50030001
+   ctl id=2     BUTTON       "Cancel" @160,136 50x14 style=0x50010000
+DIALOG 25200 "Edit Resources" 156x110 style=0x90C800C0 class= font=MS Sans Serif
+   ctl id=65535 BUTTON       "Tile Type" @4,2 78x86 style=0x50000027
+   ctl id=65535 BUTTON       "Production Value" @85,2 68x86 style=0x50000007
+   ctl id=1     BUTTON       "OK" @19,92 50x14 style=0x50030001
+   ctl id=2     BUTTON       "Cancel" @87,92 50x14 style=0x50010000
+   ctl id=65535 STATIC       "Food" @91,13 30x8 style=0x50020000
+   ctl id=65535 STATIC       "Wood" @91,28 30x8 style=0x50000000
+   ctl id=65535 STATIC       "Energy" @91,43 30x8 style=0x50000000
+   ctl id=65535 STATIC       "Iron" @91,58 30x8 style=0x50000000
+   ctl id=65535 STATIC       "Endurium" @91,73 30x8 style=0x50000000
+   ctl id=201   STATIC       "45" @130,13 16x12 style=0x50000000
+   ctl id=202   STATIC       "29" @130,28 16x12 style=0x50000000
+   ctl id=203   STATIC       "10" @130,43 16x12 style=0x50000000
+   ctl id=204   STATIC       "18" @130,58 16x12 style=0x50000000
+   ctl id=205   STATIC       "12" @130,73 16x12 style=0x50000000
+   ctl id=302   LISTBOX      "" @11,14 65x58 style=0x50A10003
+   ctl id=301   BUTTON       "Bonus" @30,75 32x11 style=0x50030003
+DIALOG 25300 "Change Territory Types" 222x255 style=0x90C800C0 class= font=MS Sans Serif
+   ctl id=1     BUTTON       "Done" @167,223 50x14 style=0x50030001
+   ctl id=2     BUTTON       "Cancel" @167,239 50x14 style=0x50010000
+   ctl id=100   BUTTON       "&Ocean" @11,226 44x13 style=0x50030009
+   ctl id=101   BUTTON       "&Plains" @11,238 44x13 style=0x50000009
+   ctl id=102   BUTTON       "&Forest" @60,226 44x13 style=0x50000009
+   ctl id=103   BUTTON       "&Swamp" @60,238 44x13 style=0x50000009
+   ctl id=104   BUTTON       "&Mountain" @109,226 44x13 style=0x50000009
+   ctl id=105   BUTTON       "&Wasteland" @109,238 44x13 style=0x50000009
+   ctl id=43    STATIC       "" @4,201 215x19 style=0x50020007
+   ctl id=8     STATIC       "Pick a terrain type, and then click territories." @7,205 209x14 style=0x50020001

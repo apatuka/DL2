@@ -1,0 +1,156 @@
+0040adf4	RemoveArmyFromTaskForce	auto-named from string evidence: RemoveArmyFromTaskForce
+00411e28	HdxArchive_Open	Opens <name>.HDX/<name>.HDD, reads and sorts the entry table
+00412da8	Timer_Init	timeSetEvent periodic timer setup
+00412f74	WaveOut_Init	Opens waveOut device and prepares headers
+00419a14	CheckArmy	auto-named from string evidence: CheckArmy
+0041a634	SetItemStats	auto-named from string evidence: SetItemStats, Upkeep
+0041b018	CheckBuildingList	auto-named from string evidence: CheckBuildingList
+0041d834	CheckBuilding	auto-named from string evidence: CheckBuilding
+0041f98c	DrawCAGuyPool	auto-named from string evidence: DrawCAGuyPool
+00420fa0	CheckColonyAssistant	auto-named from string evidence: CheckColonyAssistant
+00421eb4	CombatReport	auto-named from string evidence: CombatReport
+00422d24	CheckEventLog	auto-named from string evidence: CheckEventLog
+00423cf0	CheckExitSave	auto-named from string evidence: CheckExitSave
+00425690	InitHelp	Initializes context help
+00427008	SelectInit	auto-named from string evidence: SelectInit
+004282b4	UserMessageObject__CheckMessage	auto-named from string evidence: UserMessageObject::CheckMessage
+0042864c	CheckMoveStuff	auto-named from string evidence: CheckMoveStuff
+0042d5c8	SelRace	auto-named from string evidence: SelRace
+0042dc94	RaceInit_dc94	auto-named from string evidence: RaceInit
+004333e0	CheckSubRes	auto-named from string evidence: CheckSubRes
+004355bc	CheckSubInfo	auto-named from string evidence: CheckSubInfo
+00435804	CheckSubTech	auto-named from string evidence: CheckSubTech
+00435ac4	CheckSubUnit	auto-named from string evidence: CheckSubUnit
+00437cd0	WriteUnitData	auto-named from string evidence: WriteUnitData
+004386d8	CheckUnitList	auto-named from string evidence: CheckUnitList
+0043a4e4	CheckTechDet	auto-named from string evidence: CheckTechDet
+0043c0e8	DisableMainInterface	auto-named from string evidence: DisableMainInterface
+0043c1a4	DisableMainInterface_c1a4	auto-named from string evidence: DisableMainInterface
+0043ce4c	CheckTechTree	auto-named from string evidence: CheckTechTree
+0043d2a0	PauseWarrior	auto-named from string evidence: PauseWarrior
+0043d6e4	CreateHit	auto-named from string evidence: CreateHit
+0043dae0	CreateBldgHit	auto-named from string evidence: CreateBldgHit
+0043db88	DestroyAnim	auto-named from string evidence: DestroyAnim
+0043ddcc	BirthCombatSprites	auto-named from string evidence: BirthCombatSprites
+0043e3b4	CheckViewCombat	auto-named from string evidence: CheckViewCombat
+00444cf4	DrawSprite	Draws one sprite/anim frame (with parent linkage)
+00445800	DeleteArmy	auto-named from string evidence: DeleteArmy
+00445898	ReLinkArmy	auto-named from string evidence: ReLinkArmy
+00445fd4	DeleteUnit	auto-named from string evidence: DeleteUnit
+00446c8c	DetectsShrine	auto-named from string evidence: DetectsShrine
+00446cf0	CheckDiscovery	auto-named from string evidence: CheckDiscovery
+004497ac	DrawSpriteCentered	Reads a sprite from SPRITENW.DAT and blits centered
+0044b65c	TotalUnitLabor	auto-named from string evidence: TotalUnitLabor
+0044b714	TotalTaskLabor	auto-named from string evidence: TotalTaskLabor
+0044b860	MoveLaborToHousing	auto-named from string evidence: MoveLaborToHousing
+0044bb60	IsBuildTaskDifferent	auto-named from string evidence: IsBuildTaskDifferent
+0044c368	MoveLaborToHousingNoNet	auto-named from string evidence: MoveLaborToHousingNoNet
+0044c654	CanUpgradeBuilding	auto-named from string evidence: CanUpgradeBuilding
+0044c79c	MoveHousingLabor	auto-named from string evidence: MoveHousingLabor
+0044cd50	_DeleteBuilding	auto-named from string evidence: _DeleteBuilding
+0044cefc	_DemolishBuilding	auto-named from string evidence: _DemolishBuilding
+0044d464	FindConstructionSite	auto-named from string evidence: FindConstructionSite
+0044e174	ProduceUnits	auto-named from string evidence: ProduceUnits
+0044e7ec	GetBuildingTasks	auto-named from string evidence: GetBuildingTasks
+00451928	SetRetreat	auto-named from string evidence: SetRetreat
+00457f00	NetPlayerDisconnect	auto-named from string evidence: NetPlayerDisconnect
+00457f7c	NetReceiveCapsule	auto-named from string evidence: NetReceiveCapsule
+004586f4	InitDebugLogs	Creates DEBUG.TXT / COMBAT.TXT / REPLAY.TXT
+004587f0	DebugLog	Appends "Turn %3d: <tag>" to DEBUG.TXT
+00458840	DumpGameOptions	Writes the Players/World/Victory block to DEBUG.TXT
+00458990	DebugMessage	Reports an internal error string (assert-like)
+0045f2d8	RunAITurns	Runs computer players' turns ("silicon-based opponents")
+00461488	ChCht	auto-named from string evidence: ChCht, SaveGame
+004636cc	CreateGamePalette	Creates and realizes the GDI palette
+00463944	CreateGamePalette2	Creates palette (variant used by CreateMainWindow)
+004647a0	BlitSprite8	8bpp blit with clipping into the back buffer
+004656f0	GetHighScores	auto-named from string evidence: GetHighScores
+00465b9c	LoadCombatSprites	Loads combat phase sprites
+00465e54	PreloadSprite2	Loads the global sprite set (calls LoadGlobalSprites)
+00466e60	StillPic	auto-named from string evidence: StillPic
+00467078	LoadPrefsAndInit	Loads prefs at startup
+00467434	ParsePrefs	Copies DL2.PRF fields into globals
+004676d4	LoadPrefs	Reads DL2.PRF (134 bytes) and validates
+00467754	SavePrefs	Writes DL2.PRF
+00469074	GetGameOptions	Main menu / new game or load game option flow
+0046ae9c	_MovePopulation	auto-named from string evidence: _MovePopulation
+0046b9e8	ConsumeFood	auto-named from string evidence: ConsumeFood
+0046c310	DoRiot	auto-named from string evidence: DoRiot
+0046ca70	ReadDataFileChunk	Reads size bytes at offset from a data file (SPRITENW.DAT)
+0046cb4c	RegisterWindowClasses	Registers XenoMainWnd / XenoBackground / XenoIntro
+0046cca4	CreateMainWindow	Creates "Deadlock 2: Shrine Wars" main window
+0046ced4	ShutdownGame	Final cleanup at exit
+0046cff8	MessagePump	Win32 message loop helper (PeekMessage/GetMessage/IsDialogMessage)
+0046d4ac	RaceInit	Race initialization and landing before turn 1
+0046da14	ResetVariables	Resets per-game globals
+0046dca8	FindTresure	auto-named from string evidence: FindTresure
+0046de44	FindArtifact	auto-named from string evidence: FindArtifact
+0046e9f4	WaitSync	Network synchronization barrier (tag string logged as "WaitSync in %s")
+0046ed64	SyncBeginTurn	Begin-of-turn synchronization (SyncBeginTurn1/2)
+0046edc4	TestWaitSync	auto-named from string evidence: TestWaitSync
+0046ee10	XenoBackground	auto-named from string evidence: XenoBackground
+0046eebc	SeaManipulationFlagTerritories	auto-named from string evidence: SeaManipulationFlagTerritories
+0046f404	SeaManipulationEffects	auto-named from string evidence: SeaManipulationEffects
+0046f94c	TestMemory	Memory test / low memory mode decision
+0046fca4	InitCYGame	Initializes the CYLib game object (DirectDraw, sound, timer)
+0046ffec	XenoIntro	auto-named from string evidence: XenoIntro
+00470050	OpenDataFiles	Opens the HDX/HDD archives and dictionary (CYHMRTUOSchat)
+00470554	GetNetGameOptions	Network game setup (host/join, player name)
+00470740	AutoSave	Autosave at end of turn
+00470804	WinMain	Main entry: window creation, game loop (turn loop with debug log tags)
+004756fc	NetMoveUnit	auto-named from string evidence: NetMoveUnit
+00475818	NetDisbandUnit	auto-named from string evidence: NetDisbandUnit
+00475898	SyncDisbandUnit	Network-synchronized unit disband
+004758f4	NetStartConstruction	auto-named from string evidence: NetStartConstruction
+004759ec	NetDemolishBuilding	auto-named from string evidence: NetDemolishBuilding
+00475ac4	NetReassignLabor	auto-named from string evidence: NetReassignLabor
+00475bf4	NetReassignLaborByTask	auto-named from string evidence: NetReassignLaborByTask
+00476120	NetBuildingTasks	auto-named from string evidence: NetBuildingTasks
+0047626c	NetBuildingFlags	auto-named from string evidence: NetBuildingFlags
+00476970	NetBreakPact	auto-named from string evidence: NetBreakPact
+00476a70	NetBreakPact_6a70	auto-named from string evidence: NetBreakPact
+00476b1c	NetMakePact	auto-named from string evidence: NetMakePact
+004773e4	SendSlaveInfo	auto-named from string evidence: SendSlaveInfo
+00477784	SyncCreateUnit	Network-synchronized unit creation
+00477904	SyncCreateBuilding	Network-synchronized building creation
+00477b14	BroadcastDirect	auto-named from string evidence: BroadcastDirect
+00477c00	SpecialBroadcast	auto-named from string evidence: SpecialBroadcast
+00477cf8	BroadcastText	auto-named from string evidence: BroadcastText
+00477e50	BroadcastBlock	auto-named from string evidence: BroadcastBlock
+00477f04	BroadcastBlockDirect	auto-named from string evidence: BroadcastBlockDirect
+004787c8	MasterDispatchNetMessage	auto-named from string evidence: MasterDispatchNetMessage
+004795ec	ResetNetGame	Resets network game state (ResetNetGame1/2)
+0047a014	CalculateGameCRC	Computes the game state checksum (CHECKSUM.SAV)
+0047b3a8	SynchronizeGame	Sends/receives the full game state for resync
+0047bab4	SendTerritoryData	auto-named from string evidence: SendTerritoryData
+0047c450	NetStartState	auto-named from string evidence: NetStartState
+0047cf18	NoBonus	auto-named from string evidence: NoBonus, NoBonus2
+0047d71c	CreateRandomEvents	Random events per turn (plague, flood, earthquake...)
+0047f7a4	DrawSTileBuilding	auto-named from string evidence: DrawSTileBuilding
+00482668	CalculatePlayersScores	auto-named from string evidence: CalculatePlayersScores
+00483340	LoadPhaseSpriteFile	Reads phase sprites ("P Sprite") from SPRITENW.DAT
+00483600	LoadGlobalSprites	Reads global sprites ("G Sprite") from SPRITENW.DAT
+004836fc	LoadPhaseSprites	Loads the sprite set of a game phase (Settlement/Control/Combat)
+00484c74	UnitList__Insert	auto-named from string evidence: UnitList::Insert
+00484d2c	UnitList__Delete	auto-named from string evidence: UnitList::Delete
+004851a8	AnyKnown	auto-named from string evidence: AnyKnown
+004852c8	SearchForSubs	auto-named from string evidence: SearchForSubs
+0048547c	SpyCaught	auto-named from string evidence: SpyCaught
+00487b80	LoadSmacker	Loads SMACKW32.DLL
+00487bdc	FreeSmacker	Unloads SMACKW32.DLL
+00487bec	CreateWinGWindow	Creates a XenoWinG child window and paints a sprite into it
+0048b623	CYGame_InitDirectDraw	DirectDraw init, logs pixel format
+0048b8de	CYGame_CreateWindow	Registers/creates the "CYGame" window
+004a67c8	memcpy	RTL
+004a6838	memset	RTL
+004a6994	strlen	RTL
+004a80bd	Local_unwind	auto-named from string evidence: Local_unwind
+004a82aa	_ExceptionHandler	auto-named from string evidence: _ExceptionHandler
+004a9be0	fclose	RTL
+004aa074	fopen	RTL
+004aa33c	fread	RTL
+004ab450	sprintf	RTL
+004b0274	free	RTL
+004b02dc	malloc	RTL
+004b1210	__assertfail	RTL: "Assertion failed: , file , line "
+004b14e8	qsort	RTL

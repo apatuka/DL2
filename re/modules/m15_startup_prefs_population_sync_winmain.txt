@@ -1,0 +1,159 @@
+# m15_startup_prefs_population_sync_winmain: 0x467000-0x471000  functions=158 bytes=39859
+00467078    243 LoadPrefsAndInit                 strings: "DEADLOCK 2 v%d.%d%d"|"Deadlock and Accolade are trademarks of Accolade, Inc.\nThe Deadlock 2 game is (c)1997/1998 Accolade, Inc. Portions (c)Microsoft, Inc. Al
+0046716c    106 FUN_0046716c                     strings: "Deadlock 2 is waiting for the master computer to start the game."|"Waiting for Game"
+004671d8    601 FUN_004671d8                     strings: "New Player"
+00467434    671 ParsePrefs                       strings: "New Player"
+004676d4    126 LoadPrefs                        strings: "DL2.PRF"
+00467754    103 SavePrefs                        strings: "DL2.PRF"
+004677bc    143 @PlayerNameDialog$qqspvuiuil     strings: "New Player"
+0046784c     26 FUN_0046784c                     strings: 
+00467868     20 FUN_00467868                     strings: 
+0046787c      6 FUN_0046787c                     strings: 
+00467884    646 FUN_00467884                     strings: "SOFTWARE\\Accolade\\NetAccolade"|"\\MClient.exe"|"deadlock.ini"|"Quit Deadlock 2 to run NetAccolade?"|"Confirm Quitting Deadlock 2"|"Couldn't start NetAccolade
+00467b2c    349 FUN_00467b2c                     strings: 
+00467c8c    229 FUN_00467c8c                     strings: 
+00467e58    360 FUN_00467e58                     strings: "Could not open dictionary"|"levels"|"campaign\\"|"%sAUTOSAVE%s"
+00467fc0    111 FUN_00467fc0                     strings: 
+00468030    124 FUN_00468030                     strings: 
+004680ac     53 FUN_004680ac                     strings: 
+004680e4     40 FUN_004680e4                     strings: 
+0046810c    159 @GameStyleDialog$qqspvuiuil      strings: 
+004681ac    101 FUN_004681ac                     strings: 
+00468214    366 FUN_00468214                     strings: ".\\deadlock.ini"|"The TCP/IP (Internet) service is not available.  Please exit the game and make sure that you have TCP/IP installed and that it is configured 
+00468384     16 FUN_00468384                     strings: "Not Implemented."
+00468394    219 FUN_00468394                     strings: ".\\deadlock.ini"
+00468470     95 FUN_00468470                     strings: "Game 1"|".\\deadlock.ini"
+004684d0    695 FUN_004684d0                     strings: ".\\deadlock.ini"
+0046878c     69 FUN_0046878c                     strings: 
+004687d4     41 FUN_004687d4                     strings: 
+00468800    149 FUN_00468800                     strings: ".\\deadlock.ini"
+00468898    398 FUN_00468898                     strings: "Deadlock 2 is waiting for %d players.\n\nOnly you have joined so far."|"Waiting for Connect"|"Waiting for %d players.\n\nIncluding you, the game now has %d pla
+00468a28    619 FUN_00468a28                     strings: "Deadlock 2 is now registering with the network.\n\nThis can take up to 10 seconds, so you have some time to just sit and admire your monitor."|"Initializing Ne
+00468c94    165 FUN_00468c94                     strings: "Could not connect to the game.  Verify your network, serial, or modem settings and try again."|"Network Error"
+00468d3c    100 FUN_00468d3c                     strings: ".\\deadlock.ini"
+00468da0    257 FUN_00468da0                     strings: "%s is not a valid saved game.  Unable to load game."|"Load Game Error"
+00468ea4    405 FUN_00468ea4                     strings: "New Player"
+0046903c     54 FUN_0046903c                     strings: 
+00469074     35 GetGameOptions                   strings: 
+004691f8     33 FUN_004691f8                     strings: 
+0046921c     22 FUN_0046921c                     strings: 
+00469234     26 FUN_00469234                     strings: 
+00469250     43 FUN_00469250                     strings: 
+0046927c      6 FUN_0046927c                     strings: 
+00469284     21 FUN_00469284                     strings: 
+0046929c    273 @IntroWndProc$qqspvuiuil         strings: 
+004693b0    272 FUN_004693b0                     strings: 
+004694c0    641 FUN_004694c0                     strings: 
+00469744    998 FUN_00469744                     strings: 
+00469b2c    801 FUN_00469b2c                     strings: 
+00469e50     51 FUN_00469e50                     strings: 
+00469e84    366 FUN_00469e84                     strings: 
+00469ff4     43 FUN_00469ff4                     strings: 
+0046a020    395 FUN_0046a020                     strings: 
+0046a1ac    471 FUN_0046a1ac                     strings: 
+0046a39c    490 FUN_0046a39c                     strings: 
+0046a588    374 FUN_0046a588                     strings: 
+0046a700    324 FUN_0046a700                     strings: 
+0046a844    403 FUN_0046a844                     strings: "Preparing Long Range Scan"|"Height Map"|"Color Map"|"Not enough Memory for world map.\n\nTry playing on a smaller world."|"Out of Memory (RAM) Error"|"Scanning
+0046a9d8     54 FUN_0046a9d8                     strings: 
+0046aa10    261 FUN_0046aa10                     strings: 
+0046ab18    297 FUN_0046ab18                     strings: 
+0046ac44    358 FUN_0046ac44                     strings: 
+0046adac    110 FUN_0046adac                     strings: 
+0046ae1c    128 FUN_0046ae1c                     strings: 
+0046ae9c    471 _MovePopulation                  strings: "Invalid building in _MovePopulation()"
+0046b074    110 FUN_0046b074                     strings: 
+0046b0e4    200 FUN_0046b0e4                     strings: 
+0046b1ac    510 FUN_0046b1ac                     strings: 
+0046b3ac     46 FUN_0046b3ac                     strings: 
+0046b3dc    241 FUN_0046b3dc                     strings: 
+0046b4d0    785 FUN_0046b4d0                     strings: 
+0046b818    246 FUN_0046b818                     strings: 
+0046b910     71 FUN_0046b910                     strings: 
+0046b958     72 FUN_0046b958                     strings: 
+0046b9a0     69 FUN_0046b9a0                     strings: 
+0046b9e8    573 ConsumeFood                      strings: "NULL territory in ConsumeFood()"
+0046bc28    187 FUN_0046bc28                     strings: 
+0046bce4     87 FUN_0046bce4                     strings: 
+0046bd3c    189 FUN_0046bd3c                     strings: 
+0046bdfc    937 FUN_0046bdfc                     strings: 
+0046c1a8     70 FUN_0046c1a8                     strings: 
+0046c1f0    100 FUN_0046c1f0                     strings: 
+0046c254    188 FUN_0046c254                     strings: 
+0046c310    233 DoRiot                           strings: "DoRiot"
+0046c3fc    160 FUN_0046c3fc                     strings: 
+0046c49c    652 FUN_0046c49c                     strings: "Revolt"|"Revolt2"|"Revolt3"
+0046c728     85 FUN_0046c728                     strings: 
+0046c780     81 FUN_0046c780                     strings: 
+0046c7d4    502 FUN_0046c7d4                     strings: 
+0046c9cc     12 FUN_0046c9cc                     strings: 
+0046c9d8     30 FUN_0046c9d8                     strings: 
+0046c9f8     70 FUN_0046c9f8                     strings: 
+0046ca40     29 FUN_0046ca40                     strings: 
+0046ca60     15 FUN_0046ca60                     strings: 
+0046ca70    112 ReadDataFileChunk                strings: 
+0046cae0    105 FUN_0046cae0                     strings: 
+0046cb4c    178 RegisterWindowClasses            strings: "XenoMainWnd"|"XenoBackground"|"XenoIntro"
+0046cc00     12 FUN_0046cc00                     strings: 
+0046cc14     50 FUN_0046cc14                     strings: "BWCC32.DLL"|"BWCCRegister"
+0046cc48     34 FUN_0046cc48                     strings: 
+0046cc6c     54 FUN_0046cc6c                     strings: "At start\r\n"
+0046cca4    364 CreateMainWindow                 strings: "Deadlock 2: Shrine Wars"|"XenoMainWnd"
+0046ce10    193 FUN_0046ce10                     strings: 
+0046ced4    291 ShutdownGame                     strings: "At end\r\n"
+0046cff8    297 MessagePump                      strings: 
+0046d124     92 FUN_0046d124                     strings: 
+0046d180     91 FUN_0046d180                     strings: 
+0046d1dc    115 FUN_0046d1dc                     strings: 
+0046d250    149 FUN_0046d250                     strings: 
+0046d2e8    430 FUN_0046d2e8                     strings: "%s Landing"
+0046d4ac   1382 RaceInit                         strings: "All players are now being synchronized.  This may take some time.  Please wait..."|"Re-synching Machines"|"New Player"|"Please select the territory you want a 
+0046da14    581 ResetVariables                   strings: "GameSeed"
+0046dc5c     76 FUN_0046dc5c                     strings: 
+0046dca8    379 FindTresure                      strings: "FindTresure"
+0046de44    404 FindArtifact                     strings: "FindArtifact"|"Metallurgy"
+0046dfd8     44 FUN_0046dfd8                     strings: 
+0046e004     93 FUN_0046e004                     strings: 
+0046e064    722 FUN_0046e064                     strings: 
+0046e338     58 FUN_0046e338                     strings: 
+0046e374     38 FUN_0046e374                     strings: 
+0046e39c    464 FUN_0046e39c                     strings: "The %s colony has given up all claims to the planet.  Their colonists have left."|"Opponent Surrenders"
+0046e56c    330 FUN_0046e56c                     strings: 
+0046e6b8    119 FUN_0046e6b8                     strings: 
+0046e730    570 FUN_0046e730                     strings: 
+0046e96c     20 FUN_0046e96c                     strings: 
+0046e980     79 FUN_0046e980                     strings: "All players are now being synchronized.  This may take some time.  Please wait..."|"Re-synching Machines"
+0046e9d0     36 FUN_0046e9d0                     strings: 
+0046e9f4    877 WaitSync                         strings: "WaitSync in %s"|"WaitSync"|"Are you sure you want to exit Deadlock 2?"|"Exit Game"|"Reseed"
+0046ed64     67 SyncBeginTurn                    strings: "SyncBeginTurn1"|"SyncBeginTurn2"
+0046eda8     26 FUN_0046eda8                     strings: 
+0046edc4     73 TestWaitSync                     strings: "TestWaitSync"|"Random Number sync at %d = %ld %d"
+0046ee10     83 XenoBackground                   strings: "XenoBackground"
+0046ee64     34 FUN_0046ee64                     strings: 
+0046ee88     24 FUN_0046ee88                     strings: 
+0046eea0     25 FUN_0046eea0                     strings: 
+0046eebc    546 SeaManipulationFlagTerritories   strings: "SeaManipulationFlagTerritories"
+0046f0e0    396 FUN_0046f0e0                     strings: 
+0046f26c    406 FUN_0046f26c                     strings: "downed"
+0046f404    464 SeaManipulationEffects           strings: "SeaManipulationEffects"
+0046f5d4    505 FUN_0046f5d4                     strings: "There is not enough memory to run the game.\n\nTry playing Deadlock 2 on a smaller map."|"Out of Memory Error"
+0046f7d0     49 FUN_0046f7d0                     strings: 
+0046f804     88 FUN_0046f804                     strings: 
+0046f85c     61 FUN_0046f85c                     strings: 
+0046f89c     46 FUN_0046f89c                     strings: 
+0046f8cc     59 FUN_0046f8cc                     strings: 
+0046f908     46 FUN_0046f908                     strings: 
+0046f938     11 FUN_0046f938                     strings: 
+0046f94c    262 TestMemory                       strings: "This machine has %d megabytes of memory.  To improve game performance, we recommend not loading building animations. You may change your mind by changing the '
+0046fa54     37 FUN_0046fa54                     strings: 
+0046fa7c    102 FUN_0046fa7c                     strings: 
+0046fae4    394 FUN_0046fae4                     strings: "-debug"|"-nosound"|"Unknown parameter %s\n"
+0046fc70     51 FUN_0046fc70                     strings: "Unable to load needed CAM, %s"
+0046fca4    753 InitCYGame                       strings: "deadcyb.cam"|"deadtext.cam"|"dl2sound.cam"|"FindCD"|"Please place the Deadlock 2 CD-ROM in your drive and press OK.\n\nIf you just wish to join a multiplayer g
+0046ff98     81 FUN_0046ff98                     strings: 
+0046ffec     97 XenoIntro                        strings: "XenoIntro"
+00470050   1281 OpenDataFiles                    strings: "Could not open dictionary"|"script"|"sound"|"CYHMRTUOSchat"|"%c%dN"
+00470554    491 GetNetGameOptions                strings: ".\\deadlock.ini"|"New Player"|"Can't start network game with less than 2 participants."|"Network Error"|"Without the CD-ROM, you can not be the master of a mul
+00470740    196 AutoSave                         strings: "campaign\\"|"%sAUTOSAVE%s"|"saves\\"
+00470804   1980 WinMain                          strings: "XenoMainWnd"|"GetDeviceCaps"|"Deadlock 2 is designed to run with at least 256-colors and may look odd with your current settings.\n\nSet the number of screen c
+00470fc0    104 FUN_00470fc0                     strings: 

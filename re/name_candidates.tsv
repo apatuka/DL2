@@ -1,0 +1,113 @@
+00419a14	CheckArmy	5	
+0041a634	SetItemStats	5	Nothing
+0041b018	CheckBuildingList	5	
+0041b500	Finished	1	
+0041c418	Energy	1	
+0041d834	CheckBuilding	5	
+0041f98c	DrawCAGuyPool	5	
+0041ffd4	Energy	1	
+00420fa0	CheckColonyAssistant	5	
+00421eb4	CombatReport	5	
+00422d24	CheckEventLog	5	
+00423cf0	CheckExitSave	5	
+00425ac4	NNOPENA	1	
+00427008	SelectInit	1	
+004282b4	UserMessageObject::CheckMessage	5	
+0042864c	CheckMoveStuff	5	
+00428b74	Military	1	Victory,Technology,Intelligence
+0042d5c8	SelRace	1	
+0042dc94	RaceInit	1	
+0042ee18	G000G001G002G003G004G005	1	
+004333e0	CheckSubRes	5	
+004355bc	CheckSubInfo	5	
+00435804	CheckSubTech	5	
+00435ac4	CheckSubUnit	5	
+00437cd0	WriteUnitData	5	
+004386d8	CheckUnitList	5	
+0043a4e4	CheckTechDet	5	
+0043c0e8	DisableMainInterface	5	
+0043c1a4	DisableMainInterface	5	
+0043ce4c	CheckTechTree	5	
+0043e3b4	CheckViewCombat	5	
+00446c8c	DetectsShrine	5	
+00446cf0	CheckDiscovery	1	
+0044b65c	TotalUnitLabor	10	
+0044b714	TotalTaskLabor	10	
+0044b860	MoveLaborToHousing	10	
+0044bb60	IsBuildTaskDifferent	5	
+0044c654	CanUpgradeBuilding	5	
+0044c79c	MoveHousingLabor	5	
+0044d464	FindConstructionSite	1	
+0044e174	ProduceUnits	10	
+0044e7ec	GetBuildingTasks	5	
+00451928	SetRetreat	5	
+00457f7c	NetReceiveCapsule	1	
+00458840	Conquest	1	
+00461488	SaveGame	1	
+004656f0	GetHighScores	1	
+00466508	Place3	1	Place4,Place5
+0046681c	RemoveB	1	
+00466e60	XenoWinG	1	StillPic
+0046ae9c	_MovePopulation	3	
+0046b9e8	ConsumeFood	5	
+0046c310	DoRiot	1	
+0046c49c	Revolt	1	Revolt2,Revolt3
+0046cb4c	XenoMainWnd	1	XenoBackground,XenoIntro
+0046cc14	BWCCRegister	1	
+0046cca4	XenoMainWnd	1	
+0046da14	GameSeed	1	
+0046dca8	FindTresure	1	
+0046de44	FindArtifact	1	Metallurgy
+0046e9f4	WaitSync	1	Reseed
+0046ed64	SyncBeginTurn1	1	SyncBeginTurn2
+0046edc4	TestWaitSync	1	
+0046ee10	XenoBackground	1	
+0046eebc	SeaManipulationFlagTerritories	1	
+0046f404	SeaManipulationEffects	1	
+0046fca4	FindCD	1	
+0046ffec	XenoIntro	1	
+00470050	CYHMRTUOSchat	1	
+00470804	XenoMainWnd	1	GetDeviceCaps,FreeSmacker,LoadSmacker,TestMemory,InitHelp,ResetVariables,GetGameOptions
+00471068	Version	1	
+004719a0	Startup	1	
+004730f4	Nothing	1	
+00473324	GREEBLIE	1	WALL2WALL,CHARISMA,SQUISH
+00475344	Broadcast	1	
+00475898	SyncDisbandUnit	1	
+00475f80	Broadcast	1	
+004773e4	SendSlaveInfo	1	
+00477784	SyncCreateUnit	1	
+00477904	SyncCreateBuilding	1	
+004779c0	Broadcast	1	
+00477b14	BroadcastDirect	1	
+00477c00	SpecialBroadcast	1	
+00477cf8	BroadcastText	1	
+00477e50	BroadcastBlock	1	
+00477f04	BroadcastBlockDirect	1	
+004787c8	MasterDispatchNetMessage	1	
+004795ec	ResetNetGame1	1	ResetNetGame2
+0047a014	CalculateGameCRC	1	
+0047b3a8	SyncGame	1	
+0047c450	NetStartState	1	
+0047cb74	Plague	1	
+0047ce94	Bonus2	1	
+0047cf18	NoBonus	1	NoBonus2
+0047cf9c	Natives	1	Natives2
+0047d068	Earthquake2	1	
+0047d288	Earthquake	1	
+0047d49c	Scandal	1	Scandal2,Scandal3,Scandal4,Scandal5
+0047d71c	CreateRandomEvents1	1	CreateRnd,CreateRnd2,CreateRandomEvents2
+00482668	CalculatePlayersScores	5	
+00484c74	UnitList::Insert	5	
+00484d2c	UnitList::Delete	10	
+004851a8	AnyKnown	1	
+004852c8	SearchForSubs	1	
+00485364	Uncloak	1	
+0048547c	SpyCaught	1	
+00485668	DETECT_MINE_MISSION1	1	DETECT_MINE_MISSION2,SABOTAGE_MISSION,Sabotage,Shaman,StealTechM,SUBVERT_MISSION,POISON_LAND_MISSION
+00487bec	XenoWinG	1	
+0048b8de	CYGame	1	
+0048e530	CYGame	1	
+004a80bd	Local_unwind	10	
+004a82aa	_ExceptionHandler	6	
+004b1fb4	COMSPEC	1	

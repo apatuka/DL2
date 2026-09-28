@@ -1,0 +1,75 @@
+# m14_gdi_sprites_hiscore_place: 0x463000-0x467000  functions=74 bytes=16342
+00463014    736 FUN_00463014                     strings: 
+004632f4    152 FUN_004632f4                     strings: "Unassigned tile at (%d, %d)\nWorldSeed1 = %lX\nWorldSeed2 = %lX"
+0046338c    248 FUN_0046338c                     strings: 
+004634a0    556 FUN_004634a0                     strings: "Launching Colony Ship"|"Oops, this world is not usable.  Click OK to try again."|"World Generation Error!"
+004636cc    106 CreateGamePalette                strings: 
+00463738     53 FUN_00463738                     strings: 
+00463770     68 FUN_00463770                     strings: 
+004637b4    400 FUN_004637b4                     strings: 
+00463944    150 CreateGamePalette2               strings: 
+004639dc     21 FUN_004639dc                     strings: 
+004639f4    127 FUN_004639f4                     strings: 
+00463a74     38 FUN_00463a74                     strings: 
+00463a9c     79 FUN_00463a9c                     strings: 
+00463aec    224 FUN_00463aec                     strings: 
+00463bcc    306 FUN_00463bcc                     strings: 
+00463d00    167 FUN_00463d00                     strings: 
+00463da8     89 FUN_00463da8                     strings: 
+00463e04     28 FUN_00463e04                     strings: 
+00463e20    103 FUN_00463e20                     strings: 
+00463e88     86 FUN_00463e88                     strings: 
+00463ee0     86 FUN_00463ee0                     strings: 
+00463f38    483 FUN_00463f38                     strings: 
+0046411c    568 FUN_0046411c                     strings: 
+00464354    120 FUN_00464354                     strings: 
+004643cc    120 FUN_004643cc                     strings: 
+00464444     82 FUN_00464444                     strings: 
+00464498     95 FUN_00464498                     strings: 
+004644f8    148 FUN_004644f8                     strings: 
+0046458c    148 FUN_0046458c                     strings: 
+00464620    384 FUN_00464620                     strings: 
+004647a0    541 BlitSprite8                      strings: "Null Pointer in ClipBlit!"
+004649c0    122 FUN_004649c0                     strings: 
+00464a3c    337 FUN_00464a3c                     strings: 
+00464b90    297 FUN_00464b90                     strings: 
+00464cbc    708 FUN_00464cbc                     strings: "SPRITENW.DAT"
+00464f80    240 FUN_00464f80                     strings: 
+00465070    241 FUN_00465070                     strings: "SPRITENW.DAT"
+00465164    323 FUN_00465164                     strings: 
+004652a8     79 FUN_004652a8                     strings: 
+004652f8     84 FUN_004652f8                     strings: 
+0046534c    298 FUN_0046534c                     strings: 
+00465478    198 FUN_00465478                     strings: 
+00465540     66 FUN_00465540                     strings: 
+00465584     43 FUN_00465584                     strings: 
+004655b0    143 FUN_004655b0                     strings: 
+00465640    176 FUN_00465640                     strings: 
+004656f0    155 GetHighScores                    strings: "hiscore.dat"|"GetHighScores"
+0046578c     84 FUN_0046578c                     strings: "hiscore.dat"
+004657e0    200 FUN_004657e0                     strings: "hiscore.dat"
+004658a8    515 FUN_004658a8                     strings: "Could not load Settlement Phase sprites."
+00465ac8    211 FUN_00465ac8                     strings: "Could not load Control Phase sprites."
+00465b9c    601 LoadCombatSprites                strings: "LoadCombatSprites: Missile from ?"|"Could not load Combat Phase sprites."
+00465df8     40 FUN_00465df8                     strings: 
+00465e20     51 FUN_00465e20                     strings: 
+00465e54     37 PreloadSprite2                   strings: "Could not load global sprites."
+00465e7c     66 FUN_00465e7c                     strings: 
+00465ec0     52 FUN_00465ec0                     strings: 
+00465ef4    141 FUN_00465ef4                     strings: 
+00465f84     68 FUN_00465f84                     strings: 
+00465fc8     75 FUN_00465fc8                     strings: 
+00466014    272 FUN_00466014                     strings: 
+00466128    237 FUN_00466128                     strings: 
+00466218    320 FUN_00466218                     strings: 
+00466358     96 FUN_00466358                     strings: 
+004663b8    169 FUN_004663b8                     strings: 
+00466464    163 FUN_00466464                     strings: 
+00466508    675 FUN_00466508                     strings: "Place"|"Place3"|"Place4"|"Place5"
+004667ac    112 FUN_004667ac                     strings: 
+0046681c     78 FUN_0046681c                     strings: "RemoveB"
+0046686c    364 FUN_0046686c                     strings: "SBld2"
+004669d8   1027 FUN_004669d8                     strings: 
+00466ddc    132 FUN_00466ddc                     strings: "This machine has %d megabytes of memory.  You will probably have problems playing with this large a world map. \n\nWould you like to go back to select a game w
+00466e60    342 StillPic                         strings: "XenoWinG"|"StillPic"|"SPRITENW.DAT"
+00466fb8    192 FUN_00466fb8                     strings: 

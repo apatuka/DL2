@@ -1,0 +1,159 @@
+# m07_skirineen_trade_unitlist_maps_tech: 0x430000-0x43b000  functions=158 bytes=36520
+004302e8     12 FUN_004302e8                     strings: 
+004302f4     59 FUN_004302f4                     strings: 
+00430330     24 FUN_00430330                     strings: 
+00430348    197 FUN_00430348                     strings: 
+00430410     59 FUN_00430410                     strings: 
+0043044c   1473 FUN_0043044c                     strings: 
+00430abc     69 FUN_00430abc                     strings: 
+00430b04     24 FUN_00430b04                     strings: 
+00430b1c    118 FUN_00430b1c                     strings: 
+00430b94     17 FUN_00430b94                     strings: 
+00430ba8     40 FUN_00430ba8                     strings: 
+00430bd0    102 FUN_00430bd0                     strings: 
+00430c38    158 FUN_00430c38                     strings: 
+00430cd8    878 FUN_00430cd8                     strings: 
+00431088    157 FUN_00431088                     strings: 
+00431128    304 FUN_00431128                     strings: 
+00431258    161 FUN_00431258                     strings: 
+004312fc    153 FUN_004312fc                     strings: "%s @ %d credits"
+00431398    292 FUN_00431398                     strings: 
+004314d8     89 FUN_004314d8                     strings: 
+00431534    417 FUN_00431534                     strings: "%s\n%s\n%s"|"%d Cr."
+004316d8     91 FUN_004316d8                     strings: 
+00431734   1735 FUN_00431734                     strings: "%d Cr."|"%d Labor"|"tons of food"|"KW of energy"|"%d %s"|"Ultra Slow"|" round/sec."|" rounds/sec."|"Does Not Move"|"point"|"points"|"credit"|"credits"
+00431dfc     92 FUN_00431dfc                     strings: 
+00431e58    255 FUN_00431e58                     strings: 
+00431f58     20 FUN_00431f58                     strings: 
+00431f6c    166 FUN_00431f6c                     strings: 
+00432014    248 FUN_00432014                     strings: "%s %d"
+0043210c    517 FUN_0043210c                     strings: "%d Cr."|"Lately our sources have not supplied us with any new technologies.  We promise that this situation will change.  Please contact us again."|"No Technol
+00432314    134 FUN_00432314                     strings: 
+0043239c     51 FUN_0043239c                     strings: 
+004323d0     89 FUN_004323d0                     strings: 
+0043242c    481 FUN_0043242c                     strings: "%d Cr."|"Please accept our many regrets, but we have no units to sell you at this time.  Call us later."|"No Units Are Available"
+00432610     77 FUN_00432610                     strings: 
+00432660     79 FUN_00432660                     strings: 
+004326b0    371 FUN_004326b0                     strings: "%d Cr."
+00432824    684 FUN_00432824                     strings: "Skirneen Info Ter"
+00432ad0    499 FUN_00432ad0                     strings: 
+00432cc4     12 FUN_00432cc4                     strings: 
+00432cd0     12 FUN_00432cd0                     strings: 
+00432cdc     12 FUN_00432cdc                     strings: 
+00432ce8     12 FUN_00432ce8                     strings: 
+00432cf4     60 FUN_00432cf4                     strings: 
+00432d30     40 FUN_00432d30                     strings: 
+00432d58    100 FUN_00432d58                     strings: 
+00432dbc     20 FUN_00432dbc                     strings: 
+00432dd0     20 FUN_00432dd0                     strings: 
+00432de4     20 FUN_00432de4                     strings: 
+00432df8     20 FUN_00432df8                     strings: 
+00432e0c    185 FUN_00432e0c                     strings: 
+00432ec8     65 FUN_00432ec8                     strings: 
+00432f0c     99 FUN_00432f0c                     strings: 
+00432fc0   1054 FUN_00432fc0                     strings: "%d Cr."
+004333e0    666 CheckSubRes                      strings: "gpSkirRes NULL in CheckSubRes()"|"%d Cr."
+00434f28   1684 FUN_00434f28                     strings: "%d Cr."
+004355bc    552 CheckSubInfo                     strings: "gpSkirInfo NULL in CheckSubInfo()"|"Unfortunately, you cannot afford our price for that unit.\nPlease return when your treasury is more substantial."|"Insuffic
+00435804    671 CheckSubTech                     strings: "gpSkirTech NULL in CheckSubTech()"|"You do not have enough funds for this technology!\nObviously, we cannot complete this sale.  A pity.  Now this technology w
+00435ac4    850 CheckSubUnit                     strings: "gpSkirUnit NULL in CheckSubUnit()"|"Unfortunately, you cannot afford our price for that unit.\nPlease return when your treasury is more substantial."|"Insuffic
+00435e34     47 FUN_00435e34                     strings: 
+00435e64    108 FUN_00435e64                     strings: 
+00435ed0    137 FUN_00435ed0                     strings: 
+00435f5c    163 FUN_00435f5c                     strings: 
+00436000    100 FUN_00436000                     strings: 
+00436064     12 FUN_00436064                     strings: 
+00436070     16 FUN_00436070                     strings: 
+00436080     24 FUN_00436080                     strings: 
+00436098     82 FUN_00436098                     strings: 
+004360ec     44 FUN_004360ec                     strings: 
+0043611c    101 FUN_0043611c                     strings: 
+00436184     12 FUN_00436184                     strings: 
+00436190     16 FUN_00436190                     strings: 
+004361a0     24 FUN_004361a0                     strings: 
+004361b8    251 FUN_004361b8                     strings: "New Player"
+004362b4    117 FUN_004362b4                     strings: "New Player"
+0043632c    204 FUN_0043632c                     strings: 
+004363f8     32 FUN_004363f8                     strings: 
+00436418     12 FUN_00436418                     strings: 
+00436424     16 FUN_00436424                     strings: 
+00436434     24 FUN_00436434                     strings: 
+0043644c   1001 FUN_0043644c                     strings: 
+00436838     44 FUN_00436838                     strings: 
+00436864    231 FUN_00436864                     strings: 
+0043694c     43 FUN_0043694c                     strings: 
+00436978     97 FUN_00436978                     strings: 
+004369dc    103 FUN_004369dc                     strings: 
+00436a44    829 FUN_00436a44                     strings: "%s Colony's Global Tax Rate"
+00436d84     12 FUN_00436d84                     strings: 
+00436d90     16 FUN_00436d90                     strings: 
+00436da0     24 FUN_00436da0                     strings: 
+00436db8    248 FUN_00436db8                     strings: 
+00436ec8     44 FUN_00436ec8                     strings: 
+00436ef4    527 FUN_00436ef4                     strings: 
+00437134    173 FUN_00437134                     strings: 
+004371e4    298 FUN_004371e4                     strings: 
+00437344     24 FUN_00437344                     strings: 
+0043735c    611 FUN_0043735c                     strings: "%d %s"
+004375c0     44 FUN_004375c0                     strings: 
+004375ec      6 FUN_004375ec                     strings: 
+004375f4    116 FUN_004375f4                     strings: 
+00437668    173 FUN_00437668                     strings: 
+00437718    543 FUN_00437718                     strings: "Selling Materials"|"Offering to sell some of our %s in %s to the %s."|"This colony felt that your offer would cost too much.  They refuse to trade with you."|"
+0043793c    218 FUN_0043793c                     strings: "The %s offer to transfer %d %s to %s for %d credits per unit.\n\nIt would cost us an additional %d credits to transfer the materials.\n\nThe total cost would b
+00437a18     35 FUN_00437a18                     strings: 
+00437a3c    657 FUN_00437a3c                     strings: "Ultra Slow"|" round/sec."|" rounds/sec."|"Does Not Shoot"|"%d.3 squares"|"%d.6 squares"|"%d square"|"%d squares"|"Does Not Move"|"point"|"points"|"%d %s"|"cred
+00437cd0   1121 WriteUnitData                    strings: "pColorList NULL in WriteUnitData()"|"%s cr."|"%d Labor"|"tons of food"|"KW of energy"|"%d %s"
+00438134    221 FUN_00438134                     strings: 
+00438214     12 FUN_00438214                     strings: 
+00438220     49 FUN_00438220                     strings: 
+00438254     44 FUN_00438254                     strings: 
+00438280     80 FUN_00438280                     strings: 
+004382d0    211 FUN_004382d0                     strings: 
+004383a4    774 FUN_004383a4                     strings: "Scout"
+004386ac     41 FUN_004386ac                     strings: 
+004386d8    296 CheckUnitList                    strings: "gpUnitList NULL in CheckUnitList()"
+00438830    627 FUN_00438830                     strings: 
+00438aa4    110 FUN_00438aa4                     strings: 
+00438b14    136 FUN_00438b14                     strings: 
+00438b9c    541 FUN_00438b9c                     strings: "%s*%s"
+00438dbc    315 FUN_00438dbc                     strings: 
+00438ef8     12 FUN_00438ef8                     strings: 
+00438f04     59 FUN_00438f04                     strings: 
+00438f40     24 FUN_00438f40                     strings: 
+00438f58    133 FUN_00438f58                     strings: 
+00438fe0    959 FUN_00438fe0                     strings: "map%d%s"|"maps\\"|"custom\\"|"campaign\\"|"saves\\"|"%s%s%s"|"%sMyGame%s"
+004393a0     69 FUN_004393a0                     strings: 
+004393e8    671 FUN_004393e8                     strings: "custom\\"|"maps\\"|"%s%s%s"|"'%s' already exists.  Do you want to overwrite it?"|"Save Game"|"Are you sure you want to delete '%s'?"|"Delete Saved Game"
+004396a0     74 FUN_004396a0                     strings: 
+004397a0    476 FUN_004397a0                     strings: "%s*%s"
+0043997c     12 FUN_0043997c                     strings: 
+004399c4     24 FUN_004399c4                     strings: 
+004399dc   1143 FUN_004399dc                     strings: "Load Custom Scenario"|"maps\\"|"Custom Map"|"Load Existing Map"|"saves\\"|"campaign\\"|"custom\\"
+00439e6c     44 FUN_00439e6c                     strings: 
+00439e98    840 FUN_00439e98                     strings: "saves\\"|"campaign\\"|"custom\\"|"%s%s%s"
+0043a1f8    297 FUN_0043a1f8                     strings: 
+0043a33c     12 FUN_0043a33c                     strings: 
+0043a348     49 FUN_0043a348                     strings: 
+0043a37c     24 FUN_0043a37c                     strings: 
+0043a394    275 FUN_0043a394                     strings: "%s\n\n%s\n\n%s"
+0043a4a8     44 FUN_0043a4a8                     strings: 
+0043a4dc      6 FUN_0043a4dc                     strings: 
+0043a4e4    129 CheckTechDet                     strings: "gpTechDet NULL in CheckTechDet()"
+0043a568     78 FUN_0043a568                     strings: 
+0043a5b8     12 FUN_0043a5b8                     strings: 
+0043a5c4     59 FUN_0043a5c4                     strings: 
+0043a600     24 FUN_0043a600                     strings: 
+0043a768    235 FUN_0043a768                     strings: 
+0043a854    191 FUN_0043a854                     strings: 
+0043a914    111 FUN_0043a914                     strings: 
+0043a984    125 FUN_0043a984                     strings: 
+0043aa04    132 FUN_0043aa04                     strings: 
+0043aa88    453 FUN_0043aa88                     strings: 
+0043ac50    132 FUN_0043ac50                     strings: 
+0043acd4    264 FUN_0043acd4                     strings: 
+0043addc    154 FUN_0043addc                     strings: 
+0043ae78     85 FUN_0043ae78                     strings: 
+0043aed0    221 FUN_0043aed0                     strings: 
+0043afb0     54 FUN_0043afb0                     strings: 
+0043afe8     31 FUN_0043afe8                     strings: 

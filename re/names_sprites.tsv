@@ -1,0 +1,329 @@
+addr	name	comment
+0043d004	CombatXToPan	x de pantalla -> paneo de sonido -3000..3000
+0043d034	GetWarriorZ	z del ANIM de un guerrero segun su casilla
+0043d184	SetWarriorAnim	ANIM del guerrero: var[2]=direccion, estado, velocidad dx/dy y z
+0043d6e4	CreateHit	'NULL warrior in CreateHit': ANIM de impacto enlazado al padre (flag 0x10, var[3]) + sonido
+0043db88	DestroyAnim	'NULL warrior in DestroyAnim': explosiones 175..180 y estado 2/3 del guerrero
+0043ddcc	BirthCombatSprites	crea el ANIM de cada guerrero (tipo unidad+raza / misil / 399+u / 395+u)
+0043e058	CombatFrameStep	UpdateAnims(1) + DrawSettlementView + InvalidateRect
+0043e0dc	CombatFrameStepFast	avanza el combate hasta el final y pinta
+004410fc	AddRaceModifier	suma delta a la columna de una raza en la tabla 64x7 DAT_00559e00 (+fila DAT_00559f6c)
+00441128	InitRaceModifierTable	copia DAT_004fc50c (64x8) a DAT_00559e00 segun el estilo de juego DAT_004d5b3c; ajustes por dificultad
+004412d4	CheckPact	(a,b,bits): true si la matriz de pactos DAT_0059f3da[a][b] contiene bits (bit 0x10 = guerra)
+0044134c	HasAnyPact	matriz DAT_0059f3da[a][b] != 0
+00441388	CheckPendingPact	igual que CheckPact sobre la matriz secundaria DAT_0059f3f6
+00441400	SyncPactMatrices	WinMain: reconcilia las dos matrices de pactos y emite mensajes 0x3a/0x73
+00441590	ClearPactBits	DAT_0059f3da[a][b] &= ~bits
+004415d0	BreakPact	quita bits en ambas matrices (simetrico) y notifica a terceros (mensaje 0x73)
+00441700	MakePact	NetMakePact: rompe pactos incompatibles, pone bits en ambas matrices, mensaje 0x72
+00441868	NeitherAtWarWithAny	true si ni a ni b tienen bit 0x10 (guerra) con nadie
+004418ac	PactPendingNotHeld	pendiente en la matriz secundaria pero no en la principal
+004418e4	AllocMemTrace	stub vacio (traza de asignaciones)
+004418ec	AllocMem	GlobalAlloc con registro de 64 bloques (nombre, tamanyo): 'Memory Allocation of %s buffer of %ld bytes failed'
+004419c8	FreeMem	GlobalFree del bloque registrado; 'Number of allocations and de-allocations doesn't match!'
+00441a44	FreeAllMem	libera los 64 bloques registrados
+00441adc	FindNeighbourEnemyOwner	recorre la mascara de territorios vecinos (+0x890) y devuelve el duenyo sin pacto 2 con el jugador
+00441b74	FindNeighbourOtherOwner	idem sin comprobar pactos
+00441bf4	CountUsableTiles	cuenta casillas del territorio que no son 0xff ni mar (5)
+00441c28	CountNeighboursWithLand	vecinos cuyo tipo (+0x21) != 0
+00441c90	ComputeRegionScores	puntua las 32 regiones (DAT_0055a820, stride 0x1a2) y devuelve la mejor
+00441d60	CheckNeighbourOwnership	marca flags 0x200/0x400 en territorios con vecinos sin duenyo / de otro
+00441e18	FloodFillRegion	recursivo: marca 0x2000<<jugador en los territorios contiguos del mismo duenyo
+00441eb8	AssignRegions	asigna indice de region (+0x9b4) a los territorios de un jugador (max 32)
+00441fa4	ComputeRegionBorders	por region: mascara de vecinos, cuenta de fronteras neutrales/enemigas (DAT_0055dc60)
+00442184	ComputeRegionStats	tamanyo, poblacion, edificios por tipo y recursos de cada region
+004422bc	AssignContinents	recorre territorios con pathfinding (FUN_00446b3c) y numera continentes (+0x22)
+004423b4	ComputeContinentAdjacency	mascaras de continentes vecinos (DAT_0055a828)
+00442678	ResetTerritoryAIFlags	inicializa +0x22d/+0x25e de cada territorio
+004426f8	ResetAIIntel	pone a cero las tablas de inteligencia de la IA (DAT_0055a804..DAT_005605e0)
+00442900	GetArmyVisibleTerritory	territorio en el que el jugador ve al ejercito (o 0)
+00442978	CountArmiesPerTerritory	IA: cuenta unidades por territorio/duenyo y misiles/transportes por continente
+00442c44	AIEvaluateArmies	IA: evalua amenaza de cada ejercito visible
+00442f68	CountBuildingsPerRegion	IA: cuenta edificios por duenyo y continente
+00443078	AIRegionThreat	IA: nivel de amenaza de un continente para un jugador
+004431bc	AICountTerritories	IA: territorios propios/neutrales/ajenos por continente
+004432d4	AIEvaluateRegions	IA: AIRegionThreat para 32 continentes x 7 jugadores
+004432fc	AIRegionEnemyMax	IA: maximo enemigo por region
+0044339c	AIResourceIncome	IA: ingresos por territorio y jugador
+004434ac	AIPlayerTerritoryStats	IA: territorios por tipo de terreno y valor
+004435b0	AITerritoryDistances	IA: distancia minima a enemigos (FUN_004726cc)
+0044367c	AIDecayCounters	IA: decrementa contadores +0x22d de cada territorio
+004436cc	AIShrineCheck	IA: shrines detectados (DetectsShrine)
+004437c4	AIGatherIntelligence	RunAITurns: llama a todas las rutinas de inteligencia anteriores
+00443830	RedrawWorldMapFull	DrawMiniMap + DrawWorldMap modo 4 + InvalidateRect
+00444274	GetPlayerScoreValue	puntuacion segun DAT_004d5b00 (tablas DAT_0065e3cc/b0/e8)
+004442dc	WinG_CreateSurface	crea la superficie offscreen de una ventana XenoWinG (GWL 0xc)
+00444370	WinG_DestroySurface	libera la superficie de la ventana XenoWinG
+00444398	WinG_Paint	WM_PAINT de XenoWinG: BitBlt DIB con paleta (8bpp) o blit DirectDraw
+00444948	WinG_ForwardToParent	PostMessage 0x1a0a al padre
+0044496c	WinGWndProc	procedimiento de ventana XenoWinG
+00444a00	AnimAlloc	saca un ANIM de la lista libre (DAT_00563fb8) y lo inserta ordenado por z
+00444abc	AnimIsActive	true si el ANIM esta en la lista activa (DAT_00561a30)
+00444ae4	AnimFree	desenlaza, memset 0 y devuelve a la lista libre; 'Freeing an invalid ANIM.'
+00444b74	AnimSetZ	cambia z (+4) y reordena en la lista, marcando rectangulos sucios
+00444cec	AnimNop	stub vacio
+00444cf4	DrawSprite	posicion de pantalla (x>>8)+hotX con enlace a padre (flag 0x10, var[3]) y BlitSprite8 modo 0
+00444e70	AnimScriptTableJump	SWITCH: pc = tabla[var]
+00444e88	AnimReset	mata todos, memset de los 150 ANIM (0x40 bytes) y reconstruye la lista libre
+00444f20	CreateAnim	(type,x,y,script): flags=tipo|4, x<<8, frame 0, timer 1, rate del tipo, var[3]=indice propio
+00444fd4	KillAnim	marca sucio, libera y mata recursivamente los hijos (flag 0x10 && var[3]==indice)
+00445040	AnimSetState	var[0]=estado; si restart: pc = script del tipo, timer = 1
+00445074	AddDirtyRect	une (x,y,w,h) al rectangulo sucio DAT_00561a20..2c
+004450e0	ResetDirtyRect	rectangulo sucio a 0
+00445100	AnimHitTest	primer ANIM con flags&0xc==0xc que contiene (x,y)
+00445190	DrawAnimsUpTo	dibuja desde un ANIM mientras z<=limite, anota en la lista de dibujados DAT_00563fbc
+004451cc	ResetDrawnList	DAT_004c50a8 = 0
+004451d4	AnimSetFrame	frame = tabla[idx] (o 0 si no cargado), timer = rate, rectangulos sucios
+00445270	UpdateAnims	(ticks): interprete de scripts (opcodes 0x8001..0x800a) y movimiento dx/dy con moveDelay
+004455fc	ValidateFreeArmyList	comprueba/reconstruye la lista de ejercitos libres DAT_004c515c
+0044569c	InitArmyPool	memset de 0x230 ejercitos (0x5c bytes) y enlaces next/prev
+00445710	RebuildFreeArmyList	enlaza los ejercitos con +6==0 en la lista libre
+0044577c	AllocArmy	saca de la lista libre y enlaza en la lista dada; 'freeArmies[6] is invalid.'
+00445800	DeleteArmy	desenlaza de la lista y memset; 'Freeing invalid army in DeleteArmy'
+00445898	ReLinkArmy	mueve un ejercito entre listas; 'Re-linking invalid army in ReLinkArmy'
+00445940	FindTransportWithSpace	primer ejercito de clase 0xc (transporte) con hueco (+0x48..+0x50)
+004459bc	FindFreeTransportSlot	indice de hueco libre 0..2 o -1
+004459dc	IsCargoOf	true si el ejercito esta en un hueco del transporte
+00445a04	LoadIntoTransport	mete un ejercito en un transporte con hueco
+00445a74	UnloadFromTransport	quita el ejercito de su transporte
+00445aac	ReLinkCargo	ReLinkArmy de los 3 huecos de carga
+00445ae4	DisbandUnitOfType	busca y elimina un ejercito del tipo en el territorio
+00445b94	FindUnitPlacement	comprueba donde puede colocarse una unidad nueva (transportes, mar/tierra)
+00445cd8	IsUnitTypeBlocked	flags +0x995/+0x996 del territorio por clase de unidad
+00445d30	CreateUnit	SyncCreateUnit: AllocArmy + nombre '%s %s #%d' + colocacion
+00445fd4	DeleteUnit	UnloadFromTransport + DeleteArmy
+004497ac	DrawSpriteCentered	ReadDataFileChunk de un SpriteDef y BlitSprite8 centrado en un rect
+00458990	DebugMessage	escribe en DEBUG.TXT
+00458bb0	DeleteGdiObject	DeleteObject
+00463014	AssignTerritoryTerrainTypes	generacion de mundo: reparte tipos de terreno segun porcentajes DAT_004d5b1d..
+004632f4	FixUnassignedTiles	'Unassigned tile at (%d, %d) WorldSeed...' y limpia flags
+0046338c	SetWorldPalette	copia la paleta del tipo de planeta (0x519ecc+w*0x100) a las entradas 16..79, fijas 10..15 y 144..255, y realiza
+004634a0	GenerateWorld	'Launching Colony Ship': bucle de generacion con semillas, 'World Generation Error!'
+004636cc	CreateGamePalette	LOGPALETTE de 256 entradas (flags 4) creada y realizada al arrancar
+00463738	GetSystemStaticColours	GetSystemPaletteEntries 0..9 y 246..255 -> DAT_00583db4
+00463770	RealizeGamePalette	SelectPalette+RealizePalette en un DC
+004637b4	BuildLogPalette	LOGPALETTE desde la paleta de trabajo 0x51a8a4 (BGRx) y sustituye 0..9/246..255 por las del sistema
+00463944	CreateGamePalette2	recrea DAT_004d2360 (HPALETTE) con BuildLogPalette
+004639dc	RecreatePalette	CreateGamePalette2 + RealizeGamePalette
+004639f4	UpdateCYLibPalette	copia la paleta de trabajo (RGB) al objeto paleta CYLib DAT_0058df44 (0x408 bytes)
+00463a74	RefreshPalette	RecreatePalette + InvalidateRect + UpdateCYLibPalette
+00463a9c	BuildRowOffsetTable	tabla de offsets de fila (1024) de una superficie, invertida si pitch<0 (DIB)
+00463aec	DestroySurface	libera la superficie CYLib del slot (DAT_0058de1c, stride 0x1c)
+00463bcc	CreateSurface	crea offscreen CYLib (FUN_0048c28d) en un slot y le asocia la paleta
+00463d00	SetClipRect	DAT_0058df34..40 = rect recortado a la superficie; FUN_0049a9e7
+00463da8	SelectSurface	DAT_00583e18 = slot; carga punteros/anchos y SetClipRect completo
+00463e04	FindFreeSurfaceSlot	primer slot libre 1..9 o -1
+00463e20	DrawPaletteGrid	debug: 16x16 celdas con toda la paleta
+00463e88	HLine	linea horizontal (color de paleta o convertido)
+00463ee0	VLine	linea vertical
+00463f38	DrawBevelFrame	marco biselado con colores 0xcb/0xc5/0xc9/0xc2
+0046411c	DrawRectOutline	rectangulo recortado; modos 0 color, 1 XOR, 2 bisel
+00464354	HLineClipped	HLine con recorte
+004643cc	VLineClipped	VLine con recorte
+00464444	DrawLine	linea CYLib FUN_00493b24 con color de paleta
+00464498	FillPolygonOrRect	FUN_004887cb (8bpp) / FUN_00493de5
+004644f8	HLineOrInvert	HLine o inversion (color -1)
+0046458c	VLineOrInvert	VLine o inversion
+00464620	FillRect	rectangulo relleno recortado (modo 0 color/-color, modo 1 XOR)
+004647a0	BlitSprite8	'Null Pointer in ClipBlit!': recorta a DAT_0058df34..40 y llama a la rutina CYLib 8bpp (modo 0 clave 255, modo 1 opaco)
+004649c0	BlitSurfaceToCurrent	FUN_0048c85e de una superficie a la actual
+00464a3c	DrawProgressBarGDI	ProgressDialog: barra con PatBlt y texto
+00464b90	BlitSpriteToDC	crea superficie temporal, BlitSprite8 modo 1 y BitBlt/DirectDraw al DC
+00464cbc	DrawDialogItemSprite	elemento de lista con sprite (SpriteDef*) centrado en 0x9c4 bytes + texto
+00464f80	DrawBevelRectGDI	rectangulo biselado con pens GDI
+00465070	PaintDialogSprite	TransferDialog/GameStyleDialog: sprite + fondo en mosaico
+00465164	DrawFramedSpriteGDI	sprite centrado en un marco GDI
+004652a8	BitBltBitmap	BitBlt de un HBITMAP
+004652f8	StretchBltBitmap	StretchBlt de un HBITMAP
+0046534c	TileBitmapGDI	mosaico de un HBITMAP (128x64) en un rect
+00465478	TileSprite8	mosaico de un buffer 8bpp con BlitSprite8 modo 1
+00465540	PaintDialogBackground	fondo en mosaico de los dialogos BWCC
+00465584	DialogCtlColor	WM_CTLCOLOR: brush de fondo DAT_0058f1bc
+004655b0	PaintDialogFrame	repinta fondo y marco de un dialogo
+00465640	LoadBackgroundDIB	recurso bitmap 2 con la paleta de trabajo 0x51a8a4 -> HBITMAP + DAT_0058df48
+004656f0	GetHighScores	lee hiscore.dat (10 x 0x2a)
+0046578c	CreateEmptyHighScores	crea hiscore.dat vacio
+004657e0	InsertHighScore	inserta una puntuacion y reescribe hiscore.dat
+004658a8	LoadSettlementSprites	'Could not load Settlement Phase sprites.': lista A + tiles del planeta + edificios + iconos por raza
+00465ac8	LoadControlSprites	'Could not load Control Phase sprites.': 131+r,138+r,145+r,152+r,159+r,166+r y tipo 11
+00465b9c	LoadCombatSprites	'Could not load Combat Phase sprites.': listas A/B + edificios y unidades del combate
+00465df8	LoadPhaseSpritesFor	1 control, 2 asentamiento, 3 combate
+00465e20	LoadGameFonts	FONT SM09 y DL02; fuente por defecto segun anchura
+00465e54	PreloadSprite2	InitSpriteSets + LoadGlobalSprites(DAT_004d4dd0, 17) + LoadGameFonts
+00465e7c	ComputeTerritoryTileTerrain	terreno de cada casilla del territorio (FUN_0046237c)
+00465ec0	IsMapCoordValid	0<=x<ancho, 0<=y<alto
+00465ef4	HasFreeNeighbourCell	alguna de 4 celdas vecinas libre
+00465f84	FindTerritoryCell	indice de la casilla (x,y) dentro del territorio o -1
+00465fc8	SetTerritoryCapitalCell	casilla +0x74 a partir de +0x75
+00466014	FindTerritoryLandingCell	busca casilla interior valida (+0x75)
+00466128	InitTerritoriesFromMap	inicializa territorios a partir del mapa cargado
+00466218	InitTerritoriesNewGame	idem para partida nueva + nombres + continentes
+00466358	CountTerrainInBlock	cuenta pixeles de mapa 0x40 en un bloque 5x5
+004663b8	ClearTerritoryTerrainBits	cambia 0x40 por 0x30 en los 36 bloques del territorio
+00466464	CountNeighbourTerrain	histograma de terreno de las 8 casillas vecinas
+00466508	PlaceInitialShrines	'Place','Place3','Place4','Place5': Native/Hidden/Sea Shrine (0x2d/0x2e/0x2f)
+004667ac	PlaceBonusOnTile	pone un bonus (+0x144) en una casilla del tipo requerido
+0046681c	RemoveBonusFromTerritory	'RemoveB'
+0046686c	InitTerritoryCells	'SBld2': tipo de terreno y bonus de las 36 casillas
+004669d8	InitTerritoryResources	recursos por casilla segun terreno y vecinos
+00466ddc	CheckMemoryForWorldSize	'Possible memory shortage'
+00466e60	StillPic	ventana XenoWinG con una imagen de SPRITENW.DAT (varios frames en fila) y paleta parcial
+00466fb8	ShowStillPicture	StillPic centrada + bucle de mensajes hasta clic/tiempo
+00467c8c	NewGameOptionsScreen	planeta aleatorio (DAT_004d5b1c = rand%6), restaura paleta maestra
+004684d0	SetupNewWorld	deadlock.ini / tamanyo de mapa, tipo de planeta y porcentajes de terreno
+0046ca40	GameRandom	LCG: seed = seed*0x41c64e6d+0x3039; return (seed>>16)&0x7fff
+0046ca70	ReadDataFileChunk	(name,dst,offset,size): _lopen/_llseek/_lread
+0046cc6c	InitGDI	CreateGamePalette + GetSystemStaticColours + LoadSmacker
+0046cca4	CreateMainWindow	ventana XenoMainWnd, CreateGamePalette2, fondo, restaura paleta maestra 10..245
+0047e054	FillMiniTerrainRow	rellena DAT_006552cc (0x500 ints)
+0047e074	GetSettlementUIImage	IMAG 'UI01' cacheada en DAT_004dcdbc
+0047e0a0	ReleaseSettlementUIImage	libera 'UI01'
+0047e0bc	InitTerrainNoise	192 valores aleatorios &0x7f para el sombreado del terreno
+0047e0e8	DrawTerrainDiamond	pinta un rombo isometrico de 10x10 puntos (altura+color)
+0047e2fc	OffsetByDirection	tabla de saltos: desplaza (x,y) segun direccion -2..0x16
+0047e394	SampleTerrainBlock7x7	extrae 7x7 alturas/colores del mapa fisico
+0047e450	InterpolateHeightPatch	interpola 10x10 alturas con los 4 vecinos
+0047e85c	BlendTerrainPatch	mezcla colores de terreno con ruido en los bordes
+0047ea8c	SmoothTerrainMap	suaviza el mapa de terreno (mayoria 3x3)
+0047ed54	SelectMiniTerrainSurface	selecciona la superficie de fondo del asentamiento
+0047edbc	TileToScreen	x=(tx-ty)*50+cx-50, y=(tx+ty)*25+cy
+0047ee04	TileToScreenScrolled	TileToScreen menos scroll DAT_004dcc24/28
+0047ee4c	ScreenToTile	inversa de TileToScreen
+0047ee9c	ScreenToTileScrolled	inversa con scroll
+0047eed8	DrawSettlementTerrain	pinta el fondo del asentamiento (rombos) o color plano
+0047f178	DrawResourceIcon	tipo 6 (ResourceIcons) frame DAT_004dccc0[recurso] en tile+50
+0047f1d8	DrawTileDiamondOutline	4 lineas del rombo de una casilla
+0047f23c	DrawSeaTileOutlines	contornos de casillas de mar/costa
+0047f440	GetDamagedBuildingSpriteType	tipos 0x69..0x6e/0x6f/0x70 segun danyo y huella
+0047f4ec	GetBuildingSpriteDef	SpriteDef del edificio: tabla del tipo (+frame 1 si activo) o tablas 0x4ed07c/0x4ed08c en modo mapa
+0047f5cc	DrawUnpoweredIcon	icono 0x4e3070 (tipo 12 frame 3) sobre edificios sin energia
+0047f670	DrawUpgradeIcon	IMAG UI01 id 0x3f5 si se puede mejorar
+0047f728	DrawBuildingStatusIcon	IMAG UI01 id 0x3f6
+0047f7a4	DrawSTileBuilding	'Null pointer in DrawSTileBuilding!': blit del SpriteDef en tile+50+hot y etiqueta 'Construction Site'
+0047f9a0	DrawTerrainTile	tipo 116+2*planeta (+1) o 115: frame segun clase de casilla y semilla; blit en tile+50+hot
+0047fc38	DrawBonusIcon	tipo 4 frame DAT_004dcd90[bonus] en tile+(50,40)
+0047fc84	DrawSettlementHeader	nombre y 'Population %d/%d'
+0047fd88	DrawConstructionSite	edificio en construccion: frame 0/1/10/0x12 o tipos 0x6f/0x70
+0047ff5c	DrawPlannedBuilding	edificio planificado (+0x15a) via GetBuildingSpriteDef
+0047fffc	DrawSettlementOverlayImage	IMAG UI01 0x3f0..0x3f4 segun DAT_00559da0
+00480150	DrawSettlementView	pinta fondo, 36 casillas (recursos, terreno, edificios, ANIMs por z), cabecera y overlay
+00480b80	SettlementFrameStep	ResetDirtyRect, UpdateAmbientAnims, UpdateAnims(1), DrawSettlementView, InvalidateRect
+00480be0	CreateColonistAnims	ANIMs tipo 98+raza (5 por fila) con estado 0/1
+00480d78	CreateSettlementAnims	AnimReset y crea ANIMs de edificios activos (flag 4), colonos y ambiente
+00481098	ToggleSettlementViewMode	DAT_004dccbc ^= 1
+004810cc	RenderSettlementBackground	terreno + contornos en la superficie de fondo
+004811c8	CreateSettlementBackSurface	offscreen DAT_004dcc1c (ancho x <=0x500)
+0048125c	SetSettlementViewport	tamanyo visible, tabla de filas, centro DAT_00657dd0/dd4
+004812f4	EnterSettlementView	LoadPhaseSpritesFor(2), viewport, fondo, CreateSettlementAnims
+0048149c	EnterCombatView	LoadPhaseSpritesFor(3), fondo, AnimReset, BirthCombatSprites
+00481540	DrawTerritoryBorders	lineas de frontera de un territorio en el mapa
+0048180c	FillTerritoryCells	FillRect de cada celda del territorio
+004818ac	DrawMapSprite	lee un SpriteDef de SPRITENW.DAT a un buffer local, RemapSpritePixels y BlitSprite8
+0048192c	DrawTerritoryEmblem	emblema de raza (tabla 0x4f625c o tipo 131+r frame 20) en el mapa
+00481a5c	MapPixelToCell	coordenadas de mapa -> celda
+00481b80	MapCellToPixel	celda -> pixel (dos tamanyos de celda)
+00481c80	MapCellToPixelSized	idem devolviendo el tamanyo de la celda
+00481da0	DrawWorldMap	mapa mundial: territorios, fronteras, seleccion, emblemas (modos 0..6)
+00482320	DrawMiniMap	fondo 'Mini Ter' (BlitSprite8 modo 1) + DrawWorldMap
+004824c4	CreateMiniTerrain	AllocMem 'Mini Ter' y render del terreno reducido (FUN_0046a588)
+00482650	FreeMiniTerrain	FreeMem del 'Mini Ter'
+00482668	CalculatePlayersScores	puntuaciones finales
+00482940	SoundSetDefaults	FUN_004a14c9 con flag
+00482964	InitSound	abre el dispositivo CYLib (11025 Hz 16 bit mono)
+00482a1c	ShutdownSound	cierra el sonido
+00482a38	SoundSuspend	guarda estado y suspende
+00482a8c	SoundResume	reabre y reanuda musica
+00482ac4	PlaySoundEffect	reproduce WAVE por id con volumen/paneo
+00482b04	StopAllSounds	
+00482b38	PlayMusic	selecciona pista (1 = S015, 2/3 aleatoria)
+00482ba0	LoadAndPlaySound	carga WAVE (FUN_00496199/1e8), volumen, variacion de tono aleatoria
+00482c8c	PickMusicTrack	pista aleatoria segun modo
+00482ce4	StopMusic	
+00482cec	PauseMusic	guarda posicion
+00482d3c	ResumeMusic	reanuda en la posicion guardada
+00482de8	PlayLoopingSound	dos canales en bucle (DAT_004dcedc/e4)
+00482e84	StopLoopingSound	
+00482edc	StopAllLoopingSounds	
+00482f28	SoundDoneCallback	return 0
+00482f34	GetMusicVolume	
+00482f3c	SetMusicVolume	
+00482f64	GetSoundVolume	
+00482f6c	SetSoundVolume	
+00482f80	SetAIBusyFlag	DAT_004dcf4c + refresco
+00482f94	RefreshPlayerUI	si es el jugador local: refresca paneles
+00482fc8	UnloadSpriteType	borra bit de DAT_00657e60 y pone a 0 los punteros +8 de la tabla
+0048300c	TypePixelBytes	suma w*h de una tabla SpriteDef
+00483038	RemapSpritePixels	0xff->0xc0 y 0x00->0xff en los pixeles cargados
+0048307c	TypePixelBytesByType	TypePixelBytes(tabla del tipo)
+00483098	ReadTypeFrames	lee todos los frames de una tabla a memoria contigua y remapea
+00483120	ReadTypeFramesSkipFirst	variante que lee desde el frame 1 (LoadPhaseSpriteFile)
+004831ac	PushPhaseSet	anillo de 0x800 conjuntos {bloque, tipos, n} DAT_0065800c
+00483224	ReadPhaseTypes	abre SPRITENW.DAT y ReadTypeFrames de cada tipo no cargado
+00483340	LoadPhaseSpriteFile	'P Sprite': carga de fase con menos memoria
+00483524	InitSpriteSets	UnloadAllSprites + reinicia el anillo
+00483538	PopOldestPhaseSet	descarga el conjunto mas antiguo y libera su bloque
+004835a8	PopAllPhaseSets	
+004835bc	UnloadAllSprites	libera conjuntos, bloque global, bits y fuentes
+00483600	LoadGlobalSprites	'G Sprite': bloque global DAT_004dcf50 con los 17 tipos
+004836fc	LoadPhaseSprites	'Phase Sprite'/'Invalid Heap in Load Phase Sprites': AllocMem y ReadPhaseTypes, libera conjuntos viejos si falla
+004837dc	ReloadPhaseSprites	PopAllPhaseSets + LoadPhaseSprites
+004837fc	ApplyArtifactBonuses	+100 recursos/+250 por artefacto DAT_004fc4da
+0048389c	GetRacesWithSpecialTech	mascara de razas
+004838d4	TechListFind	posicion de un tech en lista enlazada
+004838fc	TechListAdd	
+0048394c	TechListRemove	
+004839a4	TechListFirst	
+004839bc	TechListClear	
+004839e4	TechListCopy	
+00483a10	TechListMove	
+00483a30	CanResearchTech	prerrequisitos (4 por tech) y nivel
+00483b84	PruneResearchList	
+00483bd4	ResearchCompleted	siguiente tech o mensaje 0x39
+00483c3c	GetTechCost	+0x22 de la tabla de techs (stride 0x32)
+00483c4c	TurnsToResearch	
+00483cbc	FindResearchableTech	
+00483d58	GrantTech	marca el tech y habilita dependientes
+00483f20	RevokeTech	
+00484080	DistributeTechBonus	
+00484114	AddResearchPoints	'Nothing': completa investigaciones y notifica
+0048424c	SetPlayerResearchTech	
+00484270	ResetPlayerTechs	
+004842e4	ResetAllTechs	
+00484368	ResetTerritoryNameTables	
+004843ac	AssignTerritoryName	'%s #%d' por tipo de terreno
+00484460	ReplaceNewlines	'\n' -> ' '
+0048447c	WordWrapText	inserta '\n' para no superar una anchura
+004844e0	TextWidth	anchura maxima de las lineas con la fuente actual
+00484550	TextHeight	lineas * (alto+1)
+00484584	RightAlignOffset	
+0048459c	CenterOffsetX	
+004845b8	CenterOffsetY	
+004845d4	FreeFont	
+00484600	LoadFont	FONT del CAM (id 4 chars) en slot 0/1
+0048463c	SelectFont	fuente actual DAT_00508f90 y alto DAT_0065e010
+0048468c	DrawTextRaw	dibuja texto con la fuente CYLib (tab, \n, color 0xff = blanco)
+0048477c	DrawTextCentered	
+004847c8	DrawTextRight	
+004847f8	DrawText	
+00484818	DrawTextCenteredPlain	
+00484840	DrawTextRightPlain	
+00484864	TransferDialogUpdateCost	
+004848cc	TransferDialogCommand	'Oolan's Advice'
+004864c4	SetAnimCombatPosition	posicion 24.8 desde coordenadas de combate (casilla/3)
+00486564	FacingToDirIndex	1,2,3,4,6,8,9,0xc -> 0..7
+00486798	CreateAmbientAnim	ANIM tipo 130 (Ambient) hasta 32
+00486860	UpdateAmbientAnims	movimiento de los ANIM ambientales
+00487bec	CreateWinGWindow	ventana XenoWinG con imagen de la tabla 0x4e2aac (o 0x4e2e1c) y paleta de dialogo 0x51a7a4
+0048bdb0	CYLib_BitBltDIB	BitBlt del DIB de una superficie a un DC
+0048c28d	CYLib_CreateOffscreen	(w,h,flags)
+0048c85e	CYLib_BlitOffscreen	blit entre offscreens con rects
+0048d2e7	CYLib_LockSurface	
+0048d32c	CYLib_UnlockSurface	
+0048e670	CYLib_CopyRows	copia opaca por filas (rutina 0 de la tabla tipo 1)
+00492578	CYLib_DrawGlyph	dibuja un caracter de la fuente actual
+00499840	CYLib_SetBlitDest	(x,y) destino del proximo blit
+0049a760	CYLib_SetPixelFormat	selecciona las tablas de rutinas de blit DAT_0069ee90/94/98 por formato
+0049a9e7	CYLib_SetClip	rect de recorte DAT_0065e570..
+0049aa95	CYLib_DrawTile	dibuja un TILE (tipo 1/2/3) con modo 0..7
+0049b268	CYLib_SetBlitPalette	
+0049b3c9	CYLib_PaletteToPixel	indice de paleta -> valor de pixel del formato

@@ -1,0 +1,88 @@
+# m08_placement_maininterface_combatview: 0x43b000-0x441000  functions=87 bytes=24176
+0043b008     53 FUN_0043b008                     strings: 
+0043b040    329 FUN_0043b040                     strings: 
+0043b18c     31 FUN_0043b18c                     strings: 
+0043b1ac    280 FUN_0043b1ac                     strings: 
+0043b2c4    584 FUN_0043b2c4                     strings: 
+0043b50c    584 FUN_0043b50c                     strings: 
+0043b754    141 FUN_0043b754                     strings: 
+0043b7e4     87 FUN_0043b7e4                     strings: 
+0043b83c     34 FUN_0043b83c                     strings: 
+0043b860     80 FUN_0043b860                     strings: 
+0043b8b0    429 FUN_0043b8b0                     strings: 
+0043ba60     54 FUN_0043ba60                     strings: 
+0043ba98     12 FUN_0043ba98                     strings: 
+0043baa4     80 FUN_0043baa4                     strings: 
+0043baf4    478 FUN_0043baf4                     strings: "You must be in the Settlement View in order to place buildings."|"Building Button Disabled"|"The ALLOW ALLIANCES option was not selected during game setup phas
+0043bd5c    152 FUN_0043bd5c                     strings: "You cannot create a landing site on another race's territory."|"Add Race Error"|"There are already 7 races in this scenario."|"That territory is not suitable a
+0043bdf4     45 FUN_0043bdf4                     strings: 
+0043be24    114 FUN_0043be24                     strings: 
+0043be98    456 FUN_0043be98                     strings: "You must be in the Settlement View in order to place buildings."|"Building Button Disabled"|"The ALLOW ALLIANCES option was not selected during game setup phas
+0043c0e8    188 DisableMainInterface             strings: "gpMainInterface NULL in DisableMainInterface()"
+0043c1a4    186 DisableMainInterface_c1a4        strings: "gpMainInterface NULL in DisableMainInterface()"
+0043c260    692 FUN_0043c260                     strings: 
+0043c514     42 FUN_0043c514                     strings: 
+0043c540    387 FUN_0043c540                     strings: 
+0043c6c4    199 FUN_0043c6c4                     strings: 
+0043c78c    506 FUN_0043c78c                     strings: 
+0043c988     49 FUN_0043c988                     strings: 
+0043c9bc     58 FUN_0043c9bc                     strings: 
+0043c9f8     42 FUN_0043c9f8                     strings: 
+0043ca24    272 FUN_0043ca24                     strings: 
+0043cb34     71 FUN_0043cb34                     strings: 
+0043cb7c    107 FUN_0043cb7c                     strings: 
+0043cbe8     16 FUN_0043cbe8                     strings: 
+0043cbf8    100 FUN_0043cbf8                     strings: 
+0043cc5c    314 FUN_0043cc5c                     strings: "Due to a mishap with your colony supply ship, Metallurgy technology can not be researched. It must be obtained through alternate means."|"Oolan's Advice"
+0043cd98    177 FUN_0043cd98                     strings: 
+0043ce4c    280 CheckTechTree                    strings: "NULL pointers in CheckTechTree()"
+0043cf64     73 FUN_0043cf64                     strings: 
+0043cfb0     81 FUN_0043cfb0                     strings: 
+0043d004     48 FUN_0043d004                     strings: 
+0043d034    335 FUN_0043d034                     strings: 
+0043d184    283 FUN_0043d184                     strings: 
+0043d2a0     53 PauseWarrior                     strings: "NULL anim in PauseWarrior"
+0043d2d8    554 FUN_0043d2d8                     strings: 
+0043d594    155 FUN_0043d594                     strings: 
+0043d630    178 FUN_0043d630                     strings: 
+0043d6e4    380 CreateHit                        strings: "NULL warrior in CreateHit"
+0043d860    121 FUN_0043d860                     strings: 
+0043d8dc    121 FUN_0043d8dc                     strings: 
+0043d958     25 FUN_0043d958                     strings: 
+0043d974     25 FUN_0043d974                     strings: 
+0043d990    110 FUN_0043d990                     strings: 
+0043da00     66 FUN_0043da00                     strings: 
+0043da44     16 FUN_0043da44                     strings: 
+0043da54      6 FUN_0043da54                     strings: 
+0043da5c    132 FUN_0043da5c                     strings: 
+0043dae0    167 CreateBldgHit                    strings: "NULL building in CreateBldgHit"
+0043db88    536 DestroyAnim                      strings: "NULL warrior in DestroyAnim"
+0043ddcc    257 BirthCombatSprites               strings: "BirthCombatSprites: Missile from ?"
+0043ded0    108 FUN_0043ded0                     strings: 
+0043df3c     82 FUN_0043df3c                     strings: 
+0043df90    148 FUN_0043df90                     strings: 
+0043e024     52 FUN_0043e024                     strings: 
+0043e058     95 FUN_0043e058                     strings: 
+0043e0b8     35 FUN_0043e0b8                     strings: 
+0043e0dc     83 FUN_0043e0dc                     strings: 
+0043e130      8 FUN_0043e130                     strings: 
+0043e138     48 FUN_0043e138                     strings: 
+0043e168     48 FUN_0043e168                     strings: 
+0043e198    148 FUN_0043e198                     strings: 
+0043e22c    274 FUN_0043e22c                     strings: 
+0043e340     60 FUN_0043e340                     strings: 
+0043e37c     53 FUN_0043e37c                     strings: 
+0043e3b4    423 CheckViewCombat                  strings: "gpViewCombat NULL in CheckViewCombat()"
+0043e578     24 FUN_0043e578                     strings: 
+0043e590    260 FUN_0043e590                     strings: 
+0043e694   1813 FUN_0043e694                     strings: 
+0043edd8    101 FUN_0043edd8                     strings: 
+0043ee40     77 FUN_0043ee40                     strings: 
+0043ee90   2504 FUN_0043ee90                     strings: 
+0043f858   1634 FUN_0043f858                     strings: 
+0043febc   2008 FUN_0043febc                     strings: 
+00440694    389 FUN_00440694                     strings: 
+0044081c    790 FUN_0044081c                     strings: 
+00440b34     52 FUN_00440b34                     strings: 
+00440b68   1020 FUN_00440b68                     strings: 
+00440f64    408 FUN_00440f64                     strings: 

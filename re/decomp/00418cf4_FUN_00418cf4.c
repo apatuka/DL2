@@ -1,0 +1,14 @@
+// FUN_00418cf4 @ 00418cf4 size=34 sig=undefined FUN_00418cf4() cc=unknown
+// callers: FUN_0043baf4,FUN_0045ccf8,FUN_0041a204,CheckArmy,FUN_0045d478,FUN_0045bde4,FUN_00449084,FUN_00419924,FUN_0045bb88,FUN_0045d6a4,FUN_0043be98,FUN_0041a470,FUN_0041a518
+// callees: FUN_00414f38
+
+void FUN_00418cf4(void)
+
+{
+  FUN_00414f38(DAT_004b76b0);
+  if (DAT_005332b0 != '\0') {
+    FUN_00414f38(DAT_004b76b4);
+  }
+  return;
+}
+

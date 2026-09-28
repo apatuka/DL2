@@ -1,0 +1,15 @@
+// FUN_004197a8 @ 004197a8 size=52 sig=undefined FUN_004197a8() cc=unknown
+// callers: FUN_004197dc,FUN_0045bb88,FUN_0041a518
+// callees: FUN_004a2004,FUN_004a3de6,FUN_00414f04,FUN_00419710
+
+void FUN_004197a8(void)
+
+{
+  DAT_005332b0 = 1;
+  DAT_004b76b4 = FUN_004a3de6(0,0x34303944);
+  FUN_004a2004(DAT_004b76b4);
+  FUN_00414f04(DAT_004b76b4);
+  FUN_00419710();
+  return;
+}
+

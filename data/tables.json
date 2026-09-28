@@ -1,0 +1,12521 @@
+{
+ "source": "DEADLOCK.EXE",
+ "image_base": 4194304,
+ "addresses": {
+  "building_types": "0x004f9dbc",
+  "building_costs": "0x004fa71c",
+  "unit_types": "0x004faf7c",
+  "unit_costs": "0x004fb4f8",
+  "max_units_sea": "0x004faf5c",
+  "max_units_land": "0x004faf6c",
+  "techs": "0x004fbbac",
+  "race_stats": "0x004fc50c",
+  "race_stats_rows61": "0x004fc8dc",
+  "labor_table": "0x004f9bc4",
+  "event_defs": "0x004fc90c",
+  "campaigns": "0x004c6194",
+  "ai_arrivals": "0x004dc434",
+  "random_event_handlers": "0x004dcab0",
+  "bonus_materials": "0x004dca4c",
+  "spy_mission_risk": "0x004dca60",
+  "scandal_table": "0x004dca68",
+  "path_delta1": "0x004dcbd8",
+  "path_delta2": "0x004dcbe0",
+  "tile_move_cost": "0x004dcbe8",
+  "tax_rates": "0x004d57ec",
+  "terrain_max_pop": "0x004d5820",
+  "pop_growth": "0x004d583c",
+  "morale_by_level": "0x004d5850",
+  "map_sizes": "0x004d5144",
+  "terrain_pct": "0x004d514c",
+  "win_cities": "0x004c425c",
+  "win_shrines": "0x004c4274",
+  "win_turns": "0x004c4280",
+  "black_market": "0x004c42f8",
+  "ai_type_table": "0x004b502c",
+  "minister_vtable": "0x004b508c",
+  "minister_order": "0x004b5104",
+  "minister_config": "0x004b62f4",
+  "race_names": "0x00509038",
+  "terrain_names": "0x00509054",
+  "material_names": "0x0050906c",
+  "material_names_lower": "0x00509098",
+  "task_names": "0x00509178",
+  "unit_speed_names": "0x00509a64",
+  "rof_names": "0x00509a84",
+  "ai_leader_names": "0x00509938",
+  "race_short_names": "0x005099cf",
+  "tf_goal_names": "0x004b6bd4",
+  "tf_status_names": "0x004b6c7c",
+  "minister_job_names": "0x004b5fe8",
+  "minister_names": "0x004b5fd0",
+  "ini_keys": "0x004d5f60",
+  "ini_values": "0x004d6010",
+  "ini_map_size_names": "0x004d6030",
+  "ini_world_type_names": "0x004d6044",
+  "ini_role_names": "0x004d6060"
+ },
+ "tables": {
+  "building_types": [
+   {
+    "index": 0,
+    "name": "No Building",
+    "sprite": 0,
+    "icon": 0,
+    "category": 0,
+    "maxLabor": 0,
+    "size": 0,
+    "buildLabor": 0,
+    "energyUse": 0,
+    "taskRate": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "tasks": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "units": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "techRequired": 0,
+    "hitPoints": 0,
+    "unk_29": 0,
+    "productionQueue": 0,
+    "dialogAnim": -1,
+    "cost": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "index": 1,
+    "name": "Housing",
+    "sprite": 70,
+    "icon": 40,
+    "category": 17,
+    "maxLabor": 5,
+    "size": 1,
+    "buildLabor": 10,
+    "energyUse": 0,
+    "taskRate": [
+     100,
+     0,
+     0,
+     0,
+     0
+    ],
+    "tasks": [
+     0,
+     20,
+     0,
+     0,
+     0
+    ],
+    "units": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "techRequired": 0,
+    "hitPoints": 10,
+    "unk_29": 0,
+    "productionQueue": 0,
+    "dialogAnim": 29,
+    "cost": [
+     50,
+     0,
+     0,
+     10,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "index": 2,
+    "name": "Apartment Complex",
+    "sprite": 77,
+    "icon": 41,
+    "category": 17,
+    "maxLabor": 10,
+    "size": 1,
+    "buildLabor": 50,
+    "energyUse": 0,
+    "taskRate": [
+     100,
+     0,
+     0,
+     0,
+     0
+    ],
+    "tasks": [
+     0,
+     20,
+     0,
+     0,
+     0
+    ],
+    "units": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "techRequired": 0,
+    "hitPoints": 20,
+    "unk_29": 0,
+    "productionQueue": 0,
+    "dialogAnim": 30,
+    "cost": [
+     100,
+     0,
+     0,
+     10,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "index": 3,
+    "name": "Luxury Housing",
+    "sprite": 84,
+    "icon": 42,
+    "category": 17,
+    "maxLabor": 15,
+    "size": 1,
+    "buildLabor": 100,
+    "energyUse": 0,
+    "taskRate": [
+     100,
+     0,
+     0,
+     0,
+     0
+    ],
+    "tasks": [
+     0,
+     20,
+     0,
+     0,
+     0
+    ],
+    "units": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "techRequired": 0,
+    "hitPoints": 30,
+    "unk_29": 0,
+    "productionQueue": 0,
+    "dialogAnim": 31,
+    "cost": [
+     150,
+     0,
+     0,
+     10,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "index": 4,
+    "name": "Cloning Center",
+    "sprite": 15,
+    "icon": 63,
+    "category": 13,
+    "maxLabor": 4,
+    "size": 1,
+    "buildLabor": 500,
+    "energyUse": 25,
+    "taskRate": [
+     100,
+     200,
+     0,
+     0,
+     0
+    ],
+    "tasks": [
+     0,
+     17,
+     0,
+     0,
+     0
+    ],
+    "units": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "techRequired": 9,
+    "hitPoints": 30,
+    "unk_29": 0,
+    "productionQueue": 0,
+    "dialogAnim": 5,
+    "cost": [
+     250,
+     0,
+     5,
+     0,
+     50,
+     0,
+     0,
+     0,
+     5,
+     0,
+     0
+    ]
+   },
+   {
+    "index": 5,
+    "name": "Farm",
+    "sprite": 43,
+    "icon": 14,
+    "category": 1,
+    "maxLabor": 8,
+    "size": 2,
+    "buildLabor": 75,
+    "energyUse": 0,
+    "taskRate": [
+     100,
+     100,
+     100,
+     0,
+     0
+    ],
+    "tasks": [
+     0,
+     12,
+     13,
+     0,
+     0
+    ],
+    "units": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "techRequired": 0,
+    "hitPoints": 15,
+    "unk_29": 0,
+    "productionQueue": 0,
+    "dialogAnim": 16,
+    "cost": [
+     50,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "index": 6,
+    "name": "Hydroponic Farm",
+    "sprite": 44,
+    "icon": 15,
+    "category": 1,
+    "maxLabor": 6,
+    "size": 2,
+    "buildLabor": 150,
+    "energyUse": 2,
+    "taskRate": [
+     100,
+     120,
+     150,
+     0,
+     0
+    ],
+    "tasks": [
+     0,
+     12,
+     13,
+     0,
+     0
+    ],
+    "units": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "techRequired": 11,
+    "hitPoints": 20,
+    "unk_29": 0,
+    "productionQueue": 0,
+    "dialogAnim": 17,
+    "cost": [
+     100,
+     0,
+     0,
+     50,
+     50,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "index": 7,
+    "name": "Food Replicator",
+    "sprite": 45,
+    "icon": 16,
+    "category": 1,
+    "maxLabor": 4,
+    "size": 1,
+    "buildLabor": 250,
+    "energyUse": 10,
+    "taskRate": [
+     100,
+     160,
+     200,
+     0,
+     0
+    ],
+    "tasks": [
+     0,
+     12,
+     13,
+     0,
+     0
+    ],
+    "units": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "techRequired": 35,
+    "hitPoints": 25,
+    "unk_29": 0,
+    "productionQueue": 0,
+    "dialogAnim": 18,
+    "cost": [
+     200,
+     0,
+     50,
+     100,
+     100,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "index": 8,
+    "name": "Surface Mine",
+    "sprite": 49,
+    "icon": 27,
+    "category": 2,
+    "maxLabor": 5,
+    "size": 2,
+    "buildLabor": 100,
+    "energyUse": 0,
+    "taskRate": [
+     100,
+     100,
+     100,
+     0,
+     0
+    ],
+    "tasks": [
+     0,
+     3,
+     4,
+     0,
+     0
+    ],
+    "units": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "techRequired": 0,
+    "hitPoints": 20,
+    "unk_29": 0,
+    "productionQueue": 0,
+    "dialogAnim": 24,
+    "cost": [
+     100,
+     0,
+     0,
+     50,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "index": 9,
+    "name": "Mantle Drill",
+    "sprite": 50,
+    "icon": 28,
+    "category": 2,
+    "maxLabor": 4,
+    "size": 1,
+    "buildLabor": 200,
+    "energyUse": 5,
+    "taskRate": [
+     100,
+     125,
+     120,
+     0,
+     0
+    ],
+    "tasks": [
+     0,
+     3,
+     4,
+     0,
+     0
+    ],
+    "units": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "techRequired": 16,
+    "hitPoints": 30,
+    "unk_29": 0,
+    "productionQueue": 0,
+    "dialogAnim": 25,
+    "cost": [
+     200,
+     0,
+     0,
+     50,
+     10,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "index": 10,
+    "name": "Sub Space Magnet",
+    "sprite": 51,
+    "icon": 29,
+    "category": 2,
+    "maxLabor": 3,
+    "size": 1,
+    "buildLabor": 350,
+    "energyUse": 10,
+    "taskRate": [
+     100,
+     150,
+     160,
+     0,
+     0
+    ],
+    "tasks": [
+     0,
+     3,
+     4,
+     0,
+     0
+    ],
+    "units": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "techRequired": 41,
+    "hitPoints": 40,
+    "unk_29": 0,
+    "productionQueue": 0,
+    "dialogAnim": 26,
+    "cost": [
+     300,
+     0,
+     0,
+     100,
+     50,
+     0,
+     0,
+     0,
+     15,
+     0,
+     0
+    ]
+   },
+   {
+    "index": 11,
+    "name": "Nuclear Plant",
+    "sprite": 54,
+    "icon": 32,
+    "category": 3,
+    "maxLabor": 5,
+    "size": 1,
+    "buildLabor": 50,
+    "energyUse": 0,
+    "taskRate": [
+     100,
+     100,
+     2,
+     0,
+     0
+    ],
+    "tasks": [
+     0,
+     15,
+     16,
+     0,
+     0
+    ],
+    "units": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "techRequired": 0,
+    "hitPoints": 20,
+    "unk_29": 0,
+    "productionQueue": 0,
+    "dialogAnim": 10,
+    "cost": [
+     100,
+     0,
+     0,
+     0,
+     25,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "index": 12,
+    "name": "Fusion Plant",
+    "sprite": 55,
+    "icon": 33,
+    "category": 3,
+    "maxLabor": 4,
+    "size": 1,
+    "buildLabor": 150,
+    "energyUse": 0,
+    "taskRate": [
+     100,
+     150,
+     5,
+     0,
+     0
+    ],
+    "tasks": [
+     0,
+     15,
+     16,
+     0,
+     0
+    ],
+    "units": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "techRequired": 3,
+    "hitPoints": 30,
+    "unk_29": 0,
+    "productionQueue": 0,
+    "dialogAnim": 11,
+    "cost": [
+     200,
+     0,
+     0,
+     0,
+     100,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "index": 13,
+    "name": "Anti Matter Plant",
+    "sprite": 56,
+    "icon": 34,
+    "category": 3,
+    "maxLabor": 3,
+    "size": 1,
+    "buildLabor": 250,
+    "energyUse": 0,
+    "taskRate": [
+     100,
+     300,
+     10,
+     0,
+     0
+    ],
+    "tasks": [
+     0,
+     15,
+     16,
+     0,
+     0
+    ],
+    "units": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "techRequired": 22,
+    "hitPoints": 40,
+    "unk_29": 0,
+    "productionQueue": 0,
+    "dialogAnim": 12,
+    "cost": [
+     400,
+     0,
+     25,
+     0,
+     200,
+     0,
+     0,
+     0,
+     20,
+     0,
+     0
+    ]
+   },
+   {
+    "index": 14,
+    "name": "Factory",
+    "sprite": 42,
+    "icon": 13,
+    "category": 4,
+    "maxLabor": 8,
+    "size": 2,
+    "buildLabor": 100,
+    "energyUse": 2,
+    "taskRate": [
+     100,
+     20,
+     10,
+     10,
+     20
+    ],
+    "tasks": [
+     0,
+     14,
+     9,
+     10,
+     11
+    ],
+    "units": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     0,
+     0
+    ],
+    "techRequired": 0,
+    "hitPoints": 30,
+    "unk_29": 0,
+    "productionQueue": 1,
+    "dialogAnim": 13,
+    "cost": [
+     100,
+     0,
+     0,
+     0,
+     50,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "index": 15,
+    "name": "Automated Factory",
+    "sprite": 40,
+    "icon": 11,
+    "category": 4,
+    "maxLabor": 6,
+    "size": 1,
+    "buildLabor": 200,
+    "energyUse": 5,
+    "taskRate": [
+     100,
+     40,
+     15,
+     15,
+     50
+    ],
+    "tasks": [
+     0,
+     14,
+     9,
+     10,
+     11
+    ],
+    "units": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     0,
+     0
+    ],
+    "techRequired": 8,
+    "hitPoints": 40,
+    "unk_29": 0,
+    "productionQueue": 1,
+    "dialogAnim": 14,
+    "cost": [
+     250,
+     0,
+     20,
+     0,
+     150,
+     0,
+     0,
+     0,
+     20,
+     0,
+     0
+    ]
+   },
+   {
+    "index": 16,
+    "name": "Replication Station",
+    "sprite": 41,
+    "icon": 12,
+    "category": 4,
+    "maxLabor": 3,
+    "size": 1,
+    "buildLabor": 300,
+    "energyUse": 25,
+    "taskRate": [
+     100,
+     80,
+     25,
+     40,
+     200
+    ],
+    "tasks": [
+     0,
+     14,
+     9,
+     10,
+     11
+    ],
+    "units": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     0,
+     0
+    ],
+    "techRequired": 38,
+    "hitPoints": 60,
+    "unk_29": 0,
+    "productionQueue": 1,
+    "dialogAnim": 15,
+    "cost": [
+     550,
+     0,
+     50,
+     0,
+     325,
+     0,
+     0,
+     0,
+     40,
+     0,
+     0
+    ]
+   },
+   {
+    "index": 17,
+    "name": "Hospital",
+    "sprite": 16,
+    "icon": 65,
+    "category": 14,
+    "maxLabor": 3,
+    "size": 1,
+    "buildLabor": 200,
+    "energyUse": 2,
+    "taskRate": [
+     100,
+     25,
+     0,
+     0,
+     30
+    ],
+    "tasks": [
+     0,
+     19,
+     0,
+     0,
+     0
+    ],
+    "units": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "techRequired": 1,
+    "hitPoints": 30,
+    "unk_29": 0,
+    "productionQueue": 0,
+    "dialogAnim": 20,
+    "cost": [
+     250,
+     0,
+     25,
+     0,
+     50,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "index": 18,
+    "name": "University",
+    "sprite": 62,
+    "icon": 39,
+    "category": 5,
+    "maxLabor": 4,
+    "size": 2,
+    "buildLabor": 100,
+    "energyUse": 10,
+    "taskRate": [
+     100,
+     25,
+     5,
+     0,
+     0
+    ],
+    "tasks": [
+     0,
+     5,
+     6,
+     0,
+     0
+    ],
+    "units": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "techRequired": 0,
+    "hitPoints": 20,
+    "unk_29": 0,
+    "productionQueue": 0,
+    "dialogAnim": 34,
+    "cost": [
+     100,
+     0,
+     0,
+     0,
+     25,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "index": 19,
+    "name": "Tech Lab",
+    "sprite": 60,
+    "icon": 37,
+    "category": 5,
+    "maxLabor": 4,
+    "size": 1,
+    "buildLabor": 200,
+    "energyUse": 20,
+    "taskRate": [
+     100,
+     50,
+     10,
+     0,
+     0
+    ],
+    "tasks": [
+     0,
+     5,
+     6,
+     0,
+     0
+    ],
+    "units": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "techRequired": 14,
+    "hitPoints": 30,
+    "unk_29": 0,
+    "productionQueue": 0,
+    "dialogAnim": 35,
+    "cost": [
+     200,
+     0,
+     0,
+     0,
+     100,
+     0,
+     0,
+     0,
+     5,
+     0,
+     0
+    ]
+   },
+   {
+    "index": 20,
+    "name": "Collective Tech Lab",
+    "sprite": 61,
+    "icon": 38,
+    "category": 5,
+    "maxLabor": 3,
+    "size": 1,
+    "buildLabor": 300,
+    "energyUse": 40,
+    "taskRate": [
+     100,
+     70,
+     15,
+     0,
+     0
+    ],
+    "tasks": [
+     0,
+     5,
+     6,
+     0,
+     0
+    ],
+    "units": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "techRequired": 30,
+    "hitPoints": 40,
+    "unk_29": 0,
+    "productionQueue": 0,
+    "dialogAnim": 36,
+    "cost": [
+     500,
+     0,
+     25,
+     0,
+     250,
+     0,
+     0,
+     0,
+     25,
+     0,
+     0
+    ]
+   },
+   {
+    "index": 21,
+    "name": "Cultural Center",
+    "sprite": 37,
+    "icon": 2,
+    "category": 6,
+    "maxLabor": 5,
+    "size": 1,
+    "buildLabor": 100,
+    "energyUse": 0,
+    "taskRate": [
+     100,
+     10,
+     0,
+     0,
+     0
+    ],
+    "tasks": [
+     0,
+     7,
+     0,
+     0,
+     0
+    ],
+    "units": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "techRequired": 0,
+    "hitPoints": 20,
+    "unk_29": 0,
+    "productionQueue": 0,
+    "dialogAnim": 7,
+    "cost": [
+     75,
+     0,
+     0,
+     25,
+     10,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "index": 22,
+    "name": "Museum",
+    "sprite": 38,
+    "icon": 3,
+    "category": 6,
+    "maxLabor": 3,
+    "size": 1,
+    "buildLabor": 250,
+    "energyUse": 10,
+    "taskRate": [
+     100,
+     15,
+     0,
+     0,
+     0
+    ],
+    "tasks": [
+     0,
+     7,
+     0,
+     0,
+     0
+    ],
+    "units": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "techRequired": 0,
+    "hitPoints": 30,
+    "unk_29": 0,
+    "productionQueue": 0,
+    "dialogAnim": 8,
+    "cost": [
+     100,
+     0,
+     10,
+     25,
+     25,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "index": 23,
+    "name": "Art Complex",
+    "sprite": 91,
+    "icon": 4,
+    "category": 3,
+    "maxLabor": 4,
+    "size": 2,
+    "buildLabor": 250,
+    "energyUse": 0,
+    "taskRate": [
+     100,
+     50,
+     0,
+     0,
+     0
+    ],
+    "tasks": [
+     0,
+     8,
+     0,
+     0,
+     0
+    ],
+    "units": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "techRequired": 20,
+    "hitPoints": 40,
+    "unk_29": 0,
+    "productionQueue": 0,
+    "dialogAnim": 2,
+    "cost": [
+     200,
+     0,
+     15,
+     15,
+     25,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "index": 24,
+    "name": "Shipyard",
+    "sprite": 52,
+    "icon": 30,
+    "category": 7,
+    "maxLabor": 8,
+    "size": 1,
+    "buildLabor": 150,
+    "energyUse": 2,
+    "taskRate": [
+     100,
+     60,
+     0,
+     0,
+     25
+    ],
+    "tasks": [
+     0,
+     14,
+     0,
+     0,
+     11
+    ],
+    "units": [
+     12,
+     33,
+     27,
+     34,
+     29,
+     30,
+     13,
+     14,
+     35,
+     31
+    ],
+    "techRequired": 0,
+    "hitPoints": 30,
+    "unk_29": 0,
+    "productionQueue": 2,
+    "dialogAnim": 21,
+    "cost": [
+     150,
+     0,
+     0,
+     0,
+     75,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "index": 25,
+    "name": "Hydroport",
+    "sprite": 53,
+    "icon": 31,
+    "category": 7,
+    "maxLabor": 6,
+    "size": 1,
+    "buildLabor": 250,
+    "energyUse": 5,
+    "taskRate": [
+     100,
+     60,
+     0,
+     0,
+     75
+    ],
+    "tasks": [
+     0,
+     14,
+     0,
+     0,
+     11
+    ],
+    "units": [
+     12,
+     33,
+     27,
+     34,
+     29,
+     30,
+     13,
+     14,
+     35,
+     31
+    ],
+    "techRequired": 5,
+    "hitPoints": 50,
+    "unk_29": 0,
+    "productionQueue": 2,
+    "dialogAnim": 22,
+    "cost": [
+     250,
+     0,
+     20,
+     10,
+     250,
+     0,
+     0,
+     0,
+     10,
+     0,
+     0
+    ]
+   },
+   {
+    "index": 26,
+    "name": "Airport",
+    "sprite": 35,
+    "icon": 0,
+    "category": 8,
+    "maxLabor": 8,
+    "size": 2,
+    "buildLabor": 200,
+    "energyUse": 5,
+    "taskRate": [
+     100,
+     60,
+     0,
+     0,
+     25
+    ],
+    "tasks": [
+     0,
+     14,
+     0,
+     0,
+     11
+    ],
+    "units": [
+     9,
+     10,
+     11,
+     28,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "techRequired": 0,
+    "hitPoints": 20,
+    "unk_29": 0,
+    "productionQueue": 3,
+    "dialogAnim": 0,
+    "cost": [
+     150,
+     0,
+     0,
+     0,
+     100,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "index": 27,
+    "name": "Military Airbase",
+    "sprite": 36,
+    "icon": 1,
+    "category": 8,
+    "maxLabor": 6,
+    "size": 2,
+    "buildLabor": 300,
+    "energyUse": 10,
+    "taskRate": [
+     100,
+     60,
+     0,
+     0,
+     75
+    ],
+    "tasks": [
+     0,
+     14,
+     0,
+     0,
+     11
+    ],
+    "units": [
+     9,
+     10,
+     11,
+     28,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "techRequired": 12,
+    "hitPoints": 35,
+    "unk_29": 0,
+    "productionQueue": 3,
+    "dialogAnim": 1,
+    "cost": [
+     250,
+     0,
+     20,
+     10,
+     300,
+     0,
+     0,
+     0,
+     25,
+     0,
+     0
+    ]
+   },
+   {
+    "index": 28,
+    "name": "Fuel Depot",
+    "sprite": 39,
+    "icon": 61,
+    "category": 12,
+    "maxLabor": 0,
+    "size": 1,
+    "buildLabor": 50,
+    "energyUse": 0,
+    "taskRate": [
+     100,
+     0,
+     0,
+     0,
+     0
+    ],
+    "tasks": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "units": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "techRequired": 12,
+    "hitPoints": 10,
+    "unk_29": 0,
+    "productionQueue": 0,
+    "dialogAnim": 9,
+    "cost": [
+     50,
+     0,
+     20,
+     0,
+     25,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "index": 29,
+    "name": "Laser Defense",
+    "sprite": 46,
+    "icon": 17,
+    "category": 18,
+    "maxLabor": 0,
+    "size": 1,
+    "buildLabor": 100,
+    "energyUse": 2,
+    "taskRate": [
+     100,
+     0,
+     0,
+     0,
+     0
+    ],
+    "tasks": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "units": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "techRequired": 0,
+    "hitPoints": 25,
+    "unk_29": 0,
+    "productionQueue": 0,
+    "dialogAnim": 19,
+    "cost": [
+     75,
+     0,
+     0,
+     0,
+     15,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "index": 30,
+    "name": "Flak Launcher",
+    "sprite": 17,
+    "icon": 64,
+    "category": 18,
+    "maxLabor": 0,
+    "size": 1,
+    "buildLabor": 150,
+    "energyUse": 2,
+    "taskRate": [
+     100,
+     0,
+     0,
+     0,
+     0
+    ],
+    "tasks": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "units": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "techRequired": 6,
+    "hitPoints": 25,
+    "unk_29": 0,
+    "productionQueue": 0,
+    "dialogAnim": 19,
+    "cost": [
+     100,
+     0,
+     5,
+     0,
+     50,
+     0,
+     0,
+     0,
+     5,
+     0,
+     0
+    ]
+   },
+   {
+    "index": 31,
+    "name": "Energy Defense",
+    "sprite": 47,
+    "icon": 18,
+    "category": 18,
+    "maxLabor": 0,
+    "size": 1,
+    "buildLabor": 150,
+    "energyUse": 5,
+    "taskRate": [
+     100,
+     0,
+     0,
+     0,
+     0
+    ],
+    "tasks": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "units": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "techRequired": 25,
+    "hitPoints": 35,
+    "unk_29": 0,
+    "productionQueue": 0,
+    "dialogAnim": 19,
+    "cost": [
+     100,
+     0,
+     5,
+     0,
+     50,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "index": 32,
+    "name": "Anti Matter Defense",
+    "sprite": 48,
+    "icon": 19,
+    "category": 18,
+    "maxLabor": 0,
+    "size": 1,
+    "buildLabor": 200,
+    "energyUse": 10,
+    "taskRate": [
+     100,
+     0,
+     0,
+     0,
+     0
+    ],
+    "tasks": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "units": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "techRequired": 37,
+    "hitPoints": 50,
+    "unk_29": 0,
+    "productionQueue": 0,
+    "dialogAnim": 19,
+    "cost": [
+     150,
+     0,
+     10,
+     0,
+     100,
+     0,
+     0,
+     0,
+     10,
+     10,
+     0
+    ]
+   },
+   {
+    "index": 33,
+    "name": "Missile Base",
+    "sprite": 58,
+    "icon": 35,
+    "category": 10,
+    "maxLabor": 4,
+    "size": 1,
+    "buildLabor": 100,
+    "energyUse": 2,
+    "taskRate": [
+     100,
+     0,
+     0,
+     0,
+     50
+    ],
+    "tasks": [
+     0,
+     0,
+     0,
+     0,
+     11
+    ],
+    "units": [
+     16,
+     17,
+     18,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "techRequired": 15,
+    "hitPoints": 30,
+    "unk_29": 0,
+    "productionQueue": 4,
+    "dialogAnim": 27,
+    "cost": [
+     100,
+     0,
+     0,
+     0,
+     50,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "index": 34,
+    "name": "AntiColony Assault Silo",
+    "sprite": 59,
+    "icon": 36,
+    "category": 10,
+    "maxLabor": 2,
+    "size": 1,
+    "buildLabor": 200,
+    "energyUse": 15,
+    "taskRate": [
+     100,
+     0,
+     0,
+     0,
+     100
+    ],
+    "tasks": [
+     0,
+     0,
+     0,
+     0,
+     11
+    ],
+    "units": [
+     16,
+     17,
+     18,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "techRequired": 31,
+    "hitPoints": 40,
+    "unk_29": 0,
+    "productionQueue": 4,
+    "dialogAnim": 28,
+    "cost": [
+     250,
+     0,
+     25,
+     0,
+     150,
+     0,
+     0,
+     0,
+     10,
+     0,
+     0
+    ]
+   },
+   {
+    "index": 35,
+    "name": "Military Training Center",
+    "sprite": 18,
+    "icon": 66,
+    "category": 15,
+    "maxLabor": 5,
+    "size": 2,
+    "buildLabor": 250,
+    "energyUse": 20,
+    "taskRate": [
+     100,
+     50,
+     0,
+     0,
+     0
+    ],
+    "tasks": [
+     0,
+     18,
+     0,
+     0,
+     0
+    ],
+    "units": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "techRequired": 0,
+    "hitPoints": 40,
+    "unk_29": 0,
+    "productionQueue": 0,
+    "dialogAnim": 33,
+    "cost": [
+     250,
+     0,
+     0,
+     50,
+     50,
+     0,
+     0,
+     0,
+     5,
+     0,
+     0
+    ]
+   },
+   {
+    "index": 36,
+    "name": "Bunker",
+    "sprite": 19,
+    "icon": 67,
+    "category": 19,
+    "maxLabor": 0,
+    "size": 1,
+    "buildLabor": 200,
+    "energyUse": 0,
+    "taskRate": [
+     100,
+     0,
+     0,
+     0,
+     0
+    ],
+    "tasks": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "units": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "techRequired": 19,
+    "hitPoints": 75,
+    "unk_29": 0,
+    "productionQueue": 0,
+    "dialogAnim": 3,
+    "cost": [
+     200,
+     0,
+     0,
+     50,
+     50,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "index": 37,
+    "name": "City Center",
+    "sprite": 63,
+    "icon": 20,
+    "category": 9,
+    "maxLabor": 8,
+    "size": 2,
+    "buildLabor": 600,
+    "energyUse": 0,
+    "taskRate": [
+     100,
+     50,
+     15,
+     0,
+     25
+    ],
+    "tasks": [
+     0,
+     14,
+     7,
+     0,
+     11
+    ],
+    "units": [
+     25,
+     24,
+     26,
+     15,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "techRequired": 0,
+    "hitPoints": 40,
+    "unk_29": 0,
+    "productionQueue": 5,
+    "dialogAnim": 4,
+    "cost": [
+     500,
+     0,
+     50,
+     0,
+     250,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "index": 38,
+    "name": "Sea Platform",
+    "sprite": 20,
+    "icon": 75,
+    "category": 20,
+    "maxLabor": 0,
+    "size": 5,
+    "buildLabor": 0,
+    "energyUse": 0,
+    "taskRate": [
+     100,
+     0,
+     0,
+     0,
+     0
+    ],
+    "tasks": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "units": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "techRequired": 19,
+    "hitPoints": 1,
+    "unk_29": 0,
+    "productionQueue": 0,
+    "dialogAnim": 30,
+    "cost": [
+     500,
+     0,
+     50,
+     150,
+     200,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "index": 39,
+    "name": "SeaHab",
+    "sprite": 21,
+    "icon": 75,
+    "category": 17,
+    "maxLabor": 15,
+    "size": 1,
+    "buildLabor": 0,
+    "energyUse": 0,
+    "taskRate": [
+     100,
+     0,
+     100,
+     40,
+     0
+    ],
+    "tasks": [
+     0,
+     20,
+     14,
+     7,
+     0
+    ],
+    "units": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "techRequired": 0,
+    "hitPoints": 60,
+    "unk_29": 0,
+    "productionQueue": 0,
+    "dialogAnim": 30,
+    "cost": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "index": 40,
+    "name": "Torpedo Fort",
+    "sprite": 28,
+    "icon": 71,
+    "category": 18,
+    "maxLabor": 0,
+    "size": 1,
+    "buildLabor": 150,
+    "energyUse": 2,
+    "taskRate": [
+     100,
+     0,
+     0,
+     0,
+     0
+    ],
+    "tasks": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "units": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "techRequired": 0,
+    "hitPoints": 30,
+    "unk_29": 0,
+    "productionQueue": 0,
+    "dialogAnim": 19,
+    "cost": [
+     100,
+     0,
+     5,
+     0,
+     50,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "index": 41,
+    "name": "Kelp Farm",
+    "sprite": 32,
+    "icon": 70,
+    "category": 1,
+    "maxLabor": 4,
+    "size": 1,
+    "buildLabor": 150,
+    "energyUse": 1,
+    "taskRate": [
+     100,
+     125,
+     0,
+     0,
+     0
+    ],
+    "tasks": [
+     0,
+     12,
+     0,
+     0,
+     0
+    ],
+    "units": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "techRequired": 0,
+    "hitPoints": 10,
+    "unk_29": 0,
+    "productionQueue": 0,
+    "dialogAnim": 23,
+    "cost": [
+     100,
+     0,
+     0,
+     50,
+     50,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "index": 42,
+    "name": "Tidal Energy Plant",
+    "sprite": 29,
+    "icon": 72,
+    "category": 3,
+    "maxLabor": 3,
+    "size": 1,
+    "buildLabor": 150,
+    "energyUse": 0,
+    "taskRate": [
+     100,
+     150,
+     10,
+     0,
+     0
+    ],
+    "tasks": [
+     0,
+     15,
+     16,
+     0,
+     0
+    ],
+    "units": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "techRequired": 0,
+    "hitPoints": 20,
+    "unk_29": 0,
+    "productionQueue": 0,
+    "dialogAnim": 38,
+    "cost": [
+     200,
+     0,
+     0,
+     0,
+     100,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "index": 43,
+    "name": "Tidal Vortex Generator",
+    "sprite": 30,
+    "icon": 73,
+    "category": 16,
+    "maxLabor": 0,
+    "size": 1,
+    "buildLabor": 150,
+    "energyUse": 10,
+    "taskRate": [
+     100,
+     0,
+     0,
+     0,
+     0
+    ],
+    "tasks": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "units": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "techRequired": 34,
+    "hitPoints": 20,
+    "unk_29": 0,
+    "productionQueue": 0,
+    "dialogAnim": 37,
+    "cost": [
+     100,
+     0,
+     50,
+     50,
+     50,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "index": 44,
+    "name": "Weather Control Station",
+    "sprite": 31,
+    "icon": 74,
+    "category": 16,
+    "maxLabor": 0,
+    "size": 1,
+    "buildLabor": 300,
+    "energyUse": 20,
+    "taskRate": [
+     100,
+     0,
+     0,
+     0,
+     0
+    ],
+    "tasks": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "units": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "techRequired": 42,
+    "hitPoints": 25,
+    "unk_29": 0,
+    "productionQueue": 0,
+    "dialogAnim": 39,
+    "cost": [
+     200,
+     0,
+     100,
+     100,
+     125,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "index": 45,
+    "name": "Native Shrine",
+    "sprite": 57,
+    "icon": 62,
+    "category": 11,
+    "maxLabor": 4,
+    "size": 2,
+    "buildLabor": 100,
+    "energyUse": 0,
+    "taskRate": [
+     100,
+     20,
+     30,
+     0,
+     0
+    ],
+    "tasks": [
+     0,
+     7,
+     5,
+     0,
+     0
+    ],
+    "units": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "techRequired": 0,
+    "hitPoints": 40,
+    "unk_29": 0,
+    "productionQueue": 0,
+    "dialogAnim": 32,
+    "cost": [
+     500,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "index": 46,
+    "name": "Hidden Shrine",
+    "sprite": 33,
+    "icon": 68,
+    "category": 11,
+    "maxLabor": 3,
+    "size": 1,
+    "buildLabor": 100,
+    "energyUse": 0,
+    "taskRate": [
+     100,
+     100,
+     0,
+     0,
+     0
+    ],
+    "tasks": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "units": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "techRequired": 0,
+    "hitPoints": 40,
+    "unk_29": 0,
+    "productionQueue": 0,
+    "dialogAnim": 32,
+    "cost": [
+     300,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "index": 47,
+    "name": "Sea Shrine",
+    "sprite": 34,
+    "icon": 69,
+    "category": 11,
+    "maxLabor": 3,
+    "size": 1,
+    "buildLabor": 100,
+    "energyUse": 0,
+    "taskRate": [
+     100,
+     100,
+     0,
+     0,
+     0
+    ],
+    "tasks": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "units": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "techRequired": 0,
+    "hitPoints": 40,
+    "unk_29": 0,
+    "productionQueue": 0,
+    "dialogAnim": 32,
+    "cost": [
+     300,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   }
+  ],
+  "unit_types": [
+   {
+    "index": 0,
+    "name": "No Unit",
+    "combatSprite": 0,
+    "moveAnim": 0,
+    "portraitGroup": 0,
+    "portraitIndex": 0,
+    "unitClass": 0,
+    "buildLabor": 0,
+    "upkeep": 0,
+    "techRequired": 0,
+    "moves": 0,
+    "domain": 0,
+    "unk_12": 0,
+    "attack": 0,
+    "defense": 0,
+    "speed": 0,
+    "rateOfFire": 0,
+    "range": 0,
+    "sound": 0,
+    "unk_1c": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "cost": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "index": 1,
+    "name": "Laser Squad",
+    "combatSprite": 263,
+    "moveAnim": 0,
+    "portraitGroup": 159,
+    "portraitIndex": 1,
+    "unitClass": 1,
+    "buildLabor": 30,
+    "upkeep": 1,
+    "techRequired": 0,
+    "moves": 3,
+    "domain": 1,
+    "unk_12": 4,
+    "attack": 2,
+    "defense": 5,
+    "speed": 4,
+    "rateOfFire": 5,
+    "range": 9,
+    "sound": 103,
+    "unk_1c": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "cost": [
+     35,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "index": 2,
+    "name": "SAM Trooper",
+    "combatSprite": 270,
+    "moveAnim": 0,
+    "portraitGroup": 159,
+    "portraitIndex": 2,
+    "unitClass": 1,
+    "buildLabor": 50,
+    "upkeep": 1,
+    "techRequired": 10,
+    "moves": 3,
+    "domain": 1,
+    "unk_12": 4,
+    "attack": 4,
+    "defense": 16,
+    "speed": 4,
+    "rateOfFire": 5,
+    "range": 9,
+    "sound": 104,
+    "unk_1c": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "cost": [
+     60,
+     0,
+     0,
+     0,
+     10,
+     0,
+     0,
+     0,
+     5,
+     0,
+     0
+    ]
+   },
+   {
+    "index": 3,
+    "name": "Battle Trooper",
+    "combatSprite": 277,
+    "moveAnim": 0,
+    "portraitGroup": 159,
+    "portraitIndex": 3,
+    "unitClass": 1,
+    "buildLabor": 100,
+    "upkeep": 2,
+    "techRequired": 28,
+    "moves": 3,
+    "domain": 1,
+    "unk_12": 4,
+    "attack": 8,
+    "defense": 24,
+    "speed": 3,
+    "rateOfFire": 5,
+    "range": 16,
+    "sound": 105,
+    "unk_1c": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "cost": [
+     100,
+     0,
+     0,
+     0,
+     25,
+     0,
+     0,
+     0,
+     8,
+     2,
+     0
+    ]
+   },
+   {
+    "index": 4,
+    "name": "Assault Trooper",
+    "combatSprite": 284,
+    "moveAnim": 0,
+    "portraitGroup": 159,
+    "portraitIndex": 4,
+    "unitClass": 1,
+    "buildLabor": 200,
+    "upkeep": 5,
+    "techRequired": 40,
+    "moves": 3,
+    "domain": 1,
+    "unk_12": 4,
+    "attack": 12,
+    "defense": 36,
+    "speed": 3,
+    "rateOfFire": 4,
+    "range": 16,
+    "sound": 106,
+    "unk_1c": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "cost": [
+     200,
+     0,
+     0,
+     0,
+     50,
+     0,
+     0,
+     0,
+     10,
+     10,
+     0
+    ]
+   },
+   {
+    "index": 5,
+    "name": "Laser Cannon",
+    "combatSprite": 368,
+    "moveAnim": 408,
+    "portraitGroup": 166,
+    "portraitIndex": 8,
+    "unitClass": 2,
+    "buildLabor": 40,
+    "upkeep": 1,
+    "techRequired": 0,
+    "moves": 4,
+    "domain": 1,
+    "unk_12": 2,
+    "attack": 4,
+    "defense": 10,
+    "speed": 4,
+    "rateOfFire": 5,
+    "range": 16,
+    "sound": 45,
+    "unk_1c": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "cost": [
+     75,
+     0,
+     0,
+     0,
+     25,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "index": 6,
+    "name": "Fusion Cannon",
+    "combatSprite": 375,
+    "moveAnim": 409,
+    "portraitGroup": 166,
+    "portraitIndex": 9,
+    "unitClass": 2,
+    "buildLabor": 100,
+    "upkeep": 2,
+    "techRequired": 7,
+    "moves": 4,
+    "domain": 1,
+    "unk_12": 2,
+    "attack": 8,
+    "defense": 20,
+    "speed": 4,
+    "rateOfFire": 4,
+    "range": 16,
+    "sound": 46,
+    "unk_1c": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "cost": [
+     100,
+     0,
+     0,
+     0,
+     50,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "index": 7,
+    "name": "Disruptor Cannon",
+    "combatSprite": 382,
+    "moveAnim": 410,
+    "portraitGroup": 166,
+    "portraitIndex": 10,
+    "unitClass": 2,
+    "buildLabor": 200,
+    "upkeep": 5,
+    "techRequired": 36,
+    "moves": 4,
+    "domain": 1,
+    "unk_12": 2,
+    "attack": 15,
+    "defense": 40,
+    "speed": 4,
+    "rateOfFire": 4,
+    "range": 25,
+    "sound": 47,
+    "unk_1c": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "cost": [
+     200,
+     0,
+     0,
+     0,
+     100,
+     0,
+     0,
+     0,
+     5,
+     10,
+     0
+    ]
+   },
+   {
+    "index": 8,
+    "name": "Holocaust Cannon",
+    "combatSprite": 389,
+    "moveAnim": 411,
+    "portraitGroup": 166,
+    "portraitIndex": 11,
+    "unitClass": 2,
+    "buildLabor": 400,
+    "upkeep": 10,
+    "techRequired": 44,
+    "moves": 4,
+    "domain": 1,
+    "unk_12": 2,
+    "attack": 25,
+    "defense": 60,
+    "speed": 3,
+    "rateOfFire": 4,
+    "range": 36,
+    "sound": 48,
+    "unk_1c": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "cost": [
+     500,
+     0,
+     0,
+     0,
+     250,
+     0,
+     0,
+     0,
+     10,
+     20,
+     0
+    ]
+   },
+   {
+    "index": 9,
+    "name": "Turbo Wing Fighter",
+    "combatSprite": 221,
+    "moveAnim": 412,
+    "portraitGroup": 166,
+    "portraitIndex": 0,
+    "unitClass": 3,
+    "buildLabor": 25,
+    "upkeep": 1,
+    "techRequired": 0,
+    "moves": 2,
+    "domain": 3,
+    "unk_12": 3,
+    "attack": 2,
+    "defense": 10,
+    "speed": 1,
+    "rateOfFire": 3,
+    "range": 16,
+    "sound": 41,
+    "unk_1c": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "cost": [
+     75,
+     0,
+     0,
+     0,
+     50,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "index": 10,
+    "name": "Starflare Bomber",
+    "combatSprite": 228,
+    "moveAnim": 413,
+    "portraitGroup": 166,
+    "portraitIndex": 1,
+    "unitClass": 3,
+    "buildLabor": 75,
+    "upkeep": 2,
+    "techRequired": 21,
+    "moves": 2,
+    "domain": 3,
+    "unk_12": 3,
+    "attack": 6,
+    "defense": 20,
+    "speed": 1,
+    "rateOfFire": 3,
+    "range": 25,
+    "sound": 42,
+    "unk_1c": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "cost": [
+     100,
+     0,
+     0,
+     0,
+     100,
+     0,
+     0,
+     0,
+     10,
+     0,
+     0
+    ]
+   },
+   {
+    "index": 11,
+    "name": "Supernova Spyjet",
+    "combatSprite": 235,
+    "moveAnim": 414,
+    "portraitGroup": 166,
+    "portraitIndex": 2,
+    "unitClass": 3,
+    "buildLabor": 125,
+    "upkeep": 12,
+    "techRequired": 39,
+    "moves": 3,
+    "domain": 3,
+    "unk_12": 3,
+    "attack": 10,
+    "defense": 30,
+    "speed": 1,
+    "rateOfFire": 2,
+    "range": 30,
+    "sound": 43,
+    "unk_1c": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "cost": [
+     350,
+     0,
+     0,
+     0,
+     250,
+     0,
+     0,
+     0,
+     20,
+     10,
+     0
+    ]
+   },
+   {
+    "index": 12,
+    "name": "Sea Transport",
+    "combatSprite": 347,
+    "moveAnim": 415,
+    "portraitGroup": 166,
+    "portraitIndex": 4,
+    "unitClass": 4,
+    "buildLabor": 25,
+    "upkeep": 1,
+    "techRequired": 0,
+    "moves": 4,
+    "domain": 2,
+    "unk_12": 3,
+    "attack": 2,
+    "defense": 25,
+    "speed": 4,
+    "rateOfFire": 6,
+    "range": 16,
+    "sound": 121,
+    "unk_1c": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "cost": [
+     50,
+     0,
+     0,
+     0,
+     25,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "index": 13,
+    "name": "Shockwave Dreadnought",
+    "combatSprite": 354,
+    "moveAnim": 416,
+    "portraitGroup": 166,
+    "portraitIndex": 5,
+    "unitClass": 5,
+    "buildLabor": 75,
+    "upkeep": 1,
+    "techRequired": 5,
+    "moves": 4,
+    "domain": 2,
+    "unk_12": 3,
+    "attack": 10,
+    "defense": 40,
+    "speed": 3,
+    "rateOfFire": 5,
+    "range": 25,
+    "sound": 122,
+    "unk_1c": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "cost": [
+     150,
+     0,
+     0,
+     0,
+     100,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "index": 14,
+    "name": "Shockwave Carrier",
+    "combatSprite": 361,
+    "moveAnim": 417,
+    "portraitGroup": 166,
+    "portraitIndex": 6,
+    "unitClass": 5,
+    "buildLabor": 100,
+    "upkeep": 2,
+    "techRequired": 26,
+    "moves": 4,
+    "domain": 2,
+    "unk_12": 3,
+    "attack": 6,
+    "defense": 60,
+    "speed": 3,
+    "rateOfFire": 3,
+    "range": 25,
+    "sound": 123,
+    "unk_1c": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "cost": [
+     300,
+     0,
+     0,
+     0,
+     200,
+     0,
+     0,
+     0,
+     0,
+     10,
+     0
+    ]
+   },
+   {
+    "index": 15,
+    "name": "Command Corps",
+    "combatSprite": 242,
+    "moveAnim": 0,
+    "portraitGroup": 159,
+    "portraitIndex": 0,
+    "unitClass": 6,
+    "buildLabor": 25,
+    "upkeep": 1,
+    "techRequired": 4,
+    "moves": 3,
+    "domain": 1,
+    "unk_12": 4,
+    "attack": 2,
+    "defense": 5,
+    "speed": 6,
+    "rateOfFire": 5,
+    "range": 9,
+    "sound": 93,
+    "unk_1c": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "cost": [
+     250,
+     0,
+     0,
+     0,
+     5,
+     0,
+     0,
+     0,
+     5,
+     0,
+     0
+    ]
+   },
+   {
+    "index": 16,
+    "name": "Scatterpack Warhead",
+    "combatSprite": 184,
+    "moveAnim": 179,
+    "portraitGroup": 173,
+    "portraitIndex": 0,
+    "unitClass": 9,
+    "buildLabor": 50,
+    "upkeep": 0,
+    "techRequired": 15,
+    "moves": 3,
+    "domain": 3,
+    "unk_12": 4,
+    "attack": 20,
+    "defense": 4,
+    "speed": 0,
+    "rateOfFire": -1,
+    "range": 0,
+    "sound": 84,
+    "unk_1c": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "cost": [
+     100,
+     0,
+     0,
+     0,
+     25,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "index": 17,
+    "name": "Groundbreaker Warhead",
+    "combatSprite": 188,
+    "moveAnim": 179,
+    "portraitGroup": 173,
+    "portraitIndex": 1,
+    "unitClass": 9,
+    "buildLabor": 75,
+    "upkeep": 0,
+    "techRequired": 26,
+    "moves": 4,
+    "domain": 3,
+    "unk_12": 4,
+    "attack": 20,
+    "defense": 6,
+    "speed": 0,
+    "rateOfFire": -1,
+    "range": 0,
+    "sound": 84,
+    "unk_1c": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "cost": [
+     125,
+     0,
+     0,
+     0,
+     50,
+     0,
+     0,
+     0,
+     5,
+     10,
+     0
+    ]
+   },
+   {
+    "index": 18,
+    "name": "Supernova Warhead",
+    "combatSprite": 192,
+    "moveAnim": 179,
+    "portraitGroup": 173,
+    "portraitIndex": 2,
+    "unitClass": 9,
+    "buildLabor": 100,
+    "upkeep": 0,
+    "techRequired": 44,
+    "moves": 5,
+    "domain": 3,
+    "unk_12": 4,
+    "attack": 30,
+    "defense": 8,
+    "speed": 0,
+    "rateOfFire": -1,
+    "range": 0,
+    "sound": 84,
+    "unk_1c": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "cost": [
+     150,
+     0,
+     0,
+     0,
+     100,
+     0,
+     0,
+     0,
+     10,
+     20,
+     0
+    ]
+   },
+   {
+    "index": 19,
+    "name": "Laser Defense",
+    "combatSprite": 46,
+    "moveAnim": 0,
+    "portraitGroup": 46,
+    "portraitIndex": 0,
+    "unitClass": 10,
+    "buildLabor": 0,
+    "upkeep": 0,
+    "techRequired": 0,
+    "moves": 0,
+    "domain": 1,
+    "unk_12": 0,
+    "attack": 4,
+    "defense": 25,
+    "speed": -1,
+    "rateOfFire": 8,
+    "range": 49,
+    "sound": 90,
+    "unk_1c": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "cost": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "index": 20,
+    "name": "Flak Launcher",
+    "combatSprite": 17,
+    "moveAnim": 0,
+    "portraitGroup": 17,
+    "portraitIndex": 0,
+    "unitClass": 10,
+    "buildLabor": 0,
+    "upkeep": 0,
+    "techRequired": 6,
+    "moves": 0,
+    "domain": 1,
+    "unk_12": 0,
+    "attack": 2,
+    "defense": 25,
+    "speed": -1,
+    "rateOfFire": 4,
+    "range": 64,
+    "sound": 89,
+    "unk_1c": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "cost": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "index": 21,
+    "name": "Energy Defense",
+    "combatSprite": 47,
+    "moveAnim": 0,
+    "portraitGroup": 47,
+    "portraitIndex": 0,
+    "unitClass": 10,
+    "buildLabor": 0,
+    "upkeep": 0,
+    "techRequired": 25,
+    "moves": 0,
+    "domain": 1,
+    "unk_12": 0,
+    "attack": 6,
+    "defense": 35,
+    "speed": -1,
+    "rateOfFire": 6,
+    "range": 64,
+    "sound": 91,
+    "unk_1c": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "cost": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "index": 22,
+    "name": "Anti Matter Defense",
+    "combatSprite": 48,
+    "moveAnim": 0,
+    "portraitGroup": 48,
+    "portraitIndex": 0,
+    "unitClass": 10,
+    "buildLabor": 0,
+    "upkeep": 0,
+    "techRequired": 37,
+    "moves": 0,
+    "domain": 1,
+    "unk_12": 0,
+    "attack": 12,
+    "defense": 50,
+    "speed": -1,
+    "rateOfFire": 5,
+    "range": 81,
+    "sound": 92,
+    "unk_1c": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "cost": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "index": 23,
+    "name": "Militia",
+    "combatSprite": 291,
+    "moveAnim": 0,
+    "portraitGroup": 159,
+    "portraitIndex": 6,
+    "unitClass": 1,
+    "buildLabor": 0,
+    "upkeep": 0,
+    "techRequired": 0,
+    "moves": 3,
+    "domain": 1,
+    "unk_12": 4,
+    "attack": 2,
+    "defense": 2,
+    "speed": 5,
+    "rateOfFire": 5,
+    "range": 9,
+    "sound": 110,
+    "unk_1c": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "cost": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "index": 24,
+    "name": "Scout",
+    "combatSprite": 298,
+    "moveAnim": 0,
+    "portraitGroup": 159,
+    "portraitIndex": 6,
+    "unitClass": 7,
+    "buildLabor": 25,
+    "upkeep": 0,
+    "techRequired": 4,
+    "moves": 3,
+    "domain": 1,
+    "unk_12": 4,
+    "attack": 2,
+    "defense": 5,
+    "speed": 5,
+    "rateOfFire": 5,
+    "range": 9,
+    "sound": 118,
+    "unk_1c": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "cost": [
+     100,
+     0,
+     0,
+     0,
+     10,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0
+    ]
+   },
+   {
+    "index": 25,
+    "name": "Colonizer",
+    "combatSprite": 249,
+    "moveAnim": 426,
+    "portraitGroup": 166,
+    "portraitIndex": 13,
+    "unitClass": 8,
+    "buildLabor": 5,
+    "upkeep": 0,
+    "techRequired": 0,
+    "moves": 3,
+    "domain": 1,
+    "unk_12": 2,
+    "attack": 2,
+    "defense": 2,
+    "speed": 5,
+    "rateOfFire": 5,
+    "range": 9,
+    "sound": 68,
+    "unk_1c": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "cost": [
+     50,
+     0,
+     0,
+     10,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "index": 26,
+    "name": "Medic",
+    "combatSprite": 256,
+    "moveAnim": 0,
+    "portraitGroup": 145,
+    "portraitIndex": 0,
+    "unitClass": 11,
+    "buildLabor": 30,
+    "upkeep": 1,
+    "techRequired": 1,
+    "moves": 3,
+    "domain": 1,
+    "unk_12": 4,
+    "attack": 1,
+    "defense": 5,
+    "speed": 6,
+    "rateOfFire": 5,
+    "range": 9,
+    "sound": 103,
+    "unk_1c": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "cost": [
+     250,
+     0,
+     0,
+     0,
+     5,
+     0,
+     0,
+     0,
+     5,
+     0,
+     0
+    ]
+   },
+   {
+    "index": 27,
+    "name": "AAV",
+    "combatSprite": 200,
+    "moveAnim": 418,
+    "portraitGroup": 152,
+    "portraitIndex": 0,
+    "unitClass": 12,
+    "buildLabor": 100,
+    "upkeep": 3,
+    "techRequired": 7,
+    "moves": 4,
+    "domain": 6,
+    "unk_12": 2,
+    "attack": 8,
+    "defense": 20,
+    "speed": 3,
+    "rateOfFire": 5,
+    "range": 22,
+    "sound": 40,
+    "unk_1c": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "cost": [
+     200,
+     0,
+     0,
+     0,
+     75,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "index": 28,
+    "name": "Air Command",
+    "combatSprite": 214,
+    "moveAnim": 419,
+    "portraitGroup": 152,
+    "portraitIndex": 1,
+    "unitClass": 13,
+    "buildLabor": 100,
+    "upkeep": 3,
+    "techRequired": 4,
+    "moves": 3,
+    "domain": 3,
+    "unk_12": 3,
+    "attack": 2,
+    "defense": 12,
+    "speed": 1,
+    "rateOfFire": 3,
+    "range": 25,
+    "sound": 44,
+    "unk_1c": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "cost": [
+     200,
+     0,
+     15,
+     0,
+     150,
+     0,
+     0,
+     0,
+     10,
+     0,
+     0
+    ]
+   },
+   {
+    "index": 29,
+    "name": "Destroyer",
+    "combatSprite": 305,
+    "moveAnim": 420,
+    "portraitGroup": 152,
+    "portraitIndex": 2,
+    "unitClass": 14,
+    "buildLabor": 50,
+    "upkeep": 1,
+    "techRequired": 18,
+    "moves": 4,
+    "domain": 2,
+    "unk_12": 3,
+    "attack": 10,
+    "defense": 25,
+    "speed": 3,
+    "rateOfFire": 5,
+    "range": 16,
+    "sound": 70,
+    "unk_1c": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "cost": [
+     75,
+     0,
+     0,
+     0,
+     30,
+     0,
+     0,
+     0,
+     5,
+     0,
+     0
+    ]
+   },
+   {
+    "index": 30,
+    "name": "Attack Submarine",
+    "combatSprite": 312,
+    "moveAnim": 421,
+    "portraitGroup": 152,
+    "portraitIndex": 3,
+    "unitClass": 15,
+    "buildLabor": 175,
+    "upkeep": 2,
+    "techRequired": 17,
+    "moves": 4,
+    "domain": 2,
+    "unk_12": 3,
+    "attack": 10,
+    "defense": 15,
+    "speed": 4,
+    "rateOfFire": 4,
+    "range": 36,
+    "sound": 125,
+    "unk_1c": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "cost": [
+     250,
+     0,
+     0,
+     0,
+     150,
+     0,
+     0,
+     0,
+     10,
+     0,
+     0
+    ]
+   },
+   {
+    "index": 31,
+    "name": "Sea Colonizer",
+    "combatSprite": 340,
+    "moveAnim": 425,
+    "portraitGroup": 152,
+    "portraitIndex": 7,
+    "unitClass": 16,
+    "buildLabor": 50,
+    "upkeep": 0,
+    "techRequired": 19,
+    "moves": 3,
+    "domain": 2,
+    "unk_12": 2,
+    "attack": 2,
+    "defense": 25,
+    "speed": 5,
+    "rateOfFire": 6,
+    "range": 16,
+    "sound": 69,
+    "unk_1c": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "cost": [
+     100,
+     0,
+     0,
+     20,
+     20,
+     0,
+     0,
+     0,
+     5,
+     0,
+     0
+    ]
+   },
+   {
+    "index": 32,
+    "name": "Torpedo Fort",
+    "combatSprite": 28,
+    "moveAnim": 0,
+    "portraitGroup": 28,
+    "portraitIndex": 0,
+    "unitClass": 10,
+    "buildLabor": 0,
+    "upkeep": 0,
+    "techRequired": 0,
+    "moves": 0,
+    "domain": 1,
+    "unk_12": 0,
+    "attack": 30,
+    "defense": 30,
+    "speed": -1,
+    "rateOfFire": 8,
+    "range": 81,
+    "sound": 129,
+    "unk_1c": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "cost": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "index": 33,
+    "name": "Sea Command",
+    "combatSprite": 319,
+    "moveAnim": 422,
+    "portraitGroup": 152,
+    "portraitIndex": 5,
+    "unitClass": 17,
+    "buildLabor": 100,
+    "upkeep": 2,
+    "techRequired": 4,
+    "moves": 4,
+    "domain": 2,
+    "unk_12": 3,
+    "attack": 6,
+    "defense": 35,
+    "speed": 4,
+    "rateOfFire": 5,
+    "range": 16,
+    "sound": 119,
+    "unk_1c": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "cost": [
+     250,
+     0,
+     0,
+     0,
+     100,
+     0,
+     0,
+     0,
+     10,
+     0,
+     0
+    ]
+   },
+   {
+    "index": 34,
+    "name": "Flak Ship",
+    "combatSprite": 326,
+    "moveAnim": 423,
+    "portraitGroup": 152,
+    "portraitIndex": 4,
+    "unitClass": 18,
+    "buildLabor": 75,
+    "upkeep": 1,
+    "techRequired": 6,
+    "moves": 4,
+    "domain": 2,
+    "unk_12": 3,
+    "attack": 2,
+    "defense": 20,
+    "speed": 4,
+    "rateOfFire": 4,
+    "range": 30,
+    "sound": 88,
+    "unk_1c": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "cost": [
+     150,
+     0,
+     0,
+     0,
+     100,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "index": 35,
+    "name": "Siege Cruiser",
+    "combatSprite": 333,
+    "moveAnim": 424,
+    "portraitGroup": 152,
+    "portraitIndex": 6,
+    "unitClass": 19,
+    "buildLabor": 250,
+    "upkeep": 5,
+    "techRequired": 15,
+    "moves": 4,
+    "domain": 2,
+    "unk_12": 3,
+    "attack": 5,
+    "defense": 30,
+    "speed": 4,
+    "rateOfFire": 5,
+    "range": 16,
+    "sound": 124,
+    "unk_1c": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "cost": [
+     300,
+     0,
+     0,
+     0,
+     200,
+     0,
+     0,
+     0,
+     20,
+     0,
+     0
+    ]
+   },
+   {
+    "index": 36,
+    "name": "Siege Missile",
+    "combatSprite": 196,
+    "moveAnim": 179,
+    "portraitGroup": 173,
+    "portraitIndex": 3,
+    "unitClass": 9,
+    "buildLabor": 0,
+    "upkeep": 0,
+    "techRequired": 15,
+    "moves": 1,
+    "domain": 3,
+    "unk_12": 4,
+    "attack": 15,
+    "defense": 4,
+    "speed": 0,
+    "rateOfFire": -1,
+    "range": 0,
+    "sound": 130,
+    "unk_1c": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "cost": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "index": 37,
+    "name": "Land Mine",
+    "combatSprite": 0,
+    "moveAnim": 182,
+    "portraitGroup": 173,
+    "portraitIndex": 4,
+    "unitClass": 20,
+    "buildLabor": 0,
+    "upkeep": 0,
+    "techRequired": 24,
+    "moves": 0,
+    "domain": 1,
+    "unk_12": 4,
+    "attack": 50,
+    "defense": 1,
+    "speed": 0,
+    "rateOfFire": 1,
+    "range": 2,
+    "sound": 115,
+    "unk_1c": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "cost": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   {
+    "index": 38,
+    "name": "Sea Mine",
+    "combatSprite": 0,
+    "moveAnim": 183,
+    "portraitGroup": 173,
+    "portraitIndex": 4,
+    "unitClass": 20,
+    "buildLabor": 0,
+    "upkeep": 0,
+    "techRequired": 24,
+    "moves": 0,
+    "domain": 1,
+    "unk_12": 4,
+    "attack": 50,
+    "defense": 1,
+    "speed": 0,
+    "rateOfFire": 1,
+    "range": 2,
+    "sound": 120,
+    "unk_1c": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "cost": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   }
+  ],
+  "techs": [
+   {
+    "index": 0,
+    "name": "Nothing",
+    "treeItemId": 0,
+    "descPtr": "Huh?",
+    "level": 0,
+    "cost": 0,
+    "prereq": [
+     0,
+     0,
+     0
+    ],
+    "unk_2a": 0,
+    "treeIcon": 1,
+    "treeY": 0,
+    "treeX": 0,
+    "unlocksBuildings": [],
+    "unlocksUnits": [],
+    "unlocksTasks": [],
+    "codeEffects": ""
+   },
+   {
+    "index": 1,
+    "name": "Advanced Medicine",
+    "treeItemId": 4,
+    "descPtr": "Huh?",
+    "level": 1,
+    "cost": 50,
+    "prereq": [
+     0,
+     0,
+     0
+    ],
+    "unk_2a": 0,
+    "treeIcon": 1,
+    "treeY": 54,
+    "treeX": 75,
+    "unlocksBuildings": [
+     17
+    ],
+    "unlocksUnits": [
+     26
+    ],
+    "unlocksTasks": [],
+    "codeEffects": ""
+   },
+   {
+    "index": 2,
+    "name": "Metallurgy",
+    "treeItemId": 8,
+    "descPtr": "Huh?",
+    "level": 1,
+    "cost": 50,
+    "prereq": [
+     0,
+     0,
+     0
+    ],
+    "unk_2a": 0,
+    "treeIcon": 1,
+    "treeY": 54,
+    "treeX": 172,
+    "unlocksBuildings": [],
+    "unlocksUnits": [],
+    "unlocksTasks": [
+     9
+    ],
+    "codeEffects": "Iron -> Steel task (GetBuildingTasks)"
+   },
+   {
+    "index": 3,
+    "name": "Nuclear Fusion",
+    "treeItemId": 12,
+    "descPtr": "Huh?",
+    "level": 1,
+    "cost": 50,
+    "prereq": [
+     0,
+     0,
+     0
+    ],
+    "unk_2a": 0,
+    "treeIcon": 1,
+    "treeY": 54,
+    "treeX": 276,
+    "unlocksBuildings": [
+     12
+    ],
+    "unlocksUnits": [],
+    "unlocksTasks": [],
+    "codeEffects": ""
+   },
+   {
+    "index": 4,
+    "name": "Electronics",
+    "treeItemId": 16,
+    "descPtr": "Huh?",
+    "level": 1,
+    "cost": 50,
+    "prereq": [
+     0,
+     0,
+     0
+    ],
+    "unk_2a": 0,
+    "treeIcon": 1,
+    "treeY": 54,
+    "treeX": 381,
+    "unlocksBuildings": [],
+    "unlocksUnits": [
+     15,
+     24,
+     28,
+     33
+    ],
+    "unlocksTasks": [
+     6
+    ],
+    "codeEffects": "Electronic Parts task (GetBuildingTasks)"
+   },
+   {
+    "index": 5,
+    "name": "Shockwave Projector",
+    "treeItemId": 20,
+    "descPtr": "Huh?",
+    "level": 2,
+    "cost": 100,
+    "prereq": [
+     1,
+     0,
+     0
+    ],
+    "unk_2a": 0,
+    "treeIcon": 1,
+    "treeY": 330,
+    "treeX": 15,
+    "unlocksBuildings": [
+     25
+    ],
+    "unlocksUnits": [
+     13
+    ],
+    "unlocksTasks": [],
+    "codeEffects": ""
+   },
+   {
+    "index": 6,
+    "name": "Flak",
+    "treeItemId": 52,
+    "descPtr": "Huh?",
+    "level": 2,
+    "cost": 100,
+    "prereq": [
+     3,
+     0,
+     0
+    ],
+    "unk_2a": 0,
+    "treeIcon": 1,
+    "treeY": 330,
+    "treeX": 319,
+    "unlocksBuildings": [
+     30
+    ],
+    "unlocksUnits": [
+     20,
+     34
+    ],
+    "unlocksTasks": [],
+    "codeEffects": ""
+   },
+   {
+    "index": 7,
+    "name": "Fusion Cannon",
+    "treeItemId": 44,
+    "descPtr": "Huh?",
+    "level": 2,
+    "cost": 100,
+    "prereq": [
+     2,
+     3,
+     0
+    ],
+    "unk_2a": 0,
+    "treeIcon": 1,
+    "treeY": 330,
+    "treeX": 243,
+    "unlocksBuildings": [],
+    "unlocksUnits": [
+     6,
+     27
+    ],
+    "unlocksTasks": [],
+    "codeEffects": ""
+   },
+   {
+    "index": 8,
+    "name": "Automation",
+    "treeItemId": 32,
+    "descPtr": "Huh?",
+    "level": 2,
+    "cost": 100,
+    "prereq": [
+     2,
+     0,
+     0
+    ],
+    "unk_2a": 0,
+    "treeIcon": -1,
+    "treeY": 344,
+    "treeX": 128,
+    "unlocksBuildings": [
+     15
+    ],
+    "unlocksUnits": [],
+    "unlocksTasks": [],
+    "codeEffects": ""
+   },
+   {
+    "index": 9,
+    "name": "Cloning",
+    "treeItemId": 24,
+    "descPtr": "Huh?",
+    "level": 2,
+    "cost": 100,
+    "prereq": [
+     1,
+     0,
+     0
+    ],
+    "unk_2a": 0,
+    "treeIcon": -1,
+    "treeY": 344,
+    "treeX": 52,
+    "unlocksBuildings": [
+     4
+    ],
+    "unlocksUnits": [],
+    "unlocksTasks": [],
+    "codeEffects": ""
+   },
+   {
+    "index": 10,
+    "name": "Surface to Air Missiles",
+    "treeItemId": 56,
+    "descPtr": "Huh?",
+    "level": 2,
+    "cost": 100,
+    "prereq": [
+     4,
+     0,
+     0
+    ],
+    "unk_2a": 0,
+    "treeIcon": -1,
+    "treeY": 344,
+    "treeX": 432,
+    "unlocksBuildings": [],
+    "unlocksUnits": [
+     2
+    ],
+    "unlocksTasks": [],
+    "codeEffects": ""
+   },
+   {
+    "index": 11,
+    "name": "Synthetic Fertilizer",
+    "treeItemId": 28,
+    "descPtr": "Huh?",
+    "level": 2,
+    "cost": 100,
+    "prereq": [
+     1,
+     2,
+     0
+    ],
+    "unk_2a": 0,
+    "treeIcon": 1,
+    "treeY": 330,
+    "treeX": 91,
+    "unlocksBuildings": [
+     6
+    ],
+    "unlocksUnits": [],
+    "unlocksTasks": [],
+    "codeEffects": ""
+   },
+   {
+    "index": 12,
+    "name": "Neutrionic Fuel",
+    "treeItemId": 48,
+    "descPtr": "Huh?",
+    "level": 2,
+    "cost": 100,
+    "prereq": [
+     3,
+     0,
+     0
+    ],
+    "unk_2a": 0,
+    "treeIcon": -1,
+    "treeY": 344,
+    "treeX": 280,
+    "unlocksBuildings": [
+     27,
+     28
+    ],
+    "unlocksUnits": [],
+    "unlocksTasks": [],
+    "codeEffects": "+1 alcance aereo para la IA (FUN_0040f794)"
+   },
+   {
+    "index": 13,
+    "name": "Hoverway",
+    "treeItemId": 36,
+    "descPtr": "Huh?",
+    "level": 2,
+    "cost": 100,
+    "prereq": [
+     2,
+     0,
+     0
+    ],
+    "unk_2a": 0,
+    "treeIcon": 1,
+    "treeY": 330,
+    "treeX": 167,
+    "unlocksBuildings": [],
+    "unlocksUnits": [],
+    "unlocksTasks": [],
+    "codeEffects": ""
+   },
+   {
+    "index": 14,
+    "name": "Chaos Computers",
+    "treeItemId": 60,
+    "descPtr": "Huh?",
+    "level": 2,
+    "cost": 100,
+    "prereq": [
+     3,
+     4,
+     0
+    ],
+    "unk_2a": 0,
+    "treeIcon": -1,
+    "treeY": 344,
+    "treeX": 356,
+    "unlocksBuildings": [
+     19
+    ],
+    "unlocksUnits": [],
+    "unlocksTasks": [],
+    "codeEffects": ""
+   },
+   {
+    "index": 15,
+    "name": "Rocketry",
+    "treeItemId": 64,
+    "descPtr": "Huh?",
+    "level": 2,
+    "cost": 100,
+    "prereq": [
+     4,
+     0,
+     0
+    ],
+    "unk_2a": 0,
+    "treeIcon": 1,
+    "treeY": 330,
+    "treeX": 395,
+    "unlocksBuildings": [
+     33
+    ],
+    "unlocksUnits": [
+     16,
+     35,
+     36
+    ],
+    "unlocksTasks": [],
+    "codeEffects": ""
+   },
+   {
+    "index": 16,
+    "name": "Molecular Bonding",
+    "treeItemId": 40,
+    "descPtr": "Huh?",
+    "level": 2,
+    "cost": 100,
+    "prereq": [
+     2,
+     0,
+     0
+    ],
+    "unk_2a": 0,
+    "treeIcon": -1,
+    "treeY": 344,
+    "treeX": 204,
+    "unlocksBuildings": [
+     9
+    ],
+    "unlocksUnits": [],
+    "unlocksTasks": [],
+    "codeEffects": ""
+   },
+   {
+    "index": 17,
+    "name": "Zero Friction Hulls",
+    "treeItemId": 72,
+    "descPtr": "Huh?",
+    "level": 3,
+    "cost": 250,
+    "prereq": [
+     5,
+     9,
+     0
+    ],
+    "unk_2a": 0,
+    "treeIcon": -1,
+    "treeY": 723,
+    "treeX": 20,
+    "unlocksBuildings": [],
+    "unlocksUnits": [
+     30
+    ],
+    "unlocksTasks": [],
+    "codeEffects": ""
+   },
+   {
+    "index": 18,
+    "name": "Underwater Tracking",
+    "treeItemId": 68,
+    "descPtr": "Huh?",
+    "level": 3,
+    "cost": 250,
+    "prereq": [
+     11,
+     8,
+     0
+    ],
+    "unk_2a": 0,
+    "treeIcon": 1,
+    "treeY": 709,
+    "treeX": 70,
+    "unlocksBuildings": [],
+    "unlocksUnits": [
+     29
+    ],
+    "unlocksTasks": [],
+    "codeEffects": ""
+   },
+   {
+    "index": 19,
+    "name": "Advanced Structures",
+    "treeItemId": 76,
+    "descPtr": "Huh?",
+    "level": 3,
+    "cost": 250,
+    "prereq": [
+     13,
+     16,
+     0
+    ],
+    "unk_2a": 0,
+    "treeIcon": -1,
+    "treeY": 723,
+    "treeX": 117,
+    "unlocksBuildings": [
+     36,
+     38
+    ],
+    "unlocksUnits": [
+     31
+    ],
+    "unlocksTasks": [],
+    "codeEffects": ""
+   },
+   {
+    "index": 20,
+    "name": "Endurium Mining",
+    "treeItemId": 80,
+    "descPtr": "Huh?",
+    "level": 3,
+    "cost": 250,
+    "prereq": [
+     7,
+     12,
+     0
+    ],
+    "unk_2a": 0,
+    "treeIcon": 1,
+    "treeY": 709,
+    "treeX": 167,
+    "unlocksBuildings": [
+     23
+    ],
+    "unlocksUnits": [],
+    "unlocksTasks": [
+     4
+    ],
+    "codeEffects": "Mine Endurium task (GetBuildingTasks)"
+   },
+   {
+    "index": 21,
+    "name": "Starflare Bombs",
+    "treeItemId": 84,
+    "descPtr": "Huh?",
+    "level": 3,
+    "cost": 250,
+    "prereq": [
+     12,
+     6,
+     0
+    ],
+    "unk_2a": 0,
+    "treeIcon": -1,
+    "treeY": 723,
+    "treeX": 218,
+    "unlocksBuildings": [],
+    "unlocksUnits": [
+     10
+    ],
+    "unlocksTasks": [],
+    "codeEffects": ""
+   },
+   {
+    "index": 22,
+    "name": "Anti-Matter Containment",
+    "treeItemId": 88,
+    "descPtr": "Huh?",
+    "level": 3,
+    "cost": 250,
+    "prereq": [
+     6,
+     14,
+     0
+    ],
+    "unk_2a": 0,
+    "treeIcon": 1,
+    "treeY": 709,
+    "treeX": 272,
+    "unlocksBuildings": [
+     13
+    ],
+    "unlocksUnits": [],
+    "unlocksTasks": [
+     16
+    ],
+    "codeEffects": "Anti-Matter Pods task (GetBuildingTasks)"
+   },
+   {
+    "index": 23,
+    "name": "Targetting Computers",
+    "treeItemId": 92,
+    "descPtr": "Huh?",
+    "level": 3,
+    "cost": 250,
+    "prereq": [
+     14,
+     15,
+     0
+    ],
+    "unk_2a": 0,
+    "treeIcon": -1,
+    "treeY": 723,
+    "treeX": 323,
+    "unlocksBuildings": [],
+    "unlocksUnits": [],
+    "unlocksTasks": [],
+    "codeEffects": ""
+   },
+   {
+    "index": 24,
+    "name": "Proximity Detectors",
+    "treeItemId": 96,
+    "descPtr": "Huh?",
+    "level": 3,
+    "cost": 250,
+    "prereq": [
+     15,
+     10,
+     0
+    ],
+    "unk_2a": 0,
+    "treeIcon": 1,
+    "treeY": 709,
+    "treeX": 376,
+    "unlocksBuildings": [],
+    "unlocksUnits": [
+     37,
+     38
+    ],
+    "unlocksTasks": [],
+    "codeEffects": ""
+   },
+   {
+    "index": 25,
+    "name": "Energy Deflectors",
+    "treeItemId": 100,
+    "descPtr": "Huh?",
+    "level": 3,
+    "cost": 250,
+    "prereq": [
+     10,
+     0,
+     0
+    ],
+    "unk_2a": 0,
+    "treeIcon": -1,
+    "treeY": 723,
+    "treeX": 427,
+    "unlocksBuildings": [
+     31
+    ],
+    "unlocksUnits": [
+     21
+    ],
+    "unlocksTasks": [],
+    "codeEffects": ""
+   },
+   {
+    "index": 26,
+    "name": "Ion Weapons",
+    "treeItemId": 104,
+    "descPtr": "Huh?",
+    "level": 4,
+    "cost": 500,
+    "prereq": [
+     17,
+     0,
+     0
+    ],
+    "unk_2a": 0,
+    "treeIcon": 1,
+    "treeY": 1068,
+    "treeX": 75,
+    "unlocksBuildings": [],
+    "unlocksUnits": [
+     14,
+     17
+    ],
+    "unlocksTasks": [],
+    "codeEffects": ""
+   },
+   {
+    "index": 27,
+    "name": "Power Cells",
+    "treeItemId": 108,
+    "descPtr": "Huh?",
+    "level": 4,
+    "cost": 500,
+    "prereq": [
+     18,
+     19,
+     0
+    ],
+    "unk_2a": 0,
+    "treeIcon": -1,
+    "treeY": 1083,
+    "treeX": 122,
+    "unlocksBuildings": [],
+    "unlocksUnits": [],
+    "unlocksTasks": [],
+    "codeEffects": "ROF -10% y velocidad -25% (mas rapido) en combate (FUN_00448008, FUN_00447f44)"
+   },
+   {
+    "index": 28,
+    "name": "Anti-Matter Rifles",
+    "treeItemId": 112,
+    "descPtr": "Huh?",
+    "level": 4,
+    "cost": 500,
+    "prereq": [
+     19,
+     20,
+     0
+    ],
+    "unk_2a": 0,
+    "treeIcon": 1,
+    "treeY": 1069,
+    "treeX": 172,
+    "unlocksBuildings": [],
+    "unlocksUnits": [
+     3
+    ],
+    "unlocksTasks": [],
+    "codeEffects": ""
+   },
+   {
+    "index": 29,
+    "name": "Triidium Processing",
+    "treeItemId": 116,
+    "descPtr": "Huh?",
+    "level": 4,
+    "cost": 500,
+    "prereq": [
+     20,
+     0,
+     0
+    ],
+    "unk_2a": 0,
+    "treeIcon": -1,
+    "treeY": 1083,
+    "treeX": 223,
+    "unlocksBuildings": [],
+    "unlocksUnits": [],
+    "unlocksTasks": [
+     10
+    ],
+    "codeEffects": "End. -> Tri. task (GetBuildingTasks)"
+   },
+   {
+    "index": 30,
+    "name": "Cortex Scanner",
+    "treeItemId": 120,
+    "descPtr": "Huh?",
+    "level": 4,
+    "cost": 500,
+    "prereq": [
+     22,
+     23,
+     0
+    ],
+    "unk_2a": 0,
+    "treeIcon": -1,
+    "treeY": 1083,
+    "treeX": 328,
+    "unlocksBuildings": [
+     20
+    ],
+    "unlocksUnits": [],
+    "unlocksTasks": [],
+    "codeEffects": ""
+   },
+   {
+    "index": 31,
+    "name": "Orbital Surveillance",
+    "treeItemId": 124,
+    "descPtr": "Huh?",
+    "level": 4,
+    "cost": 500,
+    "prereq": [
+     23,
+     24,
+     0
+    ],
+    "unk_2a": 0,
+    "treeIcon": 1,
+    "treeY": 1069,
+    "treeX": 381,
+    "unlocksBuildings": [
+     34
+    ],
+    "unlocksUnits": [],
+    "unlocksTasks": [],
+    "codeEffects": ""
+   },
+   {
+    "index": 32,
+    "name": "Psi Helmet",
+    "treeItemId": 128,
+    "descPtr": "Huh?",
+    "level": 4,
+    "cost": 500,
+    "prereq": [
+     21,
+     22,
+     0
+    ],
+    "unk_2a": 0,
+    "treeIcon": 1,
+    "treeY": 1069,
+    "treeX": 277,
+    "unlocksBuildings": [],
+    "unlocksUnits": [],
+    "unlocksTasks": [],
+    "codeEffects": ""
+   },
+   {
+    "index": 33,
+    "name": "Native Languages",
+    "treeItemId": 132,
+    "descPtr": "Huh?",
+    "level": 5,
+    "cost": 1000,
+    "prereq": [
+     26,
+     0,
+     0
+    ],
+    "unk_2a": 0,
+    "treeIcon": -1,
+    "treeY": 1441,
+    "treeX": 25,
+    "unlocksBuildings": [],
+    "unlocksUnits": [],
+    "unlocksTasks": [],
+    "codeEffects": "produccion de shrines x2 (FUN_0044eb4c, categoria 0xb)"
+   },
+   {
+    "index": 34,
+    "name": "Vortex Emitters",
+    "treeItemId": 136,
+    "descPtr": "Huh?",
+    "level": 5,
+    "cost": 1000,
+    "prereq": [
+     26,
+     27,
+     0
+    ],
+    "unk_2a": 0,
+    "treeIcon": 1,
+    "treeY": 1427,
+    "treeX": 75,
+    "unlocksBuildings": [
+     43
+    ],
+    "unlocksUnits": [],
+    "unlocksTasks": [],
+    "codeEffects": ""
+   },
+   {
+    "index": 35,
+    "name": "Food Replication",
+    "treeItemId": 140,
+    "descPtr": "Huh?",
+    "level": 5,
+    "cost": 1000,
+    "prereq": [
+     27,
+     28,
+     0
+    ],
+    "unk_2a": 0,
+    "treeIcon": -1,
+    "treeY": 1441,
+    "treeX": 122,
+    "unlocksBuildings": [
+     7
+    ],
+    "unlocksUnits": [],
+    "unlocksTasks": [],
+    "codeEffects": ""
+   },
+   {
+    "index": 36,
+    "name": "Disruptor Beams",
+    "treeItemId": 144,
+    "descPtr": "Huh?",
+    "level": 5,
+    "cost": 1000,
+    "prereq": [
+     29,
+     0,
+     0
+    ],
+    "unk_2a": 0,
+    "treeIcon": -1,
+    "treeY": 1441,
+    "treeX": 223,
+    "unlocksBuildings": [],
+    "unlocksUnits": [
+     7
+    ],
+    "unlocksTasks": [],
+    "codeEffects": ""
+   },
+   {
+    "index": 37,
+    "name": "Anti-Matter Deflectors",
+    "treeItemId": 148,
+    "descPtr": "Huh?",
+    "level": 5,
+    "cost": 1000,
+    "prereq": [
+     30,
+     31,
+     0
+    ],
+    "unk_2a": 0,
+    "treeIcon": 1,
+    "treeY": 1427,
+    "treeX": 381,
+    "unlocksBuildings": [
+     32
+    ],
+    "unlocksUnits": [
+     22
+    ],
+    "unlocksTasks": [],
+    "codeEffects": ""
+   },
+   {
+    "index": 38,
+    "name": "Metal Replication",
+    "treeItemId": 152,
+    "descPtr": "Huh?",
+    "level": 5,
+    "cost": 1000,
+    "prereq": [
+     29,
+     32,
+     0
+    ],
+    "unk_2a": 0,
+    "treeIcon": 1,
+    "treeY": 1427,
+    "treeX": 277,
+    "unlocksBuildings": [
+     16
+    ],
+    "unlocksUnits": [],
+    "unlocksTasks": [],
+    "codeEffects": ""
+   },
+   {
+    "index": 39,
+    "name": "Cloaking",
+    "treeItemId": 160,
+    "descPtr": "Huh?",
+    "level": 5,
+    "cost": 1000,
+    "prereq": [
+     32,
+     30,
+     0
+    ],
+    "unk_2a": 0,
+    "treeIcon": -1,
+    "treeY": 1441,
+    "treeX": 328,
+    "unlocksBuildings": [],
+    "unlocksUnits": [
+     11
+    ],
+    "unlocksTasks": [],
+    "codeEffects": ""
+   },
+   {
+    "index": 40,
+    "name": "Assault Armor",
+    "treeItemId": 164,
+    "descPtr": "Huh?",
+    "level": 5,
+    "cost": 1000,
+    "prereq": [
+     28,
+     0,
+     0
+    ],
+    "unk_2a": 0,
+    "treeIcon": 1,
+    "treeY": 1427,
+    "treeX": 172,
+    "unlocksBuildings": [],
+    "unlocksUnits": [
+     4
+    ],
+    "unlocksTasks": [],
+    "codeEffects": ""
+   },
+   {
+    "index": 41,
+    "name": "Sub-Space Scanner",
+    "treeItemId": 156,
+    "descPtr": "Huh?",
+    "level": 5,
+    "cost": 1000,
+    "prereq": [
+     25,
+     0,
+     0
+    ],
+    "unk_2a": 0,
+    "treeIcon": -1,
+    "treeY": 1441,
+    "treeX": 432,
+    "unlocksBuildings": [
+     10
+    ],
+    "unlocksUnits": [],
+    "unlocksTasks": [],
+    "codeEffects": ""
+   },
+   {
+    "index": 42,
+    "name": "Mesotronic Generators",
+    "treeItemId": 168,
+    "descPtr": "Huh?",
+    "level": 6,
+    "cost": 2000,
+    "prereq": [
+     33,
+     34,
+     0
+    ],
+    "unk_2a": 0,
+    "treeIcon": 1,
+    "treeY": 1808,
+    "treeX": 75,
+    "unlocksBuildings": [
+     44
+    ],
+    "unlocksUnits": [],
+    "unlocksTasks": [],
+    "codeEffects": ""
+   },
+   {
+    "index": 43,
+    "name": "Advanced Cloaking",
+    "treeItemId": 172,
+    "descPtr": "Huh?",
+    "level": 6,
+    "cost": 2000,
+    "prereq": [
+     35,
+     40,
+     0
+    ],
+    "unk_2a": 0,
+    "treeIcon": 1,
+    "treeY": 1808,
+    "treeX": 172,
+    "unlocksBuildings": [],
+    "unlocksUnits": [],
+    "unlocksTasks": [],
+    "codeEffects": ""
+   },
+   {
+    "index": 44,
+    "name": "Anti-Matter Beams",
+    "treeItemId": 176,
+    "descPtr": "Huh?",
+    "level": 6,
+    "cost": 2000,
+    "prereq": [
+     36,
+     41,
+     0
+    ],
+    "unk_2a": 0,
+    "treeIcon": 1,
+    "treeY": 1808,
+    "treeX": 276,
+    "unlocksBuildings": [],
+    "unlocksUnits": [
+     8,
+     18
+    ],
+    "unlocksTasks": [],
+    "codeEffects": ""
+   },
+   {
+    "index": 45,
+    "name": "Uncloaking",
+    "treeItemId": 180,
+    "descPtr": "Huh?",
+    "level": 6,
+    "cost": 2000,
+    "prereq": [
+     41,
+     0,
+     0
+    ],
+    "unk_2a": 0,
+    "treeIcon": 1,
+    "treeY": 1808,
+    "treeX": 381,
+    "unlocksBuildings": [],
+    "unlocksUnits": [],
+    "unlocksTasks": [],
+    "codeEffects": ""
+   },
+   {
+    "index": 46,
+    "name": "Transporters",
+    "treeItemId": 184,
+    "descPtr": "Huh?",
+    "level": 7,
+    "cost": 5000,
+    "prereq": [
+     43,
+     44,
+     45
+    ],
+    "unk_2a": 0,
+    "treeIcon": 1,
+    "treeY": 2135,
+    "treeX": 224,
+    "unlocksBuildings": [],
+    "unlocksUnits": [],
+    "unlocksTasks": [],
+    "codeEffects": "+1 punto de movimiento a todas las unidades (FUN_00447190)"
+   },
+   {
+    "index": 47,
+    "name": "Time Dilation",
+    "treeItemId": 188,
+    "descPtr": "Huh?",
+    "level": 8,
+    "cost": 5000,
+    "prereq": [
+     0,
+     0,
+     0
+    ],
+    "unk_2a": 0,
+    "treeIcon": 1,
+    "treeY": 2417,
+    "treeX": 224,
+    "unlocksBuildings": [],
+    "unlocksUnits": [],
+    "unlocksTasks": [],
+    "codeEffects": "fondo alternativo del arbol tecnologico (FUN_0043c540)"
+   }
+  ],
+  "race_stats_default": [
+   [
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100
+   ],
+   [
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100
+   ],
+   [
+    120,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100
+   ],
+   [
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    150,
+    100
+   ],
+   [
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    150,
+    100
+   ],
+   [
+    75,
+    100,
+    100,
+    125,
+    100,
+    100,
+    100,
+    100
+   ],
+   [
+    100,
+    100,
+    100,
+    125,
+    100,
+    100,
+    100,
+    100
+   ],
+   [
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100
+   ],
+   [
+    100,
+    100,
+    150,
+    80,
+    100,
+    100,
+    100,
+    100
+   ],
+   [
+    100,
+    100,
+    100,
+    110,
+    100,
+    100,
+    100,
+    100
+   ],
+   [
+    100,
+    100,
+    100,
+    110,
+    100,
+    100,
+    100,
+    100
+   ],
+   [
+    110,
+    100,
+    100,
+    110,
+    100,
+    100,
+    100,
+    100
+   ],
+   [
+    100,
+    100,
+    100,
+    100,
+    100,
+    150,
+    125,
+    100
+   ],
+   [
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    150,
+    100
+   ],
+   [
+    100,
+    100,
+    130,
+    100,
+    100,
+    100,
+    100,
+    100
+   ],
+   [
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    150,
+    100
+   ],
+   [
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100
+   ],
+   [
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100
+   ],
+   [
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    125,
+    100
+   ],
+   [
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100
+   ],
+   [
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100
+   ],
+   [
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100
+   ],
+   [
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100
+   ],
+   [
+    80,
+    80,
+    80,
+    80,
+    80,
+    80,
+    80,
+    80
+   ],
+   [
+    200,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100
+   ],
+   [
+    150,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100
+   ],
+   [
+    70,
+    75,
+    120,
+    100,
+    100,
+    100,
+    80,
+    100
+   ],
+   [
+    20,
+    0,
+    20,
+    30,
+    20,
+    20,
+    10,
+    20
+   ],
+   [
+    10,
+    0,
+    10,
+    15,
+    10,
+    10,
+    10,
+    10
+   ],
+   [
+    0,
+    0,
+    0,
+    0,
+    0,
+    2,
+    0,
+    0
+   ],
+   [
+    -1,
+    0,
+    0,
+    -2,
+    0,
+    2,
+    0,
+    0
+   ],
+   [
+    0,
+    4,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    0,
+    9,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    100,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    0,
+    -1,
+    2,
+    0,
+    0
+   ],
+   [
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    0,
+    0,
+    -1,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    0,
+    0,
+    -2,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    0,
+    -1,
+    1,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    0,
+    -1,
+    1,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    20,
+    0
+   ],
+   [
+    -1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    0,
+    0,
+    20,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    0,
+    0,
+    10,
+    10,
+    0
+   ],
+   [
+    20,
+    20,
+    20,
+    35,
+    20,
+    20,
+    20,
+    20
+   ],
+   [
+    100,
+    100,
+    150,
+    100,
+    100,
+    100,
+    100,
+    100
+   ],
+   [
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    -1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    50,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    100,
+    100,
+    120,
+    100,
+    100,
+    100,
+    70,
+    100
+   ],
+   [
+    100,
+    50,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100
+   ],
+   [
+    20,
+    20,
+    20,
+    10,
+    20,
+    20,
+    20,
+    20
+   ],
+   [
+    10,
+    10,
+    10,
+    20,
+    10,
+    10,
+    10,
+    10
+   ]
+  ],
+  "race_stats_rows61": [
+   [
+    100,
+    50,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100
+   ],
+   [
+    20,
+    20,
+    20,
+    10,
+    20,
+    20,
+    20,
+    20
+   ],
+   [
+    10,
+    10,
+    10,
+    20,
+    10,
+    10,
+    10,
+    10
+   ]
+  ],
+  "labor_table": [
+   [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    100,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    50,
+    100,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    33,
+    66,
+    100,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    25,
+    50,
+    75,
+    100,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    20,
+    40,
+    60,
+    80,
+    100,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    18,
+    36,
+    54,
+    72,
+    90,
+    100,
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    15,
+    30,
+    45,
+    60,
+    75,
+    90,
+    100,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    12,
+    25,
+    37,
+    50,
+    62,
+    75,
+    87,
+    100,
+    0,
+    0
+   ],
+   [
+    0,
+    11,
+    22,
+    33,
+    44,
+    55,
+    66,
+    77,
+    88,
+    100,
+    0
+   ],
+   [
+    0,
+    10,
+    20,
+    30,
+    40,
+    50,
+    60,
+    70,
+    80,
+    90,
+    100
+   ]
+  ],
+  "max_units_sea": [
+   10000,
+   10000,
+   10000,
+   4
+  ],
+  "max_units_land": [
+   10000,
+   10000,
+   10000,
+   4
+  ],
+  "event_defs": [
+   {
+    "index": 0,
+    "priority": 0,
+    "zero": 0,
+    "id": 0,
+    "category": 0,
+    "unk_0a": 1,
+    "portrait": -1,
+    "format": "No event."
+   },
+   {
+    "index": 1,
+    "priority": 20,
+    "zero": 0,
+    "id": 1,
+    "category": 2,
+    "unk_0a": 17,
+    "portrait": 1,
+    "format": "Our military forces are complaining about the low pay!  Raise more money soon or they will be only half as effective on the battlefield..."
+   },
+   {
+    "index": 2,
+    "priority": 20,
+    "zero": 0,
+    "id": 2,
+    "category": 2,
+    "unk_0a": 17,
+    "portrait": 1,
+    "format": "Our food supplies are depleted!  Many troops are starving.  They will fight at half strength unless you get food to them!"
+   },
+   {
+    "index": 3,
+    "priority": 20,
+    "zero": 0,
+    "id": 3,
+    "category": 2,
+    "unk_0a": 17,
+    "portrait": 1,
+    "format": "%s was forced to disband because we could not afford its upkeep."
+   },
+   {
+    "index": 4,
+    "priority": 29,
+    "zero": 0,
+    "id": 4,
+    "category": 5,
+    "unk_0a": 13,
+    "portrait": 6,
+    "format": "%s has earned enough combat experience to become a Veteran unit!"
+   },
+   {
+    "index": 5,
+    "priority": 28,
+    "zero": 0,
+    "id": 5,
+    "category": 5,
+    "unk_0a": 13,
+    "portrait": 6,
+    "format": "%s's combat experience is quite impressive.  It has become one of your Elite military units."
+   },
+   {
+    "index": 6,
+    "priority": 30,
+    "zero": 0,
+    "id": 6,
+    "category": 5,
+    "unk_0a": 10,
+    "portrait": -1,
+    "format": "Our troops are suppressing the rebelling colonists in %s.  They are going back to work, although there have been reports that some colonists still grumble against you..."
+   },
+   {
+    "index": 7,
+    "priority": 30,
+    "zero": 0,
+    "id": 7,
+    "category": 5,
+    "unk_0a": 13,
+    "portrait": -1,
+    "format": "  %s is spying in %s.  Make good use of this secret information."
+   },
+   {
+    "index": 8,
+    "priority": 30,
+    "zero": 0,
+    "id": 8,
+    "category": 10,
+    "unk_0a": 13,
+    "portrait": 5,
+    "format": "A %s patrol has found %s spying in %s.  Our spies were killed trying to flee."
+   },
+   {
+    "index": 9,
+    "priority": 30,
+    "zero": 0,
+    "id": 9,
+    "category": 10,
+    "unk_0a": 13,
+    "portrait": 5,
+    "format": "A %s patrol uncloaked our %s inside the %s border. The unit suffered heavy damage and was unable to leave this territory."
+   },
+   {
+    "index": 10,
+    "priority": 30,
+    "zero": 0,
+    "id": 10,
+    "category": 10,
+    "unk_0a": 13,
+    "portrait": 4,
+    "format": "%s spies were caught gathering information in our settlement at %s.  They have been permanently removed from this planet."
+   },
+   {
+    "index": 11,
+    "priority": 30,
+    "zero": 0,
+    "id": 11,
+    "category": 10,
+    "unk_0a": 13,
+    "portrait": 4,
+    "format": "%s has stolen the engineering blueprints for %s technology!  The unit got past the security systems in a %s research facility in %s."
+   },
+   {
+    "index": 12,
+    "priority": 30,
+    "zero": 0,
+    "id": 12,
+    "category": 10,
+    "unk_0a": 13,
+    "portrait": 4,
+    "format": "%s has infiltrated a laboratory in %s. Unfortunately, the %s colony does not have any advanced technologies, so there was nothing for us to steal."
+   },
+   {
+    "index": 13,
+    "priority": 30,
+    "zero": 0,
+    "id": 13,
+    "category": 10,
+    "unk_0a": 10,
+    "portrait": 5,
+    "format": "Our covert forces have lost contact with one of our scouts.  Enemy troops caught %s subverting morale in %s."
+   },
+   {
+    "index": 14,
+    "priority": 30,
+    "zero": 0,
+    "id": 14,
+    "category": 10,
+    "unk_0a": 10,
+    "portrait": 4,
+    "format": "Some of our colonists were being mind controlled!  A %s spy has been caught using thought stimulators to spread dissent in %s."
+   },
+   {
+    "index": 15,
+    "priority": 30,
+    "zero": 0,
+    "id": 15,
+    "category": 10,
+    "unk_0a": 13,
+    "portrait": 4,
+    "format": "%s is undermining the morale of the %s colonists in %s.  Chaos and calamity may soon be upon them.  At least, let us hope so."
+   },
+   {
+    "index": 16,
+    "priority": 30,
+    "zero": 0,
+    "id": 16,
+    "category": 10,
+    "unk_0a": 10,
+    "portrait": 6,
+    "format": "A %s spy could be lowering our colonist's morale in %s.  Perhaps military units should patrol this territory as a precaution."
+   },
+   {
+    "index": 17,
+    "priority": 30,
+    "zero": 0,
+    "id": 17,
+    "category": 5,
+    "unk_0a": 15,
+    "portrait": 4,
+    "format": "Our shaman dance in %s coaxed the land to reveal one of its secrets.  We can now produce more %s in %s!"
+   },
+   {
+    "index": 18,
+    "priority": 30,
+    "zero": 0,
+    "id": 18,
+    "category": 10,
+    "unk_0a": 15,
+    "portrait": 6,
+    "format": "A %s spy might be contaminating our food production in %s.  You should send a patrolling unit there to make sure that this crop failure is normal and not being caused by artificial means."
+   },
+   {
+    "index": 19,
+    "priority": 30,
+    "zero": 0,
+    "id": 19,
+    "category": 10,
+    "unk_0a": 13,
+    "portrait": 4,
+    "format": "%s is poisoning the farm land in %s.  Hunger will soon turn this territory's colonists into starving wretches!"
+   },
+   {
+    "index": 20,
+    "priority": 30,
+    "zero": 0,
+    "id": 20,
+    "category": 10,
+    "unk_0a": 15,
+    "portrait": 4,
+    "format": "Good news!  We stole some resources!  %s was able to grab %d %s from %s!"
+   },
+   {
+    "index": 21,
+    "priority": 30,
+    "zero": 0,
+    "id": 21,
+    "category": 10,
+    "unk_0a": 13,
+    "portrait": 6,
+    "format": "Enemy spies have ransacked our resource stockpile!  %d %s were stolen from our reserves at %s!"
+   },
+   {
+    "index": 22,
+    "priority": 30,
+    "zero": 0,
+    "id": 22,
+    "category": 10,
+    "unk_0a": 13,
+    "portrait": 4,
+    "format": "%s's sabotage mission was a success.  The bombs placed in the %s have destroyed the unit, giving enemy's military a major setback in %s !  Where will we strike next?"
+   },
+   {
+    "index": 23,
+    "priority": 30,
+    "zero": 0,
+    "id": 23,
+    "category": 10,
+    "unk_0a": 13,
+    "portrait": 6,
+    "format": "A terrorist spy may be planting bombs in %s!  Our %s just blew apart!  The investigation so far has not found a cause..."
+   },
+   {
+    "index": 24,
+    "priority": 30,
+    "zero": 0,
+    "id": 24,
+    "category": 10,
+    "unk_0a": 13,
+    "portrait": 6,
+    "format": "An unknown enemy spy sabotaged some of our missiles!  The missiles detonated in %s, damaging this settlement!"
+   },
+   {
+    "index": 25,
+    "priority": 30,
+    "zero": 0,
+    "id": 25,
+    "category": 10,
+    "unk_0a": 13,
+    "portrait": 4,
+    "format": "Our spies in %s sabotaged several of the %s missiles.  These missiles targeted key buildings in their own settlement."
+   },
+   {
+    "index": 26,
+    "priority": 31,
+    "zero": 0,
+    "id": 26,
+    "category": 11,
+    "unk_0a": 12,
+    "portrait": 6,
+    "format": "Our Colonizer has established a new settlement in %s."
+   },
+   {
+    "index": 27,
+    "priority": 31,
+    "zero": 0,
+    "id": 27,
+    "category": 11,
+    "unk_0a": 12,
+    "portrait": 6,
+    "format": "A Colonizer has been disbanded in %s.  100 new colonists have joined the workforce of this growing settlement."
+   },
+   {
+    "index": 28,
+    "priority": 30,
+    "zero": 0,
+    "id": 28,
+    "category": 5,
+    "unk_0a": 13,
+    "portrait": 6,
+    "format": "%s just finished all its necessary repairs.  Its damage gone, the unit is now ready for the front lines again."
+   },
+   {
+    "index": 29,
+    "priority": 30,
+    "zero": 0,
+    "id": 29,
+    "category": 5,
+    "unk_0a": 13,
+    "portrait": 6,
+    "format": "%s has been given to the %s colony.  Their colony leader should be quite pleased with you now."
+   },
+   {
+    "index": 30,
+    "priority": 30,
+    "zero": 0,
+    "id": 30,
+    "category": 5,
+    "unk_0a": 13,
+    "portrait": 6,
+    "format": "%s could not be transferred to the %s colony. You must either move it into a %s territory or a neutral territory."
+   },
+   {
+    "index": 31,
+    "priority": 30,
+    "zero": 0,
+    "id": 31,
+    "category": 5,
+    "unk_0a": 7,
+    "portrait": 6,
+    "format": "We got an arms shipment!  The %s colony just gave us this %s!  Now maybe our enemies will leave us alone."
+   },
+   {
+    "index": 32,
+    "priority": 30,
+    "zero": 0,
+    "id": 32,
+    "category": 5,
+    "unk_0a": 13,
+    "portrait": 6,
+    "format": "%s ran out of fuel and crashed somewhere in %s.  There were no survivors."
+   },
+   {
+    "index": 33,
+    "priority": 111,
+    "zero": 0,
+    "id": 34,
+    "category": 0,
+    "unk_0a": 6,
+    "portrait": 1,
+    "format": "%s"
+   },
+   {
+    "index": 34,
+    "priority": 109,
+    "zero": 0,
+    "id": 35,
+    "category": 2,
+    "unk_0a": 6,
+    "portrait": 5,
+    "format": "Due to our non-aggression pact with the %s, our troops retreated from %s. Since no blood was shed our pact continues."
+   },
+   {
+    "index": 35,
+    "priority": 110,
+    "zero": 0,
+    "id": 36,
+    "category": 0,
+    "unk_0a": 6,
+    "portrait": 4,
+    "format": "Great strategy, colony leader.  We have beaten off the defending %s forces! We now control %s."
+   },
+   {
+    "index": 36,
+    "priority": 110,
+    "zero": 0,
+    "id": 37,
+    "category": 0,
+    "unk_0a": 6,
+    "portrait": 4,
+    "format": "Our defenses hold! Our %s forces have driven off the onslaught by the %s."
+   },
+   {
+    "index": 37,
+    "priority": 110,
+    "zero": 0,
+    "id": 38,
+    "category": 0,
+    "unk_0a": 6,
+    "portrait": 21,
+    "format": "The %s colony has beaten back our forces. They have taken over %s.  Get it back from them soon."
+   },
+   {
+    "index": 38,
+    "priority": 110,
+    "zero": 0,
+    "id": 39,
+    "category": 0,
+    "unk_0a": 6,
+    "portrait": 21,
+    "format": "Our attack on %s has been crushed. The defenses of the %s proved too strong for our armies."
+   },
+   {
+    "index": 39,
+    "priority": 110,
+    "zero": 0,
+    "id": 40,
+    "category": 0,
+    "unk_0a": 6,
+    "portrait": 21,
+    "format": "Our military has been repelled by the %s. We were not able to conquer %s.  This time."
+   },
+   {
+    "index": 40,
+    "priority": 110,
+    "zero": 0,
+    "id": 41,
+    "category": 0,
+    "unk_0a": 6,
+    "portrait": 4,
+    "format": "We have achieved a great victory.  The %s colony has lost one of their prime territories -- their home territory!"
+   },
+   {
+    "index": 41,
+    "priority": 110,
+    "zero": 0,
+    "id": 42,
+    "category": 0,
+    "unk_0a": 6,
+    "portrait": 5,
+    "format": "Our home base military units suffered a terrible rout.  %s forces captured our home territory from them."
+   },
+   {
+    "index": 42,
+    "priority": 110,
+    "zero": 0,
+    "id": 43,
+    "category": 0,
+    "unk_0a": 6,
+    "portrait": 5,
+    "format": "The %s just pounded %s with a missile attack!  Do not let this assault go unpunished!"
+   },
+   {
+    "index": 43,
+    "priority": 110,
+    "zero": 0,
+    "id": 44,
+    "category": 0,
+    "unk_0a": 6,
+    "portrait": 21,
+    "format": "As you commanded, colony leader, our missiles attacked %s."
+   },
+   {
+    "index": 44,
+    "priority": 110,
+    "zero": 0,
+    "id": 45,
+    "category": 0,
+    "unk_0a": 6,
+    "portrait": 21,
+    "format": "The %s triggered our mines in %s"
+   },
+   {
+    "index": 45,
+    "priority": 110,
+    "zero": 0,
+    "id": 46,
+    "category": 0,
+    "unk_0a": 6,
+    "portrait": 5,
+    "format": "Our units in %s ran into mines laid by the %s"
+   },
+   {
+    "index": 46,
+    "priority": 30,
+    "zero": 0,
+    "id": 47,
+    "category": 0,
+    "unk_0a": 13,
+    "portrait": 4,
+    "format": "Congratulations!  Our Command Corps have mind controlled %d %s.  They are now complacently obedient, ready to carry out your every order."
+   },
+   {
+    "index": 47,
+    "priority": 30,
+    "zero": 0,
+    "id": 48,
+    "category": 0,
+    "unk_0a": 13,
+    "portrait": 3,
+    "format": "Some of our forces were mind controlled by the %s and have joined their colony!  %d %s completely subverted, their minds irretrievably reconditioned."
+   },
+   {
+    "index": 48,
+    "priority": 35,
+    "zero": 0,
+    "id": 49,
+    "category": 0,
+    "unk_0a": 13,
+    "portrait": -1,
+    "format": "Despite enemy attempts at pushing us out, our forces still control %s.  What do you want to do with this territory?"
+   },
+   {
+    "index": 49,
+    "priority": 20,
+    "zero": 0,
+    "id": 50,
+    "category": 12,
+    "unk_0a": 15,
+    "portrait": 1,
+    "format": "The food reserves in %s have run out.  The colonists are starving.  They need food now!"
+   },
+   {
+    "index": 50,
+    "priority": 20,
+    "zero": 0,
+    "id": 51,
+    "category": 13,
+    "unk_0a": 15,
+    "portrait": 1,
+    "format": "%s is desperately low on energy.  Some buildings may be forced to slow down their production until full power is restored."
+   },
+   {
+    "index": 51,
+    "priority": 20,
+    "zero": 0,
+    "id": 52,
+    "category": 12,
+    "unk_0a": 12,
+    "portrait": 6,
+    "format": "%s has reached its maximum population."
+   },
+   {
+    "index": 52,
+    "priority": 20,
+    "zero": 0,
+    "id": 53,
+    "category": 12,
+    "unk_0a": 12,
+    "portrait": 1,
+    "format": "The settlement in %s needs more housing complexes.  All the existing homes are filled, so there is no room for more colonists to settle in this territory."
+   },
+   {
+    "index": 53,
+    "priority": 20,
+    "zero": 0,
+    "id": 54,
+    "category": 1,
+    "unk_0a": 21,
+    "portrait": 12,
+    "format": "%s technology has been thoroughly researched!  This technology is yours to use.  Congratulations, colony leader!"
+   },
+   {
+    "index": 54,
+    "priority": 20,
+    "zero": 0,
+    "id": 55,
+    "category": 1,
+    "unk_0a": 12,
+    "portrait": 13,
+    "format": "Our research facility is finished and completely operational.  We may now begin to develop new technologies."
+   },
+   {
+    "index": 55,
+    "priority": 20,
+    "zero": 0,
+    "id": 56,
+    "category": 1,
+    "unk_0a": 21,
+    "portrait": 12,
+    "format": "Our research pact has made a breakthrough!  We have jointly developed %s technology!"
+   },
+   {
+    "index": 56,
+    "priority": 20,
+    "zero": 0,
+    "id": 57,
+    "category": 1,
+    "unk_0a": 12,
+    "portrait": 13,
+    "format": "All our research assignments have been completed.  Please tell us what to research next!"
+   },
+   {
+    "index": 57,
+    "priority": 70,
+    "zero": 0,
+    "id": 58,
+    "category": 2,
+    "unk_0a": 1,
+    "portrait": 3,
+    "format": "We have been betrayed! The %s secretly ended the %s we had with them!  You should destroy both them and their deceitful leader."
+   },
+   {
+    "index": 58,
+    "priority": 10,
+    "zero": 0,
+    "id": 59,
+    "category": 6,
+    "unk_0a": 14,
+    "portrait": -1,
+    "format": "%s has just been shipped from %s to %s.  This cost %d credits."
+   },
+   {
+    "index": 59,
+    "priority": 90,
+    "zero": 0,
+    "id": 60,
+    "category": 2,
+    "unk_0a": 18,
+    "portrait": 5,
+    "format": "A blockade of %s has cut off our much needed shipments of %s!"
+   },
+   {
+    "index": 60,
+    "priority": 20,
+    "zero": 0,
+    "id": 61,
+    "category": 3,
+    "unk_0a": 8,
+    "portrait": 6,
+    "format": "A masterful art object has been created in %s, raising colonist morale in that territory.  It truly is an impressive work of art."
+   },
+   {
+    "index": 61,
+    "priority": 10,
+    "zero": 0,
+    "id": 62,
+    "category": 3,
+    "unk_0a": 12,
+    "portrait": 6,
+    "format": "A new building is fully operational.  The %s has been finished in %s."
+   },
+   {
+    "index": 62,
+    "priority": 10,
+    "zero": 0,
+    "id": 63,
+    "category": 3,
+    "unk_0a": 12,
+    "portrait": 6,
+    "format": "Repairs on the damaged %s in %s are finished.  The building's production is back to normal."
+   },
+   {
+    "index": 63,
+    "priority": 20,
+    "zero": 0,
+    "id": 64,
+    "category": 3,
+    "unk_0a": 12,
+    "portrait": 6,
+    "format": "Our colonists have started construction on the %s in %s. It should be finished after a while."
+   },
+   {
+    "index": 64,
+    "priority": 100,
+    "zero": 0,
+    "id": 65,
+    "category": 2,
+    "unk_0a": 21,
+    "portrait": 7,
+    "format": "The %s colony has a new City Center!  You may want to stop them from building more..."
+   },
+   {
+    "index": 65,
+    "priority": 100,
+    "zero": 0,
+    "id": 66,
+    "category": 2,
+    "unk_0a": 21,
+    "portrait": 7,
+    "format": "Our allies, the %s, have a new City Center!  Soon this planet will be ours!"
+   },
+   {
+    "index": 66,
+    "priority": 100,
+    "zero": 0,
+    "id": 67,
+    "category": 2,
+    "unk_0a": 21,
+    "portrait": 7,
+    "format": "Construction on the City Center in %s is complete.  The planet will be ours!"
+   },
+   {
+    "index": 67,
+    "priority": 20,
+    "zero": 0,
+    "id": 68,
+    "category": 4,
+    "unk_0a": 13,
+    "portrait": 6,
+    "format": "A new %s has been fully outfitted and armed in %s.  The military unit is waiting for its first order."
+   },
+   {
+    "index": 68,
+    "priority": 15,
+    "zero": 0,
+    "id": 69,
+    "category": 9,
+    "unk_0a": 12,
+    "portrait": 6,
+    "format": "No units are being built in the %s. There are no more items left in its factories' queue."
+   },
+   {
+    "index": 69,
+    "priority": 15,
+    "zero": 0,
+    "id": 70,
+    "category": 9,
+    "unk_0a": 12,
+    "portrait": 6,
+    "format": "The shipyards in %s are not building anything. Their queues are empty."
+   },
+   {
+    "index": 70,
+    "priority": 15,
+    "zero": 0,
+    "id": 71,
+    "category": 9,
+    "unk_0a": 12,
+    "portrait": 6,
+    "format": "The %s airports are not making anything new. Their production queues are empty."
+   },
+   {
+    "index": 71,
+    "priority": 15,
+    "zero": 0,
+    "id": 72,
+    "category": 9,
+    "unk_0a": 12,
+    "portrait": 6,
+    "format": "No more missiles are being made by %s missile bases. The production queues have emptied."
+   },
+   {
+    "index": 72,
+    "priority": 15,
+    "zero": 0,
+    "id": 73,
+    "category": 9,
+    "unk_0a": 12,
+    "portrait": 6,
+    "format": "You'll need to enter more items in the %s City Center's production queue if you want more special units."
+   },
+   {
+    "index": 73,
+    "priority": 17,
+    "zero": 0,
+    "id": 74,
+    "category": 9,
+    "unk_0a": 15,
+    "portrait": 6,
+    "format": "%s can not make another %s until enough resources are gathered. No other units will be made before then."
+   },
+   {
+    "index": 74,
+    "priority": 10,
+    "zero": 0,
+    "id": 75,
+    "category": 3,
+    "unk_0a": 12,
+    "portrait": 6,
+    "format": "The upgrade work on the %s in %s has been a success.  It is now a more efficient %s!"
+   },
+   {
+    "index": 75,
+    "priority": 70,
+    "zero": 0,
+    "id": 76,
+    "category": 2,
+    "unk_0a": 21,
+    "portrait": 2,
+    "format": "Our archaeologists in %s have discovered a hidden shrine!  New knowledge of the Ancients will be ours!"
+   },
+   {
+    "index": 76,
+    "priority": 70,
+    "zero": 0,
+    "id": 77,
+    "category": 2,
+    "unk_0a": 21,
+    "portrait": 2,
+    "format": "Our allies, the %s, have discovered a hidden shrine in %s!  You may want to compliment them on their success."
+   },
+   {
+    "index": 77,
+    "priority": 70,
+    "zero": 0,
+    "id": 78,
+    "category": 2,
+    "unk_0a": 21,
+    "portrait": 3,
+    "format": "The vile %s have uncovered a hidden shrine in %s.  Capture it, colony leader, before they rob both the planet and us of its vital secrets..."
+   },
+   {
+    "index": 78,
+    "priority": 60,
+    "zero": 0,
+    "id": 79,
+    "category": 2,
+    "unk_0a": 21,
+    "portrait": 2,
+    "format": "Our expedition in %s has found a secret cache of resources. %d %s have now been added to our stockpile."
+   },
+   {
+    "index": 79,
+    "priority": 65,
+    "zero": 0,
+    "id": 80,
+    "category": 2,
+    "unk_0a": 21,
+    "portrait": 2,
+    "format": "Our forces destroyed the shrine in %s! Several of our colonists have not taken this very well. Many wander the streets in absolute shock."
+   },
+   {
+    "index": 80,
+    "priority": 65,
+    "zero": 0,
+    "id": 81,
+    "category": 2,
+    "unk_0a": 21,
+    "portrait": 3,
+    "format": "The uncompromising %s have reduced the shrine in %s to rubble!  All knowledge contained within this shrine is lost forever."
+   },
+   {
+    "index": 81,
+    "priority": 60,
+    "zero": 0,
+    "id": 82,
+    "category": 2,
+    "unk_0a": 21,
+    "portrait": 2,
+    "format": "An ancient database was discovered in %s.  It has given us the blueprints for %s technology!"
+   },
+   {
+    "index": 82,
+    "priority": 40,
+    "zero": 0,
+    "id": 83,
+    "category": 3,
+    "unk_0a": 18,
+    "portrait": 5,
+    "format": "Riots have broken out all over our settlement in %s. Much damage has been done to this territory's %s !"
+   },
+   {
+    "index": 83,
+    "priority": 40,
+    "zero": 0,
+    "id": 84,
+    "category": 2,
+    "unk_0a": 18,
+    "portrait": 5,
+    "format": "There are fierce, bloody riots currently happening in %s.  The madness has killed %d colonists!"
+   },
+   {
+    "index": 84,
+    "priority": 40,
+    "zero": 0,
+    "id": 85,
+    "category": 2,
+    "unk_0a": 10,
+    "portrait": 5,
+    "format": "%d suppressed colonists from %s have left our colony.  They have joined the %s effort against us!"
+   },
+   {
+    "index": 85,
+    "priority": 50,
+    "zero": 0,
+    "id": 86,
+    "category": 2,
+    "unk_0a": 8,
+    "portrait": 2,
+    "format": "%d ill-treated colonists have defected from the %s colony.  They are working with our colonists at %s."
+   },
+   {
+    "index": 86,
+    "priority": 50,
+    "zero": 0,
+    "id": 87,
+    "category": 2,
+    "unk_0a": 8,
+    "portrait": 2,
+    "format": "Here's a nice surprise.  The %s defectors brought us quite a gift -- %s technology!"
+   },
+   {
+    "index": 87,
+    "priority": 40,
+    "zero": 0,
+    "id": 88,
+    "category": 8,
+    "unk_0a": 10,
+    "portrait": 5,
+    "format": "The colonists in %s are getting very unhappy with you.  Do not ignore them or they will get agitated..."
+   },
+   {
+    "index": 88,
+    "priority": 40,
+    "zero": 0,
+    "id": 89,
+    "category": 8,
+    "unk_0a": 10,
+    "portrait": 5,
+    "format": "Riots may soon erupt in %s.  The colonists are massing in large groups and chanting derogatory remarks against you.  Do something quickly!"
+   },
+   {
+    "index": 89,
+    "priority": 40,
+    "zero": 0,
+    "id": 90,
+    "category": 2,
+    "unk_0a": 17,
+    "portrait": 3,
+    "format": "Raise more money and raise it soon.  The %s in %s has deserted our military because of the low pay!"
+   },
+   {
+    "index": 90,
+    "priority": 10,
+    "zero": 0,
+    "id": 91,
+    "category": 7,
+    "unk_0a": 8,
+    "portrait": 8,
+    "format": "Please give us your new orders.  What will the next part of your strategy be?"
+   },
+   {
+    "index": 91,
+    "priority": 40,
+    "zero": 0,
+    "id": 92,
+    "category": 2,
+    "unk_0a": 18,
+    "portrait": 5,
+    "format": "A major scandal is being whispered among the colonists in %s. They claim you were seen speaking to some Skirineen brigands. That is not true... is it?"
+   },
+   {
+    "index": 92,
+    "priority": 40,
+    "zero": 0,
+    "id": 93,
+    "category": 2,
+    "unk_0a": 1,
+    "portrait": 3,
+    "format": "%s has been hit by a killer plague.  %d colonists are dead.\nA cure may be found in %d turns, but creating a Hospital will immediately spare your remaining colonists."
+   },
+   {
+    "index": 93,
+    "priority": 39,
+    "zero": 0,
+    "id": 94,
+    "category": 2,
+    "unk_0a": 8,
+    "portrait": 2,
+    "format": "The plague in %s has finally been cured.  The field medics are all enjoying warm glasses of oooooomi."
+   },
+   {
+    "index": 94,
+    "priority": 39,
+    "zero": 0,
+    "id": 95,
+    "category": 2,
+    "unk_0a": 1,
+    "portrait": 5,
+    "format": "Migrating colonists from %s have spread the plague.  Many in %s are also dead!"
+   },
+   {
+    "index": 95,
+    "priority": 39,
+    "zero": 0,
+    "id": 96,
+    "category": 2,
+    "unk_0a": 1,
+    "portrait": 5,
+    "format": "The plague has spread from %s to %s. The death toll is rising!"
+   },
+   {
+    "index": 96,
+    "priority": 40,
+    "zero": 0,
+    "id": 97,
+    "category": 2,
+    "unk_0a": 14,
+    "portrait": 3,
+    "format": "The crops in %s are infected with an unknown disease.  We have been forced to burn %d metric tons of food."
+   },
+   {
+    "index": 97,
+    "priority": 40,
+    "zero": 0,
+    "id": 98,
+    "category": 2,
+    "unk_0a": 20,
+    "portrait": 3,
+    "format": "An earthquake has struck %s.  Our settlement there has suffered %s damage."
+   },
+   {
+    "index": 98,
+    "priority": 40,
+    "zero": 0,
+    "id": 99,
+    "category": 2,
+    "unk_0a": 20,
+    "portrait": 3,
+    "format": "The %s settlement is covered in flood waters.  There is %s damage."
+   },
+   {
+    "index": 99,
+    "priority": 40,
+    "zero": 0,
+    "id": 100,
+    "category": 2,
+    "unk_0a": 20,
+    "portrait": 6,
+    "format": "Ion storms are raging in the upper atmosphere.  Orbital Surveillance Satellites cannot see the planet's surface this turn."
+   },
+   {
+    "index": 100,
+    "priority": 40,
+    "zero": 0,
+    "id": 101,
+    "category": 2,
+    "unk_0a": 20,
+    "portrait": 3,
+    "format": "A massive storm is creating tidal waves in several oceans.  All ships will have to stay docked this turn."
+   },
+   {
+    "index": 101,
+    "priority": 40,
+    "zero": 0,
+    "id": 102,
+    "category": 2,
+    "unk_0a": 20,
+    "portrait": 3,
+    "format": "Solar flares from this planet's sun are messing up airplane navigation systems.  No aircraft may fly this turn."
+   },
+   {
+    "index": 102,
+    "priority": 40,
+    "zero": 0,
+    "id": 103,
+    "category": 2,
+    "unk_0a": 15,
+    "portrait": 3,
+    "format": "Our earlier scans were apparently faulty.  The %s bonus in %s is not as large as our first survey claimed.  There is not actually a resource bonus in this square."
+   },
+   {
+    "index": 103,
+    "priority": 40,
+    "zero": 0,
+    "id": 104,
+    "category": 2,
+    "unk_0a": 20,
+    "portrait": 1,
+    "format": "There is a hurricane brewing near %s.  The colonists have all been alerted, as it may move inland."
+   },
+   {
+    "index": 104,
+    "priority": 40,
+    "zero": 0,
+    "id": 105,
+    "category": 2,
+    "unk_0a": 20,
+    "portrait": 3,
+    "format": "A hurricane has struck the coast in %s and has caused %s damage.  %d colonists are dead."
+   },
+   {
+    "index": 105,
+    "priority": 40,
+    "zero": 0,
+    "id": 106,
+    "category": 2,
+    "unk_0a": 19,
+    "portrait": 1,
+    "format": "One of our sailors has spotted a horrific sea beast near %s.  Any ships traveling through this area may be in extreme danger."
+   },
+   {
+    "index": 106,
+    "priority": 40,
+    "zero": 0,
+    "id": 107,
+    "category": 2,
+    "unk_0a": 19,
+    "portrait": 3,
+    "format": "A massive sea beast smashed a big hole in the hull of %s.  The ship is severely damaged.  This attack happened in %s."
+   },
+   {
+    "index": 107,
+    "priority": 50,
+    "zero": 0,
+    "id": 108,
+    "category": 2,
+    "unk_0a": 7,
+    "portrait": 2,
+    "format": "The colonists in %s like the progress you are making with the colony.  They have donated %d extra credits for your treasury!  Spend it well."
+   },
+   {
+    "index": 108,
+    "priority": 50,
+    "zero": 0,
+    "id": 109,
+    "category": 2,
+    "unk_0a": 15,
+    "portrait": 2,
+    "format": "A recent scan has discovered a new %s in %s.  Place the right building there and this bonus should really boost this resource's production."
+   },
+   {
+    "index": 109,
+    "priority": 50,
+    "zero": 0,
+    "id": 110,
+    "category": 2,
+    "unk_0a": 7,
+    "portrait": 2,
+    "format": "The natives admire our colony so much that %d of them have joined our colony in %s!  They are so amazing, because they seem to just fit right in with our other colonists."
+   },
+   {
+    "index": 110,
+    "priority": 50,
+    "zero": 0,
+    "id": 111,
+    "category": 2,
+    "unk_0a": 7,
+    "portrait": 2,
+    "format": "For some unknown reason, our population has exploded!  Is it romance, something in the oooooomi, or just strange luck?"
+   },
+   {
+    "index": 111,
+    "priority": 50,
+    "zero": 0,
+    "id": 112,
+    "category": 2,
+    "unk_0a": 11,
+    "portrait": 2,
+    "format": "Our infantry have become fervently loyal to you.  They will fight with intense patriotism!  Now would be a good time to attack our enemies..."
+   },
+   {
+    "index": 112,
+    "priority": 50,
+    "zero": 0,
+    "id": 113,
+    "category": 2,
+    "unk_0a": 15,
+    "portrait": 2,
+    "format": "The recent gentle rainstorms have increased our food and wood harvest."
+   },
+   {
+    "index": 113,
+    "priority": 50,
+    "zero": 0,
+    "id": 114,
+    "category": 2,
+    "unk_0a": 1,
+    "portrait": 1,
+    "format": "We have substantiated reports that the %s and %s have met at an undisclosed location.  They have ended their conflict with each other and signed a new %s pact."
+   },
+   {
+    "index": 114,
+    "priority": 50,
+    "zero": 0,
+    "id": 115,
+    "category": 2,
+    "unk_0a": 7,
+    "portrait": 4,
+    "format": "Our enemies are crumbling on their own!  The %s have broken their %s with the %s!"
+   },
+   {
+    "index": 115,
+    "priority": 50,
+    "zero": 0,
+    "id": 116,
+    "category": 2,
+    "unk_0a": 6,
+    "portrait": 2,
+    "format": "The %s have attacked the %s in %s."
+   },
+   {
+    "index": 116,
+    "priority": 40,
+    "zero": 0,
+    "id": 117,
+    "category": 2,
+    "unk_0a": 20,
+    "portrait": 3,
+    "format": "The %s settlement was flooded out because of tidal waves caused by a %s Sea Platform.  There is %s damage."
+   },
+   {
+    "index": 117,
+    "priority": 40,
+    "zero": 0,
+    "id": 118,
+    "category": 2,
+    "unk_0a": 7,
+    "portrait": 2,
+    "format": "Our Sea Platform has caused floods in the %s colony. Their %s settlement has suffered %s"
+   },
+   {
+    "index": 118,
+    "priority": 40,
+    "zero": 0,
+    "id": 119,
+    "category": 2,
+    "unk_0a": 7,
+    "portrait": 2,
+    "format": "We have caused incredibly rough weather to arise in %s. Our environmental changes apparently %s a %s that belonged to the %s!"
+   },
+   {
+    "index": 119,
+    "priority": 40,
+    "zero": 0,
+    "id": 120,
+    "category": 2,
+    "unk_0a": 20,
+    "portrait": 3,
+    "format": "We have jeopardized a major pact. Our environmental manipulation in %s unfortunately %s a %s -- a unit in the %s military! Perhaps if we explained that it was an accident?"
+   },
+   {
+    "index": 120,
+    "priority": 40,
+    "zero": 0,
+    "id": 121,
+    "category": 2,
+    "unk_0a": 20,
+    "portrait": 3,
+    "format": "Now we have hurt ourselves. Our environmental manipulation in %s has %s our %s! What should we tell the colonists?"
+   },
+   {
+    "index": 121,
+    "priority": 40,
+    "zero": 0,
+    "id": 122,
+    "category": 2,
+    "unk_0a": 20,
+    "portrait": 3,
+    "format": "Disaster, colony leader!  Our %s was apparently %s in %s. The %s have buildings on a nearby Sea Platform that agitate the weather."
+   },
+   {
+    "index": 122,
+    "priority": 90,
+    "zero": 0,
+    "id": 123,
+    "category": -1,
+    "unk_0a": 6,
+    "portrait": 25,
+    "format": "The %s colony has lost all its primary defenses; many of its buildings are in flames. All remaining colonists have escaped in their emergency spacecraft."
+   },
+   {
+    "index": 123,
+    "priority": 90,
+    "zero": 0,
+    "id": 124,
+    "category": -1,
+    "unk_0a": 5,
+    "portrait": 24,
+    "format": "The %s colony has given up all claims to the planet.  Their colonists have left, and have apparently left for good."
+   },
+   {
+    "index": 124,
+    "priority": 80,
+    "zero": 1,
+    "id": 125,
+    "category": -1,
+    "unk_0a": 18,
+    "portrait": 26,
+    "format": "We lost the battle and enemy forces are ransacking our colony!  Rescue the wounded and save what you can!  WE MUST LEAVE THE PLANET RIGHT NOW!"
+   },
+   {
+    "index": 125,
+    "priority": 80,
+    "zero": 1,
+    "id": 126,
+    "category": -1,
+    "unk_0a": 5,
+    "portrait": 27,
+    "format": "The %s colony owns %d City Centers and has held them for one turn. Under the terms of the Compact of Gallius IV, we have lost all claims to this planet."
+   },
+   {
+    "index": 126,
+    "priority": 80,
+    "zero": 1,
+    "id": 127,
+    "category": -1,
+    "unk_0a": 7,
+    "portrait": 2,
+    "format": "THIS PLANET IS OURS!  MORE KNOWLEDGE OF THE ANCIENT ONES WILL BE REVEALED!"
+   },
+   {
+    "index": 127,
+    "priority": 80,
+    "zero": 0,
+    "id": 128,
+    "category": -1,
+    "unk_0a": 21,
+    "portrait": 2,
+    "format": "The %s colonies have all built the agreed upon number of City Centers and have held them for one turn.  The victory conditions have been increased to %d City Centers!  The conflict continues, colony leader."
+   },
+   {
+    "index": 128,
+    "priority": 80,
+    "zero": 1,
+    "id": 129,
+    "category": -1,
+    "unk_0a": 7,
+    "portrait": 2,
+    "format": "WE CONTROL THIS WORLD!  Only our alliance remains, so we and the %s now share this planet!"
+   },
+   {
+    "index": 129,
+    "priority": 80,
+    "zero": 1,
+    "id": 130,
+    "category": -1,
+    "unk_0a": 5,
+    "portrait": 3,
+    "format": "Sorry, Colony Leader, but your mission here is over. Too many shrines have been destroyed for us to complete our research. There is no reason for us and our opponents to remain on this planet. This has been an unfortunate violation of the Xythra Accord. Doubtless there will be an inquest into our actions..."
+   },
+   {
+    "index": 130,
+    "priority": 80,
+    "zero": 1,
+    "id": 131,
+    "category": -1,
+    "unk_0a": 5,
+    "portrait": 27,
+    "format": "Colony leader, the %s captured enough shrines to complete their research. They have already taken these discoveries off the planet, and so we must leave as well. Perhaps we can discover what they found out on the next planet..."
+   },
+   {
+    "index": 131,
+    "priority": 80,
+    "zero": 1,
+    "id": 132,
+    "category": -1,
+    "unk_0a": 7,
+    "portrait": 2,
+    "format": "CONGRATULATIONS!  Our shrine research here is complete, colony leader!  We have learned much about the Ancients.  Let's move on to the next planet and see what we can discover there."
+   },
+   {
+    "index": 132,
+    "priority": 100,
+    "zero": 0,
+    "id": 133,
+    "category": 2,
+    "unk_0a": 21,
+    "portrait": 3,
+    "format": "The %s colony have captured enough shrines to finish their research and win the planet!  You probably want to capture some of their shrines..."
+   },
+   {
+    "index": 133,
+    "priority": 69,
+    "zero": 0,
+    "id": 134,
+    "category": 2,
+    "unk_0a": 21,
+    "portrait": 2,
+    "format": "We now have enough shrines to finish our research. Hold onto them long enough, colony leader, and all the knowledge in these shrines will be ours and ours only!"
+   },
+   {
+    "index": 134,
+    "priority": 91,
+    "zero": 1,
+    "id": 135,
+    "category": -1,
+    "unk_0a": 21,
+    "portrait": 27,
+    "format": "Time Expired.  Thank you for playing the Deadlock 2 Demo."
+   },
+   {
+    "index": 135,
+    "priority": 81,
+    "zero": 1,
+    "id": 136,
+    "category": -1,
+    "unk_0a": 5,
+    "portrait": 27,
+    "format": "It's no good, Commander. Recall our troops. The Tarth blew away the shrines. Operation Tayva is a failure."
+   },
+   {
+    "index": 136,
+    "priority": 81,
+    "zero": 1,
+    "id": 137,
+    "category": -1,
+    "unk_0a": 5,
+    "portrait": 27,
+    "format": "I hate to interrupt your fumbling, but you've failed to provide the needed resources. Single-handedly, you've brought our grandest endeavor to a abrupt halt  a feat that will not be soon forgotten."
+   },
+   {
+    "index": 137,
+    "priority": 81,
+    "zero": 1,
+    "id": 138,
+    "category": -1,
+    "unk_0a": 5,
+    "portrait": 27,
+    "format": "Nooooo!! Big star explode, soon. Us get out of here, now! You mucked up this fight real good."
+   },
+   {
+    "index": 138,
+    "priority": 81,
+    "zero": 1,
+    "id": 139,
+    "category": -1,
+    "unk_0a": 5,
+    "portrait": 27,
+    "format": "It's over, Hive Imperius. The Maug colony has been crushed. We have failed our allies and the Queen."
+   },
+   {
+    "index": 139,
+    "priority": 81,
+    "zero": 1,
+    "id": 140,
+    "category": -1,
+    "unk_0a": 5,
+    "portrait": 27,
+    "format": "Commander, we didn't collect the necessary %d %s. It looks like we won't be attending that big picnic on the Ancients' Homeworld. We've both had better days."
+   },
+   {
+    "index": 140,
+    "priority": 81,
+    "zero": 1,
+    "id": 141,
+    "category": -1,
+    "unk_0a": 5,
+    "portrait": 27,
+    "format": "All you needed to do was collect a cache of metals. Was that so much to ask? The Lu'ites will be wailing sorrowful songs, tonight."
+   },
+   {
+    "index": 141,
+    "priority": 81,
+    "zero": 1,
+    "id": 142,
+    "category": -1,
+    "unk_0a": 5,
+    "portrait": 27,
+    "format": "We failed to establish a military pact with the %s!"
+   },
+   {
+    "index": 142,
+    "priority": 100,
+    "zero": 0,
+    "id": 143,
+    "category": -1,
+    "unk_0a": 5,
+    "portrait": 3,
+    "format": "Us got new thing to do. Destroy everything! Us okay with that."
+   },
+   {
+    "index": 143,
+    "priority": 69,
+    "zero": 0,
+    "id": 145,
+    "category": 2,
+    "unk_0a": 21,
+    "portrait": 2,
+    "format": "You've held enough shrines to win for %s. Victory is only %s away!"
+   },
+   {
+    "index": 144,
+    "priority": 69,
+    "zero": 0,
+    "id": 146,
+    "category": 2,
+    "unk_0a": 21,
+    "portrait": 3,
+    "format": "The %s are holding enough shrines to win.  Unless they are stopped, victory will be theirs in %s."
+   },
+   {
+    "index": 145,
+    "priority": 70,
+    "zero": 0,
+    "id": 147,
+    "category": 2,
+    "unk_0a": 1,
+    "portrait": 6,
+    "format": "The %s have just landed a force in %s and entered the battle!"
+   },
+   {
+    "index": 146,
+    "priority": 109,
+    "zero": 0,
+    "id": 148,
+    "category": 0,
+    "unk_0a": 6,
+    "portrait": 21,
+    "format": "Your undefended territory was taken over by the %s."
+   },
+   {
+    "index": 147,
+    "priority": 30,
+    "zero": 0,
+    "id": 149,
+    "category": 10,
+    "unk_0a": 10,
+    "portrait": 4,
+    "format": "Success! The mine field in %s has been eliminated by %s."
+   },
+   {
+    "index": 148,
+    "priority": 30,
+    "zero": 0,
+    "id": 150,
+    "category": 10,
+    "unk_0a": 10,
+    "portrait": 5,
+    "format": "%s in %s has been destroyed while trying to diffuse that region's mine field."
+   },
+   {
+    "index": 149,
+    "priority": 30,
+    "zero": 0,
+    "id": 151,
+    "category": 10,
+    "unk_0a": 10,
+    "portrait": 3,
+    "format": "Our mines in %s have been disarmed by the %s"
+   },
+   {
+    "index": 150,
+    "priority": 100,
+    "zero": 0,
+    "id": 152,
+    "category": 2,
+    "unk_0a": 1,
+    "portrait": 3,
+    "format": "Our forces attacking %s encountered %s forces on their way to %s and were forces to retreat!"
+   },
+   {
+    "index": 151,
+    "priority": 50,
+    "zero": 0,
+    "id": 153,
+    "category": 6,
+    "unk_0a": 14,
+    "portrait": -1,
+    "format": "We have paid %d credits in maintenance costs for %d troopers."
+   },
+   {
+    "index": 152,
+    "priority": 50,
+    "zero": 0,
+    "id": 154,
+    "category": 6,
+    "unk_0a": 14,
+    "portrait": -1,
+    "format": "We have paid %d credits in maintenance costs for %d tanks."
+   },
+   {
+    "index": 153,
+    "priority": 50,
+    "zero": 0,
+    "id": 155,
+    "category": 6,
+    "unk_0a": 14,
+    "portrait": -1,
+    "format": "We have paid %d credits in maintenance costs for %d planes."
+   },
+   {
+    "index": 154,
+    "priority": 50,
+    "zero": 0,
+    "id": 156,
+    "category": 6,
+    "unk_0a": 14,
+    "portrait": -1,
+    "format": "We have paid %d credits in maintenance costs for %d ships."
+   },
+   {
+    "index": 155,
+    "priority": 0,
+    "zero": 0,
+    "id": 144,
+    "category": 2,
+    "unk_0a": 1,
+    "portrait": -1,
+    "format": "%s"
+   }
+  ],
+  "campaigns": [
+   {
+    "index": 0,
+    "victory": 1,
+    "param1": 0,
+    "param2": 0,
+    "goals": [
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     }
+    ]
+   },
+   {
+    "index": 1,
+    "victory": 1,
+    "param1": 0,
+    "param2": 0,
+    "goals": [
+     {
+      "type": 1,
+      "turns": 1,
+      "count": 2,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     }
+    ]
+   },
+   {
+    "index": 2,
+    "victory": 1,
+    "param1": 0,
+    "param2": 0,
+    "goals": [
+     {
+      "type": 2,
+      "turns": 15,
+      "count": 1,
+      "list": [
+       20,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     }
+    ]
+   },
+   {
+    "index": 3,
+    "victory": 1,
+    "param1": 0,
+    "param2": 0,
+    "goals": [
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     }
+    ]
+   },
+   {
+    "index": 4,
+    "victory": 2,
+    "param1": 1,
+    "param2": 30,
+    "goals": [
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     }
+    ]
+   },
+   {
+    "index": 5,
+    "victory": 1,
+    "param1": 0,
+    "param2": 0,
+    "goals": [
+     {
+      "type": 3,
+      "turns": 1,
+      "count": 3,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     }
+    ]
+   },
+   {
+    "index": 6,
+    "victory": 1,
+    "param1": 0,
+    "param2": 0,
+    "goals": [
+     {
+      "type": 4,
+      "turns": 7,
+      "count": 0,
+      "list": [
+       1,
+       2,
+       3,
+       4,
+       5,
+       6,
+       47,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     }
+    ]
+   },
+   {
+    "index": 7,
+    "victory": 1,
+    "param1": 0,
+    "param2": 0,
+    "goals": [
+     {
+      "type": 2,
+      "turns": 1,
+      "count": 1,
+      "list": [
+       5,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 1,
+      "turns": 1,
+      "count": 5,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     }
+    ]
+   },
+   {
+    "index": 8,
+    "victory": 1,
+    "param1": 0,
+    "param2": 0,
+    "goals": [
+     {
+      "type": 6,
+      "turns": 1,
+      "count": 0,
+      "list": [
+       20,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     }
+    ]
+   },
+   {
+    "index": 9,
+    "victory": 1,
+    "param1": 0,
+    "param2": 0,
+    "goals": [
+     {
+      "type": 7,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     }
+    ]
+   },
+   {
+    "index": 10,
+    "victory": 1,
+    "param1": 0,
+    "param2": 0,
+    "goals": [
+     {
+      "type": 1,
+      "turns": 2,
+      "count": 5,
+      "list": [
+       3,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     }
+    ]
+   },
+   {
+    "index": 11,
+    "victory": 2,
+    "param1": 2,
+    "param2": 5,
+    "goals": [
+     {
+      "type": 5,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     }
+    ]
+   },
+   {
+    "index": 12,
+    "victory": 2,
+    "param1": 3,
+    "param2": 8,
+    "goals": [
+     {
+      "type": 4,
+      "turns": 7,
+      "count": 0,
+      "list": [
+       1,
+       2,
+       3,
+       4,
+       5,
+       6,
+       47,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     }
+    ]
+   },
+   {
+    "index": 13,
+    "victory": 1,
+    "param1": 0,
+    "param2": 0,
+    "goals": [
+     {
+      "type": 8,
+      "turns": 1,
+      "count": 4,
+      "list": [
+       5000,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     }
+    ]
+   },
+   {
+    "index": 14,
+    "victory": 2,
+    "param1": 3,
+    "param2": 0,
+    "goals": [
+     {
+      "type": 9,
+      "turns": 55,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 5,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 6,
+      "turns": 1,
+      "count": 1,
+      "list": [
+       25,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     }
+    ]
+   },
+   {
+    "index": 15,
+    "victory": 0,
+    "param1": 5,
+    "param2": 0,
+    "goals": [
+     {
+      "type": 4,
+      "turns": 1,
+      "count": 2,
+      "list": [
+       2,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 8,
+      "turns": 1,
+      "count": 0,
+      "list": [
+       10000,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     }
+    ]
+   },
+   {
+    "index": 16,
+    "victory": 1,
+    "param1": 0,
+    "param2": 0,
+    "goals": [
+     {
+      "type": 2,
+      "turns": 5,
+      "count": 3,
+      "list": [
+       18,
+       17,
+       37,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     }
+    ]
+   },
+   {
+    "index": 17,
+    "victory": 1,
+    "param1": 0,
+    "param2": 0,
+    "goals": [
+     {
+      "type": 1,
+      "turns": 1,
+      "count": 5,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 6,
+      "turns": 1,
+      "count": 2,
+      "list": [
+       35,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     }
+    ]
+   },
+   {
+    "index": 18,
+    "victory": 2,
+    "param1": 3,
+    "param2": 5,
+    "goals": [
+     {
+      "type": 4,
+      "turns": 7,
+      "count": 0,
+      "list": [
+       1,
+       2,
+       3,
+       4,
+       5,
+       6,
+       47,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     }
+    ]
+   },
+   {
+    "index": 19,
+    "victory": 2,
+    "param1": 1,
+    "param2": 12,
+    "goals": [
+     {
+      "type": 5,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 10,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     }
+    ]
+   },
+   {
+    "index": 20,
+    "victory": 2,
+    "param1": 5,
+    "param2": 8,
+    "goals": [
+     {
+      "type": 6,
+      "turns": 1,
+      "count": 3,
+      "list": [
+       15,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     }
+    ]
+   },
+   {
+    "index": 21,
+    "victory": 0,
+    "param1": 5,
+    "param2": 0,
+    "goals": [
+     {
+      "type": 1,
+      "turns": 1,
+      "count": 4,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 7,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     }
+    ]
+   },
+   {
+    "index": 22,
+    "victory": 1,
+    "param1": 0,
+    "param2": 0,
+    "goals": [
+     {
+      "type": 6,
+      "turns": 2,
+      "count": 4,
+      "list": [
+       20,
+       5,
+       21,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     }
+    ]
+   },
+   {
+    "index": 23,
+    "victory": 2,
+    "param1": 1,
+    "param2": 15,
+    "goals": [
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     }
+    ]
+   },
+   {
+    "index": 24,
+    "victory": 2,
+    "param1": 3,
+    "param2": 5,
+    "goals": [
+     {
+      "type": 11,
+      "turns": 1,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 4,
+      "turns": 7,
+      "count": 0,
+      "list": [
+       1,
+       2,
+       3,
+       4,
+       5,
+       6,
+       47,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     }
+    ]
+   },
+   {
+    "index": 25,
+    "victory": 0,
+    "param1": 5,
+    "param2": 0,
+    "goals": [
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     }
+    ]
+   },
+   {
+    "index": 26,
+    "victory": 0,
+    "param1": 5,
+    "param2": 0,
+    "goals": [
+     {
+      "type": 1,
+      "turns": 1,
+      "count": 3,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 7,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     }
+    ]
+   },
+   {
+    "index": 27,
+    "victory": 1,
+    "param1": 0,
+    "param2": 0,
+    "goals": [
+     {
+      "type": 9,
+      "turns": 60,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 8,
+      "turns": 3,
+      "count": 5,
+      "list": [
+       900,
+       6,
+       500,
+       7,
+       175,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     }
+    ]
+   },
+   {
+    "index": 28,
+    "victory": 2,
+    "param1": 3,
+    "param2": 15,
+    "goals": [
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     }
+    ]
+   },
+   {
+    "index": 29,
+    "victory": 1,
+    "param1": 0,
+    "param2": 0,
+    "goals": [
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     }
+    ]
+   },
+   {
+    "index": 30,
+    "victory": 2,
+    "param1": 3,
+    "param2": 5,
+    "goals": [
+     {
+      "type": 4,
+      "turns": 7,
+      "count": 0,
+      "list": [
+       1,
+       2,
+       3,
+       4,
+       5,
+       6,
+       47,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     }
+    ]
+   },
+   {
+    "index": 31,
+    "victory": 1,
+    "param1": 0,
+    "param2": 0,
+    "goals": [
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     }
+    ]
+   },
+   {
+    "index": 32,
+    "victory": 2,
+    "param1": 3,
+    "param2": 5,
+    "goals": [
+     {
+      "type": 6,
+      "turns": 1,
+      "count": 6,
+      "list": [
+       30,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     }
+    ]
+   },
+   {
+    "index": 33,
+    "victory": 2,
+    "param1": 1,
+    "param2": 10,
+    "goals": [
+     {
+      "type": 5,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     }
+    ]
+   },
+   {
+    "index": 34,
+    "victory": 1,
+    "param1": 0,
+    "param2": 0,
+    "goals": [
+     {
+      "type": 1,
+      "turns": 2,
+      "count": 2,
+      "list": [
+       3,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     }
+    ]
+   },
+   {
+    "index": 35,
+    "victory": 1,
+    "param1": 0,
+    "param2": 0,
+    "goals": [
+     {
+      "type": 9,
+      "turns": 45,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     }
+    ]
+   },
+   {
+    "index": 36,
+    "victory": 2,
+    "param1": 3,
+    "param2": 5,
+    "goals": [
+     {
+      "type": 12,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 4,
+      "turns": 7,
+      "count": 0,
+      "list": [
+       1,
+       2,
+       3,
+       4,
+       5,
+       6,
+       47,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     }
+    ]
+   },
+   {
+    "index": 37,
+    "victory": 2,
+    "param1": 5,
+    "param2": 8,
+    "goals": [
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     }
+    ]
+   },
+   {
+    "index": 38,
+    "victory": 1,
+    "param1": 0,
+    "param2": 0,
+    "goals": [
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     }
+    ]
+   },
+   {
+    "index": 39,
+    "victory": 0,
+    "param1": 5,
+    "param2": 0,
+    "goals": [
+     {
+      "type": 1,
+      "turns": 1,
+      "count": 4,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 7,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     }
+    ]
+   },
+   {
+    "index": 40,
+    "victory": 2,
+    "param1": 5,
+    "param2": 8,
+    "goals": [
+     {
+      "type": 6,
+      "turns": 3,
+      "count": 7,
+      "list": [
+       10,
+       8,
+       20,
+       9,
+       30,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     }
+    ]
+   },
+   {
+    "index": 41,
+    "victory": 1,
+    "param1": 0,
+    "param2": 0,
+    "goals": [
+     {
+      "type": 13,
+      "turns": 10,
+      "count": 10,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     }
+    ]
+   },
+   {
+    "index": 42,
+    "victory": 2,
+    "param1": 2,
+    "param2": 10,
+    "goals": [
+     {
+      "type": 2,
+      "turns": 1,
+      "count": 10,
+      "list": [
+       3,
+       43,
+       29,
+       35,
+       2,
+       33,
+       51,
+       31,
+       11,
+       40,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 4,
+      "turns": 7,
+      "count": 0,
+      "list": [
+       1,
+       2,
+       3,
+       4,
+       5,
+       6,
+       47,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     },
+     {
+      "type": 0,
+      "turns": 0,
+      "count": 0,
+      "list": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "state": 0
+     }
+    ]
+   }
+  ],
+  "ai_arrivals": [
+   {
+    "index": 0,
+    "race": 0,
+    "sites": [
+     2,
+     37,
+     33,
+     5
+    ],
+    "techLevel": 1,
+    "credits": 20000,
+    "materials": [
+     5000,
+     3000,
+     100,
+     500,
+     500,
+     0,
+     0,
+     20,
+     10,
+     10
+    ],
+    "units": [
+     [
+      25,
+      2
+     ],
+     [
+      5,
+      4
+     ],
+     [
+      27,
+      4
+     ],
+     [
+      2,
+      6
+     ],
+     [
+      3,
+      2
+     ],
+     [
+      24,
+      3
+     ],
+     [
+      26,
+      1
+     ],
+     [
+      15,
+      1
+     ],
+     [
+      0,
+      0
+     ],
+     [
+      0,
+      0
+     ]
+    ],
+    "allyRace": 6,
+    "allyPact": 2
+   },
+   {
+    "index": 1,
+    "race": 0,
+    "sites": [
+     1,
+     27,
+     31,
+     15
+    ],
+    "techLevel": 0,
+    "credits": 20000,
+    "materials": [
+     2000,
+     3000,
+     100,
+     300,
+     100,
+     0,
+     0,
+     10,
+     5,
+     10
+    ],
+    "units": [
+     [
+      27,
+      8
+     ],
+     [
+      6,
+      4
+     ],
+     [
+      15,
+      2
+     ],
+     [
+      26,
+      1
+     ],
+     [
+      24,
+      4
+     ],
+     [
+      3,
+      2
+     ],
+     [
+      1,
+      6
+     ],
+     [
+      25,
+      7
+     ],
+     [
+      0,
+      0
+     ],
+     [
+      0,
+      0
+     ]
+    ],
+    "allyRace": 2,
+    "allyPact": 2
+   },
+   {
+    "index": 2,
+    "race": 1,
+    "sites": [
+     28,
+     1,
+     12,
+     26
+    ],
+    "techLevel": 2,
+    "credits": 20000,
+    "materials": [
+     1000,
+     1500,
+     150,
+     200,
+     50,
+     10,
+     0,
+     10,
+     10,
+     0
+    ],
+    "units": [
+     [
+      25,
+      8
+     ],
+     [
+      8,
+      1
+     ],
+     [
+      6,
+      4
+     ],
+     [
+      26,
+      2
+     ],
+     [
+      15,
+      4
+     ],
+     [
+      3,
+      4
+     ],
+     [
+      24,
+      5
+     ],
+     [
+      0,
+      0
+     ],
+     [
+      0,
+      0
+     ],
+     [
+      0,
+      0
+     ]
+    ],
+    "allyRace": 0,
+    "allyPact": 0
+   },
+   {
+    "index": 3,
+    "race": 6,
+    "sites": [
+     32,
+     49,
+     58,
+     17
+    ],
+    "techLevel": 1,
+    "credits": 20000,
+    "materials": [
+     500,
+     1500,
+     100,
+     200,
+     50,
+     0,
+     0,
+     10,
+     10,
+     5
+    ],
+    "units": [
+     [
+      25,
+      5
+     ],
+     [
+      27,
+      10
+     ],
+     [
+      15,
+      2
+     ],
+     [
+      24,
+      5
+     ],
+     [
+      0,
+      0
+     ],
+     [
+      0,
+      0
+     ],
+     [
+      0,
+      0
+     ],
+     [
+      0,
+      0
+     ],
+     [
+      0,
+      0
+     ],
+     [
+      0,
+      0
+     ]
+    ],
+    "allyRace": 0,
+    "allyPact": 0
+   },
+   {
+    "index": 4,
+    "race": 6,
+    "sites": [
+     29,
+     43,
+     26,
+     9
+    ],
+    "techLevel": 2,
+    "credits": 20000,
+    "materials": [
+     5000,
+     1500,
+     100,
+     200,
+     50,
+     0,
+     0,
+     10,
+     0,
+     1
+    ],
+    "units": [
+     [
+      25,
+      8
+     ],
+     [
+      3,
+      5
+     ],
+     [
+      2,
+      10
+     ],
+     [
+      27,
+      8
+     ],
+     [
+      15,
+      2
+     ],
+     [
+      6,
+      4
+     ],
+     [
+      0,
+      0
+     ],
+     [
+      0,
+      0
+     ],
+     [
+      0,
+      0
+     ],
+     [
+      0,
+      0
+     ]
+    ],
+    "allyRace": 3,
+    "allyPact": 2
+   },
+   {
+    "index": 5,
+    "race": 5,
+    "sites": [
+     3,
+     22,
+     59,
+     30
+    ],
+    "techLevel": 2,
+    "credits": 20000,
+    "materials": [
+     7000,
+     3000,
+     100,
+     400,
+     100,
+     0,
+     0,
+     20,
+     5,
+     1
+    ],
+    "units": [
+     [
+      25,
+      10
+     ],
+     [
+      3,
+      10
+     ],
+     [
+      2,
+      4
+     ],
+     [
+      15,
+      4
+     ],
+     [
+      24,
+      5
+     ],
+     [
+      7,
+      10
+     ],
+     [
+      27,
+      5
+     ],
+     [
+      6,
+      8
+     ],
+     [
+      0,
+      0
+     ],
+     [
+      0,
+      0
+     ]
+    ],
+    "allyRace": 1,
+    "allyPact": 2
+   },
+   {
+    "index": 6,
+    "race": 0,
+    "sites": [
+     8,
+     25,
+     5,
+     3
+    ],
+    "techLevel": 2,
+    "credits": 20000,
+    "materials": [
+     1000,
+     1500,
+     100,
+     200,
+     100,
+     0,
+     0,
+     10,
+     5,
+     4
+    ],
+    "units": [
+     [
+      27,
+      15
+     ],
+     [
+      34,
+      1
+     ],
+     [
+      33,
+      1
+     ],
+     [
+      30,
+      2
+     ],
+     [
+      29,
+      2
+     ],
+     [
+      0,
+      0
+     ],
+     [
+      0,
+      0
+     ],
+     [
+      0,
+      0
+     ],
+     [
+      0,
+      0
+     ],
+     [
+      0,
+      0
+     ]
+    ],
+    "allyRace": 2,
+    "allyPact": 2
+   },
+   {
+    "index": 7,
+    "race": 1,
+    "sites": [
+     17,
+     46,
+     60,
+     18
+    ],
+    "techLevel": 1,
+    "credits": 20000,
+    "materials": [
+     1000,
+     1500,
+     100,
+     100,
+     100,
+     0,
+     0,
+     10,
+     5,
+     0
+    ],
+    "units": [
+     [
+      25,
+      4
+     ],
+     [
+      15,
+      2
+     ],
+     [
+      1,
+      10
+     ],
+     [
+      7,
+      1
+     ],
+     [
+      26,
+      2
+     ],
+     [
+      0,
+      0
+     ],
+     [
+      0,
+      0
+     ],
+     [
+      0,
+      0
+     ],
+     [
+      0,
+      0
+     ],
+     [
+      0,
+      0
+     ]
+    ],
+    "allyRace": 0,
+    "allyPact": 0
+   },
+   {
+    "index": 8,
+    "race": 4,
+    "sites": [
+     40,
+     34,
+     50,
+     14
+    ],
+    "techLevel": 1,
+    "credits": 20000,
+    "materials": [
+     1000,
+     1500,
+     100,
+     200,
+     100,
+     30,
+     0,
+     20,
+     5,
+     4
+    ],
+    "units": [
+     [
+      25,
+      6
+     ],
+     [
+      27,
+      4
+     ],
+     [
+      15,
+      2
+     ],
+     [
+      3,
+      2
+     ],
+     [
+      7,
+      6
+     ],
+     [
+      6,
+      4
+     ],
+     [
+      26,
+      2
+     ],
+     [
+      24,
+      4
+     ],
+     [
+      0,
+      0
+     ],
+     [
+      0,
+      0
+     ]
+    ],
+    "allyRace": 0,
+    "allyPact": 0
+   },
+   {
+    "index": 9,
+    "race": 5,
+    "sites": [
+     31,
+     5,
+     39,
+     49
+    ],
+    "techLevel": 2,
+    "credits": 20000,
+    "materials": [
+     1000,
+     1500,
+     100,
+     200,
+     100,
+     50,
+     0,
+     50,
+     30,
+     6
+    ],
+    "units": [
+     [
+      25,
+      8
+     ],
+     [
+      3,
+      10
+     ],
+     [
+      4,
+      10
+     ],
+     [
+      6,
+      4
+     ],
+     [
+      7,
+      2
+     ],
+     [
+      15,
+      2
+     ],
+     [
+      26,
+      2
+     ],
+     [
+      24,
+      4
+     ],
+     [
+      0,
+      0
+     ],
+     [
+      0,
+      0
+     ]
+    ],
+    "allyRace": 0,
+    "allyPact": 0
+   }
+  ],
+  "random_event_handlers": [
+   {
+    "addr": 4705052,
+    "name": "FUN_0047cb1c"
+   },
+   {
+    "addr": 4705140,
+    "name": "FUN_0047cb74"
+   },
+   {
+    "addr": 4706952,
+    "name": "FUN_0047d288"
+   },
+   {
+    "addr": 4707164,
+    "name": "FUN_0047d35c"
+   },
+   {
+    "addr": 4707056,
+    "name": "FUN_0047d2f0"
+   },
+   {
+    "addr": 4706072,
+    "name": "NoBonus"
+   },
+   {
+    "addr": 4706784,
+    "name": "FUN_0047d1e0"
+   },
+   {
+    "addr": 4705752,
+    "name": "FUN_0047cdd8"
+   },
+   {
+    "addr": 4705940,
+    "name": "FUN_0047ce94"
+   },
+   {
+    "addr": 4706204,
+    "name": "FUN_0047cf9c"
+   }
+  ],
+  "bonus_materials": [
+   4,
+   6,
+   2,
+   1,
+   3
+  ],
+  "spy_mission_risk": [
+   15,
+   30,
+   40,
+   50
+  ],
+  "scandal_table": [
+   {
+    "moraleLoss": 0,
+    "globalMoraleLoss": 0,
+    "riotChance": 0
+   },
+   {
+    "moraleLoss": 10,
+    "globalMoraleLoss": 2,
+    "riotChance": 0
+   },
+   {
+    "moraleLoss": 15,
+    "globalMoraleLoss": 2,
+    "riotChance": 0
+   },
+   {
+    "moraleLoss": 20,
+    "globalMoraleLoss": 4,
+    "riotChance": 5
+   },
+   {
+    "moraleLoss": 25,
+    "globalMoraleLoss": 4,
+    "riotChance": 10
+   },
+   {
+    "moraleLoss": 30,
+    "globalMoraleLoss": 7,
+    "riotChance": 10
+   },
+   {
+    "moraleLoss": 40,
+    "globalMoraleLoss": 8,
+    "riotChance": 15
+   },
+   {
+    "moraleLoss": 40,
+    "globalMoraleLoss": 10,
+    "riotChance": 15
+   },
+   {
+    "moraleLoss": 50,
+    "globalMoraleLoss": 10,
+    "riotChance": 20
+   },
+   {
+    "moraleLoss": 60,
+    "globalMoraleLoss": 16,
+    "riotChance": 30
+   },
+   {
+    "moraleLoss": 70,
+    "globalMoraleLoss": 20,
+    "riotChance": 40
+   },
+   {
+    "moraleLoss": 80,
+    "globalMoraleLoss": 25,
+    "riotChance": 50
+   }
+  ],
+  "path_delta1": [
+   0,
+   1,
+   0,
+   -1
+  ],
+  "path_delta2": [
+   -1,
+   0,
+   1,
+   0
+  ],
+  "tile_move_cost": [
+   2,
+   4,
+   5,
+   8,
+   10,
+   35,
+   2
+  ],
+  "tax_rates": [
+   10,
+   5,
+   0,
+   -5,
+   -10,
+   -15
+  ],
+  "terrain_max_pop": [
+   1000,
+   2000,
+   1500,
+   1000,
+   1000,
+   500
+  ],
+  "pop_growth": [
+   40,
+   75,
+   100,
+   125,
+   150
+  ],
+  "morale_by_level": [
+   0,
+   -1,
+   -1,
+   -3,
+   -5,
+   -10,
+   -15,
+   -20
+  ],
+  "map_sizes": [
+   20,
+   25,
+   35,
+   40
+  ],
+  "terrain_pct": [
+   [
+    25,
+    27,
+    13,
+    13,
+    17,
+    5
+   ],
+   [
+    36,
+    21,
+    11,
+    11,
+    14,
+    7
+   ],
+   [
+    42,
+    18,
+    11,
+    9,
+    12,
+    8
+   ],
+   [
+    42,
+    16,
+    13,
+    9,
+    11,
+    9
+   ],
+   [
+    60,
+    13,
+    10,
+    6,
+    9,
+    2
+   ]
+  ],
+  "win_cities": [
+   2,
+   3,
+   5,
+   7,
+   10
+  ],
+  "win_shrines": [
+   2,
+   3,
+   5
+  ],
+  "win_turns": [
+   3,
+   5,
+   8
+  ],
+  "black_market": [
+   {
+    "index": 0,
+    "unitType": 24,
+    "experience": 250,
+    "price": 450,
+    "minTurn": 4
+   },
+   {
+    "index": 1,
+    "unitType": 1,
+    "experience": 100,
+    "price": 75,
+    "minTurn": 15
+   },
+   {
+    "index": 2,
+    "unitType": 2,
+    "experience": 400,
+    "price": 400,
+    "minTurn": 30
+   },
+   {
+    "index": 3,
+    "unitType": 3,
+    "experience": 0,
+    "price": 750,
+    "minTurn": 50
+   },
+   {
+    "index": 4,
+    "unitType": 4,
+    "experience": 375,
+    "price": 1500,
+    "minTurn": 12
+   },
+   {
+    "index": 5,
+    "unitType": 26,
+    "experience": 0,
+    "price": 225,
+    "minTurn": 9
+   },
+   {
+    "index": 6,
+    "unitType": 5,
+    "experience": 200,
+    "price": 350,
+    "minTurn": 23
+   },
+   {
+    "index": 7,
+    "unitType": 6,
+    "experience": 350,
+    "price": 650,
+    "minTurn": 40
+   },
+   {
+    "index": 8,
+    "unitType": 7,
+    "experience": 125,
+    "price": 1000,
+    "minTurn": 85
+   },
+   {
+    "index": 9,
+    "unitType": 8,
+    "experience": 0,
+    "price": 1500,
+    "minTurn": 20
+   },
+   {
+    "index": 10,
+    "unitType": 27,
+    "experience": 50,
+    "price": 450,
+    "minTurn": 12
+   },
+   {
+    "index": 11,
+    "unitType": 12,
+    "experience": 0,
+    "price": 175,
+    "minTurn": 24
+   },
+   {
+    "index": 12,
+    "unitType": 30,
+    "experience": 250,
+    "price": 1000,
+    "minTurn": 30
+   },
+   {
+    "index": 13,
+    "unitType": 13,
+    "experience": 0,
+    "price": 1000,
+    "minTurn": 60
+   },
+   {
+    "index": 14,
+    "unitType": 14,
+    "experience": 0,
+    "price": 1200,
+    "minTurn": 75
+   },
+   {
+    "index": 15,
+    "unitType": 35,
+    "experience": 0,
+    "price": 2250,
+    "minTurn": 100
+   },
+   {
+    "index": 16,
+    "unitType": 31,
+    "experience": 0,
+    "price": 3000,
+    "minTurn": 125
+   },
+   {
+    "index": 17,
+    "unitType": 4,
+    "experience": 400,
+    "price": 1500,
+    "minTurn": 130
+   },
+   {
+    "index": 18,
+    "unitType": 4,
+    "experience": 400,
+    "price": 1500,
+    "minTurn": 135
+   },
+   {
+    "index": 19,
+    "unitType": 4,
+    "experience": 400,
+    "price": 1500,
+    "minTurn": 140
+   },
+   {
+    "index": 20,
+    "unitType": 4,
+    "experience": 400,
+    "price": 1500,
+    "minTurn": 125
+   },
+   {
+    "index": 21,
+    "unitType": 8,
+    "experience": 400,
+    "price": 1750,
+    "minTurn": 130
+   },
+   {
+    "index": 22,
+    "unitType": 8,
+    "experience": 400,
+    "price": 1750,
+    "minTurn": 135
+   },
+   {
+    "index": 23,
+    "unitType": 8,
+    "experience": 400,
+    "price": 1750,
+    "minTurn": 140
+   },
+   {
+    "index": 24,
+    "unitType": 8,
+    "experience": 400,
+    "price": 1750,
+    "minTurn": 0
+   }
+  ],
+  "ai_type3": {
+   "name": "Machiavelli",
+   "fn": [
+    {
+     "addr": 4228996,
+     "name": "FUN_00408784"
+    },
+    {
+     "addr": 4229768,
+     "name": "FUN_00408a88"
+    },
+    {
+     "addr": 4213996,
+     "name": "FUN_00404cec"
+    },
+    {
+     "addr": 4214264,
+     "name": "FUN_00404df8"
+    },
+    {
+     "addr": 4212640,
+     "name": "FUN_004047a0"
+    }
+   ]
+  },
+  "random_event_names": [
+   "None",
+   "Plague",
+   "Earthquake",
+   "Crop Disease",
+   "Ion Storm",
+   "No Bonus",
+   "Flood",
+   "Happy Colonists",
+   "Bonus",
+   "Natives"
+  ],
+  "minister_vtable": [
+   {
+    "id": 0,
+    "fn": [
+     {
+      "addr": 4233536,
+      "name": "FUN_00409940"
+     },
+     {
+      "addr": 4233544,
+      "name": "FUN_00409948"
+     },
+     {
+      "addr": 4233552,
+      "name": "FUN_00409950"
+     },
+     {
+      "addr": 4233560,
+      "name": "FUN_00409958"
+     }
+    ]
+   },
+   {
+    "id": 1,
+    "fn": [
+     {
+      "addr": 4238132,
+      "name": "FUN_0040ab34"
+     },
+     {
+      "addr": 4238140,
+      "name": "FUN_0040ab3c"
+     },
+     {
+      "addr": 4238148,
+      "name": "FUN_0040ab44"
+     },
+     {
+      "addr": 4238156,
+      "name": "FUN_0040ab4c"
+     }
+    ]
+   },
+   {
+    "id": 2,
+    "fn": [
+     {
+      "addr": 4234568,
+      "name": "FUN_00409d48"
+     },
+     {
+      "addr": 4234576,
+      "name": "FUN_00409d50"
+     },
+     {
+      "addr": 4234584,
+      "name": "FUN_00409d58"
+     },
+     {
+      "addr": 4234592,
+      "name": "FUN_00409d60"
+     }
+    ]
+   },
+   {
+    "id": 3,
+    "fn": [
+     {
+      "addr": 4234300,
+      "name": "FUN_00409c3c"
+     },
+     {
+      "addr": 4234308,
+      "name": "FUN_00409c44"
+     },
+     {
+      "addr": 4234316,
+      "name": "FUN_00409c4c"
+     },
+     {
+      "addr": 4234324,
+      "name": "FUN_00409c54"
+     }
+    ]
+   },
+   {
+    "id": 4,
+    "fn": [
+     {
+      "addr": 4236548,
+      "name": "FUN_0040a504"
+     },
+     {
+      "addr": 4236556,
+      "name": "FUN_0040a50c"
+     },
+     {
+      "addr": 4236564,
+      "name": "FUN_0040a514"
+     },
+     {
+      "addr": 4236572,
+      "name": "FUN_0040a51c"
+     }
+    ]
+   },
+   {
+    "id": 5,
+    "fn": [
+     {
+      "addr": 4235564,
+      "name": "FUN_0040a12c"
+     },
+     {
+      "addr": 4235572,
+      "name": "FUN_0040a134"
+     },
+     {
+      "addr": 4235580,
+      "name": "FUN_0040a13c"
+     },
+     {
+      "addr": 4235588,
+      "name": "FUN_0040a144"
+     }
+    ]
+   }
+  ],
+  "minister_order": [
+   0,
+   5,
+   1,
+   4,
+   3,
+   2
+  ],
+  "minister_config": [
+   {
+    "kind": 0,
+    "param": 20
+   },
+   {
+    "kind": 1,
+    "param": 10
+   },
+   {
+    "kind": 2,
+    "param": 0
+   },
+   {
+    "kind": 3,
+    "param": 30
+   },
+   {
+    "kind": 4,
+    "param": 40
+   },
+   {
+    "kind": 5,
+    "param": 50
+   }
+  ],
+  "race_names": [
+   "ChCh't",
+   "Cyth",
+   "Human",
+   "Maug",
+   "Re'lu",
+   "Tarth",
+   "Uva Mosk"
+  ],
+  "terrain_names": [
+   "Sea",
+   "Plains",
+   "Forest",
+   "Swamp",
+   "Mountains",
+   "Wasteland"
+  ],
+  "material_names": [
+   "Money",
+   "Food",
+   "Energy",
+   "Wood",
+   "Iron",
+   "Steel",
+   "Endurium",
+   "Triidium",
+   "Electronic Parts",
+   "Anti-Matter Pods",
+   "Art"
+  ],
+  "material_names_lower": [
+   "credits",
+   "food",
+   "energy",
+   "wood",
+   "iron",
+   "steel",
+   "endurium",
+   "triidium",
+   "electronic parts",
+   "anti-matter pods",
+   "art"
+  ],
+  "task_names": [
+   " ",
+   "Unassigned",
+   "Construction",
+   "Mine Iron",
+   "Mine Endurium",
+   "Research",
+   "Electronic Parts",
+   "Culture",
+   "Create Art",
+   "Iron -> Steel",
+   "End. -> Tri.",
+   "Build Units",
+   "Food",
+   "Wood",
+   "Trade",
+   "Energy",
+   "Anti-Matter Pods",
+   "Clone",
+   "Train Units",
+   "Heal Militia",
+   "House Populace",
+   "Upgrade",
+   "Unused!!",
+   "Build Land Units"
+  ],
+  "unit_speed_names": [
+   "Does Not Move",
+   "Ultra Fast",
+   "Very Fast",
+   "Fast",
+   "Medium",
+   "Slow",
+   "Very Slow",
+   "Ultra Slow",
+   "Does Not Shoot"
+  ],
+  "rof_names": [
+   "Does Not Shoot",
+   "200",
+   "100",
+   "50",
+   "40",
+   "33",
+   "25",
+   "17",
+   "8",
+   "5"
+  ],
+  "ai_leader_names": [
+   "Sting",
+   "Masster",
+   "Commander Jameson",
+   "Mighty Maug Chief",
+   "Mind Bender",
+   "Ubergeneral Grunt",
+   "Grand Hortus"
+  ],
+  "race_short_names": [
+   "ChCht",
+   "Cyth",
+   "Human",
+   "Maug",
+   "ReLu",
+   "Tarth",
+   "UvMsk"
+  ],
+  "tf_goal_names": [
+   "NO_TF_GOAL",
+   "RESERVE",
+   "LAND_EXPAND",
+   "LAND_ATTACK",
+   "LAND_HUNT",
+   "LAND_DEFEND",
+   "LAND_SPY",
+   "LAND_MINE",
+   "LAND_SHRINE",
+   "TRANSPORT_UNITS",
+   "SEA_EXPAND",
+   "SEA_ATTACK",
+   "SEA_HUNT",
+   "SEA_DEFEND",
+   "SEA_SPY",
+   "SEA_MINE",
+   "SEA_SHRINE",
+   "SEA_BESIEGE",
+   "AIR_ATTACK",
+   "AMPHIB_ATTACK",
+   "SPECIAL"
+  ],
+  "tf_status_names": [
+   "NEED_SPACE",
+   "NEED_FOOD",
+   "NEED_WOOD",
+   "NEED_IRON",
+   "NEED_ENERGY",
+   "NEED_ENDURIUM"
+  ],
+  "minister_job_names": [
+   "NULL_JOB",
+   "HEAD_JOB",
+   "CREATE_BLDG",
+   "BUILD_BLDG",
+   "FILL_TASKFORCE",
+   "CREATE_UNIT",
+   "BUILD_UNIT",
+   "LEARN_TECH",
+   "GET_MATERIAL",
+   "MAINTAIN_MORALE",
+   "GROW_POPULATION",
+   "HEAL_PLAGUE",
+   "STOCKPILE",
+   "MAINTAIN_UNIT"
+  ],
+  "minister_names": [
+   "DEFENSE_MIN",
+   "WAR_MIN",
+   "GOVERNMENT_MIN",
+   "ECONOMIC_MIN",
+   "TECH_MIN",
+   "LABOR_MIN"
+  ],
+  "ini_keys": [
+   "Scenario Options",
+   "World",
+   "Startup",
+   "File Type",
+   "Version",
+   "Name",
+   "Game Turn",
+   "Players",
+   "Victory Condition",
+   "Win Cities",
+   "Win Shrines",
+   "Win Turns",
+   "AI Skill Level",
+   "Random Events",
+   "Allow Alliances",
+   "Fast Production",
+   "World Resources",
+   "Last Player Timer",
+   "Last Player Clock",
+   "Auto Timer",
+   "Auto Timer Clock",
+   "Racial Abilities",
+   "Type",
+   "Size",
+   "Color",
+   "Percent Oceans",
+   "Percent Plains",
+   "Percent Forests",
+   "Percent Swamps",
+   "Percent Mountains",
+   "Percent Wastelands",
+   "Map File",
+   "Role",
+   "Save File",
+   "Master Address",
+   "Players",
+   "User Name",
+   "saved_game",
+   "map_file",
+   "new_game",
+   "error_args",
+   "error_files",
+   "error_data",
+   "error_version"
+  ],
+  "ini_values": [
+   "manifest_destiny",
+   "conquest",
+   "shrine_wars",
+   "false",
+   "true",
+   "standard_ability",
+   "best_ability",
+   "no_ability"
+  ],
+  "ini_map_size_names": [
+   "small",
+   "medium",
+   "large",
+   "huge",
+   "custom"
+  ],
+  "ini_world_type_names": [
+   "earthlike",
+   "tropical",
+   "mars",
+   "icy",
+   "dry",
+   "volcanic",
+   "alien"
+  ],
+  "ini_role_names": [
+   "master",
+   "slave"
+  ]
+ }
+}

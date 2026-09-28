@@ -1,0 +1,215 @@
+# m05_buildings_ui_queue_chat_ca: 0x41a000-0x426000  functions=214 bytes=47824
+0041a14c    183 FUN_0041a14c                     strings: 
+0041a204    613 FUN_0041a204                     strings: 
+0041a470    167 FUN_0041a470                     strings: 
+0041a518    195 FUN_0041a518                     strings: 
+0041a5dc     52 FUN_0041a5dc                     strings: 
+0041a610     35 FUN_0041a610                     strings: 
+0041a634   1310 SetItemStats                     strings: "pColorList NULL in SetItemStats()"|"%d Labor"|"%s cr."|"tons of food"|"%d %s"|"A Random Resource"|"Nothing"|"Upkeep: %d Energy/turn"|"Upkeep: None"
+0041ab54    221 FUN_0041ab54                     strings: 
+0041ac34     12 FUN_0041ac34                     strings: 
+0041ac40     49 FUN_0041ac40                     strings: 
+0041ac74     24 FUN_0041ac74                     strings: 
+0041ac8c     48 FUN_0041ac8c                     strings: 
+0041acbc     60 FUN_0041acbc                     strings: 
+0041acf8    755 FUN_0041acf8                     strings: "Apartment Complex"
+0041afec     41 FUN_0041afec                     strings: 
+0041b018    400 CheckBuildingList                strings: "No pointer to SMenu in CheckBuildingList()"
+0041b1c8    182 FUN_0041b1c8                     strings: 
+0041b280     94 FUN_0041b280                     strings: 
+0041b2e0     37 FUN_0041b2e0                     strings: 
+0041b308     39 FUN_0041b308                     strings: 
+0041b330    438 FUN_0041b330                     strings: 
+0041b4e8     22 FUN_0041b4e8                     strings: 
+0041b500    262 FUN_0041b500                     strings: "Never"|"Finished"|"1 turn"|"%s turns"
+0041b608    273 FUN_0041b608                     strings: 
+0041b71c    446 FUN_0041b71c                     strings: "%s\n%d / %d \n%s"|"%s\n%d / %d \n%d"|"House Populace"|"%s\n%d / %d"
+0041b908     43 FUN_0041b908                     strings: 
+0041b934    208 FUN_0041b934                     strings: 
+0041ba04    110 FUN_0041ba04                     strings: 
+0041ba74    424 FUN_0041ba74                     strings: "gpBuilding NULL in in_build.c - DrawGuyPool"
+0041bc1c    321 FUN_0041bc1c                     strings: 
+0041bd60    267 FUN_0041bd60                     strings: 
+0041be6c     64 FUN_0041be6c                     strings: 
+0041beac    274 FUN_0041beac                     strings: 
+0041bfc0    663 FUN_0041bfc0                     strings: "%s\nLabor Assigned\t: %d/%d\nEnergy Use\t: %d\n   (when completed)"|"%s\nLabor Assigned\t: %d/%d\nEnergy Use\t: %d"|"%s\nLabor Assigned\t: %d/%d\nEnergy Use\t:
+0041c258    275 FUN_0041c258                     strings: 
+0041c36c     12 FUN_0041c36c                     strings: 
+0041c378     76 FUN_0041c378                     strings: 
+0041c3c4     24 FUN_0041c3c4                     strings: 
+0041c3dc     60 FUN_0041c3dc                     strings: 
+0041c418   1017 FUN_0041c418                     strings: "Energy"|"%d/%d %s"|"Finished: No Room"|"turn  "|"%2d %s"|"No labor!"|"\t>>Circular queue<<"
+0041c814   1180 FUN_0041c814                     strings: 
+0041ccb0   1237 FUN_0041ccb0                     strings: "%s Production"
+0041d188    299 FUN_0041d188                     strings: 
+0041d2b4      6 FUN_0041d2b4                     strings: 
+0041d2bc    342 FUN_0041d2bc                     strings: 
+0041d414    620 FUN_0041d414                     strings: "You may not queue units in a building which is either shut down or under construction."|"Oolan's Advice"
+0041d680    141 FUN_0041d680                     strings: 
+0041d710    289 FUN_0041d710                     strings: "You must have a unit in the build queue selected before you can delete one."|"Oolan's Advice"|"Do you want to remove this %s from the build queue?"|"You must s
+0041d834    516 CheckBuilding                    strings: "NULL gpBuilding in CheckBuilding()"
+0041daa4    105 FUN_0041daa4                     strings: 
+0041db10   1428 FUN_0041db10                     strings: "This %s already has its maximum number of colonists.  There is no room for any more colonists to work here."|"Oolan's Advice"|"The housing pool is full."|"You 
+0041e0a8    338 FUN_0041e0a8                     strings: 
+0041e1fc    112 FUN_0041e1fc                     strings: 
+0041e26c    361 FUN_0041e26c                     strings: 
+0041e3d8    104 FUN_0041e3d8                     strings: 
+0041e440     84 FUN_0041e440                     strings: 
+0041e494     60 FUN_0041e494                     strings: 
+0041e4d0    401 FUN_0041e4d0                     strings: 
+0041e674     12 FUN_0041e674                     strings: 
+0041e680     59 FUN_0041e680                     strings: 
+0041e6bc     24 FUN_0041e6bc                     strings: 
+0041e6d4    278 FUN_0041e6d4                     strings: 
+0041e7ec     48 FUN_0041e7ec                     strings: 
+0041e81c    179 FUN_0041e81c                     strings: 
+0041e8d0     40 FUN_0041e8d0                     strings: 
+0041e8f8     25 FUN_0041e8f8                     strings: 
+0041e914    181 FUN_0041e914                     strings: 
+0041e9e8    670 FUN_0041e9e8                     strings: 
+0041ecc8    124 FUN_0041ecc8                     strings: 
+0041ed44     49 FUN_0041ed44                     strings: "Type in a custom chat message"
+0041ed78     49 FUN_0041ed78                     strings: "Select the Custom button to enter a custom chat message"
+0041edac     41 FUN_0041edac                     strings: 
+0041edd8    585 FUN_0041edd8                     strings: 
+0041f024    147 FUN_0041f024                     strings: 
+0041f0b8    222 FUN_0041f0b8                     strings: 
+0041f198    301 FUN_0041f198                     strings: 
+0041f2c8    139 FUN_0041f2c8                     strings: 
+0041f354     12 FUN_0041f354                     strings: 
+0041f360     12 FUN_0041f360                     strings: 
+0041f36c     24 FUN_0041f36c                     strings: 
+0041f384    296 FUN_0041f384                     strings: 
+0041f4ac    149 FUN_0041f4ac                     strings: 
+0041f544    442 FUN_0041f544                     strings: 
+0041f740     41 FUN_0041f740                     strings: 
+0041f76c     50 FUN_0041f76c                     strings: 
+0041f7a0     37 FUN_0041f7a0                     strings: 
+0041f7c8     39 FUN_0041f7c8                     strings: 
+0041f7f0    409 FUN_0041f7f0                     strings: 
+0041f98c    553 DrawCAGuyPool                    strings: "gpColonyAssistant NULL in DrawCAGuyPool()"
+0041fbb8    383 FUN_0041fbb8                     strings: 
+0041fd38    478 FUN_0041fd38                     strings: 
+0041ff18     12 FUN_0041ff18                     strings: 
+0041ff24     92 FUN_0041ff24                     strings: 
+0041ff80     24 FUN_0041ff80                     strings: 
+0041ff98     60 FUN_0041ff98                     strings: 
+0041ffd4    760 FUN_0041ffd4                     strings: "Energy"|"%d/%d %s"|"Finished: No Room"|"turn  "|"No labor!"|"\t>>Circular queue<<"
+004202cc   1128 FUN_004202cc                     strings: "Iron -> Steel"|"%s \n %d / %d   %d"
+00420734    543 FUN_00420734                     strings: "%s \n %d / %d   %d"
+00420954    108 FUN_00420954                     strings: 
+004209c0    236 FUN_004209c0                     strings: 
+00420aac    408 FUN_00420aac                     strings: "As long as you don't have enough housing to fit all your colonists, you can't use the Colony Assistant. Build more housing or move your extra colonists to anot
+00420c48    112 FUN_00420c48                     strings: 
+00420cb8    113 FUN_00420cb8                     strings: 
+00420d2c      6 FUN_00420d2c                     strings: 
+00420d34    253 FUN_00420d34                     strings: "You must have a unit in the build queue selected before you can delete one."|"Oolan's Advice"|"Do you want to remove this %s from the build queue?"|"You must s
+00420e34    362 FUN_00420e34                     strings: "You may not queue units in a building which is either shut down or under construction."|"Oolan's Advice"
+00420fa0    278 CheckColonyAssistant             strings: "gpColonyAssistant NULL in CheckColonyAssistant()"
+0042111c     53 FUN_0042111c                     strings: 
+00421154     33 FUN_00421154                     strings: 
+00421178    454 FUN_00421178                     strings: "You may only drag colonists to Task Buttons, the Labor Pool, the Housing Pool, and the Satellite Map. Try again."|"Oolan's Advice"
+00421340    187 FUN_00421340                     strings: 
+004213fc    392 FUN_004213fc                     strings: 
+00421584    431 FUN_00421584                     strings: 
+00421734    107 FUN_00421734                     strings: 
+004217a0     84 FUN_004217a0                     strings: 
+004217f4     51 FUN_004217f4                     strings: 
+00421828     77 FUN_00421828                     strings: 
+00421878     43 FUN_00421878                     strings: 
+004218a4     12 FUN_004218a4                     strings: 
+004218b0     59 FUN_004218b0                     strings: 
+004218ec     24 FUN_004218ec                     strings: 
+00421904    139 FUN_00421904                     strings: 
+00421990     44 FUN_00421990                     strings: 
+004219bc    107 FUN_004219bc                     strings: 
+00421a28     44 FUN_00421a28                     strings: 
+00421a54    172 FUN_00421a54                     strings: 
+00421b24    729 FUN_00421b24                     strings: 
+00421e3c    117 FUN_00421e3c                     strings: 
+00421eb4     69 CombatReport                     strings: "NULL battle in CombatReport()"
+00421efc    183 FUN_00421efc                     strings: 
+00421fb4     13 FUN_00421fb4                     strings: 
+00421fc4    895 FUN_00421fc4                     strings: "Event Log Ter"
+00422344    679 FUN_00422344                     strings: 
+004225ec     49 FUN_004225ec                     strings: 
+00422620     24 FUN_00422620                     strings: 
+00422638     65 FUN_00422638                     strings: 
+0042267c     35 FUN_0042267c                     strings: 
+004226a0    236 FUN_004226a0                     strings: 
+0042278c     39 FUN_0042278c                     strings: 
+004227b4     60 FUN_004227b4                     strings: 
+004227f0    129 FUN_004227f0                     strings: 
+00422874     94 FUN_00422874                     strings: 
+004228d4    187 FUN_004228d4                     strings: 
+004229bc     56 FUN_004229bc                     strings: 
+004229f4    423 FUN_004229f4                     strings: 
+00422bb4     34 FUN_00422bb4                     strings: 
+00422bd8    251 FUN_00422bd8                     strings: 
+00422cd4     48 FUN_00422cd4                     strings: 
+00422d04     17 FUN_00422d04                     strings: 
+00422d18     11 FUN_00422d18                     strings: 
+00422d24    533 CheckEventLog                    strings: "gpEventLog NULL in CheckEventLog()"
+00422f7c    392 FUN_00422f7c                     strings: 
+00423104    635 FUN_00423104                     strings: "%s  %d"
+00423380     66 FUN_00423380                     strings: 
+004233c4     27 FUN_004233c4                     strings: 
+004233e0    242 FUN_004233e0                     strings: 
+004234d4    444 FUN_004234d4                     strings: "Not enough memory to log event."
+00423690    318 FUN_00423690                     strings: 
+004237d0    248 FUN_004237d0                     strings: 
+004238c8     58 FUN_004238c8                     strings: 
+00423904     91 FUN_00423904                     strings: "There are no events to report this turn."|"Oolan's Advice"
+00423960    287 FUN_00423960                     strings: 
+00423a80    160 FUN_00423a80                     strings: 
+00423b20     62 FUN_00423b20                     strings: 
+00423bf0     12 FUN_00423bf0                     strings: 
+00423bfc     16 FUN_00423bfc                     strings: 
+00423c0c     24 FUN_00423c0c                     strings: 
+00423c24    159 FUN_00423c24                     strings: "Would you like to save the current game before continuing?"
+00423cc4     44 FUN_00423cc4                     strings: 
+00423cf0    146 CheckExitSave                    strings: "NULL gpExitSave in CheckExitSave()"
+00423d84     81 FUN_00423d84                     strings: 
+00423dd8     12 FUN_00423dd8                     strings: 
+00423de4     59 FUN_00423de4                     strings: 
+00423e20     24 FUN_00423e20                     strings: 
+00423e38    221 FUN_00423e38                     strings: 
+00423f18     44 FUN_00423f18                     strings: 
+00423f44    107 FUN_00423f44                     strings: 
+00423fb0     44 FUN_00423fb0                     strings: 
+00423fdc    897 FUN_00423fdc                     strings: 
+00424360    121 FUN_00424360                     strings: 
+004243dc    149 FUN_004243dc                     strings: 
+00424474     12 FUN_00424474                     strings: 
+00424480     59 FUN_00424480                     strings: 
+004244bc     24 FUN_004244bc                     strings: 
+004244d4    144 FUN_004244d4                     strings: 
+00424564     44 FUN_00424564                     strings: 
+00424590    924 FUN_00424590                     strings: 
+00424994     44 FUN_00424994                     strings: 
+004249c0    158 FUN_004249c0                     strings: 
+00424a84    825 FUN_00424a84                     strings: 
+00424dc0    103 FUN_00424dc0                     strings: 
+00424e28    139 FUN_00424e28                     strings: 
+00424eb4     12 FUN_00424eb4                     strings: 
+00424ec0     59 FUN_00424ec0                     strings: 
+00424efc     24 FUN_00424efc                     strings: 
+00424f14    644 FUN_00424f14                     strings: 
+004251d8    143 FUN_004251d8                     strings: 
+00425268    251 FUN_00425268                     strings: 
+00425364    114 FUN_00425364                     strings: 
+004253d8     51 FUN_004253d8                     strings: 
+0042540c    529 FUN_0042540c                     strings: 
+00425620    109 FUN_00425620                     strings: 
+00425690     91 InitHelp                         strings: 
+004256ec      7 FUN_004256ec                     strings: 
+004256f4    249 FUN_004256f4                     strings: 
+004257f0    263 FUN_004257f0                     strings: 
+004258f8    460 FUN_004258f8                     strings: 
+00425ac4    253 FUN_00425ac4                     strings: "NNOPENA"
+00425bc4    418 FUN_00425bc4                     strings: 
+00425d68    399 FUN_00425d68                     strings: 
+00425ef8     12 FUN_00425ef8                     strings: 
+00425f04     59 FUN_00425f04                     strings: 
+00425f40     24 FUN_00425f40                     strings: 
+00425f58    486 FUN_00425f58                     strings: 

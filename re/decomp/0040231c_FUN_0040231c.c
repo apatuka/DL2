@@ -1,0 +1,16 @@
+// FUN_0040231c @ 0040231c size=31 sig=undefined FUN_0040231c() cc=unknown
+// callers: FUN_004018d8
+// callees: FUN_0040ab30,FUN_00409910,FUN_00409d34,FUN_00409960,FUN_0040a128,FUN_0040a500
+
+void FUN_0040231c(void)
+
+{
+  FUN_00409910();
+  FUN_0040ab30();
+  FUN_00409d34();
+  FUN_00409960();
+  FUN_0040a128();
+  FUN_0040a500();
+  return;
+}
+

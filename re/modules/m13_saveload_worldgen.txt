@@ -1,0 +1,34 @@
+# m13_saveload_worldgen: 0x461000-0x463000  functions=33 bytes=8038
+00461078    567 FUN_00461078                     strings: 
+004612b0     34 FUN_004612b0                     strings: 
+004612d4     50 FUN_004612d4                     strings: 
+00461308     31 FUN_00461308                     strings: 
+00461328     64 FUN_00461328                     strings: 
+0046136c    168 FUN_0046136c                     strings: 
+00461418     98 FUN_00461418                     strings: 
+0046147c     11 FUN_0046147c                     strings: 
+00461488   1117 ChCht                            strings: "campaign\\"|"saves\\"|"ChCht"|"%s%03d"|"SaveGame"|"This scenario map does not have enough shrines to complete the SHRINE WARS victory condition. Are you sure y
+004618e8    894 FUN_004618e8                     strings: "Could not open file %s."|"Load Game Error"|"%s is a savefile from a newer version of deadlock. Unable to load game."|"%s is not a valid saved game.  Unable to 
+00461c68    279 FUN_00461c68                     strings: "Could not open file %s."|"Load Game Error"|"%s is a savefile from a newer version of deadlock. Unable to load game."|"%s is not a valid saved game.  Unable to 
+00461d80    282 FUN_00461d80                     strings: "Could not open file %s."|"Load Game Error"
+00461e9c    215 FUN_00461e9c                     strings: "Could not open file %s."|"Load Game Error"
+00461f74    128 FUN_00461f74                     strings: "Deadlock 2  (c)1997 Accolade Inc.  All Rights Reserved.\nPre-release version XXXXXXXXXXX"
+00461ff4    230 FUN_00461ff4                     strings: "Deadlock 2  (c)1997 Accolade Inc.  All Rights Reserved.\nPre-release version XXXXXXXXXXX"|"Deadlock 2  (c)1997 Accolade Inc.  All Rights Reserved.\nPre-release
+004620dc     33 FUN_004620dc                     strings: 
+00462100    518 FUN_00462100                     strings: 
+00462308     30 FUN_00462308                     strings: 
+00462328     30 FUN_00462328                     strings: 
+00462348     52 FUN_00462348                     strings: 
+0046237c    331 FUN_0046237c                     strings: 
+004624c8    180 FUN_004624c8                     strings: 
+0046257c    166 FUN_0046257c                     strings: 
+00462624    201 FUN_00462624                     strings: 
+004626f0     50 FUN_004626f0                     strings: 
+00462724    318 FUN_00462724                     strings: 
+00462864    175 FUN_00462864                     strings: 
+00462914    128 FUN_00462914                     strings: 
+00462994    799 FUN_00462994                     strings: 
+00462cb4    186 FUN_00462cb4                     strings: 
+00462d70    383 FUN_00462d70                     strings: 
+00462ef0    150 FUN_00462ef0                     strings: 
+00462f88    140 FUN_00462f88                     strings: 

@@ -1,0 +1,13 @@
+// FUN_00418e00 @ 00418e00 size=33 sig=undefined FUN_00418e00() cc=unknown
+// callers: FUN_00449dec,FUN_0044a3b0,FUN_0044a7c8,FUN_0045e398,FUN_0045ccf8,FUN_0044a000,FUN_0044a838,FUN_0045e274,FUN_00449870,FUN_00419f50,FUN_00419c08,FUN_0045d478,FUN_0044a48c,FUN_0044a8bc,FUN_0045d6a4,FUN_0045c27c,FUN_0044a5e8,FUN_0044a750,FUN_0044ae10
+// callees: 
+
+undefined4 FUN_00418e00(void)
+
+{
+  if (((DAT_004d59b4 == 0x22) && (DAT_005332b0 == '\0')) && (DAT_005332b4 == 0)) {
+    return 1;
+  }
+  return 0;
+}
+

@@ -1,0 +1,13 @@
+// DebugMessage @ 00458990 size=16 sig=undefined DebugMessage() cc=unknown
+// callers: NetDemolishBuilding,DrawCAGuyPool,WriteUnitData,CheckArmy,CheckSubTech,FUN_004234d4,DisableMainInterface_c1a4,FUN_0047b4ac,FUN_00475048,FUN_00468384,_MovePopulation,FUN_004419c8,RemoveArmyFromTaskForce,LoadCombatSprites,FUN_0047733c,SetRetreat,CheckUnitList,NetStartConstruction,CheckViewCombat,FUN_00444ae4,DeleteArmy,CheckMoveStuff,ReLinkArmy,BroadcastText,FUN_004632f4,FUN_004057fc,FUN_00465ac8,FUN_0045b448,MoveHousingLabor,CheckExitSave,UnitList__Insert,TestWaitSync,NetReassignLaborByTask,SetItemStats,CreateHit,UnitList__Delete,FUN_004418ec,FUN_0044b544,CheckEventLog,FUN_0044577c,TotalUnitLabor,IsBuildTaskDifferent,DestroyAnim,ProduceUnits,FUN_0044c44c,_DemolishBuilding,PreloadSprite2,FUN_0045a038,PauseWarrior,CreateBldgHit,FUN_004720f4,CheckSubRes,NetMoveUnit,GetBuildingTasks,FUN_0047d3d8,FUN_00446084,MoveLaborToHousing,FUN_004750c4,CheckTechTree,BlitSprite8,CheckColonyAssistant,CheckSubInfo,_DeleteBuilding,DisableMainInterface,DeleteUnit,FUN_0041ba74,FUN_0042f5d8,FUN_0042e244,NetReassignLabor,FUN_004658a8,UserMessageObject__CheckMessage,DrawSprite,FUN_00479ee0,FUN_0047510c,FUN_0044db50,CheckTechDet,DetectsShrine,CheckBuildingList,CheckSubUnit,ConsumeFood,CanUpgradeBuilding,FUN_00479a88,CombatReport,FUN_004780e4,BirthCombatSprites,FUN_0045c704,MoveLaborToHousingNoNet,DrawSTileBuilding,CalculatePlayersScores,CheckBuilding,TotalTaskLabor,WaitSync
+// callees: DebugLog
+
+/* Reports an internal error string (assert-like) */
+
+void DebugMessage(undefined4 param_1)
+
+{
+  DebugLog(param_1);
+  return;
+}
+

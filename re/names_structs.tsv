@@ -1,0 +1,140 @@
+addr	name	comment
+00461488	SaveGame	Guarda partida/campaña/mapa: cabecera + 16 bloques (o 4 en modo mapa); backup "%sBackup.bak"
+004618e8	LoadGame	Carga partida: 16 lectores, reconstruye punteros, srand(rngSeed)
+00461c68	LoadMapFile	Carga un mapa del editor (cabecera isMap=1, mundo, territorios reducidos, tiles)
+0045f5e4	WriteSaveHeader	Envuelve WriteHeaderRaw(handle, isMap)
+00461f74	WriteHeaderRaw	Escribe los 0x9c bytes de cabecera (texto, version 0x120, isMap, 0, -1)
+0045f608	ReadSaveHeader	Lee cabecera, fija gFileGeneration/gFileVersion; 1 = más nueva, 2 = inválida
+00461ff4	ReadHeaderRaw	Compara el texto con las 5 cabeceras conocidas y comprueba version <= 0x120
+0045f664	SaveOptions	Construye el bloque GameOptions de 0xac desde los globales
+004620dc	WriteOptionsRaw	WriteFile(0xac)
+0045f828	LoadOptions	Lee GameOptions y reparte a los globales (acota aiSkill, restaura campaña)
+00462100	ReadOptionsRaw	Lee 0x74/0x88/0xa6/0xaa/0xac bytes según generación/versión y rellena valores por defecto
+0045fa10	SaveWorld	Escribe WorldParams (DAT_004d5b10..23)
+00462308	WriteWorldRaw	WriteFile(0x14)
+0045fa34	LoadWorld	Lee WorldParams en DAT_004d5b10
+00462328	ReadWorldRaw	ReadFile(0x14)
+0045fa4c	SavePlayers	Escribe Player[7] y la lista localList del jugador local terminada en -1
+0045fae4	LoadPlayers	Lee Player[7], lista localList, regenera nombres si version<7
+0045fd04	SaveRaceStats	Escribe gRaceStats (0x380)
+0045fd28	LoadRaceStats	Lee gRaceStats (0x356/0x364 en formatos antiguos)
+0045fe58	SaveTechs	48 x 0x12 (knownMask, availableMask, progress[7])
+0045fecc	LoadTechs	Lee las 48 entradas de tecnología
+0045ff40	SaveMinisterJobs	7 listas de MinisterJob (0x44 por nodo, sigue next)
+0045ff94	LoadMinisterJobs	Lee cabeceras y nodos (malloc 0x44) y re-enlaza next/prev
+0046002c	SaveEventLog	eventCount x (12 bytes + texto)
+004600d0	LoadEventLog	Lee eventos y los re-registra con AddEventLogEntry si version == 0x120
+00460188	SaveTiles	height x width tiles de 10 bytes
+004601f0	LoadTiles	Lee los tiles en DAT_005a0550 (filas de 400)
+00460258	SaveBuildings	i32 n + n edificios activos con prev/next -> ID global
+00460330	LoadBuildings	Lee edificios (convierte formato 0x136 antiguo) y resuelve prev/next con FindBuildingByGlobalID
+004605e0	SaveArmies	i32 n + n ejércitos activos; territorios -> índice, ejércitos -> ID
+004606f4	LoadArmies	Lee ejércitos y resuelve cargo/next/prev con FindArmyByGlobalID
+00460870	SaveTerritories	Territorios 1..N: 0x9b2 bytes + 5 colas; convierte punteros
+004607d8	SaveQueue	Escribe u8 n + n registros de 0x30 de una cola de producción
+00460a74	LoadTerritories	Lee territorios, colas, resuelve tiles/edificios/ejércitos y los territorios de los Army
+004609e8	LoadQueue	Crea cola vacía y lee u8 n + n x 0x30 (gen >= 2)
+00460d84	SaveMapTerritories	Modo mapa: nombre[25] + terreno + 36 x {u16 terreno&0xf, u8 valor, u8}
+00460fa4	SaveJobs	Valida ejércitos de cada Job, convierte destino a índice, escribe jobs/warmask/scratch/continentes
+00461078	LoadJobs	Lee jobs y bloques auxiliares, recalcula continentes, resuelve armies[] por armyIds y fija Army::job
+00460f24	JobsTerritoryPtrToIndex	Job::destination = (ptr - gTerritories) / 0xadc para los 350 jobs
+00460f68	JobsTerritoryIndexToPtr	Inverso de JobsTerritoryPtrToIndex
+0040aebc	JobValidateArmies	Anula Job::armies[i] si su id/owner no coincide con armyIds[i]
+004612b0	SaveRandomEvents	Escribe gRandomEvents (700)
+004612d4	LoadRandomEvents	Lee gRandomEvents si generación >= 3
+00461308	SaveScores	Escribe gScores (0x2a)
+00461328	LoadScores	Lee gScores si version >= 0x11 (si no, memset 0)
+0046136c	SaveSpiesAndBlackMarket	Escribe gSpies (0x578) y gBlackMarket (0x38; {0,-1} en red)
+00461418	LoadSpiesAndBlackMarket	Lee ambos bloques si version >= 0x24 (si no, reinicializa)
+0046147c	RebuildObjectLists	Tras cargar: RebuildBuildingLists + RebuildArmyFreeList
+0044cabc	RebuildBuildingLists	Reconstruye las listas enlazadas activa/libre de Building (prev +0x11a, next +0x11e)
+00445710	RebuildArmyFreeList	Reconstruye la lista libre de Army
+004455fc	ArmyFreeListCheck	Comprueba/reconstruye gFreeArmies (next +0x54, prev +0x58)
+0044577c	AllocArmy	Toma un Army de la lista libre y lo inserta en la lista dada (por territorio)
+0044569c	InitArmyPool	memset de los 560 Army y encadenado inicial next/prev
+00445d30	CreateUnit	Crea un Army en un territorio: id, tipo, clase, dueño, nombre "%s %s #%d", salud 100
+00477784	SyncCreateUnit	Creación de unidad sincronizada en red (NextGlobalId + CreateUnit)
+00445b94	CanCreateUnit	Comprueba límites por clase/terreno para crear una unidad en un territorio
+00445fd4	DeleteUnit	Elimina un Army (y su carga) de las listas del territorio
+00445800	DeleteArmy	Desengancha un Army de una lista de territorio y lo devuelve a la libre
+00445898	ReLinkArmy	Mueve un Army entre las listas armies/foreignArmies de un territorio
+004750c4	FindBuildingByGlobalID	Busca Building por id (u16 en +0) en gBuildings; DebugMessage si no existe
+0047510c	FindArmyByGlobalID	Busca Army por id en gArmies; DebugMessage si no existe
+00474cfc	NextGlobalId	++gNextGlobalId truncado a u16
+00477394	SyncSetRandomSeed	Local: FUN_004ae594(seed)+FUN_0046ca60(seed); en red difunde el mensaje 0x4b con la semilla
+004ae594	srand	RTL: fija la semilla del generador (LoadGame la llama con WorldParams::rngSeed)
+004ae5b0	rand	RTL: aleatorio (ResetVariables lo usa para WorldParams::seed1/rngSeed)
+0044dcf4	CreateBuilding	Crea un edificio en un territorio (sitio, id, flags |= 2, Sea Platform + SeaHab)
+00477904	SyncCreateBuilding	Creación de edificio sincronizada en red
+0044d890	InitBuilding	Rellena un Building nuevo (tipo, categoría, sitio, territorio, raza, memsets)
+0044cbec	AllocBuilding	Toma un Building libre
+0044e7ec	GetBuildingTasks	Calcula las tareas disponibles (task[1..4]) de un edificio según tecnologías
+0046b0e4	TerritoryMaxPopulation	Suma capacidad de viviendas (500/1000/1500) x modificador racial (RaceStats fila 24)
+0046ac44	ComputePlayerStats	Rellena una estructura de 0x78 con créditos, ingresos, población... del jugador
+0046ab18	AccumulateTerritoryStats	Aporta un territorio a ComputePlayerStats (población, impuestos, materiales)
+0045add0	CountHumanPlayers	Nº de jugadores con 0 < type < 3 ("Humans" en DEBUG.TXT)
+004412d4	HasPact	Comprueba bits de Player::relations[p2] (0 si no hay alianzas)
+004415d0	BreakPact	Borra bits de relations/relations2 en ambos sentidos y notifica a las IA
+00405798	ResetMinisterJobs	memset(0x1dc) y type=1 (HEAD_JOB) en las 7 cabeceras
+004057c4	FreeMinisterJobs	Libera todos los nodos de las 7 listas
+004056fc	AddMinisterJob	Inserta un MinisterJob al principio de la lista del jugador
+00405d54	DebugJobsDialog	Lista "Job Type: %s Minister: %s Priority: %d"
+0040be04	CreateTaskForceJob	Crea un Job (goal, target, owner, destino) en la tabla del jugador
+0040c8c8	DebugTaskForceDialog	Lista los task forces ("Strength: %d/%d", "Parent: %s %s")
+00484c2c	QueueInit	{first, cursor} = 0
+00484c40	QueueFree	Libera los nodos de una cola
+00484da8	QueueAppend	Añade un nodo de 0x34 al final de una cola desde un registro de 0x30
+00484e88	QueueCount	Cuenta nodos (next en +0x30)
+00484ea4	QueueFirst	cursor = first
+00484ebc	QueueNext	cursor = cursor->next
+00484ee0	QueueCurUnitType	Byte +0 del nodo actual
+00484f10	QueueCurCount	u16 +2 del nodo actual
+00484f48	QueueCurData	Copia los 11 dwords (+4) del nodo actual
+0044e174	ProduceUnits	Procesa la cola de producción de unidades de un territorio
+00423690	LogEvent	Formatea un evento (tabla DAT_004fc90c) para el jugador local o lo despacha a la IA
+004237d0	LogEventEx	LogEvent + rellena EventLogEntry::player/param
+004234d4	AddEventLogEntry	Reserva texto en el pool y añade una entrada al Event Log
+0042278c	EventTypeToTableIndex	Índice en la tabla de eventos DAT_004fc90c (paso 0x12)
+00462624	TerritoryCollectTiles	Rellena Territory::tiles[] y numTiles a partir de Tile::territory; calcula borderFlags
+0046237c	TileBorderFlags	Bits de frontera de un tile con territorios vecinos
+00466128	MapInitTerritories	Tras cargar un mapa: x/y de tiles, numTerritories, memset territorios, morale=100
+004423b4	ComputeContinents	Rellena gContinents y Territory::adjContinents desde adjacency y continent
+0044da3c	FindPortTargetTerritory	Devuelve el índice del territorio vecino con puerto (formato antiguo -> Territory+0x9b0)
+0046d2e8	PlayerLanding	Coloca el aterrizaje: nombre "%s Landing", materiales iniciales, City Center, viviendas, Colonizer
+00474718	AddPlayerAtTerritory	Añade un jugador humano nuevo en un territorio (editor/landing)
+0047c730	CampaignAddPlayer	Añade un jugador de campaña (tabla DAT_004dc434) con tecnologías, unidades y edificios
+00401830	PlayerInitAI	Instala la personalidad IA (vtbl PTR_DAT_004b502c) y los 6 ministros
+00486e34	CheckVictory	Evalúa Manifest Destiny / Conquest / Shrine Wars por jugador; actualiza hasWon y shrineTurns
+00486964	CountShrines	Recuenta shrines totales y por jugador
+00482668	CalculatePlayersScores	Puntuación por jugador (materiales, población, tecnologías, nukes, turno)
+0044b924	RegisterNukeUse	Evento 0x50/0x51, -20 de moral en todos los territorios del jugador, ++nukesUsed
+0047d49c	ProcessSpies	Escándalos de espionaje por jugador (tabla gSpies)
+0047d460	ResetSpies	Reinicializa gSpies
+00450c9c	BlackMarketReset	gBlackMarket = {0,-1} x 7
+00450c38	BlackMarketRoll	1/50 por jugador y turno (>5) de oferta Skirineen
+0047d71c	CreateRandomEvents	Crea/ejecuta eventos aleatorios (gRandomEvents, manejadores PTR_FUN_004dcab0)
+0047cad4	RandomEventAdd	Inserta un evento aleatorio en la primera ranura libre
+00441128	RaceStatsInit	Genera gRaceStats desde DAT_004fc50c según gRacialAbilities
+00447c2c	BuildingProductionModifier	Modificador racial de producción por categoría de edificio (RaceStats)
+0042fb64	GameOptionsDialogInit	Rellena el diálogo de opciones de partida (SMenu DAT_004c4294)
+0043044c	GameOptionsDialogProc	Procesa los ítems del diálogo de opciones (cities, victoria, timers, ...)
+004684d0	WorldOptionsDialog	Tamaño de mapa, tipo de mundo y % de terreno (o carga deadlock.ini / mapa)
+00467b2c	WorldOptionsApply	Aplica tamaño de mapa/jugadores/cities/skill/victoria desde el diálogo
+00471170	ParseScenarioOptions	Lee [Scenario Options] del INI directamente sobre un bloque GameOptions
+00458840	DumpGameOptions	Escribe el bloque "Players/World W./..." en DEBUG.TXT
+0046da14	ResetVariables	Pone a cero todos los arrays de partida y regenera semillas
+0046c9f8	ResetQueuesAndLocalLists	Cabeceras de colas de los 112 territorios y Player::localList a 0
+0047bf20	NetApplyPlayerTable	Copia la tabla de jugadores recibida conservando localList
+00432f0c	MaterialSlotToIndex	Convierte ranura del mercado negro (0..19) en índice de Material 1..10
+00432fc0	BlackMarketDialogFill	Muestra materiales del territorio y "%d Cr." del jugador
+00436a44	TaxDialogFill	"%s Colony's Global Tax Rate", Local Tax Adjustment
+0047fc84	DrawTerritoryInfo	"Population %d/%d" (real o conocida según visibility)
+00415624	MoraleDialog	"Morale in %s" con los modificadores
+0041bfc0	DrawBuildingInfo	"%s Labor Assigned: %d/%d Energy Use: %d Run By: %s"
+0044e600	SiteTerrainSprite	Sprite/animación según terreno de la casilla (BuildingSite+2 & 0xf)
+0044f110	ProcessBuildingCosts	Descuenta Building::cost[] de los materiales del territorio
+0045efd0	TurnTimerStart	Arranca el temporizador de turno (timeGetTime)
+0045f028	TurnTimerTick	Cuenta atrás de autoTimerClock/lastPlayerClock y fuerza fin de turno
+0046c9d8	RandRangeTagged	Aleatorio [0,n) con etiqueta de depuración ("SaveGame", "Scandal", "Place")
+0044fd14	CampaignApplyOptions	Aplica la tabla de campaña (winCities, flags) y calcula gCampaignFlags
+0044fe1c	CampaignFlagTest	1 << n & gCampaignFlags (DAT_0059f100)

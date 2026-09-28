@@ -1,0 +1,187 @@
+# m06_landing_messages_pacts_race_hiscore: 0x426000-0x430000  functions=186 bytes=35552
+00426140    249 FUN_00426140                     strings: 
+0042623c    834 FUN_0042623c                     strings: 
+00426594     71 FUN_00426594                     strings: 
+004265dc     79 FUN_004265dc                     strings: 
+0042662c    476 FUN_0042662c                     strings: 
+00426808     12 FUN_00426808                     strings: 
+00426814     59 FUN_00426814                     strings: 
+00426850     24 FUN_00426850                     strings: 
+00426868    537 FUN_00426868                     strings: "The TCP/IP (Internet) service is not available.  Please exit the game and make sure that you have TCP/IP installed and that it is configured correctly."|"Netwo
+00426a84     44 FUN_00426a84                     strings: 
+00426ab0    243 FUN_00426ab0                     strings: 
+00426ba4     44 FUN_00426ba4                     strings: 
+00426bd0    190 FUN_00426bd0                     strings: 
+00426c90     72 FUN_00426c90                     strings: 
+00426cd8    121 FUN_00426cd8                     strings: 
+00426d54    356 FUN_00426d54                     strings: "Please select landing site for %s colony."|"%s colony leader, please select your landing site."|"Please wait while the %s colony leader chooses a landing site.
+00426eb8    102 FUN_00426eb8                     strings: 
+00426f20    231 FUN_00426f20                     strings: 
+00427008    247 SelectInit                       strings: "SelectInit"
+00427100    152 FUN_00427100                     strings: 
+00427198    211 FUN_00427198                     strings: 
+0042726c     12 FUN_0042726c                     strings: 
+00427278     59 FUN_00427278                     strings: 
+004272b4     68 FUN_004272b4                     strings: 
+004272f8    273 FUN_004272f8                     strings: 
+0042740c     49 FUN_0042740c                     strings: 
+00427440   1043 FUN_00427440                     strings: 
+00427854    438 FUN_00427854                     strings: 
+00427a0c     96 FUN_00427a0c                     strings: 
+00427a6c     65 FUN_00427a6c                     strings: 
+00427ab0    398 FUN_00427ab0                     strings: "Can't Land: Ocean Territory"|"Can't Land: Wasteland Territory"|"Can't Land: Adjacent to enemy colony."|"We may land here."|"Can't Land: Owned by %s"|"%s\nTerra
+00427c40     12 FUN_00427c40                     strings: 
+00427c4c     59 FUN_00427c4c                     strings: 
+00427c88     24 FUN_00427c88                     strings: 
+00427ca0    211 FUN_00427ca0                     strings: "Game 1"
+00427d74     44 FUN_00427d74                     strings: 
+00427da0    143 FUN_00427da0                     strings: "Game 1"
+00427e30     44 FUN_00427e30                     strings: 
+00427e5c     16 FUN_00427e5c                     strings: 
+00427e6c     19 FUN_00427e6c                     strings: 
+00427e80     49 FUN_00427e80                     strings: 
+00427eb4     49 FUN_00427eb4                     strings: 
+00427ee8     26 FUN_00427ee8                     strings: 
+00427f04     16 FUN_00427f04                     strings: 
+00427f14     26 FUN_00427f14                     strings: 
+00427f30     26 FUN_00427f30                     strings: 
+00427f4c     19 FUN_00427f4c                     strings: 
+00427f60     77 FUN_00427f60                     strings: 
+00427fb0     23 FUN_00427fb0                     strings: 
+00427fc8     24 FUN_00427fc8                     strings: 
+00427fe0    529 FUN_00427fe0                     strings: 
+004281f4     87 FUN_004281f4                     strings: 
+0042824c    104 FUN_0042824c                     strings: 
+004282b4    184 UserMessageObject__CheckMessage  strings: "gpMessage NULL in UserMessageObject::CheckMessage()"
+0042836c    154 FUN_0042836c                     strings: 
+00428408     12 FUN_00428408                     strings: 
+00428414     59 FUN_00428414                     strings: 
+00428450     24 FUN_00428450                     strings: 
+00428468    438 FUN_00428468                     strings: "Move Resources"|"How many units of this resource do you wish to transfer?"
+00428620     44 FUN_00428620                     strings: 
+0042864c    469 CheckMoveStuff                   strings: "pColorList NULL in CheckMoveStuff()"
+00428824     58 FUN_00428824                     strings: 
+00428860     12 FUN_00428860                     strings: 
+004288a8     24 FUN_004288a8                     strings: 
+004288c0    353 FUN_004288c0                     strings: 
+00428a24     44 FUN_00428a24                     strings: 
+00428a50    209 FUN_00428a50                     strings: 
+00428b48     44 FUN_00428b48                     strings: 
+00428b74   2286 FUN_00428b74                     strings: "Non-aggression"|"Have %s pact with the %s"|"Military"|"Backstabbed %s pact with the %s"|"No %s pact with the %s"|"Victory"|"Technology"|"Intelligence"
+00429464    548 FUN_00429464                     strings: "Proposing a %s pact to the %s"|"Proposing a pact"|"The %s are busy with other matters.  Try them later."
+004297e0    522 FUN_004297e0                     strings: 
+00429a04   1672 FUN_00429a04                     strings: 
+0042a08c    462 FUN_0042a08c                     strings: 
+0042a25c    103 FUN_0042a25c                     strings: 
+0042a2c4     84 FUN_0042a2c4                     strings: 
+0042a318     59 FUN_0042a318                     strings: 
+0042a354     24 FUN_0042a354                     strings: 
+0042a36c    378 FUN_0042a36c                     strings: 
+0042a504    197 FUN_0042a504                     strings: 
+0042ac2c     57 FUN_0042ac2c                     strings: 
+0042ac68    135 FUN_0042ac68                     strings: 
+0042b280     49 FUN_0042b280                     strings: 
+0042b3d0     62 FUN_0042b3d0                     strings: 
+0042b428     36 FUN_0042b428                     strings: 
+0042b498     57 FUN_0042b498                     strings: 
+0042b520    646 FUN_0042b520                     strings: 
+0042b7a8    198 FUN_0042b7a8                     strings: 
+0042b870    272 FUN_0042b870                     strings: 
+0042b99c    252 FUN_0042b99c                     strings: 
+0042ba98     12 FUN_0042ba98                     strings: 
+0042baa4     59 FUN_0042baa4                     strings: 
+0042bae0     24 FUN_0042bae0                     strings: 
+0042baf8    299 FUN_0042baf8                     strings: 
+0042bc24     44 FUN_0042bc24                     strings: 
+0042bc50    127 FUN_0042bc50                     strings: "\r\r\r\r\r\r\r"
+0042c054     44 FUN_0042c054                     strings: 
+0042c080    242 FUN_0042c080                     strings: 
+0042c1a4     12 FUN_0042c1a4                     strings: 
+0042c1b0     59 FUN_0042c1b0                     strings: 
+0042c1ec     24 FUN_0042c1ec                     strings: 
+0042c204    187 FUN_0042c204                     strings: 
+0042c2fc     44 FUN_0042c2fc                     strings: 
+0042c328    215 FUN_0042c328                     strings: 
+0042c41c     44 FUN_0042c41c                     strings: 
+0042c448    158 FUN_0042c448                     strings: 
+0042c50c    494 FUN_0042c50c                     strings: 
+0042c73c     88 FUN_0042c73c                     strings: 
+0042c794    416 FUN_0042c794                     strings: 
+0042c934   1672 FUN_0042c934                     strings: 
+0042cfbc    144 FUN_0042cfbc                     strings: 
+0042d04c     12 FUN_0042d04c                     strings: 
+0042d058     59 FUN_0042d058                     strings: 
+0042d094     24 FUN_0042d094                     strings: 
+0042d0ac    461 FUN_0042d0ac                     strings: 
+0042d27c    133 FUN_0042d27c                     strings: 
+0042d304    213 FUN_0042d304                     strings: 
+0042d3dc    157 FUN_0042d3dc                     strings: 
+0042d47c     76 FUN_0042d47c                     strings: 
+0042d4e4     70 FUN_0042d4e4                     strings: 
+0042d550     34 FUN_0042d550                     strings: 
+0042d574     83 FUN_0042d574                     strings: "(Fair Fight) The normal level.  There are no modifications to your play at this level and your score is calculated without adjustments."
+0042d5c8    152 SelRace                          strings: "SelRace"
+0042d660    819 FUN_0042d660                     strings: 
+0042d994    166 FUN_0042d994                     strings: 
+0042da3c    378 FUN_0042da3c                     strings: "Player #%d is selecting a race."|"Select which race you will command."
+0042dbb8    220 FUN_0042dbb8                     strings: 
+0042dc94    468 RaceInit_dc94                    strings: "RaceInit"|"Player #%d is selecting a race."|"Select which race you will command."
+0042de68    119 FUN_0042de68                     strings: 
+0042dee0     12 FUN_0042dee0                     strings: 
+0042deec     59 FUN_0042deec                     strings: 
+0042df28     68 FUN_0042df28                     strings: 
+0042df6c    230 FUN_0042df6c                     strings: 
+0042e054     44 FUN_0042e054                     strings: 
+0042e080    409 FUN_0042e080                     strings: 
+0042e244    113 FUN_0042e244                     strings: "Early Select Race"
+0042e2b8     64 FUN_0042e2b8                     strings: 
+0042e2f8    234 FUN_0042e2f8                     strings: 
+0042e3e4     12 FUN_0042e3e4                     strings: 
+0042e3f0     59 FUN_0042e3f0                     strings: 
+0042e42c      7 FUN_0042e42c                     strings: 
+0042e434    139 FUN_0042e434                     strings: 
+0042e4c0     44 FUN_0042e4c0                     strings: 
+0042e4f0    146 FUN_0042e4f0                     strings: 
+0042e584    230 FUN_0042e584                     strings: 
+0042e66c     39 FUN_0042e66c                     strings: 
+0042e694     12 FUN_0042e694                     strings: 
+0042e6a0     59 FUN_0042e6a0                     strings: 
+0042e6dc     24 FUN_0042e6dc                     strings: 
+0042e6f4    202 FUN_0042e6f4                     strings: 
+0042e7c0     44 FUN_0042e7c0                     strings: 
+0042e7ec    179 FUN_0042e7ec                     strings: 
+0042e8a0     31 FUN_0042e8a0                     strings: 
+0042e8c0    457 FUN_0042e8c0                     strings: 
+0042ea8c     12 FUN_0042ea8c                     strings: 
+0042ea98     59 FUN_0042ea98                     strings: 
+0042ead4     24 FUN_0042ead4                     strings: 
+0042eaec    144 FUN_0042eaec                     strings: 
+0042eb7c     59 FUN_0042eb7c                     strings: 
+0042ebb8    183 FUN_0042ebb8                     strings: "Are you sure you want to clear the high score list?"|"Clear High Scores"
+0042ec70     31 FUN_0042ec70                     strings: 
+0042ed64     12 FUN_0042ed64                     strings: 
+0042ed70     59 FUN_0042ed70                     strings: 
+0042edac     24 FUN_0042edac                     strings: 
+0042edc4     81 FUN_0042edc4                     strings: 
+0042ee18    476 FUN_0042ee18                     strings: "G000G001G002G003G004G005"
+0042eff4     86 FUN_0042eff4                     strings: 
+0042f04c    119 FUN_0042f04c                     strings: 
+0042f0c4    173 FUN_0042f0c4                     strings: 
+0042f174    173 FUN_0042f174                     strings: 
+0042f224    686 FUN_0042f224                     strings: "Sel Port Ter"
+0042f4d4    128 FUN_0042f4d4                     strings: 
+0042f554     12 FUN_0042f554                     strings: 
+0042f560     49 FUN_0042f560                     strings: 
+0042f594     24 FUN_0042f594                     strings: 
+0042f5ac     44 FUN_0042f5ac                     strings: 
+0042f5d8    167 FUN_0042f5d8                     strings: "gpSelectPort NULL in gpSelectPort"
+0042f680    260 FUN_0042f680                     strings: "Select Ship Launch Site"|"Please select where to launch your ships."
+0042f784     62 FUN_0042f784                     strings: 
+0042f7d8     62 FUN_0042f7d8                     strings: 
+0042f82c     69 FUN_0042f82c                     strings: 
+0042f890     48 FUN_0042f890                     strings: 
+0042f8c0     48 FUN_0042f8c0                     strings: 
+0042f8f0     48 FUN_0042f8f0                     strings: 
+0042f920     48 FUN_0042f920                     strings: 
+0042f950    530 FUN_0042f950                     strings: "Win by finding and holding shrines for long enough to complete your research, as below:"|"Win by totally eliminating your opponents."|"Win either by owning the
+0042fb64   1874 FUN_0042fb64                     strings: 

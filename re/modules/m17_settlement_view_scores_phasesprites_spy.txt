@@ -1,0 +1,181 @@
+# m17_settlement_view_scores_phasesprites_spy: 0x47e000-0x487000  functions=180 bytes=37912
+0047e054     31 FUN_0047e054                     strings: 
+0047e074     44 FUN_0047e074                     strings: 
+0047e0a0     26 FUN_0047e0a0                     strings: 
+0047e0bc     41 FUN_0047e0bc                     strings: 
+0047e0e8    532 FUN_0047e0e8                     strings: 
+0047e2fc     35 FUN_0047e2fc                     strings: 
+0047e394    186 FUN_0047e394                     strings: 
+0047e450   1036 FUN_0047e450                     strings: 
+0047e85c    557 FUN_0047e85c                     strings: 
+0047ea8c    710 FUN_0047ea8c                     strings: 
+0047ed54    104 FUN_0047ed54                     strings: 
+0047edbc     69 FUN_0047edbc                     strings: 
+0047ee04     70 FUN_0047ee04                     strings: 
+0047ee4c     77 FUN_0047ee4c                     strings: 
+0047ee9c     60 FUN_0047ee9c                     strings: 
+0047eed8    672 FUN_0047eed8                     strings: 
+0047f178     95 FUN_0047f178                     strings: 
+0047f1d8     98 FUN_0047f1d8                     strings: 
+0047f23c    514 FUN_0047f23c                     strings: 
+0047f440    170 FUN_0047f440                     strings: 
+0047f4ec    215 FUN_0047f4ec                     strings: 
+0047f5cc    161 FUN_0047f5cc                     strings: 
+0047f670    183 FUN_0047f670                     strings: 
+0047f728    121 FUN_0047f728                     strings: 
+0047f7a4    507 DrawSTileBuilding                strings: "Null pointer in DrawSTileBuilding!"|"Construction Site"
+0047f9a0    584 FUN_0047f9a0                     strings: 
+0047fc38     73 FUN_0047fc38                     strings: 
+0047fc84    257 FUN_0047fc84                     strings: "Population %d/%d"
+0047fd88    467 FUN_0047fd88                     strings: 
+0047ff5c    157 FUN_0047ff5c                     strings: 
+0047fffc    309 FUN_0047fffc                     strings: 
+00480150   2581 FUN_00480150                     strings: 
+00480b80     94 FUN_00480b80                     strings: 
+00480be0    407 FUN_00480be0                     strings: 
+00480d78    799 FUN_00480d78                     strings: 
+00481098     49 FUN_00481098                     strings: 
+004810cc    201 FUN_004810cc                     strings: 
+004811c8    148 FUN_004811c8                     strings: 
+0048125c    152 FUN_0048125c                     strings: 
+004812f4    423 FUN_004812f4                     strings: 
+0048149c    163 FUN_0048149c                     strings: 
+00481540    713 FUN_00481540                     strings: 
+0048180c    157 FUN_0048180c                     strings: 
+004818ac    127 FUN_004818ac                     strings: "SPRITENW.DAT"
+0048192c    302 FUN_0048192c                     strings: 
+00481a5c    292 FUN_00481a5c                     strings: 
+00481b80    256 FUN_00481b80                     strings: 
+00481c80    288 FUN_00481c80                     strings: 
+00481da0   1355 FUN_00481da0                     strings: 
+00482320    420 FUN_00482320                     strings: 
+004824c4    395 FUN_004824c4                     strings: "Mini Ter"
+00482650     24 FUN_00482650                     strings: 
+00482668    726 CalculatePlayersScores           strings: "Invalid numerator or denominator in CalculatePlayersScores()"
+00482940     34 FUN_00482940                     strings: 
+00482964    182 FUN_00482964                     strings: 
+00482a1c     25 FUN_00482a1c                     strings: 
+00482a38     84 FUN_00482a38                     strings: 
+00482a8c     55 FUN_00482a8c                     strings: 
+00482ac4     63 FUN_00482ac4                     strings: 
+00482b04     52 FUN_00482b04                     strings: 
+00482b38    101 FUN_00482b38                     strings: 
+00482ba0    234 FUN_00482ba0                     strings: 
+00482c8c     85 FUN_00482c8c                     strings: 
+00482ce4      6 FUN_00482ce4                     strings: 
+00482cec     80 FUN_00482cec                     strings: 
+00482d3c    172 FUN_00482d3c                     strings: 
+00482de8    156 FUN_00482de8                     strings: 
+00482e84     87 FUN_00482e84                     strings: 
+00482edc     73 FUN_00482edc                     strings: 
+00482f28      9 FUN_00482f28                     strings: 
+00482f34      6 FUN_00482f34                     strings: 
+00482f3c     37 FUN_00482f3c                     strings: 
+00482f64      6 FUN_00482f64                     strings: 
+00482f6c     20 FUN_00482f6c                     strings: 
+00482f80     20 FUN_00482f80                     strings: 
+00482f94     43 FUN_00482f94                     strings: 
+00482fc8     65 FUN_00482fc8                     strings: 
+0048300c     42 FUN_0048300c                     strings: 
+00483038     66 FUN_00483038                     strings: 
+0048307c     26 FUN_0048307c                     strings: 
+00483098    131 FUN_00483098                     strings: 
+00483120    135 FUN_00483120                     strings: 
+004831ac    118 FUN_004831ac                     strings: 
+00483224    284 FUN_00483224                     strings: "SPRITENW.DAT"
+00483340    483 LoadPhaseSpriteFile              strings: "P Sprite"|"SPRITENW.DAT"
+00483524     18 FUN_00483524                     strings: 
+00483538    112 FUN_00483538                     strings: 
+004835a8     18 FUN_004835a8                     strings: 
+004835bc     67 FUN_004835bc                     strings: 
+00483600    249 LoadGlobalSprites                strings: "G Sprite"|"SPRITENW.DAT"
+004836fc    221 LoadPhaseSprites                 strings: "Invalid Heap in Load Phase Sprites"|"Phase Sprite"
+004837dc     27 FUN_004837dc                     strings: 
+004837fc    160 FUN_004837fc                     strings: 
+0048389c     53 FUN_0048389c                     strings: 
+004838d4     40 FUN_004838d4                     strings: 
+004838fc     80 FUN_004838fc                     strings: 
+0048394c     87 FUN_0048394c                     strings: 
+004839a4     21 FUN_004839a4                     strings: 
+004839bc     40 FUN_004839bc                     strings: 
+004839e4     43 FUN_004839e4                     strings: 
+00483a10     31 FUN_00483a10                     strings: 
+00483a30    339 FUN_00483a30                     strings: 
+00483b84     78 FUN_00483b84                     strings: 
+00483bd4    103 FUN_00483bd4                     strings: 
+00483c3c     14 FUN_00483c3c                     strings: 
+00483c4c    111 FUN_00483c4c                     strings: 
+00483cbc    155 FUN_00483cbc                     strings: 
+00483d58    455 FUN_00483d58                     strings: 
+00483f20    350 FUN_00483f20                     strings: 
+00484080    147 FUN_00484080                     strings: 
+00484114    309 FUN_00484114                     strings: 
+0048424c     35 FUN_0048424c                     strings: 
+00484270    116 FUN_00484270                     strings: 
+004842e4    131 FUN_004842e4                     strings: 
+00484368     65 FUN_00484368                     strings: 
+004843ac    177 FUN_004843ac                     strings: "%s #%d"
+00484460     27 FUN_00484460                     strings: 
+0048447c     99 FUN_0048447c                     strings: 
+004844e0    111 FUN_004844e0                     strings: 
+00484550     49 FUN_00484550                     strings: 
+00484584     23 FUN_00484584                     strings: 
+0048459c     25 FUN_0048459c                     strings: 
+004845b8     25 FUN_004845b8                     strings: 
+004845d4     41 FUN_004845d4                     strings: 
+00484600     59 FUN_00484600                     strings: 
+0048463c     77 FUN_0048463c                     strings: 
+0048468c    240 FUN_0048468c                     strings: 
+0048477c     75 FUN_0048477c                     strings: 
+004847c8     48 FUN_004847c8                     strings: 
+004847f8     30 FUN_004847f8                     strings: 
+00484818     38 FUN_00484818                     strings: 
+00484840     34 FUN_00484840                     strings: 
+00484864    104 FUN_00484864                     strings: 
+004848cc    180 FUN_004848cc                     strings: "You may transfer materials between territories.  Simply indicate how much you wish to transfer.  The transport cost will be shown.  \n\nYou may also offer to s
+00484980    472 FUN_00484980                     strings: "Transferring Materials"|"Transferring %s from %s to %s."|"Price per unit:"|"Selling Materials"|"Offering to sell some of our %s in %s to the %s."|"Sale price o
+00484b58    145 @TransferDialog$qqspvuiuil       strings: 
+00484bf0     58 FUN_00484bf0                     strings: 
+00484c2c     17 FUN_00484c2c                     strings: 
+00484c40     51 FUN_00484c40                     strings: 
+00484c74    182 UnitList__Insert                 strings: "pThis NULL in UnitList::Insert()"
+00484d2c    123 UnitList__Delete                 strings: "pIterance NULL in UnitList::Delete()"|"pThis NULL in UnitList::Delete()"
+00484da8    124 FUN_00484da8                     strings: 
+00484e24     97 FUN_00484e24                     strings: 
+00484e88     28 FUN_00484e88                     strings: 
+00484ea4     23 FUN_00484ea4                     strings: 
+00484ebc     34 FUN_00484ebc                     strings: 
+00484ee0     23 FUN_00484ee0                     strings: 
+00484ef8     22 FUN_00484ef8                     strings: 
+00484f10     25 FUN_00484f10                     strings: 
+00484f2c     25 FUN_00484f2c                     strings: 
+00484f48     42 FUN_00484f48                     strings: 
+00484f74     44 FUN_00484f74                     strings: 
+00484fa0    145 FUN_00484fa0                     strings: 
+00485034    278 FUN_00485034                     strings: 
+0048514c     89 FUN_0048514c                     strings: "Steal Tech"
+004851a8     67 AnyKnown                         strings: "AnyKnown"
+004851ec    120 FUN_004851ec                     strings: "Give Experience"
+00485264     99 FUN_00485264                     strings: 
+004852c8    123 SearchForSubs                    strings: "SearchForSubs"
+00485344     31 FUN_00485344                     strings: 
+00485364    141 FUN_00485364                     strings: "Uncloak"
+004853f4    133 FUN_004853f4                     strings: 
+0048547c    262 SpyCaught                        strings: "SpyCaught"
+00485584      7 FUN_00485584                     strings: 
+0048558c     72 FUN_0048558c                     strings: 
+004855d4    145 FUN_004855d4                     strings: 
+00485668   3524 FUN_00485668                     strings: "DETECT_MINE_MISSION1"|"DETECT_MINE_MISSION2"|"SABOTAGE_MISSION"|"Sabotage Destroys Building?"|"Sabotage"|"sabotaged"|"Shaman"|"spied"|"StealTechM"|"stole tech"
+004864c4    157 FUN_004864c4                     strings: 
+00486564     78 FUN_00486564                     strings: 
+004865e8    274 FUN_004865e8                     strings: 
+004866fc     53 FUN_004866fc                     strings: 
+00486734     98 FUN_00486734                     strings: 
+00486798     64 FUN_00486798                     strings: 
+004867d8    136 FUN_004867d8                     strings: 
+00486860    173 FUN_00486860                     strings: 
+00486910     84 FUN_00486910                     strings: 
+00486964    528 FUN_00486964                     strings: 
+00486b74    442 FUN_00486b74                     strings: 
+00486d30    258 FUN_00486d30                     strings: 
+00486e34   2446 FUN_00486e34                     strings: "%d turns"

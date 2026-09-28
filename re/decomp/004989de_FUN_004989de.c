@@ -1,0 +1,11 @@
+// FUN_004989de @ 004989de size=15 sig=undefined FUN_004989de() cc=unknown
+// callers: FUN_004a5699,FUN_004a2078,FUN_00496358,FUN_00490796,FUN_0049002d,FUN_004a54e5,FUN_00490ce4,FUN_004989ed,FUN_00490e6e,FUN_00496748,FUN_004916c2,FUN_00490fb0,FUN_004a3ea0,FUN_004a54b0,FUN_0048fee9,FUN_0049028e
+// callees: GlobalFree
+
+void FUN_004989de(HGLOBAL param_1)
+
+{
+  GlobalFree(param_1);
+  return;
+}
+

@@ -1,0 +1,19 @@
+// FUN_00459068 @ 00459068 size=62 sig=undefined FUN_00459068() cc=unknown
+// callers: FUN_004590f0,FUN_0045eadc,FUN_00421178,FUN_0045d984,FUN_00472e68,FUN_0045ac80,FUN_0045d478,FUN_0041db10,FUN_00459230,FUN_0045bd00,CreateWinGWindow,FUN_004590a8,FUN_0045be7c
+// callees: FUN_0048d13d,FUN_00490796,FUN_00458c6c,memset
+
+void FUN_00459068(void)
+
+{
+  DAT_004d1c7c = 0;
+  FUN_00458c6c();
+  if (DAT_00583d30 != 0) {
+    FUN_0048d13d(DAT_00583d30);
+  }
+  if (DAT_00583d58 != 0) {
+    FUN_00490796(DAT_00583d58,1);
+  }
+  memset(&DAT_00583d30,0,0x34);
+  return;
+}
+

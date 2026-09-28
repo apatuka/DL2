@@ -1,0 +1,117 @@
+addr	name	ctype	comment
+0059f154	gCurrentTurn	int	GameOptions+0; "Turn %3d" en DEBUG.TXT; SaveGame lo pone a 1 en modo editor
+0059f158	gGameSeed	uint32_t	GameOptions+4; ResetVariables: FUN_0046c9cc("GameSeed")
+0059f15c	gSaveGameSeed	int	GameOptions+8; SaveGame: FUN_0046c9d8(10000,"SaveGame"); SyncSetRandomSeed (FUN_00477394) lo aplica con srand o lo difunde (msg 0x4b)
+004d5aec	gNumPlayers	int	GameOptions+0xc; INI "Players" (2..7); DumpGameOptions "Players"
+004d5af0	gWinCities	int	GameOptions+0x10; INI "Win Cities" {2,3,5,7,10}; "Cities" en DEBUG.TXT
+004d5af4	gAllowAlliances	int	GameOptions+0xa8; INI "Allow Alliances"; FUN_004412d4 devuelve 0 si es 0
+004d5af8	gWinShrines	int	GameOptions+0x14; INI "Win Shrines"
+004d5afc	gWinTurns	int	GameOptions+0x18; INI "Win Turns"
+004d5b00	gVictoryCondition	uint8_t	GameOptions+0x1c; 0 Manifest Destiny, 1 Conquest, 2 Shrine Wars
+004d5b04	gRandomEvents	int	GameOptions+0x22; INI "Random Events"; CreateRandomEvents y colocación de shrines aleatorios
+004d5b08	gFastProduction	int	GameOptions+0x1e; INI "Fast Production"
+004d5b0c	gAiSkillLevel	int	GameOptions+0x26; INI "AI Skill Level" 0..4 (diálogo ids 0x17..0x1b)
+004d5b10	gWorldSeed1	uint32_t	WorldParams+0; ResetVariables: FUN_004ae5b0()
+004d5b14	gRngSeed	uint32_t	WorldParams+4; LoadGame: FUN_004ae594(seed) (srand)
+004d5b18	gNumTerritories	uint16_t	WorldParams+8; bucles "for i=1..N" sobre DAT_005a43d0
+004d5b1a	gMapWidth	uint8_t	WorldParams+0xa; "World W."
+004d5b1b	gMapHeight	uint8_t	WorldParams+0xb; "World H."
+004d5b1c	gWorldType	uint8_t	WorldParams+0xc; tipo de mundo 0..5 (FUN_004684d0 rand%6)
+004d5b1d	gTerrainPct	uint8_t[6]	WorldParams+0xd; % Sea/Plains/Forest/Swamp/Mountains/Wasteland (suma 100)
+004d5b23	gNumColonySites	uint8_t	WorldParams+0x13; = tamaño*2+12 (FUN_004684d0)
+004d5b24	gNetFlags	uint32_t	GameOptions+0x3a; bit0 alternado en FUN_0047d2f0
+004d5b28	gOptReserved4e	int	GameOptions+0x4e; sólo save/load (0x7f observado)
+004d5b2c	gAutoTimer	int	GameOptions+0x4a; INI "Auto Timer"; RunAITurns arranca FUN_0045efd0(clock)
+004d5b30	gAutoTimerClock	int	GameOptions+0x52; INI "Auto Timer Clock" segundos (3..960, 300 en red)
+004d5b34	gLastPlayerTimer	int	GameOptions+0x56; INI "Last Player Timer"
+004d5b38	gLastPlayerClock	int	GameOptions+0x5a; INI "Last Player Clock" segundos
+004d5b3c	gRacialAbilities	int	GameOptions+0x5e; INI "Racial Abilities" 0 standard/1 best/2 none (FUN_00441128)
+004d5a90	gWorldResources	int	GameOptions+0x74; INI "World Resources" (FUN_004669d8)
+004d5a94	gCampaignIndex	int	GameOptions+0x7c; 0 = sin campaña; tabla DAT_004c61e0 paso 0xd8
+004d5a88	gLoadingMap	int	1 mientras se carga un mapa del editor (FUN_004684d0, FUN_0045f608 compara con SaveHeader::isMap)
+004d5aa0	gEditorMode	uint8_t	!=0 en editor de escenarios: knowledge=100 al guardar, IA->humano, sin temporizador
+004d5ae8	kSaveVersion	uint32_t	0x120 (v1.20); SaveHeader::version; carga rechazada si el fichero es mayor
+004d1cf8	kTerritoryUnsavedTail	int	0x12a: bytes finales de Territory que no se guardan (0xadc-0x12a = 0x9b2)
+004d1d3c	kHeaderGeneration	int	4: generación de formato de la cabecera actual
+004d1ea0	kSaveHeaderText	char[88]	"Deadlock 2  (c)1997 Accolade Inc. ... Pre-release version XXXXXXXXXXX"
+004d825c	gNextGlobalId	int	GameOptions+0x78; FUN_00474cfc lo incrementa y trunca a u16 (IDs de Building/Army)
+004d5a58	gHostPlayer	int	jugador maestro en red (SyncCreateBuilding compara con gLocalPlayer)
+004d5988	gLocalPlayerPtr	Player*	&gPlayers[gLocalPlayer] (FUN_00461078)
+0058f1f4	gLocalPlayer	int	GameOptions+0x3e; índice del jugador local
+0058f1fc	gNetGame	int	!=0 en partida de red ("NetGame" en DEBUG.TXT)
+0058f1ec	gGameAborted	int	1 si la carga falló / fin de partida; FUN_00486e34 no evalúa victoria si !=0
+0059f0fc	gPlayersMask	uint8_t	GameOptions+0x87; bit i = jugador i presente
+0059f160	gPlayers	Player[7]	paso 0x2d8; +1 tipo, +2 raza, +6 territorio inicial, +0xc créditos, +0x2b3 nombre
+005a0548	gPlayerSkill	uint8_t[7]	GameOptions+0x80; nivel de habilidad por jugador (0..4)
+005a0550	gTiles	Tile[40][40]	filas de 400 bytes, tile de 10 bytes (x,y,territorio,bordes,terreno,overlay)
+005a43d0	gTerritories	Territory[112]	paso 0xadc; índice 0 no se usa; memset 0x4c040
+005f0410	gBuildings	Building[1200]	paso 0x122; FindBuildingByGlobalID busca u16 id en +0
+00645370	gArmies	Army[560]	paso 0x5c; FindArmyByGlobalID; el código también los llama "unit"
+004c515c	gFreeArmies	Army*	cabeza de la lista libre de ejércitos ("freeArmies" en FUN_0044577c)
+005644f4	gActiveBuildingsTail	Building*	último edificio activo enlazado (FUN_0044cabc)
+005644f0	gFreeBuildingsTail	Building*	último edificio libre enlazado (FUN_0044cabc)
+00651cb0	gEventLogFirst	int	GameOptions+0x42; primer evento visible del Event Log
+00651cb4	gEventLog	EventLogEntry[50]	paso 0x14: u16 tipo, +4 char* texto, +0xc jugador, +0x10 parámetro
+0065209c	gEventCount	int	GameOptions+0x46; nº de eventos (máx 50, FUN_00423690 hace hueco si >0x31)
+004b7b54	gEventTextPool	char*	puntero de asignación lineal de textos de eventos (fin en 0053c4db)
+00522280	gMinisterJobHeads	MinisterJob[7]	cabeceras de las listas de trabajos de ministros (0x44 cada una, next en +0x14)
+00522584	gJobs	Job[7][50]	task forces de la IA, 0xc4 cada uno (goal, status, destino, 16 ejércitos)
+005220a4	gScratchJob1	Job	job de trabajo (FUN_00404f5c, FUN_004050ac)
+00522168	gScratchJob2	Job	job de trabajo (FUN_00405378)
+0052222c	gAiWarMask	uint32_t[7]	máscara por jugador de objetivos de guerra (FUN_00403350)
+004fbbac	gTechs	TechEntry[48]	paso 0x32: +0 knownMask, +2 availableMask, +6 progress[7], +0x14 nombre, +0x20 nivel, +0x22 coste, +0x24 prerrequisitos
+00559e00	gRaceStats	int16_t[64][7]	modificadores por [fila][raza]; FUN_00441128 los genera; fila 24 % población, 29.. producción
+004fc50c	kRaceStatsDefault	int16_t[64][8]	tabla constante origen de gRaceStats
+004fc8dc	kRaceStatsRows61	int16_t[3][8]	filas 61..63 para ficheros antiguos (FUN_0045fd28)
+0055a820	gContinents	Continent[32]	paso 0x1a2 (FUN_004423b4); se vuelca en el bloque de jobs
+00654804	gRandomEvents	RandomEvent[25]	28 bytes: tipo (índice en PTR_FUN_004dcab0), +8 turnos
+00657df4	gScores	PlayerScore[7]	6 bytes: i32 score, u8 nukesUsed (CalculatePlayersScores, FUN_0044b924)
+00654ac0	gSpies	Spy[7][25]	8 bytes: owner, territorio, misión, turnos ("Scandal", FUN_0047d49c)
+005644f8	gBlackMarket	BlackMarketState[7]	{i32 pending; i32 turn} oferta Skirineen (FUN_00450c9c init {0,-1})
+0065e404	gShrineTurns	int[7]	GameOptions+0x88; turnos consecutivos cumpliendo Shrine Wars
+0065e42c	gHasWon	uint16_t[7]	GameOptions+0x66; =1 al cumplir la victoria
+0065e3cc	gPlayerCities	int[7]	territorios/ciudades por jugador (Manifest Destiny compara con gWinCities)
+0065e3e8	gPlayerShrines	int[7]	shrines por jugador (FUN_00486964)
+0065e3b0	gPlayerTerritoryCount	int[7]	==0 => jugador eliminado (FUN_00486e34)
+0065e420	gTotalShrines	int	nº de shrines en el mapa (FUN_00486964); SaveGame avisa si < gWinShrines
+0065e424	gWinCitiesEffective	int	= gWinCities al cargar/empezar; FUN_00486e34 lo ajusta
+00583da4	gFileGeneration	int	generación del fichero cargado (0..4, FUN_00461ff4)
+00583da8	gFileVersion	int	SaveHeader::version del fichero cargado
+004c5b50	gSelectedTerritory	int	territorio seleccionado en la UI (diálogos usan DAT_004c5b50*0xadc)
+0053b850	gSelectedBuilding	Building*	edificio seleccionado (FUN_0041bfc0 "Labor Assigned")
+004d59b4	gUiScreen	int	pantalla/diálogo activo (0xc = moral, 0x2a, 0x47)
+004d5a50	gNetJoined	int	!=0 en partida de red unida (fuerza autoTimer=1, 300 s)
+004d512c	gMapSizeIndex	int	0..3 tamaño de mapa (DAT_004d5144 -> ancho)
+004d5144	kMapSizes	uint16_t[4]	anchos de mapa por tamaño (20..40)
+004d514c	kTerrainPctTable	uint16_t[5][6]	% de terreno por tamaño de mapa (FUN_004684d0)
+004c425c	kWinCitiesChoices	int[5]	{2,3,5,7,10}
+004c4274	kWinShrinesChoices	int[3]	opciones de "Win Shrines"
+004c4280	kWinTurnsChoices	int[3]	opciones de "Win Turns"
+004c61e0	kCampaignTable	uint8_t[][0xd8]	tabla de campañas (+4 winCities, +0x4c/+0x90/+0xd4 bytes guardados)
+004f9dbc	kBuildingTypes	BuildingTypeDef[48]	paso 0x32; nombre en +0 ("No Building".."Sea Shrine"), categoría +7, tareas +0x19
+004faf7c	kUnitTypes	UnitTypeDef[39]	paso 0x24; nombre en +0 ("No Unit".."Sea Mine"), clase +0xb
+00509038	kRaceNames	const char*[7]	"ChCh't","Cyth","Human","Maug","Re'lu","Tarth","Uva Mosk"
+00509054	kTerrainNames	const char*[6]	"Sea","Plains","Forest","Swamp","Mountains","Wasteland"
+0050906c	kMaterialNames	const char*[11]	"Money","Food","Energy","Wood","Iron","Steel","Endurium","Triidium","Electronic Parts","Anti-Matter Pods","Art"
+00509098	kMaterialNamesLower	const char*[11]	"credits","food",... (DebugJobsDialog "Material: %s")
+00509180	kBuildingTaskNames	const char*[20]	"Construction","Mine Iron",...,"Upgrade"
+00509938	kAiLeaderNames	const char*[7]	"Sting","Masster","Commander Jameson","Mighty Maug Chief","Mind Bender","Ubergeneral Grunt","Grand Hortus"
+005099cf	kRaceShortNames	char[7][6]	"ChCht","Cyth","Human","Maug","ReLu","Tarth","UvMsk" (nombres de autosave "%s%03d")
+00509a68	kSpeedNames	const char*[8]	"Ultra Fast".."Does Not Shoot" (velocidad de disparo)
+004b6bd4	kTaskForceGoalNames	const char*[21]	"NO_TF_GOAL","RESERVE","LAND_EXPAND",...
+004b6c7c	kTaskForceStatusNames	const char*[6]	"NEED_SPACE","NEED_FOOD",...
+004b5fe8	kMinisterJobNames	const char*[14]	"NULL_JOB","HEAD_JOB","CREATE_BLDG",...
+004b5fd0	kMinisterNames	const char*[6]	"DEFENSE_MIN","WAR_MIN","GOVERNMENT_MIN","ECONOMIC_MIN","TECH_MIN","LABOR_MIN"
+004d5f60	kIniKeys	const char*[22]	"Scenario Options","World","Startup","File Type","Version","Name","Game Turn","Players",...
+004d6010	kIniValues	const char*[8]	"manifest_destiny","conquest","shrine_wars","false","true","standard_ability","best_ability","no_ability"
+004d57ec	kTaxRateTable	int[]	% de impuestos por nivel (Player::taxLevel)
+004dcab0	kRandomEventHandlers	void(*)(RandomEvent*)[10]	manejadores por tipo de evento aleatorio
+004b502c	kAiPersonalities	void*[][6]	tabla por tipo de IA (Player+0x46..0x5e)
+004b5088	kAiEventHandlers	void(*)()[][6]	FUN_00423690 despacha eventos a la IA (type-3)
+004d5990	gSmallSprites	int	"Small Spr." en DEBUG.TXT
+004d5994	gLowMem	int	"lowMem" en DEBUG.TXT
+004d5aa8	gVideoOn	int	"Video On"
+004d5aac	gMusicOn	int	"Music On"
+004d5ab0	gSoundOn	int	"Sound On"
+004d1c84	gTurnTimerRunning	int	FUN_0045efd0 / FUN_0045f028
+00583da0	gTurnTimerStart	DWORD	timeGetTime() al arrancar el temporizador de turno

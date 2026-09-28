@@ -1,0 +1,11 @@
+// FUN_00436064 @ 00436064 size=12 sig=undefined FUN_00436064() cc=unknown
+// callers: FUN_00468a28,FUN_0042ebb8,FUN_00449084,FUN_004399dc,FUN_004393e8,FUN_00430abc,FUN_004618e8,FUN_00438fe0,WinMain,FUN_0042662c
+// callees: FUN_00414f38
+
+void FUN_00436064(void)
+
+{
+  FUN_00414f38(DAT_004c4658);
+  return;
+}
+

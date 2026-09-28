@@ -1,0 +1,114 @@
+# m12_roads_demolish_missiles_research_aiturn: 0x45a000-0x461000  functions=113 bytes=27638
+0045a038    130 FUN_0045a038                     strings: "Null Road Pointer."
+0045a0bc    806 FUN_0045a0bc                     strings: 
+0045a3e4    294 FUN_0045a3e4                     strings: 
+0045a50c    472 FUN_0045a50c                     strings: 
+0045a6e4    445 FUN_0045a6e4                     strings: 
+0045a8a4    120 FUN_0045a8a4                     strings: 
+0045a91c    502 FUN_0045a91c                     strings: 
+0045ab14      7 FUN_0045ab14                     strings: 
+0045ab1c    355 FUN_0045ab1c                     strings: 
+0045ac80    277 FUN_0045ac80                     strings: 
+0045ad98     56 FUN_0045ad98                     strings: "You may only view settlements if they are next to your colony, you have a unit spying in them, or you have bought information from the Skirineen."|"Oolan's Adv
+0045add0     47 FUN_0045add0                     strings: 
+0045ae00     53 FUN_0045ae00                     strings: 
+0045ae38     61 FUN_0045ae38                     strings: 
+0045ae78     77 FUN_0045ae78                     strings: "You cannot set tax rates for a territory you do not own."|"Oolan's Advice"
+0045aed4    446 FUN_0045aed4                     strings: 
+0045b094    538 FUN_0045b094                     strings: "Demolishing a sea platform will also destroy every building on it!\n\nAre you sure you want to demolish your sea platform?"|"Demolishing this %s will give you 
+0045b304    323 FUN_0045b304                     strings: "Demolish all buildings in territory %s?"|"Oolan's Advice"|"Sorry.  You cannot demolish buildings in territories you do not own.  Nice try, though."
+0045b448   1118 FUN_0045b448                     strings: "All tasks in this %s are locked. You must unlock some if you want to move a colonist from here."|"You can not drop colonists on this %s while all its tasks are
+0045b8a8     61 FUN_0045b8a8                     strings: 
+0045b8e8    133 FUN_0045b8e8                     strings: "You are not able to change the production of your opponent's buildings.\n\nHowever, congratulations on your clever idea!"|"Oolan's Advice"
+0045b970    407 FUN_0045b970                     strings: 
+0045bb34     84 FUN_0045bb34                     strings: 
+0045bb88    136 FUN_0045bb88                     strings: 
+0045bc10    237 FUN_0045bc10                     strings: 
+0045bd00     68 FUN_0045bd00                     strings: 
+0045bd44    159 FUN_0045bd44                     strings: 
+0045bde4    148 FUN_0045bde4                     strings: 
+0045be7c    212 FUN_0045be7c                     strings: 
+0045bf50     39 FUN_0045bf50                     strings: 
+0045bf78    769 FUN_0045bf78                     strings: 
+0045c27c    263 FUN_0045c27c                     strings: 
+0045c384    476 FUN_0045c384                     strings: "Missiles can only be launched into neutral or enemy territories."|"Oolan's Advice"
+0045c560    283 FUN_0045c560                     strings: "Missiles can only be launched into neutral or enemy territories."|"Oolan's Advice"
+0045c67c    133 FUN_0045c67c                     strings: 
+0045c704    821 FUN_0045c704                     strings: "You will abandon this territory if you move everyone out of it.\nAre you sure that you want to leave %s?"|"Abandoning Territory"|"You can only move colonists i
+0045ca3c    537 FUN_0045ca3c                     strings: "You can only ship resources to territories that another colony owns."|"Oolan's Advice"|"Sorry, you can't transfer materials to a blockaded territory without Tr
+0045cc58    160 FUN_0045cc58                     strings: 
+0045ccf8    142 FUN_0045ccf8                     strings: 
+0045cd88    595 FUN_0045cd88                     strings: 
+0045cff4    917 FUN_0045cff4                     strings: 
+0045d3a4    116 FUN_0045d3a4                     strings: 
+0045d418     96 FUN_0045d418                     strings: 
+0045d478    440 FUN_0045d478                     strings: 
+0045d630    116 FUN_0045d630                     strings: 
+0045d6a4    502 FUN_0045d6a4                     strings: 
+0045d89c    231 FUN_0045d89c                     strings: 
+0045d984    707 FUN_0045d984                     strings: "blow away mines?"
+0045dc48    207 FUN_0045dc48                     strings: 
+0045dd18    375 FUN_0045dd18                     strings: 
+0045de90     31 FUN_0045de90                     strings: 
+0045deb0    139 FUN_0045deb0                     strings: 
+0045df3c     81 FUN_0045df3c                     strings: 
+0045df90     30 FUN_0045df90                     strings: 
+0045dfb0     34 FUN_0045dfb0                     strings: 
+0045dfd4    223 FUN_0045dfd4                     strings: 
+0045e0b4    135 FUN_0045e0b4                     strings: 
+0045e13c    131 FUN_0045e13c                     strings: 
+0045e1c0    179 FUN_0045e1c0                     strings: 
+0045e274    289 FUN_0045e274                     strings: 
+0045e398    345 FUN_0045e398                     strings: 
+0045e4f4     93 FUN_0045e4f4                     strings: "We have researched all of the technologies we can.  The planet will soon be ours!"|"Good News!"
+0045e554    243 FUN_0045e554                     strings: "Your turn has been logged. (You probably push elevator buttons a million times too, don't you)?"|"Relax, colony leader."|"Your opponents are still not done wit
+0045e6b4     16 FUN_0045e6b4                     strings: 
+0045e6d0    194 FUN_0045e6d0                     strings: "You can only summon the Skirineen from your own settled territories. Select a new territory and try again."|"Oolan's Advice"|"Skirineen Communique"
+0045e794     13 FUN_0045e794                     strings: 
+0045e7a4    283 FUN_0045e7a4                     strings: 
+0045e8e8    180 FUN_0045e8e8                     strings: 
+0045e99c    165 FUN_0045e99c                     strings: 
+0045ea44     39 FUN_0045ea44                     strings: 
+0045ea6c     46 FUN_0045ea6c                     strings: 
+0045eadc    435 FUN_0045eadc                     strings: "You must start a settlement before you can make buildings there.  Give a Colonizer the 'Build Settlement' mission and move it into this territory.  The next tu
+0045ee88    220 FUN_0045ee88                     strings: 
+0045ef64    107 FUN_0045ef64                     strings: "Sorry, but you may only place buildings in territories you own and have settled."|"Oolan's Advice"
+0045efd0     45 FUN_0045efd0                     strings: 
+0045f000     38 FUN_0045f000                     strings: 
+0045f028    224 FUN_0045f028                     strings: 
+0045f108     64 FUN_0045f108                     strings: 
+0045f148     49 FUN_0045f148                     strings: 
+0045f17c    151 FUN_0045f17c                     strings: 
+0045f214    193 FUN_0045f214                     strings: 
+0045f2d8    780 RunAITurns                       strings: "Your silicon-based opponents are considering their strategies."|"Please wait..."|"After AI turns"
+0045f5e4     33 FUN_0045f5e4                     strings: 
+0045f608     91 FUN_0045f608                     strings: 
+0045f664    449 FUN_0045f664                     strings: 
+0045f828    485 FUN_0045f828                     strings: 
+0045fa10     35 FUN_0045fa10                     strings: 
+0045fa34     21 FUN_0045fa34                     strings: 
+0045fa4c    149 FUN_0045fa4c                     strings: 
+0045fae4    542 FUN_0045fae4                     strings: "New Player"
+0045fd04     34 FUN_0045fd04                     strings: 
+0045fd28    299 FUN_0045fd28                     strings: 
+0045fe58    115 FUN_0045fe58                     strings: 
+0045fecc    115 FUN_0045fecc                     strings: 
+0045ff40     81 FUN_0045ff40                     strings: 
+0045ff94    151 FUN_0045ff94                     strings: 
+0046002c    163 FUN_0046002c                     strings: 
+004600d0    182 FUN_004600d0                     strings: 
+00460188    104 FUN_00460188                     strings: 
+004601f0    104 FUN_004601f0                     strings: 
+00460258    215 FUN_00460258                     strings: 
+00460330    686 FUN_00460330                     strings: 
+004605e0    273 FUN_004605e0                     strings: 
+004606f4    225 FUN_004606f4                     strings: 
+004607d8    150 FUN_004607d8                     strings: 
+00460870    373 FUN_00460870                     strings: 
+004609e8    139 FUN_004609e8                     strings: 
+00460a74    783 FUN_00460a74                     strings: 
+00460d84    207 FUN_00460d84                     strings: 
+00460e54    206 FUN_00460e54                     strings: 
+00460f24     67 FUN_00460f24                     strings: 
+00460f68     58 FUN_00460f68                     strings: 
+00460fa4    211 FUN_00460fa4                     strings: 

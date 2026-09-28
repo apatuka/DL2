@@ -1,0 +1,15 @@
+// FUN_004360ec @ 004360ec size=44 sig=undefined FUN_004360ec() cc=unknown
+// callers: RaceInit,FUN_0043a1f8,FUN_00468ea4,FUN_004399dc,FUN_0046f5d4,FUN_00430abc,FUN_004618e8,FUN_00438fe0,FUN_004393a0,WinMain
+// callees: FUN_004a4025,FUN_00449084,FUN_004493dc
+
+void FUN_004360ec(void)
+
+{
+  FUN_004a4025(DAT_004c4658);
+  DAT_004c4658 = 0;
+  DAT_004d59b4 = DAT_00558ea8;
+  FUN_004493dc(0);
+  FUN_00449084();
+  return;
+}
+

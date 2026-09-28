@@ -1,0 +1,10 @@
+// FUN_0044fe1c @ 0044fe1c size=25 sig=undefined FUN_0044fe1c() cc=unknown
+// callers: FUN_00486b74,FUN_0044ffbc,FUN_00415924,FUN_00450150,@CampaignNumDialog$qqspvuiuil,FUN_00441700,FUN_0044feec,FUN_00450320,FUN_0044ff28,FUN_0040be04,FUN_004501b0,FUN_00450058,FUN_00486e34,FUN_00486d30,FUN_004500d8,FUN_0047c730,FUN_0046b1ac,FUN_00450380,FUN_00450204,FUN_004092ec,FUN_0044ff80
+// callees: 
+
+uint FUN_0044fe1c(byte param_1)
+
+{
+  return 1 << (param_1 & 0x1f) & DAT_0059f100;
+}
+

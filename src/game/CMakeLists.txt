@@ -1,0 +1,22 @@
+# dl2game: lógica de juego reconstruida desde DEADLOCK.EXE (sin dependencias de SDL ni del motor gráfico).
+# Cada agente/módulo añade sus .cpp a la lista GAME_SOURCES entre las marcas BEGIN/END (una línea por archivo).
+set(GAME_SOURCES
+    globals.cpp
+    hooks.cpp
+    rtl_compat.cpp
+    # BEGIN MODULE SOURCES
+    data_tables.cpp
+    # END MODULE SOURCES
+)
+
+add_library(dl2game STATIC ${GAME_SOURCES})
+target_include_directories(dl2game PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/..)
+target_compile_features(dl2game PUBLIC cxx_std_20)
+if(MSVC)
+    target_compile_options(dl2game PRIVATE /W4 /utf-8 /wd4100 /wd4201)
+    target_compile_definitions(dl2game PUBLIC _CRT_SECURE_NO_WARNINGS NOMINMAX)
+endif()
+
+# Tests de la lógica (ejecutables de consola que cargan partidas reales y comprueban invariantes).
+# BEGIN MODULE TESTS
+# END MODULE TESTS

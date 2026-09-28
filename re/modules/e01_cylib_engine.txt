@@ -1,0 +1,592 @@
+# e01_cylib_engine: 0x487000-0x49b000  functions=591 bytes=73408
+004877c8     88 FUN_004877c8                     strings: 
+00487820    124 FUN_00487820                     strings: 
+0048789c      9 FUN_0048789c                     strings: 
+004878a8    195 FUN_004878a8                     strings: 
+0048796c     18 FUN_0048796c                     strings: 
+00487980     23 FUN_00487980                     strings: 
+00487998     24 FUN_00487998                     strings: 
+004879b0     69 FUN_004879b0                     strings: 
+004879f8      1 FUN_004879f8                     strings: 
+004879fc      1 FUN_004879fc                     strings: 
+00487a00    210 FUN_00487a00                     strings: 
+00487b80     89 LoadSmacker                      strings: "SMACKW32.DLL"
+00487bdc     16 FreeSmacker                      strings: 
+00487bec    482 CreateWinGWindow                 strings: "XenoWinG"|"SPRITENW.DAT"
+00487df4     62 FUN_00487df4                     strings: 
+00487e34    573 FUN_00487e34                     strings: 
+00488074    105 FUN_00488074                     strings: 
+004880e0    120 FUN_004880e0                     strings: 
+00488429    155 FUN_00488429                     strings: 
+004884c4    161 FUN_004884c4                     strings: 
+004887cb    255 FUN_004887cb                     strings: 
+004888d0     28 FUN_004888d0                     strings: 
+004888ec    172 FUN_004888ec                     strings: "Opened, %s\r\n"
+00488998    113 FUN_00488998                     strings: "Error creating, %s (%s)\r\n"|"Created and opened, %s ref = %d\r\n"
+00488a09     94 FUN_00488a09                     strings: "Error closing file, %d, (%s)\r\n"|"Closed, %d\r\n"
+00488a67     71 FUN_00488a67                     strings: "Error deleting file, %s, (%s)\r\n"
+00488aae     97 FUN_00488aae                     strings: "Error creating directory, %s, (%s)\r\n"
+00488b0f     74 FUN_00488b0f                     strings: "Error getting file attribs, %s, (%s)\r\n"
+00488b59     74 FUN_00488b59                     strings: "Error setting file attribs, %s, (%s)\r\n"
+00488ba3    121 FUN_00488ba3                     strings: "Error reading from file, ref = %d, buff = %d, size = %d, (%s)\r\n"|"Read from file, ref = %d, buff = %d, size = %d\r\n"
+00488c1c    121 FUN_00488c1c                     strings: "Error writing to file, ref = %d, buff = %d, size = %d, (%s)\r\n"|"Write to file, ref = %d, buff = %d, size = %d\r\n"
+00488c95     84 FUN_00488c95                     strings: "Error seeking in file, ref = %d, pos = %d, mode = %d, (%s)\r\n"
+00488ce9     71 FUN_00488ce9                     strings: "Error getting file size, ref = %d, (%s)\r\n"
+00488d30     78 FUN_00488d30                     strings: "Error renaming %s to %s, (%s)\r\n"
+00488d7e     85 FUN_00488d7e                     strings: "Error expanding path name %s, (%s)\r\n"
+00488dd3     72 FUN_00488dd3                     strings: "Error getting the default dir, (%s)\r\n"
+00488e1b     71 FUN_00488e1b                     strings: "Error setting the default dir to %s, (%s)\r\n"
+00488e62     59 FUN_00488e62                     strings: 
+00488e9d    131 FUN_00488e9d                     strings: "Error getting disk space attribs %s , (%s)\r\n"
+00488f20     86 FUN_00488f20                     strings: "Error getting disk attribs %s\r\n"
+00488f76     41 FUN_00488f76                     strings: 
+00488f9f    189 FUN_00488f9f                     strings: 
+0048905c     40 FUN_0048905c                     strings: 
+00489084    213 FUN_00489084                     strings: 
+00489159    173 FUN_00489159                     strings: 
+00489206     44 FUN_00489206                     strings: 
+00489232     96 FUN_00489232                     strings: 
+00489292     16 FUN_00489292                     strings: 
+004892a2     16 FUN_004892a2                     strings: 
+004892b2     16 FUN_004892b2                     strings: 
+004892c2     94 FUN_004892c2                     strings: 
+00489320     54 FUN_00489320                     strings: "\\Error opening, %s (%s)\r\n"
+00489356     39 FUN_00489356                     strings: 
+0048937d     55 FUN_0048937d                     strings: 
+004893b4     41 FUN_004893b4                     strings: 
+004893dd     41 FUN_004893dd                     strings: 
+00489406     96 FUN_00489406                     strings: "\\Error opening, %s (%s)\r\n"
+00489466     27 FUN_00489466                     strings: 
+00489481     83 FUN_00489481                     strings: 
+004894d4     80 FUN_004894d4                     strings: "\\Error opening, %s (%s)\r\n"
+00489524     20 FUN_00489524                     strings: 
+00489538     58 FUN_00489538                     strings: 
+00489572     50 FUN_00489572                     strings: 
+004895a4     42 FUN_004895a4                     strings: 
+004895ce     22 FUN_004895ce                     strings: 
+004895e4     39 FUN_004895e4                     strings: 
+0048960b    448 FUN_0048960b                     strings: 
+004897cb     31 FUN_004897cb                     strings: 
+004897ea    322 FUN_004897ea                     strings: 
+0048992c     80 FUN_0048992c                     strings: 
+0048997c     78 FUN_0048997c                     strings: 
+004899ca     51 FUN_004899ca                     strings: 
+004899fd     31 FUN_004899fd                     strings: 
+00489a1c     39 FUN_00489a1c                     strings: 
+00489a43     39 FUN_00489a43                     strings: 
+00489a6a     78 FUN_00489a6a                     strings: 
+00489ab8     41 FUN_00489ab8                     strings: 
+00489ae1    349 FUN_00489ae1                     strings: 
+00489c3e     62 FUN_00489c3e                     strings: 
+00489c7c     26 FUN_00489c7c                     strings: 
+00489c98    526 FUN_00489c98                     strings: "Initializing Direct Sound:"|"\r\nWarning: (DirectSound) Primary buffer could not be set to preferred format.\r\n"|"\r\n(DirectSound) Primary buffer successfull
+00489ea6     79 FUN_00489ea6                     strings: 
+00489ef5    300 FUN_00489ef5                     strings: "Unable to allocate sound buffer:size = %ul, format = %d, sample rate = %ul"
+0048a021     73 FUN_0048a021                     strings: 
+0048a06a     73 FUN_0048a06a                     strings: 
+0048a0b3     73 FUN_0048a0b3                     strings: 
+0048a0fc     73 FUN_0048a0fc                     strings: 
+0048a145    353 FUN_0048a145                     strings: 
+0048a2a6    112 FUN_0048a2a6                     strings: 
+0048a316     29 FUN_0048a316                     strings: 
+0048a333    188 FUN_0048a333                     strings: 
+0048a3ef     81 FUN_0048a3ef                     strings: 
+0048a440     73 FUN_0048a440                     strings: 
+0048a489     73 FUN_0048a489                     strings: 
+0048a4d2    106 FUN_0048a4d2                     strings: 
+0048a53c    225 FUN_0048a53c                     strings: 
+0048a61d     74 FUN_0048a61d                     strings: 
+0048a667    147 FUN_0048a667                     strings: 
+0048a6fa    108 FUN_0048a6fa                     strings: 
+0048a766     72 FUN_0048a766                     strings: 
+0048a82a    153 FUN_0048a82a                     strings: 
+0048a8c3    177 FUN_0048a8c3                     strings: 
+0048a974     43 FUN_0048a974                     strings: 
+0048acab    106 FUN_0048acab                     strings: 
+0048ad15     95 FUN_0048ad15                     strings: 
+0048ad74    122 FUN_0048ad74                     strings: 
+0048adee    108 FUN_0048adee                     strings: 
+0048ae5a     86 FUN_0048ae5a                     strings: 
+0048aeb0    108 FUN_0048aeb0                     strings: 
+0048af1c     39 FUN_0048af1c                     strings: 
+0048af43    117 FUN_0048af43                     strings: 
+0048afb8     43 FUN_0048afb8                     strings: "Cyberlore Game"|"DirectDraw Init FAILED"
+0048afe3     53 FUN_0048afe3                     strings: 
+0048b018    252 FUN_0048b018                     strings: 
+0048b114     81 FUN_0048b114                     strings: 
+0048b165     91 FUN_0048b165                     strings: 
+0048b1c0    240 FUN_0048b1c0                     strings: 
+0048b35f    132 FUN_0048b35f                     strings: 
+0048b3e3    168 FUN_0048b3e3                     strings: 
+0048b48b    351 FUN_0048b48b                     strings: 
+0048b5ea     57 FUN_0048b5ea                     strings: 
+0048b623    699 CYGame_InitDirectDraw            strings: "DirectDraw started:\r\n"|"Pixel Depth: %d\r\n"|"Pixel Format: %d\r\n"|"Pixel masks: %#08x %#08x %#08x %#08x\r\n"
+0048b8de    342 CYGame_CreateWindow              strings: "CYGame"|"Cyberlore Game"
+0048ba34     40 FUN_0048ba34                     strings: 
+0048ba5c     10 FUN_0048ba5c                     strings: 
+0048ba66     10 FUN_0048ba66                     strings: 
+0048ba70     54 FUN_0048ba70                     strings: 
+0048baa6     55 FUN_0048baa6                     strings: "Memory Manager inited, max memory: %ul\r\n"
+0048badd     25 FUN_0048badd                     strings: "Memory Manager shutdown\r\n"
+0048baf6     39 FUN_0048baf6                     strings: 
+0048bb1d     15 FUN_0048bb1d                     strings: 
+0048bb2c     15 FUN_0048bb2c                     strings: 
+0048bb3b      9 FUN_0048bb3b                     strings: 
+0048bb44     40 FUN_0048bb44                     strings: 
+0048bb6c     18 FUN_0048bb6c                     strings: 
+0048bb80     59 FUN_0048bb80                     strings: 
+0048bbbb     39 FUN_0048bbbb                     strings: 
+0048bbe2     43 FUN_0048bbe2                     strings: 
+0048bc0d    419 FUN_0048bc0d                     strings: 
+0048bdb0    114 FUN_0048bdb0                     strings: 
+0048be22    121 FUN_0048be22                     strings: 
+0048be9b    248 FUN_0048be9b                     strings: 
+0048bf93    762 FUN_0048bf93                     strings: 
+0048c28d     56 FUN_0048c28d                     strings: 
+0048c2c5    303 FUN_0048c2c5                     strings: "Unable to lock offport: Error =      %#08x\r\n"|"FALSE"|"               Offport: Primary =    %s\r\n"|"                        Size =       %d, %d\r\n"|"      
+0048c3f4     64 FUN_0048c3f4                     strings: 
+0048c434    121 FUN_0048c434                     strings: 
+0048c4ad     47 FUN_0048c4ad                     strings: 
+0048c4dc     15 FUN_0048c4dc                     strings: 
+0048c4eb    112 FUN_0048c4eb                     strings: 
+0048c55b    106 FUN_0048c55b                     strings: 
+0048c5c5    106 FUN_0048c5c5                     strings: 
+0048c62f     51 FUN_0048c62f                     strings: 
+0048c662    508 FUN_0048c662                     strings: 
+0048c85e    932 FUN_0048c85e                     strings: 
+0048cc02      6 FUN_0048cc02                     strings: 
+0048cc08    367 FUN_0048cc08                     strings: 
+0048cd77    520 FUN_0048cd77                     strings: 
+0048cf7f    191 FUN_0048cf7f                     strings: 
+0048d03e     61 FUN_0048d03e                     strings: 
+0048d07b    194 FUN_0048d07b                     strings: 
+0048d13d     40 FUN_0048d13d                     strings: 
+0048d165     61 FUN_0048d165                     strings: 
+0048d1a2     73 FUN_0048d1a2                     strings: 
+0048d1eb     10 FUN_0048d1eb                     strings: 
+0048d1f5     16 FUN_0048d1f5                     strings: 
+0048d205    150 FUN_0048d205                     strings: 
+0048d29b     44 FUN_0048d29b                     strings: 
+0048d2c7     32 FUN_0048d2c7                     strings: 
+0048d2e7     69 FUN_0048d2e7                     strings: "..\\src\\win\\offport.c"
+0048d32c     56 FUN_0048d32c                     strings: "..\\src\\win\\offport.c"
+0048d364     45 FUN_0048d364                     strings: 
+0048d391    446 FUN_0048d391                     strings: 
+0048d54f    117 FUN_0048d54f                     strings: 
+0048d5c4    335 FUN_0048d5c4                     strings: 
+0048d713     45 FUN_0048d713                     strings: 
+0048d740     42 FUN_0048d740                     strings: 
+0048d76a     70 FUN_0048d76a                     strings: 
+0048d7b0     42 FUN_0048d7b0                     strings: 
+0048d7da     80 FUN_0048d7da                     strings: 
+0048d82a    119 FUN_0048d82a                     strings: 
+0048d8a1    125 FUN_0048d8a1                     strings: 
+0048d920    517 FUN_0048d920                     strings: 
+0048db5d    176 FUN_0048db5d                     strings: 
+0048dc0d     21 FUN_0048dc0d                     strings: 
+0048dc22    153 FUN_0048dc22                     strings: 
+0048dcbb    218 FUN_0048dcbb                     strings: 
+0048dd95     35 FUN_0048dd95                     strings: "Clock started\r\n"
+0048ddb8     25 FUN_0048ddb8                     strings: "Clock stopped\r\n"
+0048ddd1     25 FUN_0048ddd1                     strings: 
+0048ddea     25 FUN_0048ddea                     strings: 
+0048de03     16 FUN_0048de03                     strings: 
+0048de13     10 FUN_0048de13                     strings: 
+0048de1d     44 FUN_0048de1d                     strings: "Keyboard input inited\r\n"
+0048de49     32 FUN_0048de49                     strings: "Keyboard input stopped\r\n"
+0048de69     22 FUN_0048de69                     strings: 
+0048de7f     15 FUN_0048de7f                     strings: 
+0048de8e     27 FUN_0048de8e                     strings: 
+0048dea9     58 FUN_0048dea9                     strings: 
+0048dee3     77 FUN_0048dee3                     strings: 
+0048df30     19 FUN_0048df30                     strings: 
+0048df43     19 FUN_0048df43                     strings: 
+0048df56     31 FUN_0048df56                     strings: 
+0048df75     50 FUN_0048df75                     strings: 
+0048dfa7     28 FUN_0048dfa7                     strings: 
+0048dfc3     28 FUN_0048dfc3                     strings: 
+0048dfdf     28 FUN_0048dfdf                     strings: 
+0048dffb     15 FUN_0048dffb                     strings: 
+0048e00a    173 FUN_0048e00a                     strings: 
+0048e0b7     32 FUN_0048e0b7                     strings: "Mouse input inited\r\n"
+0048e0d7     32 FUN_0048e0d7                     strings: "Mouse input stopped\r\n"
+0048e0f7     12 FUN_0048e0f7                     strings: 
+0048e103     12 FUN_0048e103                     strings: 
+0048e10f      7 FUN_0048e10f                     strings: 
+0048e116      5 FUN_0048e116                     strings: 
+0048e11b     29 FUN_0048e11b                     strings: 
+0048e138     49 FUN_0048e138                     strings: 
+0048e169    108 FUN_0048e169                     strings: 
+0048e1d5    108 FUN_0048e1d5                     strings: 
+0048e241    108 FUN_0048e241                     strings: 
+0048e2ad    108 FUN_0048e2ad                     strings: 
+0048e319    108 FUN_0048e319                     strings: 
+0048e385    108 FUN_0048e385                     strings: 
+0048e3f1     18 FUN_0048e3f1                     strings: 
+0048e403    172 FUN_0048e403                     strings: 
+0048e4af     18 FUN_0048e4af                     strings: 
+0048e4c1     48 FUN_0048e4c1                     strings: 
+0048e4f1     43 FUN_0048e4f1                     strings: 
+0048e51c     20 FUN_0048e51c                     strings: 
+0048e530    199 FUN_0048e530                     strings: "CYGame"|"Cyberlore Game"
+0048e5f8     94 FUN_0048e5f8                     strings: 
+0048e656     26 FUN_0048e656                     strings: "debug_chk, line %d, file %s"
+0048e670    165 FUN_0048e670                     strings: 
+0048e89c    133 FUN_0048e89c                     strings: 
+0048f507     86 FUN_0048f507                     strings: 
+0048f55d     86 FUN_0048f55d                     strings: 
+0048f5b3    189 FUN_0048f5b3                     strings: 
+0048f670    189 FUN_0048f670                     strings: 
+0048f72d     41 FUN_0048f72d                     strings: 
+0048f758     28 FUN_0048f758                     strings: 
+0048f774     92 FUN_0048f774                     strings: 
+0048f7f1     73 FUN_0048f7f1                     strings: 
+0048f869     14 FUN_0048f869                     strings: 
+0048f877     18 FUN_0048f877                     strings: 
+0048f8e8    170 FUN_0048f8e8                     strings: 
+0048f992    256 FUN_0048f992                     strings: 
+0048fa92     76 FUN_0048fa92                     strings: 
+0048fade    116 FUN_0048fade                     strings: "..\\src\\bread.c"
+0048fb52     21 FUN_0048fb52                     strings: 
+0048fb67     88 FUN_0048fb67                     strings: 
+0048fbbf     57 FUN_0048fbbf                     strings: 
+0048fbf8     13 FUN_0048fbf8                     strings: 
+0048fc05    190 FUN_0048fc05                     strings: 
+0048fcc3     27 FUN_0048fcc3                     strings: 
+0048fcde     26 FUN_0048fcde                     strings: 
+0048fcf8     33 FUN_0048fcf8                     strings: 
+0048fd19     31 FUN_0048fd19                     strings: 
+0048fd38     26 FUN_0048fd38                     strings: 
+0048fd54     65 FUN_0048fd54                     strings: 
+0048fd95    118 FUN_0048fd95                     strings: 
+0048fe0b    107 FUN_0048fe0b                     strings: 
+0048fe76     25 FUN_0048fe76                     strings: 
+0048fe90     25 FUN_0048fe90                     strings: 
+0048fea9     64 FUN_0048fea9                     strings: 
+0048fee9    324 FUN_0048fee9                     strings: "WARNING:CYLib handle of unknown type dispose of.\r\n"|"WARNING:Default CYLib translator ask to load unknow subtype\r\n"
+0049002d    206 FUN_0049002d                     strings: 
+004900fb     39 FUN_004900fb                     strings: 
+00490122    164 FUN_00490122                     strings: "Too many translators:%c%c%c%c"
+004901c6     39 FUN_004901c6                     strings: 
+004901ed    116 FUN_004901ed                     strings: 
+00490261     45 FUN_00490261                     strings: 
+0049028e    246 FUN_0049028e                     strings: 
+00490384     46 FUN_00490384                     strings: 
+004903b2     36 FUN_004903b2                     strings: 
+004903d6    233 FUN_004903d6                     strings: 
+004904bf    294 FUN_004904bf                     strings: 
+004905e5     30 FUN_004905e5                     strings: 
+00490603     56 FUN_00490603                     strings: 
+0049063b     69 FUN_0049063b                     strings: 
+00490680     53 FUN_00490680                     strings: 
+004906b5     46 FUN_004906b5                     strings: 
+004906e3     92 FUN_004906e3                     strings: 
+0049073f     87 FUN_0049073f                     strings: "..\\src\\cylib.c"
+00490796    238 FUN_00490796                     strings: 
+00490884    186 FUN_00490884                     strings: 
+0049093e    187 FUN_0049093e                     strings: 
+004909f9    186 FUN_004909f9                     strings: 
+00490ab3    279 FUN_00490ab3                     strings: 
+00490bca    282 FUN_00490bca                     strings: "Library added: %s\r\n"
+00490ce4    140 FUN_00490ce4                     strings: "Library closed: %s\r\n"
+00490d70     40 FUN_00490d70                     strings: 
+00490d98    161 FUN_00490d98                     strings: "CYLib Manager inited, max libraries: %d, locked lib headers: %d\r\n"
+00490e39     53 FUN_00490e39                     strings: 
+00490e6e    322 FUN_00490e6e                     strings: 
+00490fb0    337 FUN_00490fb0                     strings: 
+00491101     42 FUN_00491101                     strings: 
+0049112c     45 FUN_0049112c                     strings: 
+00491159     20 FUN_00491159                     strings: 
+0049116d     17 FUN_0049116d                     strings: 
+0049117e     75 FUN_0049117e                     strings: 
+004911cc     52 FUN_004911cc                     strings: 
+00491200   1103 FUN_00491200                     strings: 
+0049164f    115 FUN_0049164f                     strings: 
+004916c2     39 FUN_004916c2                     strings: 
+004916e9     95 FUN_004916e9                     strings: 
+00491748    158 FUN_00491748                     strings: 
+004917e6    120 FUN_004917e6                     strings: 
+0049185e     56 FUN_0049185e                     strings: 
+00491898    245 FUN_00491898                     strings: 
+0049198d    158 FUN_0049198d                     strings: 
+00491a2b    163 FUN_00491a2b                     strings: "..\\src\\font.c"
+00491ace    120 FUN_00491ace                     strings: "..\\src\\font.c"
+00491b46     24 FUN_00491b46                     strings: 
+00491b5e     62 FUN_00491b5e                     strings: 
+00491b9c     57 FUN_00491b9c                     strings: 
+00491bd5     34 FUN_00491bd5                     strings: 
+00491bf7    311 FUN_00491bf7                     strings: 
+00491d2e     10 FUN_00491d2e                     strings: 
+00491d38    187 FUN_00491d38                     strings: 
+00491df3     15 FUN_00491df3                     strings: 
+00491e02    117 FUN_00491e02                     strings: 
+00491e77     10 FUN_00491e77                     strings: 
+00491e81    121 FUN_00491e81                     strings: 
+00491efa     67 FUN_00491efa                     strings: 
+00491f3d     10 FUN_00491f3d                     strings: 
+00491f47     67 FUN_00491f47                     strings: 
+00491f8a     10 FUN_00491f8a                     strings: 
+00491f94     15 FUN_00491f94                     strings: 
+00491fa3     10 FUN_00491fa3                     strings: 
+00491fad     24 FUN_00491fad                     strings: 
+00491fc5     36 FUN_00491fc5                     strings: 
+00491fe9     67 FUN_00491fe9                     strings: 
+0049202c     10 FUN_0049202c                     strings: 
+00492036     67 FUN_00492036                     strings: 
+00492079     10 FUN_00492079                     strings: 
+00492083     63 FUN_00492083                     strings: 
+004920c2     15 FUN_004920c2                     strings: 
+004920d1    117 FUN_004920d1                     strings: 
+00492146    178 FUN_00492146                     strings: 
+004921f8    152 FUN_004921f8                     strings: 
+00492290    119 FUN_00492290                     strings: 
+00492307    138 FUN_00492307                     strings: 
+00492391    263 FUN_00492391                     strings: 
+00492498    224 FUN_00492498                     strings: 
+00492578   1332 FUN_00492578                     strings: 
+00492aac     24 FUN_00492aac                     strings: 
+00492ac4     42 FUN_00492ac4                     strings: 
+00492aee     30 FUN_00492aee                     strings: 
+00492b0c     59 FUN_00492b0c                     strings: 
+00492b47    430 FUN_00492b47                     strings: 
+00492cf5    114 FUN_00492cf5                     strings: 
+00492d67    929 FUN_00492d67                     strings: 
+00493108     65 FUN_00493108                     strings: 
+00493149    103 FUN_00493149                     strings: 
+004931b0    366 FUN_004931b0                     strings: 
+0049331e    450 FUN_0049331e                     strings: 
+004934e0     66 FUN_004934e0                     strings: 
+00493522     66 FUN_00493522                     strings: 
+00493564    110 FUN_00493564                     strings: 
+004935d2     42 FUN_004935d2                     strings: 
+004935fc    303 FUN_004935fc                     strings: 
+0049372b     89 FUN_0049372b                     strings: 
+00493784    496 FUN_00493784                     strings: 
+00493974    250 FUN_00493974                     strings: 
+00493a6e    101 FUN_00493a6e                     strings: 
+00493ad3     15 FUN_00493ad3                     strings: 
+00493ae2     66 FUN_00493ae2                     strings: 
+00493b24    705 FUN_00493b24                     strings: 
+00493de5    777 FUN_00493de5                     strings: 
+004940f0    111 FUN_004940f0                     strings: 
+0049415f    150 FUN_0049415f                     strings: 
+004941f5    185 FUN_004941f5                     strings: 
+004942ae     10 FUN_004942ae                     strings: 
+004942b8     24 FUN_004942b8                     strings: 
+004942d0    118 FUN_004942d0                     strings: 
+00494346    101 FUN_00494346                     strings: 
+004943ab    158 FUN_004943ab                     strings: 
+00494449   1014 FUN_00494449                     strings: 
+0049483f    315 FUN_0049483f                     strings: 
+0049497a    301 FUN_0049497a                     strings: 
+00494aa7     95 FUN_00494aa7                     strings: 
+00494b06    101 FUN_00494b06                     strings: 
+00494b6b    170 FUN_00494b6b                     strings: 
+00494c15    291 FUN_00494c15                     strings: 
+00494d38     26 FUN_00494d38                     strings: 
+00494d52     78 FUN_00494d52                     strings: 
+00494da0     79 FUN_00494da0                     strings: 
+00494def    115 FUN_00494def                     strings: 
+00494e62     85 FUN_00494e62                     strings: 
+00494ebf     80 FUN_00494ebf                     strings: 
+00494f0f     83 FUN_00494f0f                     strings: 
+00494f62     84 FUN_00494f62                     strings: 
+00494fb6     99 FUN_00494fb6                     strings: 
+0049501c    106 FUN_0049501c                     strings: 
+00495086     51 FUN_00495086                     strings: "Mouse Pos:%d, %d\r\n"
+004950bc     20 FUN_004950bc                     strings: 
+004950d0     10 FUN_004950d0                     strings: 
+004950da     80 FUN_004950da                     strings: "Unknown error %d"
+0049512a     56 FUN_0049512a                     strings: 
+00495162    208 FUN_00495162                     strings: "err.log"
+00495232     15 FUN_00495232                     strings: 
+00495241    175 FUN_00495241                     strings: "err.bak"|"err.log"|"Error log started, %d/%d/%d, %d:%d:%d\r\n"
+004952f0    171 FUN_004952f0                     strings: "err.log"
+0049539b     77 FUN_0049539b                     strings: 
+004953e8    108 FUN_004953e8                     strings: 
+00495454     85 FUN_00495454                     strings: 
+004954a9     80 FUN_004954a9                     strings: 
+004954f9     33 FUN_004954f9                     strings: 
+0049551a     42 FUN_0049551a                     strings: 
+00495544     28 FUN_00495544                     strings: 
+00495560     54 FUN_00495560                     strings: 
+00495596     28 FUN_00495596                     strings: 
+004955b2     38 FUN_004955b2                     strings: 
+004955d8     31 FUN_004955d8                     strings: 
+004955f7     31 FUN_004955f7                     strings: 
+00495616     31 FUN_00495616                     strings: 
+00495635     20 FUN_00495635                     strings: 
+00495649     20 FUN_00495649                     strings: 
+0049565d     42 FUN_0049565d                     strings: 
+00495687     51 FUN_00495687                     strings: 
+004956ba     40 FUN_004956ba                     strings: 
+004956e2    211 FUN_004956e2                     strings: 
+004957b5     92 FUN_004957b5                     strings: 
+00495811     73 FUN_00495811                     strings: 
+0049585a    496 FUN_0049585a                     strings: 
+00495a4a     45 FUN_00495a4a                     strings: 
+00495a77     45 FUN_00495a77                     strings: 
+00495aa4    132 FUN_00495aa4                     strings: 
+00495b28     74 FUN_00495b28                     strings: 
+00495b72     63 FUN_00495b72                     strings: 
+00495bb1     61 FUN_00495bb1                     strings: 
+00495bf0     97 FUN_00495bf0                     strings: 
+00495c51     27 FUN_00495c51                     strings: 
+00495c6c     41 FUN_00495c6c                     strings: 
+00495c95     47 FUN_00495c95                     strings: 
+00495cc4     93 FUN_00495cc4                     strings: 
+00495d21    104 FUN_00495d21                     strings: 
+00495d89     44 FUN_00495d89                     strings: 
+00495db5     44 FUN_00495db5                     strings: 
+00495f8f     54 FUN_00495f8f                     strings: 
+00495fc5     95 FUN_00495fc5                     strings: 
+00496024     40 FUN_00496024                     strings: 
+0049604c     71 FUN_0049604c                     strings: 
+00496093    106 FUN_00496093                     strings: 
+004960fd     85 FUN_004960fd                     strings: 
+00496152     71 FUN_00496152                     strings: 
+00496199     79 FUN_00496199                     strings: 
+004961e8    102 FUN_004961e8                     strings: "..\\src\\glsound.c"
+0049624e     54 FUN_0049624e                     strings: 
+00496284     82 FUN_00496284                     strings: 
+004962d6     17 FUN_004962d6                     strings: 
+004962e7     73 FUN_004962e7                     strings: "WARNING:Objects still in sound list.\r\n"
+00496330     38 FUN_00496330                     strings: 
+00496358    318 FUN_00496358                     strings: "WARNING:Converting IMAG/%d from 1.0\r\n"
+00496496    146 FUN_00496496                     strings: 
+00496528     71 FUN_00496528                     strings: 
+0049656f     48 FUN_0049656f                     strings: 
+0049659f    340 FUN_0049659f                     strings: 
+004966f3     52 FUN_004966f3                     strings: 
+00496727     33 FUN_00496727                     strings: 
+00496748    384 FUN_00496748                     strings: 
+004968c8     62 FUN_004968c8                     strings: "..\\src\\img.c"
+00496906     63 FUN_00496906                     strings: 
+00496945     69 FUN_00496945                     strings: "..\\src\\img.c"
+0049698a    110 FUN_0049698a                     strings: "..\\src\\img.c"
+004969f8     46 FUN_004969f8                     strings: 
+00496a26     54 FUN_00496a26                     strings: "..\\src\\img.c"
+00496a5c     59 FUN_00496a5c                     strings: "..\\src\\img.c"
+00496a97     72 FUN_00496a97                     strings: "..\\src\\img.c"
+00496adf     77 FUN_00496adf                     strings: "..\\src\\img.c"
+00496b2c     56 FUN_00496b2c                     strings: 
+00496b64     74 FUN_00496b64                     strings: 
+00496bae     85 FUN_00496bae                     strings: 
+00496c03     94 FUN_00496c03                     strings: "..\\src\\img.c"
+00496c61     98 FUN_00496c61                     strings: 
+00496cc3    445 FUN_00496cc3                     strings: 
+00496e80    379 FUN_00496e80                     strings: 
+00496ffb    326 FUN_00496ffb                     strings: 
+00497144     41 FUN_00497144                     strings: 
+0049716d    101 FUN_0049716d                     strings: 
+004971d4     72 FUN_004971d4                     strings: 
+0049721c    119 FUN_0049721c                     strings: 
+00497293    171 FUN_00497293                     strings: 
+0049733e    165 FUN_0049733e                     strings: 
+004973e3    123 FUN_004973e3                     strings: 
+00497460     74 FUN_00497460                     strings: 
+004974aa     69 FUN_004974aa                     strings: 
+004974ef     80 FUN_004974ef                     strings: 
+0049753f     98 FUN_0049753f                     strings: 
+004975a1    150 FUN_004975a1                     strings: 
+00497637     96 FUN_00497637                     strings: 
+00497697     28 FUN_00497697                     strings: 
+004976b3     41 FUN_004976b3                     strings: 
+004976dc    168 FUN_004976dc                     strings: 
+00497784     55 FUN_00497784                     strings: 
+004977bb     46 FUN_004977bb                     strings: 
+004977e9     74 FUN_004977e9                     strings: 
+00497833     38 FUN_00497833                     strings: 
+00497859    102 FUN_00497859                     strings: "false"
+004978bf     56 FUN_004978bf                     strings: 
+004978f7     95 FUN_004978f7                     strings: 
+00497956    130 FUN_00497956                     strings: 
+004979d8    381 FUN_004979d8                     strings: 
+00497b55    149 FUN_00497b55                     strings: 
+00497bea    168 FUN_00497bea                     strings: 
+00497c92    174 FUN_00497c92                     strings: 
+00497d40    250 FUN_00497d40                     strings: 
+00497e3a    176 FUN_00497e3a                     strings: 
+00497eea    186 FUN_00497eea                     strings: 
+00497fa4    498 FUN_00497fa4                     strings: 
+00498196    358 FUN_00498196                     strings: 
+004982fc    178 FUN_004982fc                     strings: 
+004983ae    327 FUN_004983ae                     strings: 
+004984f5    170 FUN_004984f5                     strings: 
+0049859f    647 FUN_0049859f                     strings: 
+00498826    214 FUN_00498826                     strings: "Can't create '%s'.\n"|"Write error on '%s'"
+004988fc    149 FUN_004988fc                     strings: 
+00498994     29 FUN_00498994                     strings: 
+004989b1     15 FUN_004989b1                     strings: 
+004989c0     15 FUN_004989c0                     strings: 
+004989cf     15 FUN_004989cf                     strings: 
+004989de     15 FUN_004989de                     strings: 
+004989ed     67 FUN_004989ed                     strings: 
+00498a30     44 FUN_00498a30                     strings: 
+00498a5c     35 FUN_00498a5c                     strings: 
+00498a7f     37 FUN_00498a7f                     strings: 
+00498aa4      7 FUN_00498aa4                     strings: 
+00498aab     32 FUN_00498aab                     strings: 
+00498acb     20 FUN_00498acb                     strings: 
+00498adf     20 FUN_00498adf                     strings: 
+00498af3     80 FUN_00498af3                     strings: 
+00498b43      9 FUN_00498b43                     strings: 
+00498b4c     38 FUN_00498b4c                     strings: 
+00498b72     38 FUN_00498b72                     strings: 
+00498b98     17 FUN_00498b98                     strings: 
+00498ba9     17 FUN_00498ba9                     strings: 
+00498bba     76 FUN_00498bba                     strings: 
+00498c06     56 FUN_00498c06                     strings: 
+00498c3e     82 FUN_00498c3e                     strings: 
+00498c90     27 FUN_00498c90                     strings: 
+00498cab     32 FUN_00498cab                     strings: 
+00498ccb     77 FUN_00498ccb                     strings: 
+00498d18     10 FUN_00498d18                     strings: 
+00498d22     77 FUN_00498d22                     strings: "Native memory manager memory pool inited.\r\n"
+00498d6f     49 FUN_00498d6f                     strings: 
+00498da0      9 FUN_00498da0                     strings: 
+00498da9      7 FUN_00498da9                     strings: 
+00498db0     10 FUN_00498db0                     strings: 
+00498dba     67 FUN_00498dba                     strings: 
+00498e00    218 FUN_00498e00                     strings: 
+00498eda    178 FUN_00498eda                     strings: 
+00498f8c    667 FUN_00498f8c                     strings: 
+00499227    307 FUN_00499227                     strings: 
+0049935c     22 FUN_0049935c                     strings: 
+00499372    254 FUN_00499372                     strings: 
+00499470    125 FUN_00499470                     strings: 
+004994ed    162 FUN_004994ed                     strings: 
+004995ab    177 FUN_004995ab                     strings: 
+0049965c     72 FUN_0049965c                     strings: 
+004996fb     77 FUN_004996fb                     strings: 
+00499748     87 FUN_00499748                     strings: 
+0049979f     64 FUN_0049979f                     strings: 
+004997df     64 FUN_004997df                     strings: 
+0049981f     27 FUN_0049981f                     strings: 
+0049983a      5 FUN_0049983a                     strings: 
+00499840     58 FUN_00499840                     strings: 
+0049987a    438 FUN_0049987a                     strings: 
+00499a30     31 FUN_00499a30                     strings: 
+00499a4f    184 FUN_00499a4f                     strings: 
+00499b07    152 FUN_00499b07                     strings: 
+00499b9f    190 FUN_00499b9f                     strings: 
+00499c5d    299 FUN_00499c5d                     strings: 
+00499d88    116 FUN_00499d88                     strings: 
+00499dfc    116 FUN_00499dfc                     strings: 
+00499e70    148 FUN_00499e70                     strings: 
+00499f04    148 FUN_00499f04                     strings: 
+00499f98     63 FUN_00499f98                     strings: 
+00499fd7    331 FUN_00499fd7                     strings: 
+0049a13b    422 FUN_0049a13b                     strings: 
+0049a317    911 FUN_0049a317                     strings: 
+0049a6bb    114 FUN_0049a6bb                     strings: 
+0049a72d     51 FUN_0049a72d                     strings: 
+0049a760    136 FUN_0049a760                     strings: 
+0049a7e8    261 FUN_0049a7e8                     strings: 
+0049a8ed     82 FUN_0049a8ed                     strings: "..\\src\\pixel.c"
+0049a93f     56 FUN_0049a93f                     strings: "..\\src\\pixel.c"
+0049a977    112 FUN_0049a977                     strings: 
+0049a9e7    125 FUN_0049a9e7                     strings: 
+0049aa64     49 FUN_0049aa64                     strings: 
+0049aa95    887 FUN_0049aa95                     strings: 
+0049ae0c   1006 FUN_0049ae0c                     strings: 

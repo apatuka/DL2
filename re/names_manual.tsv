@@ -1,0 +1,62 @@
+00470804	WinMain	Main entry: window creation, game loop (turn loop with debug log tags)
+004587f0	DebugLog	Appends "Turn %3d: <tag>" to DEBUG.TXT
+004586f4	InitDebugLogs	Creates DEBUG.TXT / COMBAT.TXT / REPLAY.TXT
+00458840	DumpGameOptions	Writes the Players/World/Victory block to DEBUG.TXT
+00458990	DebugMessage	Reports an internal error string (assert-like)
+0046cb4c	RegisterWindowClasses	Registers XenoMainWnd / XenoBackground / XenoIntro
+0046cca4	CreateMainWindow	Creates "Deadlock 2: Shrine Wars" main window
+0046cff8	MessagePump	Win32 message loop helper (PeekMessage/GetMessage/IsDialogMessage)
+0046fca4	InitCYGame	Initializes the CYLib game object (DirectDraw, sound, timer)
+00487bdc	FreeSmacker	Unloads SMACKW32.DLL
+00487b80	LoadSmacker	Loads SMACKW32.DLL
+0046f94c	TestMemory	Memory test / low memory mode decision
+00425690	InitHelp	Initializes context help
+00465e54	PreloadSprite2	Loads the global sprite set (calls LoadGlobalSprites)
+0046da14	ResetVariables	Resets per-game globals
+00469074	GetGameOptions	Main menu / new game or load game option flow
+0046d4ac	RaceInit	Race initialization and landing before turn 1
+0046e9f4	WaitSync	Network synchronization barrier (tag string logged as "WaitSync in %s")
+0045f2d8	RunAITurns	Runs computer players' turns ("silicon-based opponents")
+0046ed64	SyncBeginTurn	Begin-of-turn synchronization (SyncBeginTurn1/2)
+00475898	SyncDisbandUnit	Network-synchronized unit disband
+00477784	SyncCreateUnit	Network-synchronized unit creation
+00477904	SyncCreateBuilding	Network-synchronized building creation
+004795ec	ResetNetGame	Resets network game state (ResetNetGame1/2)
+0047d71c	CreateRandomEvents	Random events per turn (plague, flood, earthquake...)
+0047b3a8	SynchronizeGame	Sends/receives the full game state for resync
+0047a014	CalculateGameCRC	Computes the game state checksum (CHECKSUM.SAV)
+00467754	SavePrefs	Writes DL2.PRF
+004676d4	LoadPrefs	Reads DL2.PRF (134 bytes) and validates
+00467434	ParsePrefs	Copies DL2.PRF fields into globals
+00467078	LoadPrefsAndInit	Loads prefs at startup
+00470050	OpenDataFiles	Opens the HDX/HDD archives and dictionary (CYHMRTUOSchat)
+00411e28	HdxArchive_Open	Opens <name>.HDX/<name>.HDD, reads and sorts the entry table
+00470554	GetNetGameOptions	Network game setup (host/join, player name)
+004497ac	DrawSpriteCentered	Reads a sprite from SPRITENW.DAT and blits centered
+00487bec	CreateWinGWindow	Creates a XenoWinG child window and paints a sprite into it
+00444cf4	DrawSprite	Draws one sprite/anim frame (with parent linkage)
+004647a0	BlitSprite8	8bpp blit with clipping into the back buffer
+0046ca70	ReadDataFileChunk	Reads size bytes at offset from a data file (SPRITENW.DAT)
+004836fc	LoadPhaseSprites	Loads the sprite set of a game phase (Settlement/Control/Combat)
+00483340	LoadPhaseSpriteFile	Reads phase sprites ("P Sprite") from SPRITENW.DAT
+00483600	LoadGlobalSprites	Reads global sprites ("G Sprite") from SPRITENW.DAT
+00465b9c	LoadCombatSprites	Loads combat phase sprites
+0048b623	CYGame_InitDirectDraw	DirectDraw init, logs pixel format
+0048b8de	CYGame_CreateWindow	Registers/creates the "CYGame" window
+00412f74	WaveOut_Init	Opens waveOut device and prepares headers
+00412da8	Timer_Init	timeSetEvent periodic timer setup
+004636cc	CreateGamePalette	Creates and realizes the GDI palette
+00463944	CreateGamePalette2	Creates palette (variant used by CreateMainWindow)
+0046ced4	ShutdownGame	Final cleanup at exit
+00470740	AutoSave	Autosave at end of turn
+004b02dc	malloc	RTL
+004b0274	free	RTL
+004aa074	fopen	RTL
+004a9be0	fclose	RTL
+004aa33c	fread	RTL
+004ab450	sprintf	RTL
+004a6994	strlen	RTL
+004a67c8	memcpy	RTL
+004a6838	memset	RTL
+004b14e8	qsort	RTL
+004b1210	__assertfail	RTL: "Assertion failed: , file , line "

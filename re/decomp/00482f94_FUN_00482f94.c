@@ -1,0 +1,16 @@
+// FUN_00482f94 @ 00482f94 size=43 sig=undefined FUN_00482f94() cc=unknown
+// callers: FUN_0045b094,FUN_0041d710,FUN_0045c704,FUN_00414004,FUN_0045ea6c,FUN_00472448,FUN_0045ca3c,FUN_0045b304,RunAITurns,FUN_00473e9c,FUN_0045b8e8,FUN_00420e34,FUN_00472fb4,FUN_00473054,FUN_0041d414
+// callees: FUN_00449fe8,FUN_00449ff0,FUN_00449fd8,FUN_0043afb0
+
+void FUN_00482f94(char *param_1)
+
+{
+  if (*param_1 == DAT_0058f1f4) {
+    FUN_0043afb0();
+    FUN_00449fd8();
+    FUN_00449ff0();
+    FUN_00449fe8();
+  }
+  return;
+}
+

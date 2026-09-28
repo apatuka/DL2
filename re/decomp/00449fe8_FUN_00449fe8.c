@@ -1,0 +1,11 @@
+// FUN_00449fe8 @ 00449fe8 size=6 sig=undefined FUN_00449fe8() cc=unknown
+// callers: FUN_00414004,RunAITurns,FUN_00449d54,FUN_0045d984,FUN_00473e9c,FUN_004730a8,FUN_0045b448,FUN_0045dfd4,FUN_00482f94,FUN_0044a000,FUN_0045d418,FUN_0045d6a4
+// callees: FUN_0043b754
+
+void FUN_00449fe8(void)
+
+{
+  FUN_0043b754();
+  return;
+}
+

@@ -1,0 +1,15 @@
+gpArmy                   00419a14
+gpBuilding               0041ba74,0041d834
+gpColonyAssistant        0041f98c,00420fa0
+gpEventLog               00422d24
+gpExitSave               00423cf0
+gpMainInterface          0043c0e8,0043c1a4
+gpMessage                004282b4
+gpSelectPort             0042f5d8
+gpSkirInfo               004355bc
+gpSkirRes                004333e0
+gpSkirTech               00435804
+gpSkirUnit               00435ac4
+gpTechDet                0043a4e4
+gpUnitList               004386d8
+gpViewCombat             0043e3b4

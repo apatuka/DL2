@@ -1,0 +1,289 @@
+# m16_scenario_ministers_tech_cheats_netmsgs_events: 0x471000-0x47e000  functions=288 bytes=51795
+00471028     63 FUN_00471028                     strings: 
+00471068    263 FUN_00471068                     strings: "File Type"|"saved_game"|"map_file"|"Version"
+00471170   1220 FUN_00471170                     strings: "Players"|"Scenario Options"|"Victory Condition"|"manifest_destiny"|"conquest"|"Win Cities"|"Win Shrines"|"Win Turns"|"AI Skill Level"|"Random Events"|"Allow Al
+00471634    874 FUN_00471634                     strings: "World"|"small"|"medium"|"Map File"|"Color"|"earthlike"|"Percent Oceans"|"Percent Plains"|"Percent Forests"|"Percent Swamps"|"Percent Mountains"|"Percent Wastel
+004719a0    246 FUN_004719a0                     strings: "Startup"|"master"|"Save File"|"Master Address"|"User Name"|"Players"
+00471a98    135 FUN_00471a98                     strings: 
+00471b20     28 FUN_00471b20                     strings: 
+00471b3c    174 FUN_00471b3c                     strings: "%d %s"
+00471bec     47 FUN_00471bec                     strings: 
+00471c1c     93 FUN_00471c1c                     strings: 
+00471c7c     68 FUN_00471c7c                     strings: 
+00471cc0     41 FUN_00471cc0                     strings: 
+00471cec     71 FUN_00471cec                     strings: 
+00471d34    291 FUN_00471d34                     strings: "To build a %s you will need:\n"|"%d credits and the import cost of the materials\n"|"%d %s\n"|"Tech: %s\n"|"Not enough Stuff!"
+00471e58    258 FUN_00471e58                     strings: 
+00471f5c    143 FUN_00471f5c                     strings: 
+00471fec     41 FUN_00471fec                     strings: 
+00472018    219 FUN_00472018                     strings: 
+004720f4    465 FUN_004720f4                     strings: "Collect Req. Res"|"Illegal Request for Material"
+004722e0     81 FUN_004722e0                     strings: 
+00472334    101 FUN_00472334                     strings: 
+0047239c     45 FUN_0047239c                     strings: 
+004723cc    121 FUN_004723cc                     strings: 
+00472448    304 FUN_00472448                     strings: 
+00472578    339 FUN_00472578                     strings: 
+004726cc     99 FUN_004726cc                     strings: 
+00472730    170 FUN_00472730                     strings: 
+004727dc     45 FUN_004727dc                     strings: 
+0047280c     53 FUN_0047280c                     strings: 
+00472844    304 FUN_00472844                     strings: 
+00472974    633 FUN_00472974                     strings: "Collect Material"
+00472bf0    175 FUN_00472bf0                     strings: 
+00472ca0    183 FUN_00472ca0                     strings: 
+00472d5c     22 FUN_00472d5c                     strings: 
+00472d74     45 FUN_00472d74                     strings: 
+00472da4     94 FUN_00472da4                     strings: "Are you sure you want to exit Deadlock 2?"|"Exit Game"
+00472e04     69 FUN_00472e04                     strings: 
+00472e4c     26 FUN_00472e4c                     strings: 
+00472e68     25 FUN_00472e68                     strings: 
+00472e84     22 FUN_00472e84                     strings: 
+00472e9c     51 FUN_00472e9c                     strings: 
+00472ed0     72 FUN_00472ed0                     strings: 
+00472f18     20 FUN_00472f18                     strings: 
+00472f2c     55 FUN_00472f2c                     strings: 
+00472f64     78 FUN_00472f64                     strings: 
+00472fb4    131 FUN_00472fb4                     strings: 
+00473038     27 FUN_00473038                     strings: 
+00473054     82 FUN_00473054                     strings: 
+004730a8     74 FUN_004730a8                     strings: 
+004730f4    327 @CheatTechDialog$qqspvuiuil      strings: "Nothing"|"Advanced Medicine"
+0047323c     66 FUN_0047323c                     strings: 
+00473280     40 FUN_00473280                     strings: 
+004732a8     37 FUN_004732a8                     strings: 
+004732d0     25 FUN_004732d0                     strings: 
+004732ec     19 FUN_004732ec                     strings: 
+00473300     18 FUN_00473300                     strings: 
+00473324    691 FUN_00473324                     strings: "PILE IT ON"|"GREEBLIE"|"WALL2WALL"|"CHARISMA"|"S-MART"|"%s %s"|"SQUISH"
+0047361c    775 FUN_0047361c                     strings: 
+00473924     25 FUN_00473924                     strings: "The game files have been corrupted or tampered with.\nDeadlock 2 can not run in this state.\n\nPlease call Accolade customer support."|"Bad Game File"
+00473940    318 @MainWndProc$qqspvuiuil          strings: 
+00473af4    405 @CampaignNumDialog$qqspvuiuil    strings: "Enter Campaign Number (1-42):"
+00473c8c    128 @EditTerritoryResourcesDialog$qqspvuiuil strings: 
+00473d0c    397 FUN_00473d0c                     strings: "Territory '%s'"
+00473e9c    829 FUN_00473e9c                     strings: 
+004741dc    128 @EditTileResourcesDialog$qqspvuiuil strings: 
+0047425c    369 FUN_0047425c                     strings: "Edit Resources (base terrain is %s)"|"Clear"|"Rough"
+004743d0    293 FUN_004743d0                     strings: 
+0047450c    162 FUN_0047450c                     strings: 
+004745b0    358 FUN_004745b0                     strings: 
+00474718    450 FUN_00474718                     strings: 
+004748dc     65 FUN_004748dc                     strings: "Oolan's Advice"
+00474920    213 FUN_00474920                     strings: "Oolan's Advice"
+004749f8    525 FUN_004749f8                     strings: "%s Landing"|"%s %s #%d"
+00474c08    185 FUN_00474c08                     strings: 
+00474cc4     54 FUN_00474cc4                     strings: 
+00474cfc     13 FUN_00474cfc                     strings: 
+00474d0c    129 FUN_00474d0c                     strings: 
+00474d90    181 FUN_00474d90                     strings: 
+00474e48     28 FUN_00474e48                     strings: 
+00474e84     36 FUN_00474e84                     strings: 
+00474ea8     36 FUN_00474ea8                     strings: 
+00474ecc     69 FUN_00474ecc                     strings: 
+00474f14     69 FUN_00474f14                     strings: 
+00474f5c     67 FUN_00474f5c                     strings: 
+00474fa0     78 FUN_00474fa0                     strings: 
+00474ff0     71 FUN_00474ff0                     strings: 
+00475038      7 FUN_00475038                     strings: 
+00475040      7 FUN_00475040                     strings: 
+00475048    123 FUN_00475048                     strings: "%s\nPlayer: %d Item: %d Data1: %d Data2: %d"
+004750c4     70 FUN_004750c4                     strings: "NULL building from FindBuildingByGlobalID, looking for: %X"
+0047510c     68 FUN_0047510c                     strings: "NULL army from FindArmyByGlobalID, looking for: %X"
+00475150     72 FUN_00475150                     strings: 
+00475198     55 FUN_00475198                     strings: 
+004751d0     88 FUN_004751d0                     strings: "Session #%d disconnected."|"Player Disconnected"
+00475228     65 FUN_00475228                     strings: 
+0047526c    144 FUN_0047526c                     strings: 
+004752fc     72 FUN_004752fc                     strings: 
+00475344    150 FUN_00475344                     strings: "Broadcast"
+004753dc     94 FUN_004753dc                     strings: 
+0047543c     94 FUN_0047543c                     strings: 
+0047549c    277 FUN_0047549c                     strings: 
+004755b4    110 FUN_004755b4                     strings: 
+00475624     60 FUN_00475624                     strings: 
+00475660    104 FUN_00475660                     strings: 
+004756c8     52 FUN_004756c8                     strings: 
+004756fc    191 NetMoveUnit                      strings: "Failed Move Unit ID #:%4X going to %s"|"NULL army in NetMoveUnit"
+004757c0     87 FUN_004757c0                     strings: 
+00475818     57 NetDisbandUnit                   strings: "NULL army in NetDisbandUnit"
+00475854     65 FUN_00475854                     strings: 
+00475898     91 SyncDisbandUnit                  strings: "SyncDisbandUnit"
+004758f4    136 NetStartConstruction             strings: "Failed Create Building in NetStartConstruction"|"Id's didn't match for %s in NetStartConstruction, ID=%X, actual ID=%X"
+0047597c    109 FUN_0047597c                     strings: 
+004759ec    113 NetDemolishBuilding              strings: "Invalid building in NetDemolishBuilding"
+00475a60     99 FUN_00475a60                     strings: 
+00475ac4    223 NetReassignLabor                 strings: "NULL building in NetReassignLabor"|"Owner mismatch in NetReassignLabor"|"Failed NetReassign Labor between %s and %s in %s -- Probably no big deal"
+00475ba4     78 FUN_00475ba4                     strings: 
+00475bf4    242 NetReassignLaborByTask           strings: "NULL building in NetReassignLaborByTask"|"Owner mismatch in NetReassignLaborByTask"|"Failed NetReassignLaborByTask between %s and %s in %s -- could be ok"
+00475ce8     88 FUN_00475ce8                     strings: 
+00475d40     32 FUN_00475d40                     strings: 
+00475d60     66 FUN_00475d60                     strings: 
+00475da4    156 FUN_00475da4                     strings: 
+00475e40    145 FUN_00475e40                     strings: 
+00475ed4    169 FUN_00475ed4                     strings: 
+00475f80    260 FUN_00475f80                     strings: "Broadcast"
+00476084     75 FUN_00476084                     strings: 
+004760d0     79 FUN_004760d0                     strings: 
+00476120    142 NetBuildingTasks                 strings: "Null Building in NetBuildingTasks"
+004761b0    100 FUN_004761b0                     strings: 
+00476214     35 FUN_00476214                     strings: 
+00476238     50 FUN_00476238                     strings: 
+0047626c     59 NetBuildingFlags                 strings: "Null Building in NetBuildingFlags"
+004762a8     84 FUN_004762a8                     strings: 
+004762fc     37 FUN_004762fc                     strings: 
+00476324     69 FUN_00476324                     strings: 
+0047636c    218 FUN_0047636c                     strings: "Error in Net Move Population!"
+00476448    118 FUN_00476448                     strings: 
+004764c0     25 FUN_004764c0                     strings: 
+004764dc     58 FUN_004764dc                     strings: 
+00476518     52 FUN_00476518                     strings: 
+0047654c     58 FUN_0047654c                     strings: 
+00476588     30 FUN_00476588                     strings: 
+004765a8     61 FUN_004765a8                     strings: 
+004765e8    128 FUN_004765e8                     strings: "Error in Net Transfer Materials."
+00476668    126 FUN_00476668                     strings: 
+004766e8    117 FUN_004766e8                     strings: "Error in Net Transfer Materials."
+00476760    101 FUN_00476760                     strings: 
+004767c8     37 FUN_004767c8                     strings: 
+004767f0     41 FUN_004767f0                     strings: 
+0047681c    256 FUN_0047681c                     strings: 
+0047691c     81 FUN_0047691c                     strings: 
+00476970    255 NetBreakPact                     strings: "Error in NetBreakPact."|"The %s have broken their %s pact with you"|"Pact Broken"
+00476a70     58 NetBreakPact_6a70                strings: "Error in NetBreakPact."
+00476aac     55 FUN_00476aac                     strings: 
+00476ae4     55 FUN_00476ae4                     strings: 
+00476b1c     58 NetMakePact                      strings: "Error in NetMakePact."
+00476b58     50 FUN_00476b58                     strings: 
+00476b8c    183 FUN_00476b8c                     strings: 
+00476c44     58 FUN_00476c44                     strings: 
+00476c80     61 FUN_00476c80                     strings: 
+00476cc0     72 FUN_00476cc0                     strings: 
+00476d08     61 FUN_00476d08                     strings: 
+00476d48     80 FUN_00476d48                     strings: 
+00476d98     49 FUN_00476d98                     strings: 
+00476dcc     64 FUN_00476dcc                     strings: 
+00476e0c     49 FUN_00476e0c                     strings: 
+00476e40     64 FUN_00476e40                     strings: 
+00476e80    100 FUN_00476e80                     strings: "Null Army in Net Army Stats."
+00476ee4     61 FUN_00476ee4                     strings: 
+00476f24    147 FUN_00476f24                     strings: 
+00476fb8     67 FUN_00476fb8                     strings: 
+00476ffc     77 FUN_00476ffc                     strings: 
+0047704c     33 FUN_0047704c                     strings: 
+00477070     47 FUN_00477070                     strings: 
+004770a0     90 FUN_004770a0                     strings: 
+004770fc    472 FUN_004770fc                     strings: "Deadlock 2: Shrine Wars"|"New Player"
+004772d4     70 FUN_004772d4                     strings: 
+0047731c     30 FUN_0047731c                     strings: 
+0047733c     88 FUN_0047733c                     strings: "Reseeded with seed %lX"
+00477394     79 FUN_00477394                     strings: 
+004773e4    482 SendSlaveInfo                    strings: "SendSlaveInfo"|"New Player"
+004775c8     58 FUN_004775c8                     strings: 
+00477604     25 FUN_00477604                     strings: 
+00477620     64 FUN_00477620                     strings: 
+00477660     34 FUN_00477660                     strings: 
+00477684     51 FUN_00477684                     strings: 
+004776b8     42 FUN_004776b8                     strings: 
+004776e4     62 FUN_004776e4                     strings: 
+00477724     96 FUN_00477724                     strings: 
+00477784    178 SyncCreateUnit                   strings: "SyncCreateUnit"
+00477838     79 FUN_00477838                     strings: 
+00477888    121 FUN_00477888                     strings: 
+00477904    187 SyncCreateBuilding               strings: "SyncCreateBuilding"
+004779c0    337 FUN_004779c0                     strings: "Broadcast"
+00477b14    234 BroadcastDirect                  strings: "BroadcastDirect"
+00477c00    247 SpecialBroadcast                 strings: "SpecialBroadcast"
+00477cf8    337 BroadcastText                    strings: "Text message being sent while dont process flag set."|"BroadcastText"
+00477e4c      1 FUN_00477e4c                     strings: 
+00477e50    178 BroadcastBlock                   strings: "BroadcastBlock"
+00477f04    148 BroadcastBlockDirect             strings: "BroadcastBlockDirect"
+00477f98      1 FUN_00477f98                     strings: 
+00477f9c     66 FUN_00477f9c                     strings: 
+00477fe0     17 FUN_00477fe0                     strings: 
+0047800c     29 FUN_0047800c                     strings: 
+00478044     26 FUN_00478044                     strings: 
+00478060     45 FUN_00478060                     strings: 
+00478090     83 FUN_00478090                     strings: 
+004780e4    517 FUN_004780e4                     strings: "Unable to connect to the new game master."
+004782ec    894 FUN_004782ec                     strings: 
+004787c8   1701 MasterDispatchNetMessage         strings: "Master--Surrender"|"Master--AbortGame"|"MasterDispatchNetMessage"
+00478fb8     50 FUN_00478fb8                     strings: 
+00478fec     99 FUN_00478fec                     strings: 
+00479050    228 FUN_00479050                     strings: 
+00479134     48 FUN_00479134                     strings: 
+00479164    447 FUN_00479164                     strings: 
+00479324    614 FUN_00479324                     strings: 
+0047958c     93 FUN_0047958c                     strings: 
+004795ec    275 ResetNetGame                     strings: "ResetNetGame1"|"Your race was not found in this game. you will not be able to continue."|"Net Load Error"|"ResetNetGame2"
+00479700    633 FUN_00479700                     strings: "Sending Game Data\r%d%% complete"|"Load MultiPlayer Game"|"Could not open file %s."|"Load Game Error"
+0047997c    175 FUN_0047997c                     strings: "NetGame.Sav"|"Receiving Game Data\r%d%% complete"|"Load MultiPlayer Game"
+00479a2c     45 FUN_00479a2c                     strings: 
+00479a5c     41 FUN_00479a5c                     strings: 
+00479a88    174 FUN_00479a88                     strings: "Error Saving Block"|"Receiving Game Data\r%d%% complete"
+00479b38     52 FUN_00479b38                     strings: "NetGame.Sav"
+00479b6c    630 FUN_00479b6c                     strings: "Sending Game Data\r%d%% complete"|"Load Map"|"Could not open file %s."|"Load Game Error"
+00479de4    203 FUN_00479de4                     strings: "net_map.xfer"|"maps\\"|"Receiving Game Data\r%d%% complete"|"Load MultiPlayer Game"
+00479eb0     45 FUN_00479eb0                     strings: 
+00479ee0    174 FUN_00479ee0                     strings: "Error Saving Block"|"Receiving Game Data\r%d%% complete"
+00479f90     32 FUN_00479f90                     strings: 
+00479fb0     39 FUN_00479fb0                     strings: 
+00479fd8     20 FUN_00479fd8                     strings: 
+00479fec     40 FUN_00479fec                     strings: 
+0047a014   5009 CalculateGameCRC                 strings: "CHECKSUM.SAV"|"CalculateGameCRC"
+0047b3a8    257 SynchronizeGame                  strings: "SyncGame"
+0047b4ac    436 FUN_0047b4ac                     strings: "Sent game state to player %d"
+0047b660    346 FUN_0047b660                     strings: 
+0047b7bc     92 FUN_0047b7bc                     strings: 
+0047b818     28 FUN_0047b818                     strings: 
+0047b834    128 FUN_0047b834                     strings: 
+0047b8b4    216 FUN_0047b8b4                     strings: 
+0047b98c    295 FUN_0047b98c                     strings: 
+0047bab4   1031 SendTerritoryData                strings: "SendTerritoryData"
+0047bebc     63 FUN_0047bebc                     strings: 
+0047befc     36 FUN_0047befc                     strings: 
+0047bf20     86 FUN_0047bf20                     strings: 
+0047bf78    100 FUN_0047bf78                     strings: 
+0047bfdc     95 FUN_0047bfdc                     strings: 
+0047c03c    236 FUN_0047c03c                     strings: 
+0047c128    776 FUN_0047c128                     strings: 
+0047c430     29 FUN_0047c430                     strings: 
+0047c450    109 NetStartState                    strings: "NetStartState"
+0047c4c0     54 FUN_0047c4c0                     strings: 
+0047c4f8     66 FUN_0047c4f8                     strings: 
+0047c53c    141 FUN_0047c53c                     strings: 
+0047c5e8    214 @ProgressDialog$qqspvuiuil       strings: 
+0047c6c0    111 FUN_0047c6c0                     strings: 
+0047c730    872 FUN_0047c730                     strings: 
+0047ca98     58 FUN_0047ca98                     strings: 
+0047cad4     47 FUN_0047cad4                     strings: 
+0047cb04     23 FUN_0047cb04                     strings: 
+0047cb1c     16 FUN_0047cb1c                     strings: 
+0047cb2c     72 FUN_0047cb2c                     strings: 
+0047cb74    609 FUN_0047cb74                     strings: "Plague"
+0047cdd8    187 FUN_0047cdd8                     strings: "Happy"
+0047ce94    129 FUN_0047ce94                     strings: "Bonus"|"Bonus2"
+0047cf18    129 NoBonus                          strings: "NoBonus"|"NoBonus2"
+0047cf9c    202 FUN_0047cf9c                     strings: "Natives"|"Natives2"
+0047d068    375 FUN_0047d068                     strings: "Earthquake2"
+0047d1e0    168 FUN_0047d1e0                     strings: "Flood"
+0047d288    103 FUN_0047d288                     strings: "Earthquake"
+0047d2f0    108 FUN_0047d2f0                     strings: 
+0047d35c    122 FUN_0047d35c                     strings: 
+0047d3d8    134 FUN_0047d3d8                     strings: "Not enough room to Log skirineen event."
+0047d460     60 FUN_0047d460                     strings: 
+0047d49c    640 FUN_0047d49c                     strings: "Scandal"|"Scandal2"|"Scandal3"|"Scandal4"|"Scandal5"
+0047d71c    134 CreateRandomEvents               strings: "CreateRandomEvents1"|"CreateRnd"|"CreateRnd2"|"CreateRandomEvents2"
+0047d7a4    330 FUN_0047d7a4                     strings: 
+0047d8f0     62 FUN_0047d8f0                     strings: 
+0047d930     87 FUN_0047d930                     strings: 
+0047d988    109 FUN_0047d988                     strings: 
+0047d9f8     43 FUN_0047d9f8                     strings: 
+0047da24    352 FUN_0047da24                     strings: 
+0047db84    348 FUN_0047db84                     strings: 
+0047dce0     67 FUN_0047dce0                     strings: 
+0047dd24     50 FUN_0047dd24                     strings: 
+0047dd58    313 FUN_0047dd58                     strings: 
+0047de94     67 FUN_0047de94                     strings: 
+0047ded8    257 FUN_0047ded8                     strings: 
+0047dfdc    117 FUN_0047dfdc                     strings: 

@@ -1,0 +1,74 @@
+# m11_combat_network_debuglog: 0x457000-0x45a000  functions=73 bytes=11736
+00457048    152 FUN_00457048                     strings: 
+004570e0    241 FUN_004570e0                     strings: 
+004571d4    104 FUN_004571d4                     strings: 
+0045723c     61 FUN_0045723c                     strings: 
+0045727c    933 FUN_0045727c                     strings: 
+00457624    574 FUN_00457624                     strings: "Combat"
+00457864    223 FUN_00457864                     strings: ".\\\\DEADLOCK.TXT"|".\\\\DEADCINE.CAM"
+0045792c     94 FUN_0045792c                     strings: 
+004579a4    177 FUN_004579a4                     strings: ".\\\\DEADCINE.CAM"
+00457a58     70 FUN_00457a58                     strings: 
+00457ac0     43 FUN_00457ac0                     strings: 
+00457b3c    170 FUN_00457b3c                     strings: 
+00457bec    401 FUN_00457bec                     strings: 
+00457d80     60 @CustomWnd$qqspvuiuil            strings: 
+00457dbc     88 FUN_00457dbc                     strings: 
+00457e14    233 FUN_00457e14                     strings: 
+00457f00    121 NetPlayerDisconnect              strings: "NetPlayerDisconnect"
+00457f7c    342 NetReceiveCapsule                strings: "NetReceiveCapsule"
+004580d8     93 FUN_004580d8                     strings: 
+00458138    109 FUN_00458138                     strings: 
+004581a8    240 FUN_004581a8                     strings: 
+00458298     69 FUN_00458298                     strings: 
+004582e0    162 FUN_004582e0                     strings: "Deadlock 2 Host"
+00458384     21 FUN_00458384                     strings: 
+0045839c     13 FUN_0045839c                     strings: 
+004583ac    134 FUN_004583ac                     strings: 
+00458434    210 FUN_00458434                     strings: "Deadlock 2 Player"
+00458508     71 FUN_00458508                     strings: "Your version of DirectX is not supported by the Matching Service. Make sure you're running the most recent version, then try again."|"Network Error"
+00458550    122 FUN_00458550                     strings: 
+004585cc      6 FUN_004585cc                     strings: 
+004585dc     12 FUN_004585dc                     strings: 
+004585ec      6 FUN_004585ec                     strings: 
+004585fc     16 FUN_004585fc                     strings: 
+0045860c     28 FUN_0045860c                     strings: 
+00458628     15 FUN_00458628                     strings: 
+00458640    178 FUN_00458640                     strings: "Deadlock 2 Host"|"Closed Deadlock 2 Host"
+004586f4    252 InitDebugLogs                    strings: "DEBUG.TXT"|"Debug Messages Received\n"|"Deadlock 2 v%d.%d%d\n\n"|"COMBAT.TXT"|"Combat Messages Received\n"|"REPLAY.TXT"|"Replay Messages Received\n"
+004587f0     79 DebugLog                         strings: "DEBUG.TXT"|"Turn %3d: "
+00458840    335 DumpGameOptions                  strings: "DEBUG.TXT"|"Manifest Destiny"|"Conquest"|"Shrine Wars"|"----------------------------------\nPlayers\t\t: %d\nWorld W.\t: %d\nWorld H.\t: %d\nHumans\t\t: %d\nCi
+00458990     16 DebugMessage                     strings: 
+004589a0      7 FUN_004589a0                     strings: 
+004589a8      7 FUN_004589a8                     strings: 
+004589b0    106 FUN_004589b0                     strings: "Windows 3.1 and Win32s"|"Windows 95?"|"Windows NT"|"%s version %d.%d build %d\n%s"
+00458a5c    248 FUN_00458a5c                     strings: "Palette Size:\t\t%d\nNumber of Colors:\t\t%d\nReserved Colors:\t\t%d\nColor Planes:\t\t%d\nBits per Pixel:\t\t%d\nBits per color:\t\t%d\nPalette Device:\t\t%s\
+00458b54     89 FUN_00458b54                     strings: "Debug Message"
+00458bb0     18 FUN_00458bb0                     strings: 
+00458bc8    162 FUN_00458bc8                     strings: 
+00458c6c    187 FUN_00458c6c                     strings: 
+00458d28     87 FUN_00458d28                     strings: 
+00458d80    344 FUN_00458d80                     strings: 
+00458ed8     55 FUN_00458ed8                     strings: 
+00458f14    340 FUN_00458f14                     strings: 
+00459068     62 FUN_00459068                     strings: 
+004590a8     44 FUN_004590a8                     strings: 
+004590d4     28 FUN_004590d4                     strings: 
+004590f0    317 FUN_004590f0                     strings: 
+00459230    371 FUN_00459230                     strings: 
+004593a4    104 FUN_004593a4                     strings: 
+0045940c    169 FUN_0045940c                     strings: 
+004594b8     59 FUN_004594b8                     strings: 
+0045951c     63 FUN_0045951c                     strings: 
+00459588    210 FUN_00459588                     strings: 
+0045965c     67 FUN_0045965c                     strings: 
+004596d0     67 FUN_004596d0                     strings: 
+0045973c    294 FUN_0045973c                     strings: 
+00459864    226 FUN_00459864                     strings: 
+00459948    242 FUN_00459948                     strings: 
+00459a3c    396 FUN_00459a3c                     strings: 
+00459bdc    106 FUN_00459bdc                     strings: 
+00459c48    588 FUN_00459c48                     strings: 
+00459ea8     56 FUN_00459ea8                     strings: 
+00459ee0     56 FUN_00459ee0                     strings: 
+00459f18    287 FUN_00459f18                     strings: 

@@ -66,12 +66,19 @@ ResourceManager::ResourceManager() {
 
 int ResourceManager::addLibrary(const std::string& path, std::string* err) {
     const std::string base = baseName(path);
-    for (size_t i = 0; i < libs_.size(); ++i)
-        if (baseName(libs_[i].path) == base) return int(i) + 1;
+    size_t slot = libs_.size();
+    for (size_t i = 0; i < libs_.size(); ++i) {
+        if (baseName(libs_[i].path) != base) continue;
+        if (libs_[i].cam) return int(i) + 1;
+        // closeLibrary leaves a stable handle slot. Reopen it before reporting success.
+        slot = i;
+        break;
+    }
     auto cam = std::make_unique<CamPackage>();
     if (!cam->open(path, err)) return 0;
-    libs_.push_back(Lib{path, std::move(cam)});
-    return int(libs_.size());
+    if (slot < libs_.size()) libs_[slot] = Lib{path, std::move(cam)};
+    else libs_.push_back(Lib{path, std::move(cam)});
+    return int(slot) + 1;
 }
 
 void ResourceManager::closeLibrary(int lib) {

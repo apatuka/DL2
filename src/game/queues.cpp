@@ -129,9 +129,12 @@ int MilitiaTrainingBonus(Army* a, int* accum) {
     return bonus;
 }
 
+// orig: FUN_00447a40 (ExperienceLevel). Compartido por entrenamiento y combate.
+int ExperienceLevel(int xp) { return xp < 100 ? 0 : (xp < 401 ? 1 : 2); }
+
 // orig: FUN_00474cfc (NextGlobalId)  ++gNextGlobalId truncado a u16.
 uint16_t NextGlobalId() {
-    gs.options.nextGlobalId = gs.options.nextGlobalId + 1;
+    gs.options.nextGlobalId = int32_t(uint32_t(gs.options.nextGlobalId) + 1u);
     return uint16_t(gs.options.nextGlobalId);
 }
 

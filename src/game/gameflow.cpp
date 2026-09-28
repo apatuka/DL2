@@ -22,7 +22,7 @@ void srand2(uint32_t seed) { gg.rng2Seed = seed; }
 // sólo se usa para depuración en el original.
 int RandRangeTagged(int n, const char* /*tag*/) {
     if (n == 0) return 0;
-    return int(rtl::lrand() % uint32_t(n));   // división con signo en el original: lrand() < 2^31 y n > 0
+    return int(rtl::lrand()) % n;   // FUN_0046c9d8 usa división con signo, también si n < 0.
 }
 
 // orig: FUN_00477394 (SyncSetRandomSeed)

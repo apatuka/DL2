@@ -49,6 +49,7 @@ private:
     Audio* audio_ = nullptr;
     uint64_t startMs_ = 0;
     uint32_t lastButtons_ = 0;
+    bool hasLastClick_[2] = {false, false};
     uint32_t lastClickMs_[2] = {0, 0};
     int lastClickX_[2] = {0, 0}, lastClickY_[2] = {0, 0};
 };

@@ -6,6 +6,9 @@ set(GAME_SOURCES
     rtl_compat.cpp
     # BEGIN MODULE SOURCES
     data_tables.cpp
+    gameflow.cpp
+    queue_pool.cpp
+    queues.cpp
     # END MODULE SOURCES
 )
 

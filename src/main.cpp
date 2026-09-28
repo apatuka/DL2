@@ -3,6 +3,8 @@
 // Left/Right cycle the background picture, Escape exits. Data dir: argv[1], DL2_DATA or the GOG default.
 #include <SDL.h>
 
+#include <charconv>
+#include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <memory>
@@ -29,15 +31,14 @@ namespace {
 
 const char* const kDefaultDataDir = "C:\\GOG Games\\Deadlock 2";
 
-std::string resolveDataDir(int argc, char** argv) {
-    if (argc > 1 && argv[1] && argv[1][0]) return argv[1];
+std::string resolveDataDir() {
     if (const char* env = std::getenv("DL2_DATA"); env && *env) return env;
     return kDefaultDataDir;
 }
 
-void fatal(const std::string& msg) {
+void fatal(const std::string& msg, bool nonInteractive) {
     SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "%s", msg.c_str());
-    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Deadlock II", msg.c_str(), nullptr);
+    if (!nonInteractive) SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Deadlock II", msg.c_str(), nullptr);
 }
 
 // Decodes PICT `index` of deadcyb.cam into an 8 bpp OffPort with its own palette (nullptr if unsupported).
@@ -76,15 +77,40 @@ OffPortPtr loadPicture(size_t index, std::string& status) {
 }  // namespace
 
 int main(int argc, char* argv[]) {
-    const std::string dataDir = resolveDataDir(argc, argv);
+    std::string dataDir = resolveDataDir();
+    int smokeFrames = 0;
+    bool haveDataDir = false;
+    for (int i = 1; i < argc; ++i) {
+        const std::string arg = argv[i];
+        if (arg == "--help") {
+            std::puts("Usage: deadlock2 [data-directory] [--smoke-frames N]\n"
+                      "SMenu/resource demo. --smoke-frames exits after N frames (1..10000) for automated checks.");
+            return 0;
+        }
+        if (arg == "--smoke-frames" && i + 1 < argc) {
+            const char* value = argv[++i];
+            const char* end = value + std::strlen(value);
+            const auto parsed = std::from_chars(value, end, smokeFrames);
+            if (parsed.ec == std::errc{} && parsed.ptr == end && smokeFrames > 0 && smokeFrames <= 10000) continue;
+            std::fputs("--smoke-frames requires an integer from 1 to 10000.\n", stderr);
+            return 2;
+        }
+        if (!arg.empty() && arg.front() != '-' && !haveDataDir) {
+            dataDir = arg;
+            haveDataDir = true;
+            continue;
+        }
+        std::fprintf(stderr, "Invalid argument: %s (see --help).\n", arg.c_str());
+        return 2;
+    }
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS) != 0) {
-        fatal(std::string("SDL_Init failed: ") + SDL_GetError());
+        fatal(std::string("SDL_Init failed: ") + SDL_GetError(), smokeFrames > 0);
         return 1;
     }
     std::string err;
     Video video;
     if (!video.init("Deadlock II smoke test - SMenu D000", 1, false, &err)) {
-        fatal("video: " + err);
+        fatal("video: " + err, smokeFrames > 0);
         SDL_Quit();
         return 1;
     }
@@ -92,10 +118,19 @@ int main(int argc, char* argv[]) {
     if (!audio.init(&err)) SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "audio disabled: %s", err.c_str());
 
     CyGame& game = CyGame::instance();
-    game.init(640, 480, 16, &video, audio.isOpen() ? &audio : nullptr);
+    if (!game.init(640, 480, 16, &video, audio.isOpen() ? &audio : nullptr)) {
+        fatal("cannot create CYLib screen", smokeFrames > 0);
+        audio.shutdown();
+        video.shutdown();
+        SDL_Quit();
+        return 1;
+    }
     if (game.openLibraries(dataDir, &err) < 2) {
         fatal("cannot open the CAM packages in " + dataDir + (err.empty() ? "" : ": " + err) +
-              "\n(pass the data directory as argv[1] or set DL2_DATA)");
+              "\n(pass the data directory as argv[1] or set DL2_DATA)", smokeFrames > 0);
+        game.shutdown();
+        audio.shutdown();
+        video.shutdown();
         SDL_Quit();
         return 1;
     }
@@ -103,7 +138,10 @@ int main(int argc, char* argv[]) {
 
     std::unique_ptr<SMenu> menu = SMenu::load(makeTag("D000"));
     if (!menu) {
-        fatal("cannot load SMNU D000 from deadtext.cam");
+        fatal("cannot load SMNU D000 from deadtext.cam", smokeFrames > 0);
+        game.shutdown();
+        audio.shutdown();
+        video.shutdown();
         SDL_Quit();
         return 1;
     }
@@ -119,6 +157,7 @@ int main(int argc, char* argv[]) {
     SMenuItem* hoverItem = nullptr;
     bool running = true;
     uint32_t lastResult = 0;
+    int presentedFrames = 0;
     while (running) {
         input.poll(&video);
         const InputState& in = input.state();
@@ -162,6 +201,7 @@ int main(int argc, char* argv[]) {
                                   std::to_string(hoverId) + "  |  Left/Right: picture, Space: sound, Alt+Enter: fullscreen, Esc: quit";
         SDL_SetWindowTitle(video.window(), title.c_str());
         limiter.endFrame();
+        if (smokeFrames > 0 && ++presentedFrames >= smokeFrames) running = false;
     }
 
     menu.reset();

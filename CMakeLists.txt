@@ -9,5 +9,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(SDL2 CONFIG REQUIRED)
 
 option(DL2_BUILD_TOOLS "Build command-line asset tools" ON)
+include(CTest)
+set(DL2_DATA_DIR "$ENV{DL2_DATA}" CACHE PATH "Original game installation for optional asset tests (read-only)")
 
 add_subdirectory(src)
+
+if(BUILD_TESTING)
+    add_subdirectory(tests)
+endif()

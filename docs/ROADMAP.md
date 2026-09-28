@@ -1,0 +1,142 @@
+# Hoja de ruta de la reconstrucción
+
+Punto de partida: estado recuperado en `7eb27de`, documentado en `RECOVERY.md`.
+La prioridad es convertir las implementaciones parciales en capacidades
+comprobables. No se asigna un porcentaje global: archivos escritos, funciones
+decompiladas y módulos compilados miden cosas distintas de una partida jugable.
+
+## 0. Base reproducible y recuperación
+
+Completado durante esta recuperación:
+
+- Preservar el baseline con Git y documentar lo terminado, lo parcial y su origen.
+- Centralizar configuración/build/pruebas en `tools/build.ps1` y CTest.
+- Verificar formatos, recursos, renderizado de motor y arranque/cierre acotado de
+  la demostración SDL, además de las tablas y el parser Python.
+- Recuperar el soporte de colas y RNG con pruebas concretas y documentar las
+  dependencias pendientes en `GAME_INTEGRATION.md`.
+- Mantener las pruebas independientes de los directorios temporales de Claude.
+
+Criterio de cierre: build reproducible con las herramientas instaladas y pruebas
+registradas cuyo resultado se pueda repetir. Debe quedar explícito qué fuentes
+siguen excluidas y por qué. Un build correcto no cierra las etapas siguientes.
+
+Resultado: CTest 6/6 aprobado sin omisiones con la instalación GOG local. Incluye
+regresiones para el pool de colas, RNG, primer clic y reapertura de bibliotecas.
+La carga/guardado C++ sigue excluida por los bloqueos documentados; no se añadieron
+implementaciones vacías para ocultarlos.
+
+## 1. Cargar y guardar una partida en C++
+
+Este es el próximo hito funcional. Debe poder probarse en consola antes de añadir
+una vista del mundo o ejecutar turnos.
+
+Orden de trabajo:
+
+1. Revisar `saveload.cpp` y contrastarlo con `SAVEFORMAT.md`, `savparse.py` y los
+   lectores/escritores decompilados. Usar el inventario de `GAME_INTEGRATION.md`
+   para cerrar dependencias de forma explícita.
+2. Unificar el uso de tablas estáticas y resolver pools, índices `Ptr32`, IDs,
+   listas libres/activas y reinicialización del estado. Revisar los límites de
+   arrays y los errores de lectura con datos truncados o inconsistentes.
+3. Distinguir decodificación de archivo y postprocesamiento de partida: si falta
+   lógica de campañas, IA o turnos, exponer esa limitación en la API/prueba; no
+   declarar una partida lista para jugar porque callbacks nulos se omitan.
+4. Incorporar el lector/escritor al target apropiado y añadir una prueba de
+   consola con datos reales y estados sintéticos para las referencias y colas.
+5. Comparar los resultados C++ con el parser Python en las muestras disponibles.
+   Realizar load → save → load y revisar las diferencias binarias en los bloques
+   persistentes contra el formato original.
+
+Criterio de cierre:
+
+- `TUTORIAL.SAV`, los 42 escenarios de `LEVELS.HDD` y las partidas/campañas de
+  muestra disponibles se cargan en C++ y sus invariantes coinciden con Python.
+- El round-trip conserva el estado persistente. Toda diferencia binaria permitida
+  está identificada por campo y justificada por el formato o el decompilado;
+  padding histórico y datos transitorios no se ignoran indiscriminadamente.
+- Las entradas inválidas producen un error controlado y no un estado aceptado
+  como válido. El contrato especifica qué ocurre con el estado anterior al fallo.
+- Los resultados se reproducen desde CTest. Los datos originales se leen sin
+  sobrescribirlos; las salidas de prueba van al directorio de build.
+
+## 2. Inspeccionar una partida desde la aplicación
+
+Integrar la capacidad anterior con una vista mínima del mundo o de un territorio:
+terreno, edificios y unidades de la partida cargada, selección e información del
+objeto seleccionado. Reutilizar los sprites y SMenu ya disponibles. Conectar
+carga/guardado de esa partida con errores visibles y cierre limpio.
+
+Criterio de cierre: abrir una muestra conocida, inspeccionar territorios y objetos
+con datos correctos y volver a guardarla desde la aplicación. Esta etapa todavía
+no exige una simulación completa ni IA.
+
+## 3. Simulación de un turno local determinista
+
+Completar primero economía, población, recursos, trabajo y colas de producción;
+después unidades, movimiento y las fases de turno que los coordinan. Establecer
+una única secuencia de fases a partir de `WinMain` y sus llamadas originales.
+
+Integrar RNG, investigación y las reglas necesarias para el escenario de prueba.
+Las pruebas deben observar cambios verificables: consumo/producción, progreso de
+colas, creación de entidades, movimiento y persistencia tras guardar/cargar.
+
+Criterio de cierre: dos ejecuciones desde el mismo estado y semillas producen el
+mismo resultado persistente. Cargar → ejecutar un turno → guardar → recargar
+conserva ese resultado. La UI puede mostrar los efectos de un turno sin depender
+de funciones de simulación omitidas silenciosamente.
+
+## 4. Partida individual completa
+
+Completar los sistemas necesarios para empezar y terminar una partida:
+
+- Combate, efectos y bajas; investigación completa, eventos, espionaje y victoria.
+- Ministros IA, jobs, task forces, misiones y diplomacia, integrados con la misma
+  simulación que usa el jugador.
+- Nueva partida, generación de mundo, aterrizaje, opciones, preferencias y
+  campañas. Comparar semillas y secuencias RNG con evidencia original cuando sea
+  posible, no sólo con dos ejecuciones del port.
+- Pantallas y diálogos que permitan operar esas funciones desde la aplicación.
+
+Criterio de cierre: una partida nueva y una partida cargada pueden desarrollarse
+hasta una condición de victoria/derrota sin intervención de herramientas de
+desarrollo. Una campaña de muestra puede avanzar entre escenarios. Registrar
+pruebas de regresión para los errores encontrados durante esas sesiones.
+
+## 5. Compatibilidad, presentación y editor
+
+Completar preferencias/atajos, audio y música, cinemáticas, mensajes y pantallas
+restantes. Verificar campañas adicionales, variantes del formato guardado y el
+editor de mapas. Priorizar aquí lo que no haya sido imprescindible para completar
+la etapa anterior.
+
+Criterio de cierre: lista explícita de funciones originales soportadas, diferencias
+conocidas y muestras de verificación. Los formatos antiguos sin archivos de prueba
+deben seguir marcados como no verificados.
+
+## 6. Multijugador
+
+Completar protocolo, serialización, sesión, sincronización y checksum sobre el
+transporte abstracto existente. Probar primero dos peers con loopback y luego un
+transporte real entre procesos, conservando el orden y las garantías requeridas.
+
+Criterio de cierre: mensajes y barreras probados, estado consistente entre peers,
+partida sincronizada con intercambio de turnos y tratamiento de desconexión o
+desincronización. La igualdad entre dos peers del port no prueba por sí sola
+compatibilidad de protocolo/CRC con el original; esa compatibilidad necesita una
+comparación independiente.
+
+## Criterios de trabajo compartidos
+
+- Una capacidad se considera terminada cuando tiene implementación, integración,
+  verificación adecuada y límites documentados; una cabecera no cierra un módulo.
+- Respetar tamaños y offsets de estructuras persistentes y registrar la evidencia
+  al cambiar la interpretación de un campo, siguiendo `PORTING_CONVENTIONS.md`.
+- Evitar múltiples tablas o pools con distinta semántica para la misma entidad.
+  Resolver primero la propiedad de las APIs compartidas.
+- Conservar los archivos originales de la instalación como entradas de sólo
+  lectura. No depender de scratchpad ni de logs privados para compilar o probar.
+- Usar paralelismo en tareas separadas por archivos y contratos; integrar cada
+  entrega con pruebas antes de acumular nuevos módulos interdependientes.
+- Actualizar este documento y `GAME_INTEGRATION.md` cuando una dependencia se
+  cierre o un criterio de aceptación cambie con nueva evidencia.

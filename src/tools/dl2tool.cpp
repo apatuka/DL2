@@ -43,6 +43,9 @@ int usage() {
         "  dl2tool pict2bmp <file.cam> <name> <out.bmp>\n"
         "  dl2tool strt <file.cam> <name>\n"
         "  dl2tool tile <file.cam> <index>     (print a TILE header)\n"
+        "  dl2tool render-tile <file.cam> <index> <out.bmp>\n"
+        "  dl2tool render-menu <file.cam> <name> <out.bmp>\n"
+        "  dl2tool smnu <file.cam> <name>      (dump menu opcodes)\n"
         "  dl2tool sprite-list [filter]        (sprite types of SPRITENW.DAT; filter matches the name)\n"
         "  dl2tool render-sprite <table> <index> <out.bmp> [world]   (table = type number/name or extra:<name>)\n"
         "  dl2tool sprite-sheet <table> <out.bmp> [world]\n"
@@ -548,7 +551,7 @@ int renderMenu(const char* file, const char* name, const char* outPath) {
 }  // namespace
 
 int main(int argc, char** argv) {
-    if (argc < 3) return usage();
+    if (argc < 2) return usage();
     const std::string cmd = argv[1];
     if (cmd == "cam" && argc >= 4) {
         const std::string sub = argv[2];

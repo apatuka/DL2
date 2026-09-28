@@ -30,6 +30,7 @@ bool CyGame::init(int w, int h, int bpp, Video* video, Audio* audio) {
     Pixel::setBlitMode(0);
     SoundSystem::instance().init(audio);
     startMs_ = ticksMs();
+    hasLastClick_[0] = hasLastClick_[1] = false;
     InputQueue::instance().setTicks(0);
     return true;
 }
@@ -134,9 +135,12 @@ void CyGame::feedInput(const InputState& in) {
         const uint8_t sdlMask = b == 0 ? InputState::Left : InputState::Right;
         if (in.pressed & sdlMask) {
             // Doble clic: dos pulsaciones en < 400 ms y a menos de 4 px (GetDoubleClickTime tipico).
-            const bool dbl = now - lastClickMs_[b] < 400 && std::abs(in.mouseX - lastClickX_[b]) < 4 && std::abs(in.mouseY - lastClickY_[b]) < 4;
+            const bool dbl = hasLastClick_[b] && now - lastClickMs_[b] < 400 &&
+                             std::abs(in.mouseX - lastClickX_[b]) < 4 && std::abs(in.mouseY - lastClickY_[b]) < 4;
             q.pushMouse(dbl ? (b == 0 ? kMouseLeftDouble : kMouseRightDouble) : (b == 0 ? kMouseLeftDown : kMouseRightDown), in.mouseX, in.mouseY);
-            lastClickMs_[b] = dbl ? 0 : now;
+            // A timestamp of zero is a valid click during the first frame, not "no previous click".
+            hasLastClick_[b] = !dbl;
+            lastClickMs_[b] = now;
             lastClickX_[b] = in.mouseX;
             lastClickY_[b] = in.mouseY;
         }

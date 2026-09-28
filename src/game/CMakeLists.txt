@@ -11,6 +11,8 @@ set(GAME_SOURCES
     queues.cpp
     save_document.cpp
     save_validation.cpp
+    save_files.cpp
+    world_view.cpp
     # END MODULE SOURCES
 )
 

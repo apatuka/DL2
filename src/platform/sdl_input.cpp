@@ -1,6 +1,8 @@
 // sdl_input.cpp - SDL event pump filling InputState.
 #include "platform/sdl_input.h"
 
+#include <memory>
+
 #include "platform/sdl_video.h"
 
 namespace dl2 {
@@ -21,9 +23,19 @@ void Input::poll(Video* video) {
     state_.released = 0;
     state_.wheel = 0;
     state_.keys.clear();
+    state_.droppedFiles.clear();
 
     SDL_Event ev;
     while (SDL_PollEvent(&ev)) {
+        // SDL transfers ownership of both drop payload kinds to the recipient.
+        // Handle them before any event consumer can skip their cleanup; the
+        // owner also frees exactly once if copying a filename throws.
+        if (ev.type == SDL_DROPFILE || ev.type == SDL_DROPTEXT) {
+            const std::unique_ptr<char, decltype(&SDL_free)> payload(ev.drop.file, &SDL_free);
+            if (ev.type == SDL_DROPFILE && payload)
+                state_.droppedFiles.emplace_back(payload.get());
+            continue;
+        }
         if (video && video->handleEvent(ev)) continue;
         switch (ev.type) {
             case SDL_QUIT:

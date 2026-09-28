@@ -8,6 +8,29 @@ target_link_libraries(test_save_document PRIVATE dl2game)
 add_test(NAME save_document COMMAND test_save_document)
 set_tests_properties(save_document PROPERTIES TIMEOUT 60)
 
+add_executable(test_save_files test_save_files.cpp)
+target_link_libraries(test_save_files PRIVATE dl2game)
+add_test(NAME save_files COMMAND test_save_files "${CMAKE_CURRENT_BINARY_DIR}")
+set_tests_properties(save_files PROPERTIES TIMEOUT 30)
+
+add_executable(test_world_view test_world_view.cpp)
+target_link_libraries(test_world_view PRIVATE dl2game)
+add_test(NAME world_view COMMAND test_world_view)
+
+add_executable(test_inspector_session test_inspector_session.cpp)
+target_link_libraries(test_inspector_session PRIVATE dl2viewer)
+add_test(NAME inspector_session COMMAND test_inspector_session "${CMAKE_CURRENT_BINARY_DIR}")
+set_tests_properties(inspector_session PROPERTIES TIMEOUT 30)
+
+add_executable(test_input test_input.cpp)
+target_link_libraries(test_input PRIVATE dl2engine)
+add_test(NAME input COMMAND test_input)
+
+add_executable(test_world_inspector test_world_inspector.cpp)
+target_link_libraries(test_world_inspector PRIVATE dl2viewer)
+add_test(NAME world_inspector COMMAND test_world_inspector "${DL2_DATA_DIR}")
+set_tests_properties(world_inspector PROPERTIES SKIP_RETURN_CODE 77 TIMEOUT 60)
+
 add_executable(test_engine test_engine.cpp)
 target_link_libraries(test_engine PRIVATE dl2engine)
 add_test(NAME engine COMMAND test_engine)
@@ -36,17 +59,29 @@ else()
 endif()
 
 if(EXISTS "${DL2_DATA_DIR}/deadcyb.cam" AND EXISTS "${DL2_DATA_DIR}/deadtext.cam")
-    add_test(NAME application_smoke COMMAND deadlock2 "${DL2_DATA_DIR}" --smoke-frames 3)
+    add_test(NAME application_smoke COMMAND deadlock2 "${DL2_DATA_DIR}" --demo --smoke-frames 3)
     set_tests_properties(application_smoke PROPERTIES
         ENVIRONMENT "SDL_VIDEODRIVER=dummy;SDL_AUDIODRIVER=dummy;SDL_RENDER_DRIVER=software"
         TIMEOUT 20)
+endif()
+if(EXISTS "${DL2_DATA_DIR}/deadtext.cam" AND EXISTS "${DL2_DATA_DIR}/SPRITENW.DAT")
+    if(EXISTS "${DL2_DATA_DIR}/TUTORIAL.SAV")
+        add_test(NAME inspector_smoke COMMAND deadlock2 "${DL2_DATA_DIR}" --smoke-frames 3)
+        set_tests_properties(inspector_smoke PROPERTIES
+            ENVIRONMENT "SDL_VIDEODRIVER=dummy;SDL_RENDER_DRIVER=software" TIMEOUT 20)
+    endif()
+    if(EXISTS "${DL2_DATA_DIR}/LEVELS.HDX" AND EXISTS "${DL2_DATA_DIR}/LEVELS.HDD")
+        add_test(NAME inspector_scenario_smoke COMMAND deadlock2 "${DL2_DATA_DIR}" --scenario CHCHT1 --smoke-frames 3)
+        set_tests_properties(inspector_scenario_smoke PROPERTIES
+            ENVIRONMENT "SDL_VIDEODRIVER=dummy;SDL_RENDER_DRIVER=software" TIMEOUT 20)
+    endif()
 endif()
 
 # Keep SDL2 next to the test executables when using the dynamic Windows target.
 if(WIN32 AND TARGET SDL2::SDL2)
     get_target_property(_dl2_sdl_type SDL2::SDL2 TYPE)
     if(_dl2_sdl_type STREQUAL "SHARED_LIBRARY")
-        foreach(_target test_engine test_resources)
+        foreach(_target test_engine test_resources test_input test_inspector_session test_world_inspector)
             add_custom_command(TARGET ${_target} POST_BUILD
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different
                     $<TARGET_FILE:SDL2::SDL2> $<TARGET_FILE_DIR:${_target}>)

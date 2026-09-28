@@ -34,11 +34,14 @@ endif()
 add_subdirectory(sprites)
 add_subdirectory(game)
 
-# Game executable (currently the pipeline smoke test in main.cpp)
+add_library(dl2viewer STATIC app/inspector_session.cpp app/world_inspector.cpp app/inspector_main.cpp)
+target_link_libraries(dl2viewer PUBLIC dl2engine dl2sprites dl2game)
+
+# Read-only world inspector, plus the original resource demo via --demo.
 add_executable(deadlock2 WIN32
     main.cpp
 )
-target_link_libraries(deadlock2 PRIVATE dl2engine dl2sprites dl2game $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>)
+target_link_libraries(deadlock2 PRIVATE dl2viewer $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>)
 if(NOT WIN32)
     set_target_properties(deadlock2 PROPERTIES WIN32_EXECUTABLE OFF)
 endif()

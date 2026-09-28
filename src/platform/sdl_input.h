@@ -4,6 +4,7 @@
 
 #include <array>
 #include <cstdint>
+#include <string>
 #include <vector>
 
 namespace dl2 {
@@ -29,6 +30,7 @@ struct InputState {
     std::vector<KeyEvent> keys;      // key events this frame, in order
     std::array<bool, SDL_NUM_SCANCODES> held{};
     bool quit = false;
+    std::vector<std::string> droppedFiles; // UTF-8 file paths dropped this frame, in order.
 
     bool keyDown(SDL_Scancode sc) const { return held[size_t(sc)]; }
     // True if a (non-repeat) key-down event for `key` happened this frame.

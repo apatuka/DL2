@@ -31,7 +31,7 @@ para ocultar los bloqueos de la activación jugable.
 
 Completada la lectura/escritura **del documento de archivo** para las 46 muestras
 disponibles: carga → guardado → carga con igualdad byte a byte y edición comprobada.
-CTest incorpora `save_document` y `save_corpus`; la suite total pasa 8/8. Los
+CTest incorporó `save_document` y `save_corpus`; ese hito pasó 8/8. Los
 detalles, formatos soportados y límites están en `SAVE_CODEC.md`.
 
 Decisión de integración: se aisló el codec en `save_document.*`/`save_validation.cpp`
@@ -72,20 +72,34 @@ Criterio de cierre:
 
 ## 2. Inspeccionar una partida desde la aplicación
 
-**Próximo hito visible.** La inspección puede usar directamente el documento sin
-simular turnos ni activar IA/campañas. Antes de permitir juego, habrá que completar
-la conversión transaccional a estado de ejecución descrita en `SAVE_CODEC.md`.
+Implementado un inspector que consume directamente el documento sin simular turnos
+ni activar IA/campañas. Abre por defecto `TUTORIAL.SAV`, archivos mediante `--load`
+o arrastre, y escenarios de `LEVELS` mediante `--scenario`. Ofrece plano del mundo,
+selección de territorios/objetos, zoom, desplazamiento, datos y sprites estáticos
+originales. `F5` guarda una copia nueva, sin modificar el documento ni cambiar su
+fuente. Los fallos de carga conservan la sesión anterior.
 
-Integrar la capacidad anterior con una vista mínima del mundo o de un territorio:
-terreno, edificios y unidades de la partida cargada, selección e información del
-objeto seleccionado. Reutilizar los sprites y SMenu ya disponibles. Conectar
-carga/guardado de esa partida con errores visibles y cierre limpio.
+El terreno es una vista rectangular de inspección, no el renderer isométrico del
+original. Los marcadores agregan objetos por territorio y todos los datos están
+visibles sin niebla de guerra. Los límites y controles figuran en
+`WORLD_INSPECTOR.md`. Se conserva la demostración SMenu mediante `--demo`.
+
+Las pruebas de modelo, sesión, I/O, entrada y vista se añaden a CTest, junto con
+arranques acotados del tutorial y de un escenario. Su resultado integrado se
+registra en `RECOVERY.md`; no debe confundirse una prueba visual con la activación
+de una partida jugable.
 
 Criterio de cierre: abrir una muestra conocida, inspeccionar territorios y objetos
 con datos correctos y volver a guardarla desde la aplicación. Esta etapa todavía
 no exige una simulación completa ni IA.
 
 ## 3. Simulación de un turno local determinista
+
+**Siguiente hito funcional.** Antes de ejecutar las fases de turno, implementar
+la conversión transaccional del documento a estado de ejecución: IDs y coordenadas
+resueltos en pools propios, reconstrucción de listas y postprocesamiento real.
+Un fallo debe preservar la partida anterior, sin activar callbacks históricos ni
+reutilizar direcciones nativas que el archivo conserve como palabras opacas.
 
 Completar primero economía, población, recursos, trabajo y colas de producción;
 después unidades, movimiento y las fases de turno que los coordinan. Establecer

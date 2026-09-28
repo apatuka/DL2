@@ -2,15 +2,41 @@
 
 Fecha de recuperación: 27 de septiembre de 2026, zona `America/Asuncion` (UTC−03).
 
-Actualización posterior a la recuperación inicial: `SAVE_CODEC.md` documenta el
-codec C++ independiente incorporado después, con 46 roundtrips exactos y una suite
-total de 8 pruebas. Las tablas de esta nota conservan el estado/evidencia del
-primer hito; `saveload.cpp` integrado con activación de juego sigue pendiente.
+Actualizaciones posteriores a la recuperación inicial: `SAVE_CODEC.md` documenta
+el codec C++ independiente, con 46 roundtrips exactos; `WORLD_INSPECTOR.md` describe
+la vista gráfica de partidas y escenarios. Las tablas de esta nota conservan el
+estado/evidencia del primer hito; `saveload.cpp` integrado con activación de juego
+sigue pendiente.
 
 El proyecto conserva una base C++20/SDL2 que compila y permite inspeccionar recursos,
-sprites y el panel SMenu D000. La lógica de partida está parcialmente escrita y
-todavía no está integrada. El ejecutable es una demostración del motor: que dibuje
-la interfaz no significa que permita cargar una partida, simular un turno o jugar.
+sprites y el panel SMenu D000. Ahora también carga una partida como documento de
+inspección: mapa, territorios, edificios, unidades y copias sin modificación. La
+lógica de partida está parcialmente escrita y todavía no está integrada. Cargar
+el documento no equivale a activar el estado de juego, simular un turno ni jugar.
+
+## Verificación del inspector gráfico
+
+El nuevo modo predeterminado abre `TUTORIAL.SAV` y ofrece mapa rectangular,
+selección, consulta de objetos y sprites originales. La demostración histórica
+permanece disponible con `--demo`. Véase `WORLD_INSPECTOR.md` para controles.
+
+En `build-verified`, la suite ampliada aprobó **15/15 pruebas, sin omisiones**.
+Incluye I/O compartido, cámara y selección, sesión transaccional, eventos SDL,
+renderizado y arranques independientes del inspector y de la demostración.
+Además del tutorial, la prueba gráfica recorrió 42 escenarios y tres partidas/
+campañas, con 25 tipos de unidad; fixtures sintéticos cubrieron páginas de
+objetos, minas terrestres/marinas y mapas reducidos. La navegación y el dibujo
+conservaron los bytes codificados. El corpus del codec mantuvo sus 46 roundtrips
+exactos y las comprobaciones de edición/protección de archivos.
+
+La misma suite aprobó **15/15 con AddressSanitizer** en `build-save-asan`, sin
+errores de memoria detectados en esos recorridos. Esa ejecución incluye fuentes
+y sprites reales; no constituye una prueba de todos los estados posibles.
+
+Se inspeccionaron visualmente capturas RGB555 del tutorial y `CHCHT1`. Se
+comprobó también que una captura existente no se sobrescribe y que una fuente
+ausente hace fallar el arranque automatizado. Los resultados no equivalen a
+una comparación visual completa contra el original ni a una partida jugable.
 
 ## Punto de recuperación y evidencia
 

@@ -5,18 +5,22 @@ reimplementación progresiva en C++20 sobre SDL2.
 
 ## Estado y continuación
 
-El ejecutable actual es una demostración del motor: dibuja imágenes y el panel SMenu `D000`,
-procesa la entrada y reproduce sonido. Todavía no permite jugar una partida completa.
+El ejecutable abre un **inspector gráfico de partidas**: muestra el mundo, territorios, edificios
+y unidades del archivo, permite seleccionarlos y guarda copias nuevas sin modificar los datos.
+Todavía no activa la simulación ni permite jugar turnos. La demostración previa del motor y del
+panel SMenu `D000` se conserva mediante `--demo`.
 
 - [Recuperación de la sesión de Claude](docs/RECOVERY.md): entregables, evidencias y archivos recuperables.
 - [Plan por hitos verificables](docs/ROADMAP.md): orden de continuación y criterios de cierre.
 - [Integración de la lógica](docs/GAME_INTEGRATION.md): código existente que aún no puede enlazarse.
 - [API del motor](docs/ENGINE_API.md): recursos, dibujo y SMenu.
 - [Carga/guardado C++ verificable](docs/SAVE_CODEC.md): documentos de partida, CLI y límites.
+- [Inspector gráfico del mundo](docs/WORLD_INSPECTOR.md): controles, copias seguras y límites visuales.
 
 El codec C++ ya lee, valida, edita y vuelve a escribir las 46 muestras disponibles sin perder
-bytes. Es independiente del estado de una partida activa: todavía no conecta esos datos al demo
-visual ni ejecuta turnos.
+bytes. El inspector ya consume ese documento directamente, sin convertir IDs/palabras históricas
+en punteros activos ni ejecutar turnos. Muestra todos los datos, sin niebla de guerra; el plano
+del mundo no pretende reproducir aún la vista isométrica original.
 
 Git conserva el código, documentación, tablas, scripts y exportaciones de ingeniería inversa.
 `build*/` y la base local `ghidra_project/` están excluidos del control de versiones y permanecen
@@ -27,6 +31,7 @@ CMakeLists.txt        build raíz (SDL2 vía vcpkg)
 src/                  código C++ nuevo
   formats/            lectores de CAM, HDX/HDD, paletas, IFF-PBM, WAVE, tablas de texto
   platform/           capa SDL2: vídeo 8 bpp + paleta, audio, entrada, temporizador
+  app/                inspector del mundo y sesión propietaria de archivos
   game/               lógica reconstruida desde el decompilado
   tools/dl2tool.cpp   CLI para listar/extraer recursos
 tools/                utilidades Python (camtool.py, derive_names.py)
@@ -58,8 +63,10 @@ o usar otra instalación del juego:
 powershell -NoProfile -ExecutionPolicy Bypass -File tools/build.ps1 -BuildDir build-clean -DataDir "C:\GOG Games\Deadlock 2" -Test
 ```
 
-La recuperación se verificó desde cero en `build-verified`; la suite ampliada tiene ocho pruebas
+El hito previo de serialización se verificó en `build-verified` con ocho pruebas
 aprobadas sin omisiones, incluidas serialización C++ sintética y contraste con 46 guardados reales.
+El inspector amplía la suite a **15/15 aprobadas**, también con AddressSanitizer, e incluye
+modelo, sesión, archivos, entrada y renderizado. Alcance y evidencia en `docs/RECOVERY.md`.
 El script armoniza la codificación de consola para que Ninja detecte las cabeceras con MSVC
 localizado. Si una caché antigua muestra cientos de líneas `Nota: inclusión del archivo`,
 configurar un directorio nuevo con el script; no reutilizar esa caché defectuosa.
@@ -67,7 +74,7 @@ configurar un directorio nuevo con el script; no reutilizar esa caché defectuos
 Parámetros adicionales: `-VcpkgRoot C:\vcpkg` y `-Configuration Debug|Release|RelWithDebInfo`.
 Las pruebas de infraestructura y motor no requieren los datos originales. Las pruebas de recursos,
 guardados y tablas los leen sin modificarlos; CTest señala las omitidas si no están disponibles.
-Las dos comprobaciones Python requieren Python 3, y la de tablas además requiere `pefile`.
+Las comprobaciones Python requieren Python 3, y la de tablas además requiere `pefile`.
 `original_saves` valida el **parser Python**, no la activación de partidas del juego.
 `save_document` y `save_corpus` sí verifican el codec C++ independiente; no la activación de `loadGame`.
 
@@ -83,16 +90,25 @@ ctest --test-dir build --output-on-failure --no-tests=error
 build\src\dl2tool cam list "C:\GOG Games\Deadlock 2\deadcyb.cam"
 ```
 
-La demostración lee los datos desde `C:\GOG Games\Deadlock 2`, la variable `DL2_DATA` o un argumento:
+La aplicación lee los datos desde `C:\GOG Games\Deadlock 2`, la variable `DL2_DATA` o un argumento.
+Por defecto abre `TUTORIAL.SAV`; también acepta un guardado o un escenario de `LEVELS`:
 
 ```powershell
 .\build\src\deadlock2.exe "C:\GOG Games\Deadlock 2"
+.\build\src\deadlock2.exe "C:\GOG Games\Deadlock 2" --load "C:\ruta\partida.sav"
+.\build\src\deadlock2.exe "C:\GOG Games\Deadlock 2" --scenario CHCHT1
 ```
 
-Escape cierra, las flechas cambian la imagen de fondo, espacio reproduce un sonido y Alt+Enter
-alterna pantalla completa. El panel procesa botones, pero aún no ejecuta acciones de juego.
-`--smoke-frames 3` permite un arranque de duración limitada para pruebas automáticas. CTest lo
-ejecuta con vídeo/audio SDL ficticios, sin abrir una ventana.
+Clic selecciona; `Tab`/`Shift+Tab` recorre objetos; rueda y `+`/`-` cambian el zoom; las flechas
+desplazan el mapa. `F` ajusta la vista, `O` alterna propietarios, `R` recarga y `F5` guarda una
+copia nueva en `<directorio del ejecutable>/saves/inspection-copy-N.sav`, sin cambiar la fuente.
+Se pueden soltar archivos sobre la ventana. Escape cierra. Los controles y límites completos
+están en [WORLD_INSPECTOR.md](docs/WORLD_INSPECTOR.md).
+
+`--smoke-frames 3` limita la duración para pruebas automáticas; `--screenshot build/new.bmp`
+guarda una captura nueva del inspector al salir. CTest usa vídeo SDL ficticio sin abrir ventana.
+Para la demostración anterior usar `--demo`: sus flechas cambian imágenes y espacio reproduce
+un sonido; el panel SMenu no ejecuta acciones de juego.
 
 `dl2tool` usa `DL2_GAME_DIR` para sprites; los comandos CAM reciben la ruta explícita. Ejemplos:
 

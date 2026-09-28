@@ -1,6 +1,5 @@
-// main.cpp - deadlock2 smoke test: draws PICT I000 as background and the SMNU D000 main interface through the
-// CYLib engine port (16 bpp screen), with mouse hover/press highlighting via the SMenu API. Space plays WAVE #0,
-// Left/Right cycle the background picture, Escape exits. Data dir: argv[1], DL2_DATA or the GOG default.
+// Default: read-only world inspector. --demo keeps the recovered CYLib/SMenu
+// resource demonstration. Data dir: positional argument, DL2_DATA or GOG default.
 #include <SDL.h>
 
 #include <charconv>
@@ -23,6 +22,7 @@
 #include "platform/sdl_input.h"
 #include "platform/sdl_video.h"
 #include "platform/timer.h"
+#include "app/world_inspector.h"
 
 using namespace dl2;
 using namespace dl2::engine;
@@ -80,13 +80,22 @@ int main(int argc, char* argv[]) {
     std::string dataDir = resolveDataDir();
     int smokeFrames = 0;
     bool haveDataDir = false;
+    bool demo = false;
+    app::InspectorOptions inspector;
     for (int i = 1; i < argc; ++i) {
         const std::string arg = argv[i];
         if (arg == "--help") {
-            std::puts("Usage: deadlock2 [data-directory] [--smoke-frames N]\n"
-                      "SMenu/resource demo. --smoke-frames exits after N frames (1..10000) for automated checks.");
+            std::puts("Usage: deadlock2 [data-directory] [--load file | --scenario entry] [--demo]\n"
+                      "Read-only world inspector (default: TUTORIAL.SAV); no turn simulation.\n"
+                      "Drop SAV/CPN to load; F5 saves an unchanged new copy beside the executable.\n"
+                      "--demo: original SMenu/resource demo.\n"
+                      "--smoke-frames N: exit after 1..10000 frames; --screenshot new.bmp: inspector capture.");
             return 0;
         }
+        if (arg == "--demo") { demo = true; continue; }
+        if (arg == "--load" && i + 1 < argc) { inspector.loadFile = app::pathFromUtf8(argv[++i]); continue; }
+        if (arg == "--scenario" && i + 1 < argc) { inspector.scenario = argv[++i]; continue; }
+        if (arg == "--screenshot" && i + 1 < argc) { inspector.screenshot = app::pathFromUtf8(argv[++i]); continue; }
         if (arg == "--smoke-frames" && i + 1 < argc) {
             const char* value = argv[++i];
             const char* end = value + std::strlen(value);
@@ -102,6 +111,16 @@ int main(int argc, char* argv[]) {
         }
         std::fprintf(stderr, "Invalid argument: %s (see --help).\n", arg.c_str());
         return 2;
+    }
+    if ((!inspector.loadFile.empty() && !inspector.scenario.empty()) ||
+        (demo && (!inspector.loadFile.empty() || !inspector.scenario.empty() || !inspector.screenshot.empty()))) {
+        std::fputs("--load and --scenario are exclusive; inspector options cannot be used with --demo.\n", stderr);
+        return 2;
+    }
+    if (!demo) {
+        inspector.dataDirectory = app::pathFromUtf8(dataDir);
+        inspector.smokeFrames = smokeFrames;
+        return app::runWorldInspector(inspector);
     }
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS) != 0) {
         fatal(std::string("SDL_Init failed: ") + SDL_GetError(), smokeFrames > 0);

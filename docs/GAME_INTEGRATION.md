@@ -16,10 +16,33 @@ archivos y escenarios HDX/HDD, guarda copias nuevas y permite comprobar edicione
 
 Las 46 muestras pasan roundtrip exacto y edición aislada de créditos. Las pruebas
 sintéticas cubren eventos binarios, colas, ministros, límites, truncaciones,
-mapas y conservación del estado ante errores. La suite ampliada pasa 8/8.
+mapas y conservación del estado ante errores. Ese hito pasó 8/8.
 Consulte `SAVE_CODEC.md`: esto **no habilita el `loadGame` histórico**, sus hooks,
 normalizaciones ni dependencias de campaña/IA. Los bloqueos siguientes pertenecen
 a ese intento de activación, no al codec ya integrado.
+
+## Avance posterior: inspector gráfico sin activación
+
+`save_files.h/.cpp` centraliza la lectura acotada de archivos/escenarios y la
+publicación exclusiva de copias, compartida por `dl2save` y la aplicación.
+`world_view.h/.cpp` aporta cámara y selección headless sobre `const Document&`:
+guarda sólo coordenadas/IDs, no referencias a elementos de vectores ni punteros
+del estado global. Los edificios se asocian por `Building::territory`; las
+unidades, por `Army::territory.raw`, mostrando su destino por separado.
+
+`app/inspector_session.*` posee el documento y prepara la nueva selección/cámara
+antes de reemplazarlo. Si falla una carga, conserva fuente y sesión anteriores.
+`app/world_inspector.*` presenta una vista rectangular de territorios, atributos,
+objetos y sprites estáticos. `app/inspector_main.cpp` conecta SDL, arrastre de
+archivos, recarga y copias nuevas junto al ejecutable. No se escriben cambios de
+turno ni se aplica niebla de guerra; tampoco se simulan posiciones de objetos en
+tiles a partir de sus marcadores agregados por territorio.
+
+Esta capa ya consume el codec desde la aplicación, pero no introduce llamadas
+a `loadGame`, reinicios de `gs`/`gg`, callbacks de IA o fases de turno. El siguiente
+trabajo es la activación transaccional y posteriormente un turno determinista,
+no completar más visuales antes de resolver las dependencias siguientes. Véase
+`WORLD_INSPECTOR.md` para controles, garantías de copia y pruebas del hito.
 
 ## Detalle de la infraestructura recuperada
 
@@ -62,7 +85,10 @@ sin depender de overflow con signo de C++.
 
 El CTest de infraestructura sólo verifica esta base. `save_document` y
 `save_corpus` verifican por separado el codec C++; las pruebas Python solas no
-validan `saveload.cpp` ni la activación jugable.
+validan `saveload.cpp` ni la activación jugable. Las pruebas `world_view`,
+`inspector_session`, `save_files`, `input` y `world_inspector` cubren las capas
+añadidas para inspección; el resultado integrado actual se registra por separado
+en `RECOVERY.md`, sin atribuirles garantías de simulación.
 
 ## Por qué saveload.cpp sigue fuera de CMake
 
@@ -122,18 +148,19 @@ excluido:
 
 ## Trabajo pendiente de activación y criterios de aceptación
 
-1. Consumir el documento validado, que ya existe, desde una vista del mundo o de
-   territorio sin invocar todavía la simulación incompleta.
-2. Diseñar una conversión transaccional de IDs/coordenadas/listas a estado activo
+El consumo de documentos desde una vista del mundo ya está implementado mediante
+el inspector de sólo lectura. Para pasar de inspección a juego falta:
+
+1. Diseñar una conversión transaccional de IDs/coordenadas/listas a estado activo
    y pools propios, con propiedad explícita y rollback de fallos.
-3. Unificar tablas/API de colas, portar reinicio y reconstrucción de listas,
+2. Unificar tablas/API de colas, portar reinicio y reconstrucción de listas,
    resolver las dependencias reales de postprocesamiento y probarlas.
-4. Comparar las normalizaciones de escenarios/versiones antiguas con el original:
+3. Comparar las normalizaciones de escenarios/versiones antiguas con el original:
    nombres, IA, campañas, eventos, flags y temporizadores. Son distintas de la
    conservación del formato físico que garantiza el codec.
-5. Verificar cargar → activar → capturar estado → guardar → recargar, incluyendo
+4. Verificar cargar → activar → capturar estado → guardar → recargar, incluyendo
    fallos de activación sin alterar la partida anterior.
 
-El ejecutable gráfico sigue siendo una prueba de motor y recursos. Se ha
-verificado cargar/guardar/cargar documentos desde C++, pero no activar ni jugar
-esas partidas.
+El ejecutable gráfico ahora es un inspector de documentos; la prueba anterior de
+motor y recursos sigue disponible con `--demo`. Cargar y guardar un documento,
+aunque ya tenga una vista gráfica, no demuestra poder activar ni jugar la partida.

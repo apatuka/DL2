@@ -23,15 +23,25 @@ siguen excluidas y por qué. Un build correcto no cierra las etapas siguientes.
 
 Resultado: CTest 6/6 aprobado sin omisiones con la instalación GOG local. Incluye
 regresiones para el pool de colas, RNG, primer clic y reapertura de bibliotecas.
-La carga/guardado C++ sigue excluida por los bloqueos documentados; no se añadieron
-implementaciones vacías para ocultarlos.
+Ese fue el resultado de la recuperación inicial. La suite ampliada descrita abajo
+incorpora serialización C++ independiente; no se añadieron implementaciones vacías
+para ocultar los bloqueos de la activación jugable.
 
 ## 1. Cargar y guardar una partida en C++
 
-Este es el próximo hito funcional. Debe poder probarse en consola antes de añadir
-una vista del mundo o ejecutar turnos.
+Completada la lectura/escritura **del documento de archivo** para las 46 muestras
+disponibles: carga → guardado → carga con igualdad byte a byte y edición comprobada.
+CTest incorpora `save_document` y `save_corpus`; la suite total pasa 8/8. Los
+detalles, formatos soportados y límites están en `SAVE_CODEC.md`.
 
-Orden de trabajo:
+Decisión de integración: se aisló el codec en `save_document.*`/`save_validation.cpp`
+porque el intento de `saveload.cpp` mezcla serialización y arranque de sistemas aún
+ausentes. El documento posee sus datos, conserva IDs/palabras históricas y ofrece
+resolución de referencias sin tocar `gs`, `gg`, pools globales ni RNG. La conversión
+a estado activo, las listas de ejecución y las normalizaciones de campaña siguen
+pendientes antes de iniciar una partida jugable; no se consideran implementadas.
+
+Plan de referencia del hito (la activación se mantiene como trabajo pendiente):
 
 1. Revisar `saveload.cpp` y contrastarlo con `SAVEFORMAT.md`, `savparse.py` y los
    lectores/escritores decompilados. Usar el inventario de `GAME_INTEGRATION.md`
@@ -61,6 +71,10 @@ Criterio de cierre:
   sobrescribirlos; las salidas de prueba van al directorio de build.
 
 ## 2. Inspeccionar una partida desde la aplicación
+
+**Próximo hito visible.** La inspección puede usar directamente el documento sin
+simular turnos ni activar IA/campañas. Antes de permitir juego, habrá que completar
+la conversión transaccional a estado de ejecución descrita en `SAVE_CODEC.md`.
 
 Integrar la capacidad anterior con una vista mínima del mundo o de un territorio:
 terreno, edificios y unidades de la partida cargada, selección e información del

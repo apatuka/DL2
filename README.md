@@ -12,6 +12,11 @@ procesa la entrada y reproduce sonido. Todavía no permite jugar una partida com
 - [Plan por hitos verificables](docs/ROADMAP.md): orden de continuación y criterios de cierre.
 - [Integración de la lógica](docs/GAME_INTEGRATION.md): código existente que aún no puede enlazarse.
 - [API del motor](docs/ENGINE_API.md): recursos, dibujo y SMenu.
+- [Carga/guardado C++ verificable](docs/SAVE_CODEC.md): documentos de partida, CLI y límites.
+
+El codec C++ ya lee, valida, edita y vuelve a escribir las 46 muestras disponibles sin perder
+bytes. Es independiente del estado de una partida activa: todavía no conecta esos datos al demo
+visual ni ejecuta turnos.
 
 Git conserva el código, documentación, tablas, scripts y exportaciones de ingeniería inversa.
 `build*/` y la base local `ghidra_project/` están excluidos del control de versiones y permanecen
@@ -53,7 +58,8 @@ o usar otra instalación del juego:
 powershell -NoProfile -ExecutionPolicy Bypass -File tools/build.ps1 -BuildDir build-clean -DataDir "C:\GOG Games\Deadlock 2" -Test
 ```
 
-La recuperación se verificó desde cero en `build-verified`: seis pruebas aprobadas sin omisiones.
+La recuperación se verificó desde cero en `build-verified`; la suite ampliada tiene ocho pruebas
+aprobadas sin omisiones, incluidas serialización C++ sintética y contraste con 46 guardados reales.
 El script armoniza la codificación de consola para que Ninja detecte las cabeceras con MSVC
 localizado. Si una caché antigua muestra cientos de líneas `Nota: inclusión del archivo`,
 configurar un directorio nuevo con el script; no reutilizar esa caché defectuosa.
@@ -62,7 +68,8 @@ Parámetros adicionales: `-VcpkgRoot C:\vcpkg` y `-Configuration Debug|Release|R
 Las pruebas de infraestructura y motor no requieren los datos originales. Las pruebas de recursos,
 guardados y tablas los leen sin modificarlos; CTest señala las omitidas si no están disponibles.
 Las dos comprobaciones Python requieren Python 3, y la de tablas además requiere `pefile`.
-La prueba de guardados valida el **parser Python**, no el nuevo cargador C++ todavía sin integrar.
+`original_saves` valida el **parser Python**, no la activación de partidas del juego.
+`save_document` y `save_corpus` sí verifican el codec C++ independiente; no la activación de `loadGame`.
 
 Compilación manual equivalente:
 
@@ -98,6 +105,17 @@ ejecuta con vídeo/audio SDL ficticios, sin abrir una ventana.
 Los scripts `extract_sprites.py` y `extract_tables.py` son generadores: sobrescriben sus salidas.
 Para verificar tablas sin regenerar archivos, usar CTest o
 `py -3 -B tests/test_game_data.py tables "C:\GOG Games\Deadlock 2"`.
+
+Para inspeccionar una partida o guardar una copia nueva con el codec C++:
+
+```powershell
+.\build-verified\src\dl2save.exe inspect "C:\GOG Games\Deadlock 2\TUTORIAL.SAV"
+.\build-verified\src\dl2save.exe roundtrip "C:\GOG Games\Deadlock 2\TUTORIAL.SAV" build-verified/tutorial-copy.sav
+.\build-verified\src\dl2save.exe inspect-archive "C:\GOG Games\Deadlock 2\LEVELS" CHCHT1
+```
+
+Los destinos deben ser nuevos; no se sobrescribe el origen ni un guardado existente. Véase
+`docs/SAVE_CODEC.md` antes de editar campos o usar los datos en la simulación.
 
 ## Regenerar la exportación de Ghidra
 

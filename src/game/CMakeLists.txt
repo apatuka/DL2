@@ -9,6 +9,8 @@ set(GAME_SOURCES
     gameflow.cpp
     queue_pool.cpp
     queues.cpp
+    save_document.cpp
+    save_validation.cpp
     # END MODULE SOURCES
 )
 

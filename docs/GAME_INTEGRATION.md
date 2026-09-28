@@ -5,7 +5,23 @@
 `dl2game` incorpora `gameflow.cpp`, `queue_pool.cpp` y `queues.cpp`, además de los
 globales, hooks, RTL y tablas que ya compilaban. Esta etapa proporciona RNG,
 colas de producción, búsqueda/contador de IDs y niveles de experiencia. No
-implementa ejecución de turnos, economía completa, carga de partidas ni UI jugable.
+implementa ejecución de turnos, economía completa ni UI jugable.
+
+## Avance posterior: serialización C++ independiente
+
+`dl2game` también compila `save_document.cpp` y `save_validation.cpp`. Esta API
+lee los 16 bloques en un documento propietario, valida cantidades/referencias y
+los vuelve a escribir sin modificar el estado activo. El CLI `dl2save` inspecciona
+archivos y escenarios HDX/HDD, guarda copias nuevas y permite comprobar ediciones.
+
+Las 46 muestras pasan roundtrip exacto y edición aislada de créditos. Las pruebas
+sintéticas cubren eventos binarios, colas, ministros, límites, truncaciones,
+mapas y conservación del estado ante errores. La suite ampliada pasa 8/8.
+Consulte `SAVE_CODEC.md`: esto **no habilita el `loadGame` histórico**, sus hooks,
+normalizaciones ni dependencias de campaña/IA. Los bloqueos siguientes pertenecen
+a ese intento de activación, no al codec ya integrado.
+
+## Detalle de la infraestructura recuperada
 
 La API de `queue_pool.h/cpp` se recuperó de los mensajes `Write` del historial de
 Claude y se contrastó con `re/decomp/00484c2c*` a `00484f48*`. La copia histórica
@@ -44,8 +60,9 @@ sin depender de overflow con signo de C++.
   truncación a 16 bits y desbordamiento del contador de 32 bits.
 - Umbrales de experiencia y límite acumulado de entrenamiento de milicias.
 
-El CTest de infraestructura sólo verifica esta base. Las pruebas Python del
-parser SAV no equivalen a validar `saveload.cpp` ni a un round-trip C++.
+El CTest de infraestructura sólo verifica esta base. `save_document` y
+`save_corpus` verifican por separado el codec C++; las pruebas Python solas no
+validan `saveload.cpp` ni la activación jugable.
 
 ## Por qué saveload.cpp sigue fuera de CMake
 
@@ -103,19 +120,20 @@ excluido:
   escribir el nuevo. El guardado debería preparar el resultado y reemplazarlo
   de forma segura; las pruebas deben usar un directorio temporal del build.
 
-## Hito siguiente y criterio de aceptación
+## Trabajo pendiente de activación y criterios de aceptación
 
-1. Aislar la serialización y reconstrucción de referencias del arranque de una
-   partida. Un lector de estado puede existir antes que la UI, con nombre y
-   contrato explícitos; no debe fingir que inicia una partida completa.
-2. Unificar tablas y API de colas, portar el reinicio/pools necesarios y corregir
-   validación de entradas antes de habilitar el cargador C++.
-3. Cargar `TUTORIAL.SAV`, guardar en memoria, volver a cargar y comparar estado
-   normalizado: objetos, referencias, colas, opciones, tecnologías y trabajos.
-4. Repetir con campañas y las 42 entradas de `LEVELS.HDX/HDD`, distinguiendo
-   cambios intencionales al normalizar versiones antiguas de pérdidas de datos.
-5. Añadir casos truncados, índices fuera de rango y múltiples nodos de ministros.
-   Una carga fallida debe producir un error controlado y estado definido.
+1. Consumir el documento validado, que ya existe, desde una vista del mundo o de
+   territorio sin invocar todavía la simulación incompleta.
+2. Diseñar una conversión transaccional de IDs/coordenadas/listas a estado activo
+   y pools propios, con propiedad explícita y rollback de fallos.
+3. Unificar tablas/API de colas, portar reinicio y reconstrucción de listas,
+   resolver las dependencias reales de postprocesamiento y probarlas.
+4. Comparar las normalizaciones de escenarios/versiones antiguas con el original:
+   nombres, IA, campañas, eventos, flags y temporizadores. Son distintas de la
+   conservación del formato físico que garantiza el codec.
+5. Verificar cargar → activar → capturar estado → guardar → recargar, incluyendo
+   fallos de activación sin alterar la partida anterior.
 
-Hasta completar este hito, el ejecutable sigue siendo una prueba de motor y
-recursos. No se ha verificado cargar/guardar/cargar desde C++.
+El ejecutable gráfico sigue siendo una prueba de motor y recursos. Se ha
+verificado cargar/guardar/cargar documentos desde C++, pero no activar ni jugar
+esas partidas.

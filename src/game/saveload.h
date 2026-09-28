@@ -1,8 +1,11 @@
+// EXPERIMENTAL / NOT BUILT: this historical gameplay loader is incomplete.
+// Use game/save_document.h for the validated, independent physical file codec.
+// Do not enable this implementation without completing gameplay activation and its safety audit.
 // saveload.h - Guardar / cargar partidas, campañas, escenarios de LEVELS.HDD y mapas del editor.
 //
 // Port de SaveGame (FUN_00461488), LoadGame (FUN_004618e8), LoadMapFile (FUN_00461c68) y sus 16 pares
-// escritor/lector (ver docs/SAVEFORMAT.md y re/names_structs.tsv). El formato de fichero se reproduce
-// byte a byte; los punteros de 32 bits del original se convierten a índices/IDs al escribir y a
+// escritor/lector (ver docs/SAVEFORMAT.md y re/names_structs.tsv). Este intento no está integrado
+// ni verificado. Su conversión de punteros de 32 bits pretende usar índices/IDs al escribir y
 // Ptr32 (índices 1-based, ver globals.h) al leer:
 //   Building::prev/next, BuildingSite::building  <-> Building::id     (econ::FindBuildingByGlobalID)
 //   Army::cargo/next/prev, Territory::armies/foreignArmies <-> Army::id (econ::FindArmyByGlobalID)

@@ -272,7 +272,7 @@ def parse_building(b):
     return dict(id=g('<H', 0), flags=g('<H', 2), type=b[4], category=b[5], race=b[6],
                 site=g('<b', 7), territory=g('<h', 8), minister=g('<b', 0xe),
                 turnsLeft=g('<h', 0x14), labor=list(struct.unpack_from('<5i', b, 0x18)),
-                tasks=list(b[0x2c:0x31]), prev=g('<I', 0x116), unk11a=g('<I', 0x11a),
+                tasks=list(b[0x2c:0x31]), unk116=g('<I', 0x116), prev=g('<I', 0x11a),
                 next=g('<I', 0x11e))
 
 

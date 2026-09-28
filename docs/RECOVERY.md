@@ -2,6 +2,11 @@
 
 Fecha de recuperación: 27 de septiembre de 2026, zona `America/Asuncion` (UTC−03).
 
+Actualización posterior a la recuperación inicial: `SAVE_CODEC.md` documenta el
+codec C++ independiente incorporado después, con 46 roundtrips exactos y una suite
+total de 8 pruebas. Las tablas de esta nota conservan el estado/evidencia del
+primer hito; `saveload.cpp` integrado con activación de juego sigue pendiente.
+
 El proyecto conserva una base C++20/SDL2 que compila y permite inspeccionar recursos,
 sprites y el panel SMenu D000. La lógica de partida está parcialmente escrita y
 todavía no está integrada. El ejecutable es una demostración del motor: que dibuje

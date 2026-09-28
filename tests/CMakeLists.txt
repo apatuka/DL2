@@ -3,6 +3,11 @@ add_executable(test_game test_game.cpp)
 target_link_libraries(test_game PRIVATE dl2game)
 add_test(NAME game_infrastructure COMMAND test_game)
 
+add_executable(test_save_document test_save_document.cpp)
+target_link_libraries(test_save_document PRIVATE dl2game)
+add_test(NAME save_document COMMAND test_save_document)
+set_tests_properties(save_document PROPERTIES TIMEOUT 60)
+
 add_executable(test_engine test_engine.cpp)
 target_link_libraries(test_engine PRIVATE dl2engine)
 add_test(NAME engine COMMAND test_engine)
@@ -14,6 +19,12 @@ set_tests_properties(resources PROPERTIES SKIP_RETURN_CODE 77 TIMEOUT 60)
 
 find_package(Python3 QUIET COMPONENTS Interpreter)
 if(Python3_Interpreter_FOUND)
+    if(TARGET dl2save)
+        add_test(NAME save_corpus COMMAND "${Python3_EXECUTABLE}" -B
+            "${CMAKE_CURRENT_SOURCE_DIR}/test_save_corpus.py" $<TARGET_FILE:dl2save>
+            "${DL2_DATA_DIR}" "${CMAKE_CURRENT_BINARY_DIR}")
+        set_tests_properties(save_corpus PROPERTIES SKIP_RETURN_CODE 77 TIMEOUT 180)
+    endif()
     foreach(_mode saves tables)
         add_test(NAME original_${_mode}
             COMMAND "${Python3_EXECUTABLE}" -B "${CMAKE_CURRENT_SOURCE_DIR}/test_game_data.py"

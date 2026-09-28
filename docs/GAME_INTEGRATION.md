@@ -91,6 +91,21 @@ capacidades. `ECONOMY_LAB.md` documenta fórmulas, validación y diferencias res
 de cargar/normalizar en el original. Las nuevas consultas no cierran los dos pases
 de producción aplicada ni el resto de dependencias de este inventario.
 
+## Avance posterior: reconstrucción de tareas y balance laboral
+
+`labor_balance.*` porta `GetBuildingTasks`, sus dependencias de mejora/reparto y
+el conjunto `EndTurnBalance`. Trabaja sobre copia temporal, refresca tareas en
+territorios con propietario, balancea todos los territorios y limita materiales
+1..10 por arriba a 10000. Usa las tablas canónicas y las colas del documento;
+no incorpora el `buildings.cpp` heredado ni sus dependencias globales.
+
+`State::normalizeLabor` aplica únicamente tareas, labor, flags, moral y almacenes
+desde `Prepared`, pasando a `LaborBalanced`. Conserva IDs, referencias, colas,
+RNG, turno y archivo de entrada. El CLI `labor`/`labor-archive` no exporta SAV.
+No es la activación completa de `loadGame` ni hace jugable el inspector. Véase
+[LABOR_BALANCE.md](LABOR_BALANCE.md), especialmente los límites firmados y rechazos
+de dominios inseguros; las órdenes manuales y el asistente completo siguen pendientes.
+
 ## Detalle de la infraestructura recuperada
 
 La API de `queue_pool.h/cpp` se recuperó de los mensajes `Write` del historial de

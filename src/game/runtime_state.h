@@ -9,6 +9,7 @@
 #include "game/save_document.h"
 #include "game/tax_phase.h"
 #include "game/resource_needs.h"
+#include "game/labor_balance.h"
 
 namespace dl2::runtime {
 template<class Tag> struct Handle {
@@ -74,7 +75,7 @@ struct Graph {
     std::array<std::vector<TerritoryHandle>, kMaxPlayers> playerTerritories;
 };
 
-enum class Stage { Empty, Prepared, TaxesApplied, EnergyApplied };
+enum class Stage { Empty, Prepared, TaxesApplied, EnergyApplied, LaborBalanced };
 class State {
 public:
     State() = default;
@@ -94,6 +95,10 @@ public:
     // economic step after taxes: production/imports/food must precede it in a turn.
     // Changes only energy stock and energy percentage; reports semantic events.
     bool consumeEnergy(simulation::EnergyPlan& report, save::Error& error);
+    // Explicit EndTurnBalance normalization: refresh tasks, balance workers,
+    // cap material stocks. NOT full LoadGame activation or a production phase.
+    // Once from Prepared; cannot chain experiments or publish a partial save.
+    bool normalizeLabor(simulation::LaborBalancePlan& report, save::Error& error);
     bool advanceTurn(save::Error& error); // Explicit unsupported operation, never a no-op success.
     Stage stage() const { return stage_; }
     const save::Document* document() const { return document_.get(); }

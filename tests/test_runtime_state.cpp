@@ -358,6 +358,115 @@ void energy(const Document& source) {
             "energy must not skip production and imports after taxes");
 }
 
+void labor(const Document& source) {
+    const auto original = encoded(source);
+    rt::State left, right; save::Error error;
+    simulation::LaborBalancePlan a, b;
+    require(!left.normalizeLabor(a, error), "empty labor normalization must fail"); diagnostics(error);
+    require(left.prepare(source, error) && right.prepare(source, error), "prepare labor normalization");
+    const auto* documentBefore = left.document();
+    const auto* graphBefore = left.graph().territories.data();
+    if (!left.normalizeLabor(a, error) || !right.normalizeLabor(b, error))
+        throw std::runtime_error("labor normalization: " + error.message);
+    require(error.code == save::ErrorCode::None && left.stage() == rt::Stage::LaborBalanced,
+            "labor stage must be explicit and clear error");
+    require(a == b && encoded(*left.document()) == encoded(*right.document()), "labor normalization determinism");
+    require(left.document() == documentBefore && left.graph().territories.data() == graphBefore,
+            "scalar labor commit must not invalidate graph or owned document");
+    require(a.buildings.size() == source.buildings.size() && a.territories.size() == source.territories.size(),
+            "labor plan must cover every building and territory");
+    auto expected = std::make_unique<Document>(source);
+    for (size_t i = 0; i < a.buildings.size(); ++i) {
+        const auto& effect = a.buildings[i]; const auto& old = source.buildings[i];
+        auto& changed = expected->buildings[i];
+        require(effect.buildingId == old.id && effect.territory == uint32_t(old.territory) && effect.site == old.site &&
+                effect.before.flags == old.flags, "building report identity/order/before flags differ");
+        changed.flags = effect.after.flags;
+        for (size_t s = 0; s < 5; ++s) {
+            require(effect.before.tasks[s] == old.task[s] && effect.before.labor[s] == old.labor[s],
+                    "labor report before snapshot differs");
+            changed.task[s] = effect.after.tasks[s]; changed.labor[s] = effect.after.labor[s];
+        }
+    }
+    for (size_t i = 0; i < a.territories.size(); ++i) {
+        const auto& effect = a.territories[i]; const auto& old = source.territories[i].data;
+        auto& changed = expected->territories[i].data;
+        require(effect.territory == old.index && effect.moraleBefore == old.morale, "territory report before differs");
+        changed.morale = effect.moraleAfter;
+        for (size_t m = 0; m < kNumMaterials; ++m) {
+            require(effect.materialsBefore[m] == old.materials[m], "labor stock report before differs");
+            changed.materials[m] = effect.materialsAfter[m];
+        }
+    }
+    const auto partial = encoded(*left.document()); const auto reportBefore = a;
+    require(encoded(*expected) == partial, "labor commit changed bytes outside tasks/labor/locks/morale/stocks");
+    require(encoded(source) == original && source.options.turn == left.document()->options.turn,
+            "labor normalization changed source or advanced turn");
+    require(!left.normalizeLabor(a, error) && a == reportBefore, "labor normalization must not repeat");
+    require(!left.capture(*expected, error) && encoded(*expected) == partial,
+            "partial load normalization must not export a resumable save");
+    simulation::TaxPlan taxReport; simulation::EnergyPlan energyReport;
+    require(!left.collectTaxes(taxReport, error) && !left.consumeEnergy(energyReport, error),
+            "labor experiment must not silently chain omitted load/turn phases");
+    require(!left.advanceTurn(error) && encoded(*left.document()) == partial, "labor normalization must not complete a turn");
+    auto bad = std::make_unique<Document>(source); bad->territories[0].data.owner = 7;
+    require(!left.prepare(*bad, error) && left.stage() == rt::Stage::LaborBalanced && encoded(*left.document()) == partial,
+            "failed prepare must preserve normalized state");
+    rt::State moved(std::move(left));
+    require(left.stage() == rt::Stage::Empty && !left.document() && moved.stage() == rt::Stage::LaborBalanced &&
+            encoded(*moved.document()) == partial, "move must retain normalization stage with its document");
+    require(moved.prepare(source, error) && moved.capture(*expected, error) && encoded(*expected) == original,
+            "fresh preparation restores archival snapshot, not a hidden normalization");
+    require(moved.collectTaxes(taxReport, error), "fresh taxes for labor gating");
+    const auto taxed = encoded(*moved.document());
+    require(!moved.normalizeLabor(a, error) && a == reportBefore && encoded(*moved.document()) == taxed,
+            "labor normalization must not chain after isolated taxes");
+    require(moved.prepare(source, error) && moved.consumeEnergy(energyReport, error), "fresh energy for labor gating");
+    const auto powered = encoded(*moved.document());
+    require(!moved.normalizeLabor(a, error) && a == reportBefore && encoded(*moved.document()) == powered,
+            "labor normalization must not chain after isolated energy");
+}
+
+void laborGoldenAndFailure() {
+    auto d = fixture();
+    auto& empty = d->territories[0].data;
+    empty.population = 0; empty.morale = 13;
+    empty.materials[0] = 12345; empty.materials[1] = 20000;
+    empty.materials[2] = -20; empty.materials[10] = 10001;
+    d->buildings[0].turnsLeft = 10; d->buildings[0].flags = 0x1f06;
+    d->buildings[0].labor[0] = 3; d->buildings[0].labor[1] = 2;
+    d->buildings[1].flags = 6; d->raceStats.v[24][1] = 100;
+    rt::State state; save::Error error; simulation::LaborBalancePlan report;
+    require(state.prepare(*d, error) && state.normalizeLabor(report, error), "labor runtime golden failed");
+    const auto& zero = state.document()->territories[0].data;
+    require(zero.morale == 100 && zero.population == 0, "empty territory resets morale, not population");
+    require(zero.materials[0] == 12345 && zero.materials[1] == 10000 && zero.materials[2] == -20 &&
+            zero.materials[10] == 10000, "stock caps exclude money and do not clamp negative stocks");
+    const auto* construction = state.building({1});
+    require(construction->task[0] == 2 && construction->labor[0] == 0 && construction->flags == 6,
+            "construction tasks rebuilt before zero-population labor reduction and unlock");
+    require(state.building({2})->task[1] == 20 && state.building({2})->labor[1] == 5,
+            "housing receives five of the seven available workers at population900/morale80");
+    require(report.territories[1].laborPool == 7 && report.territories[1].unavailableLabor == 2 &&
+            report.territories[1].assignedLabor == 5 && report.territories[1].unassignedLabor == 2,
+            "labor report distinguishes morale-unavailable and available-but-unassigned workers");
+    checkGraph(state);
+    auto overloaded = fixture();
+    overloaded->territories[0].data.population = 2000;
+    overloaded->territories[0].data.morale = 100;
+    overloaded->buildings[0].flags = 6;
+    overloaded->buildings[0].labor[1] = 6; overloaded->buildings[0].labor[2] = 6;
+    require(state.prepare(*overloaded, error) && state.normalizeLabor(report, error) &&
+            state.building({1})->labor[3] == -4, "runtime must preserve the original generated signed labor");
+    labor(*overloaded);
+    auto bad = fixture(); bad->players[1].race = 7;
+    require(state.prepare(*bad, error), "out-of-range housing race must pass structural preparation");
+    const auto before = encoded(*state.document()); const auto priorReport = report;
+    require(!state.normalizeLabor(report, error), "unsafe housing race-table index must fail"); diagnostics(error);
+    require(state.stage() == rt::Stage::Prepared && report == priorReport && encoded(*state.document()) == before,
+            "failed labor normalization must preserve document, stage and report");
+}
+
 void invalidEnergy() {
     auto d = fixture();
     // Structurally valid, but original stock<need branch would divide by zero.
@@ -425,20 +534,20 @@ void optionalCorpus(const fs::path& directory) {
         if (!fs::is_regular_file(path)) continue;
         auto d = std::make_unique<Document>(); save::Error error;
         if (!save::readDocument(path, *d, error)) throw std::runtime_error(std::string(relative) + ": " + error.message);
-        taxes(*d, std::string(relative) == "TUTORIAL.SAV"); energy(*d); ++count;
+        taxes(*d, std::string(relative) == "TUTORIAL.SAV"); energy(*d); labor(*d); ++count;
     }
     if (fs::is_regular_file(directory / "LEVELS.HDX") && fs::is_regular_file(directory / "LEVELS.HDD")) {
         for (const auto& entry : scenarioNames(directory / "LEVELS.HDX")) {
             auto d = std::make_unique<Document>(); save::Error error;
             if (!save::readScenario(directory / "LEVELS", entry, *d, error))
                 throw std::runtime_error(entry + ": " + error.message);
-            try { taxes(*d); energy(*d); } catch (const std::exception& e) {
+            try { taxes(*d); energy(*d); labor(*d); } catch (const std::exception& e) {
                 throw std::runtime_error(entry + ": " + e.what());
             }
             ++count;
         }
     }
-    std::cout << "runtime corpus: " << count << " exact captures and deterministic isolated tax/energy experiments\n";
+    std::cout << "runtime corpus: " << count << " exact captures and deterministic isolated tax/energy/labor experiments\n";
 }
 } // namespace
 
@@ -454,7 +563,7 @@ int main(int argc, char** argv) {
         const std::vector<uint8_t> gsBefore(gsBytes, gsBytes + sizeof(gs));
         const std::vector<uint8_t> ggBefore(ggBytes, ggBytes + sizeof(gg));
         prepareAndTransactions();
-        auto d = fixture(); taxes(*d); energy(*d); invalidEnergy(); energyGolden();
+        auto d = fixture(); taxes(*d); energy(*d); labor(*d); invalidEnergy(); energyGolden(); laborGoldenAndFailure();
         optionalCorpus(argc > 1 ? fs::path(argv[1]) : fs::path{});
         require(std::memcmp(gsBefore.data(), &gs, sizeof(gs)) == 0 &&
                 std::memcmp(ggBefore.data(), &gg, sizeof(gg)) == 0, "runtime changed legacy globals");

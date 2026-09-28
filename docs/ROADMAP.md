@@ -5,6 +5,9 @@ La prioridad es convertir las implementaciones parciales en capacidades
 comprobables. No se asigna un porcentaje global: archivos escritos, funciones
 decompiladas y módulos compilados miden cosas distintas de una partida jugable.
 
+El [checklist de cierre individual](SINGLE_PLAYER_CHECKLIST.md) desglosa los
+pendientes funcionales y sus criterios de aceptación, excluyendo multijugador.
+
 ## 0. Base reproducible y recuperación
 
 Completado durante esta recuperación:
@@ -124,8 +127,12 @@ Antes de activar más fases, completar perfiles de normalización del cargador
 original para versiones antiguas, campañas, IA, visibilidad y reinicio de RNG,
 además de la gestión de creación/destrucción y las listas libres necesarias.
 Resolver referencias conocidas no demuestra haber realizado ese postprocesamiento.
-En particular, la carga original reconstruye tareas y balancea trabajadores;
-los informes actuales consultan la asignación guardada sin aplicar ese cambio.
+La reconstrucción de tareas, el balance laboral y el tope de almacenes ya tienen
+una operación explícita y transaccional: `State::normalizeLabor`, con consultas
+puras en `labor_balance.*` y CLI `labor`. Véase [LABOR_BALANCE.md](LABOR_BALANCE.md).
+No se aplican implícitamente al preparar; `economy` sigue consultando la asignación
+guardada. `LaborBalanced` no habilita todavía carga jugable, guardado parcial ni
+encadenamiento con fases fiscales/energéticas aisladas.
 La integración económica debe respetar los reinicios explícitos y el orden:
 producción 1 antes de reservas/importaciones/comida/energía. No puede sustituir
 ese primer pase por la suma de los outputs consultivos.

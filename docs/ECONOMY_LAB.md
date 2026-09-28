@@ -211,12 +211,21 @@ iguales del port no demuestran paridad con el original. Los resultados del build
 y de CTest se registran en [RECOVERY.md](RECOVERY.md), sin inferir éxito de la
 mera existencia de una prueba ni atribuir aquí un conteo pendiente.
 
+## Avance: normalización laboral explícita
+
+La reconstrucción de tareas, el balance de labor y el tope superior de materiales
+de `EndTurnBalance` están implementados separadamente en `labor_balance.*`.
+`State::normalizeLabor` aplica su plan desde una preparación nueva y el CLI
+`labor` muestra sus cambios, sin producción ni avance de turno. No altera el
+contrato de `economy`: éste continúa consultando la instantánea tal como se guardó.
+Reglas, límites y pruebas: [LABOR_BALANCE.md](LABOR_BALANCE.md).
+
 ## Siguiente corte de implementación
 
 Las consultas ya proporcionan las hojas numéricas, pero no el pase aplicado.
-Antes de conectarlo, portar la reconstrucción de tareas (`0044e7ec`) y el balance
-de labor (`0044bea8`) con cambios explícitos y transaccionales, sin mutar la
-preparación archivada a escondidas. Después hacen falta creación de unidades,
+La reconstrucción de tareas (`0044e7ec`) y el balance de labor (`0044bea8`) ya se
+pueden aplicar explícitamente; faltan otras normalizaciones de carga y definir
+el encadenamiento real. Hacen falta creación de unidades,
 colas, construcciones/mejoras, RNG propio y logística para ejecutar producción 1
 y 2 en su orden real.
 

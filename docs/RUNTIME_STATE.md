@@ -3,7 +3,7 @@
 `runtime::State` prepara un documento de partida y un grafo de referencias
 tipadas, separado de los globales heredados `gs` y `gg`. Ya permite resolver
 objetos, consultar sus relaciones, capturar una preparación sin cambios y
-ejecutar **experimentos fiscales y de energía aislados, sólo en memoria**.
+ejecutar **experimentos fiscales, energéticos y de balance laboral aislados, sólo en memoria**.
 También puede consultarse rendimiento de edificios y necesidades sobre el
 documento preparado; véase [ECONOMY_LAB.md](ECONOMY_LAB.md).
 
@@ -72,6 +72,7 @@ no ASCII. La presentación de texto de la UI no cambia estos datos binarios.
 | `Prepared` | Documento validado y referencias resueltas; permite captura exacta o un experimento aislado |
 | `TaxesApplied` | Sólo créditos modificados por impuestos; no permite repetir la subfase ni exportar una partida reanudable |
 | `EnergyApplied` | Sólo stock y porcentaje energético modificados; no permite repetir, encadenar impuestos ni capturar para guardar |
+| `LaborBalanced` | Tareas/labor/flags, moral y topes de almacén normalizados explícitamente; no es activación completa ni permite encadenar fases o capturar para guardar |
 
 `prepare` puede construir una preparación nueva desde cualquier estado. La fase
 actual es una propiedad **en memoria**, no una marca añadida al formato SAV.
@@ -83,6 +84,12 @@ No puede ejecutarse después de impuestos ni viceversa: faltan producción,
 importaciones y consumo alimentario entre esas fases del turno original. Su
 informe incluye solicitudes semánticas de evento 0x33; no se añaden textos
 inventados al log SAV ni se ejecutan callbacks de IA.
+
+`normalizeLabor` requiere `Prepared` y pasa a `LaborBalanced`: aplica refresco de
+tareas, balance de trabajadores y tope de materiales. No cambia las identidades
+ni referencias del grafo, y no se encadena con los otros experimentos. El contrato,
+los casos firmados peculiares del original y los límites seguros se describen en
+[LABOR_BALANCE.md](LABOR_BALANCE.md). No sustituye la normalización completa de carga.
 
 `capture` sólo acepta `Prepared`: copia el documento conservado, valida el
 resultado y reemplaza su destino al finalizar. Tras aplicar cualquier experimento falla
@@ -171,6 +178,10 @@ se leen. `--help` describe las formas admitidas por el CLI.
 preparación. `energy`/`energy-archive` realizan el experimento energético aislado,
 sin producir ni importar antes; tampoco escriben SAV. Ambos contratos se detallan
 en `ECONOMY_LAB.md`.
+
+`labor`/`labor-archive` aplican sólo la normalización laboral y de almacén en
+memoria. Informan `complete_load:false` y `complete_turn:false`, no aceptan un
+destino de guardado y no cambian el inspector gráfico.
 
 ## Verificación y límites pendientes
 

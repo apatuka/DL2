@@ -13,6 +13,8 @@ Estas reglas permiten que varios módulos se porten en paralelo y encajen sin fr
 - `docs/SAVE_CODEC.md`, `docs/RUNTIME_STATE.md` y `docs/ECONOMY_LAB.md`: límites entre
   formato de archivo, preparación propietaria, consultas y ejecución de fases. Los nombres de campos/tablas heredados
   pueden ser inexactos: confirmar offsets y lectores originales antes de usarlos.
+- `docs/LABOR_BALANCE.md`: normalización explícita de tareas/trabajadores, prioridades,
+  resultados negativos originales y dominios rechazados; no es activación completa.
 
 ## Propiedad del estado: no mezclar las representaciones
 

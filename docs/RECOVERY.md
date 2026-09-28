@@ -16,6 +16,39 @@ inspección: mapa, territorios, edificios, unidades y copias sin modificación. 
 lógica de partida está parcialmente escrita y todavía no está integrada. Cargar
 el documento no equivale a activar el estado de juego, simular un turno ni jugar.
 
+## Verificación de tareas y balance laboral — 2026-09-28
+
+El nuevo bloque pasó **21/21 pruebas, sin omisiones**, tanto en `build-verified`
+(28,76 s) como con AddressSanitizer en `build-save-asan` (77,38 s). No se
+detectaron errores de memoria en los recorridos instrumentados. Los registros
+locales están en `build-verified/Testing/Temporary/LastTest.log` y su equivalente
+en `build-save-asan`; las salidas de build no se incorporan al repositorio.
+
+`labor_balance.*` implementa reconstrucción de tareas y requisitos tecnológicos,
+redistribución, balance en cuatro pasadas y límite superior de materiales.
+`State::normalizeLabor` lo aplica transaccionalmente sobre su copia propia;
+`dl2sim labor`/`labor-archive` muestran el informe antes/después. No modifica
+colas, entidades, RNG ni turno, ni exporta la normalización parcial como SAV.
+
+La prueba específica recorrió **46 documentos y 983 edificios**. Las pruebas de
+runtime verificaron la aplicación, el grafo estable, transiciones y rollback en
+esas mismas muestras. Los oráculos sintéticos independientes cubren tecnología,
+mejoras, construcción, bloqueos, colas por número de nodos, prioridades, viviendas
+inactivas, población/moral firmadas y extremos de labor de 32 bits. También se
+comprueba la integridad de miembros no serializados, eventos binarios y globales.
+
+La revisión del decompilado/assembly confirmó comportamientos originales que no
+deben simplificarse: descuentos de capacidad en orden de ranura, valores de labor
+negativos generados, máscaras tecnológicas extendidas con signo y traslados a
+vivienda que no requieren categoría residencial. El módulo admite labor negativa
+de entrada porque no se usa como índice. Rechaza el fallback de vivienda de índice
+−1 y limita intentos de traslado para evitar escrituras inválidas o trabajo
+patológico. Son límites declarados, no callbacks vacíos ni reparaciones silenciosas.
+
+El inspector permanece de sólo lectura. Todavía faltan otros perfiles de carga,
+gestión dinámica de entidades, producción/logística aplicada, órdenes manuales
+y el turno completo. Contratos y próximos pasos: [LABOR_BALANCE.md](LABOR_BALANCE.md).
+
 ## Verificación del laboratorio económico
 
 El nuevo hito pasó **20/20 pruebas, sin omisiones**, tanto en `build-verified`
@@ -45,8 +78,9 @@ Las pruebas de bytes verifican que no cambia otros campos ni el turno.
 `dl2sim economy` ofrece consultas sin mutación; `energy` es el experimento
 aislado. Ambos tienen variantes HDX/HDD y rechazan destinos de guardado. Véase
 [ECONOMY_LAB.md](ECONOMY_LAB.md) para fórmulas y el próximo corte de integración.
-Todavía faltan balance laboral, producción aplicada, logística, unidades y la
-secuencia completa; el inspector sigue sin acciones de juego.
+Al terminar ese hito faltaban balance laboral, producción aplicada, logística,
+unidades y la secuencia completa. El avance posterior del balance se registra
+arriba; el inspector sigue sin acciones de juego.
 
 ## Verificación de preparación y fase fiscal
 

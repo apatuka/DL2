@@ -54,6 +54,36 @@ void energy(const runtime::State& state, const simulation::EnergyPlan& plan, int
     }
     std::cout << "]}\n";
 }
+template<class T, size_t N> void numbers(const std::array<T, N>& values) {
+    std::cout << "[";
+    for (size_t i = 0; i < N; ++i) std::cout << (i ? "," : "") << int64_t(values[i]);
+    std::cout << "]";
+}
+void laborSnapshot(const simulation::BuildingLaborState& state) {
+    std::cout << "{\"flags\":" << state.flags << ",\"tasks\":";
+    numbers(state.tasks); std::cout << ",\"labor\":"; numbers(state.labor); std::cout << "}";
+}
+void labor(const runtime::State& state, const simulation::LaborBalancePlan& plan, int before) {
+    std::cout << "{\"stage\":\"labor_balanced_in_memory\",\"isolated\":true,"
+                 "\"complete_turn\":false,\"complete_load\":false,\"applies_production\":false,\"turn_before\":"
+              << before << ",\"turn_after\":" << state.document()->options.turn << ",\"buildings\":[";
+    for (size_t i = 0; i < plan.buildings.size(); ++i) {
+        const auto& b = plan.buildings[i];
+        std::cout << (i ? "," : "") << "{\"id\":" << b.buildingId << ",\"territory\":" << b.territory
+                  << ",\"site\":" << int(b.site) << ",\"before\":";
+        laborSnapshot(b.before); std::cout << ",\"after\":"; laborSnapshot(b.after); std::cout << "}";
+    }
+    std::cout << "],\"territories\":[";
+    for (size_t i = 0; i < plan.territories.size(); ++i) {
+        const auto& t = plan.territories[i];
+        std::cout << (i ? "," : "") << "{\"territory\":" << t.territory << ",\"labor_pool\":" << t.laborPool
+                  << ",\"unavailable_labor\":" << t.unavailableLabor << ",\"assigned_labor\":" << t.assignedLabor
+                  << ",\"unassigned_labor\":" << t.unassignedLabor << ",\"morale_before\":" << int(t.moraleBefore)
+                  << ",\"morale_after\":" << int(t.moraleAfter) << ",\"materials_before\":";
+        numbers(t.materialsBefore); std::cout << ",\"materials_after\":"; numbers(t.materialsAfter); std::cout << "}";
+    }
+    std::cout << "]}\n";
+}
 void slots(const std::array<simulation::SlotProduction, 5>& values) {
     std::cout << "[";
     for (size_t i = 0; i < values.size(); ++i) {
@@ -102,6 +132,8 @@ int usage() {
                  "  dl2sim economy-archive <HDX/HDD-base> <entry>\n"
                  "  dl2sim energy <save>  (isolated consumption, without production/imports)\n"
                  "  dl2sim energy-archive <HDX/HDD-base> <entry>\n"
+                 "  dl2sim labor <save>  (isolated task/labor normalization and stock caps)\n"
+                 "  dl2sim labor-archive <HDX/HDD-base> <entry>\n"
                  "  dl2sim turn <save>  (explicitly unavailable)\n"
                  "Experiments print JSON. No partial SAV is written.\n";
     return 2;
@@ -113,9 +145,9 @@ int main(int argc, char** argv) {
         if (argc < 3) return usage();
         const std::string command = argv[1];
         const bool archive = command == "prepare-archive" || command == "taxes-archive" ||
-                             command == "economy-archive" || command == "energy-archive";
+                             command == "economy-archive" || command == "energy-archive" || command == "labor-archive";
         if (!((argc == 3 && (command == "prepare" || command == "taxes" || command == "turn" ||
-                            command == "economy" || command == "energy")) ||
+                            command == "economy" || command == "energy" || command == "labor")) ||
               (argc == 4 && (archive || command == "roundtrip")))) return usage();
         auto document = std::make_unique<save::Document>();
         save::Error error;
@@ -134,6 +166,11 @@ int main(int argc, char** argv) {
             const int before = document->options.turn;
             require(state.consumeEnergy(plan, error), error);
             energy(state, plan, before);
+        } else if (command == "labor" || command == "labor-archive") {
+            simulation::LaborBalancePlan plan;
+            const int before = document->options.turn;
+            require(state.normalizeLabor(plan, error), error);
+            labor(state, plan, before);
         } else if (command == "economy" || command == "economy-archive") {
             simulation::ProductionPlan production;
             simulation::NeedsPlan needs;

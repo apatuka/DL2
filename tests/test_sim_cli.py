@@ -54,6 +54,22 @@ def main():
         assert need["territory"] == effect["territory"] and need["energy"] == effect["need"]
         assert effect["after"] == effect["before"] - effect["consumed"]
     assert economy == run("economy", tutorial), "experiments must not overwrite the source"
+    labor = run("labor", tutorial)
+    assert labor == run("labor", tutorial), "task/labor normalization must be deterministic"
+    assert labor["stage"] == "labor_balanced_in_memory" and labor["isolated"]
+    assert not labor["complete_turn"] and not labor["complete_load"] and not labor["applies_production"]
+    assert labor["turn_before"] == labor["turn_after"] == prepared["turn"]
+    assert len(labor["buildings"]) == prepared["buildings"]
+    assert len(labor["territories"]) == prepared["territories"]
+    for building in labor["buildings"]:
+        for snapshot in (building["before"], building["after"]):
+            assert len(snapshot["tasks"]) == len(snapshot["labor"]) == 5
+    for territory in labor["territories"]:
+        before, after = territory["materials_before"], territory["materials_after"]
+        assert len(before) == len(after) == 11 and before[0] == after[0]
+        assert after[1:] == [min(value, 10000) for value in before[1:]]
+        assert territory["assigned_labor"] + territory["unassigned_labor"] == territory["labor_pool"]
+    assert economy == run("economy", tutorial), "normalization must not modify the archived input"
     assert "Full turn unavailable" in run("turn", tutorial, success=False).stderr
     with tempfile.TemporaryDirectory(prefix="sim-cli-", dir=output) as temporary:
         folder = Path(temporary)
@@ -63,7 +79,7 @@ def main():
         run("roundtrip", tutorial, copy, success=False)
         assert copy.read_bytes() == original
         run("prepare", folder / "missing.sav", success=False)
-        for command in ("economy", "energy"):
+        for command in ("economy", "energy", "labor"):
             assert not run(command, folder / "missing.sav", success=False).stdout
             partial = folder / "forbidden-partial.sav"
             rejected = subprocess.run([str(binary), command, str(tutorial), str(partial)],
@@ -75,9 +91,10 @@ def main():
         assert not run("taxes-archive", data / "LEVELS", "CHCHT1")["complete_turn"]
         assert run("economy-archive", data / "LEVELS", "CHCHT1")["read_only"]
         assert run("energy-archive", data / "LEVELS", "CHCHT1")["isolated"]
+        assert run("labor-archive", data / "LEVELS", "CHCHT1")["isolated"]
         run("prepare-archive", data / "LEVELS", "MISSING", success=False)
     assert hashlib.sha256(tutorial.read_bytes()).digest() == hashlib.sha256(original).digest()
-    print("simulation CLI: exact preparation, production/needs, isolated taxes/energy, non-turn rejection and safe copies passed")
+    print("simulation CLI: exact preparation, production/needs, isolated taxes/energy/labor, non-turn rejection and safe copies passed")
     return 0
 
 

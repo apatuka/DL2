@@ -180,6 +180,38 @@ bool State::consumeEnergy(simulation::EnergyPlan& report, save::Error& error) {
     }, error);
 }
 
+bool State::normalizeLabor(simulation::LaborBalancePlan& report, save::Error& error) {
+    return guarded([&] {
+        if (!document_ || stage_ != Stage::Prepared)
+            return fail(error, save::ErrorCode::InvalidState,
+                        "Labor normalization requires a fresh prepared state; full load/turn phases are not integrated");
+        simulation::LaborBalancePlan candidate;
+        if (!simulation::planLaborBalance(*document_, candidate, error)) return false;
+        // The planner returns every building in document order. No identities,
+        // locations or queue links change, so the existing typed graph stays valid.
+        // All allocations and validation precede this no-throw scalar commit.
+        report = std::move(candidate);
+        for (size_t i = 0; i < report.buildings.size(); ++i) {
+            auto& building = document_->buildings[i];
+            const auto& after = report.buildings[i].after;
+            building.flags = after.flags;
+            for (size_t slot = 0; slot < 5; ++slot) {
+                building.task[slot] = after.tasks[slot];
+                building.labor[slot] = after.labor[slot];
+            }
+        }
+        for (size_t i = 0; i < report.territories.size(); ++i) {
+            auto& territory = document_->territories[i].data;
+            const auto& after = report.territories[i];
+            territory.morale = after.moraleAfter;
+            for (size_t material = 0; material < kNumMaterials; ++material)
+                territory.materials[material] = after.materialsAfter[material];
+        }
+        stage_ = Stage::LaborBalanced;
+        error = {}; return true;
+    }, error);
+}
+
 bool State::advanceTurn(save::Error& error) {
     return fail(error, save::ErrorCode::InvalidState,
                 "Full turn unavailable: movement/combat, production/logistics, food/energy, upkeep, "

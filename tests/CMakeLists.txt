@@ -36,6 +36,11 @@ target_link_libraries(test_runtime_state PRIVATE dl2game)
 add_test(NAME runtime_state COMMAND test_runtime_state "${DL2_DATA_DIR}")
 set_tests_properties(runtime_state PROPERTIES TIMEOUT 60)
 
+add_executable(test_labor_balance test_labor_balance.cpp)
+target_link_libraries(test_labor_balance PRIVATE dl2game dl2engine)
+add_test(NAME labor_balance COMMAND test_labor_balance "${DL2_DATA_DIR}")
+set_tests_properties(labor_balance PROPERTIES TIMEOUT 60)
+
 add_executable(test_inspector_session test_inspector_session.cpp)
 target_link_libraries(test_inspector_session PRIVATE dl2viewer)
 add_test(NAME inspector_session COMMAND test_inspector_session "${CMAKE_CURRENT_BINARY_DIR}")
@@ -106,7 +111,7 @@ endif()
 if(WIN32 AND TARGET SDL2::SDL2)
     get_target_property(_dl2_sdl_type SDL2::SDL2 TYPE)
     if(_dl2_sdl_type STREQUAL "SHARED_LIBRARY")
-        foreach(_target test_engine test_resources test_input test_inspector_session test_world_inspector test_production_plan)
+        foreach(_target test_engine test_resources test_input test_inspector_session test_world_inspector test_production_plan test_labor_balance)
             add_custom_command(TARGET ${_target} POST_BUILD
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different
                     $<TARGET_FILE:SDL2::SDL2> $<TARGET_FILE_DIR:${_target}>)

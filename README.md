@@ -9,17 +9,19 @@ El ejecutable abre un **inspector gráfico de partidas**: muestra el mundo, terr
 y unidades del archivo, permite seleccionarlos y guarda copias nuevas sin modificar los datos.
 Todavía no permite jugar turnos. El CLI `dl2sim` prepara un estado propio, consulta
 rendimientos de edificios y necesidades de recursos, y ejecuta experimentos aislados
-de impuestos o energía, sin guardar ni presentar un turno parcial como completo.
+de impuestos, energía o normalización laboral, sin guardar ni presentar un turno parcial como completo.
 La demostración previa del motor y del panel SMenu `D000` se conserva mediante `--demo`.
 
 - [Recuperación de la sesión de Claude](docs/RECOVERY.md): entregables, evidencias y archivos recuperables.
 - [Plan por hitos verificables](docs/ROADMAP.md): orden de continuación y criterios de cierre.
+- [Checklist completo de juego individual](docs/SINGLE_PLAYER_CHECKLIST.md): pendientes para el cierre funcional sin multijugador.
 - [Integración de la lógica](docs/GAME_INTEGRATION.md): código existente que aún no puede enlazarse.
 - [API del motor](docs/ENGINE_API.md): recursos, dibujo y SMenu.
 - [Carga/guardado C++ verificable](docs/SAVE_CODEC.md): documentos de partida, CLI y límites.
 - [Inspector gráfico del mundo](docs/WORLD_INSPECTOR.md): controles, copias seguras y límites visuales.
 - [Estado de ejecución y primera fase fiscal](docs/RUNTIME_STATE.md): referencias propias, pruebas y CLI.
 - [Laboratorio económico](docs/ECONOMY_LAB.md): consultas de producción/necesidades y consumo energético aislado.
+- [Tareas y balance laboral](docs/LABOR_BALANCE.md): reconstrucción explícita, reparto de trabajadores y límites de almacén.
 
 El codec C++ ya lee, valida, edita y vuelve a escribir las 46 muestras disponibles sin perder
 bytes. El inspector ya consume ese documento directamente, sin convertir IDs/palabras históricas
@@ -68,10 +70,10 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools/build.ps1 -BuildDir bu
 ```
 
 El hito de serialización pasó 8/8, el del inspector 15/15 y el de preparación/fiscalidad 18/18.
-La suite actual, que añade producción consultiva, necesidades y energía, pasa **20/20 sin omisiones**, tanto
+La suite actual, que añade también reconstrucción de tareas y balance laboral, pasa **21/21 sin omisiones**, tanto
 en `build-verified` como con AddressSanitizer en `build-save-asan`. Incluye 46
 capturas exactas del estado preparado, consultas sobre 983 registros de edificios
-y experimentos fiscales/energéticos deterministas; no valida
+y experimentos fiscales/energéticos y normalización laboral deterministas; no valida
 un turno completo. Alcance y evidencia en `docs/RECOVERY.md`.
 El script armoniza la codificación de consola para que Ninja detecte las cabeceras con MSVC
 localizado. Si una caché antigua muestra cientos de líneas `Nota: inclusión del archivo`,
@@ -165,6 +167,17 @@ energía de la instantánea guardada, sin ejecutar producción o importaciones a
 Es un experimento independiente de impuestos, no la continuación de un turno.
 Los comandos correspondientes `economy-archive` y `energy-archive` aceptan base
 HDX/HDD y entrada. Detalles y límites: [ECONOMY_LAB.md](docs/ECONOMY_LAB.md).
+
+Para reconstruir tareas, balancear trabajadores y aplicar el tope de almacenes
+en memoria, sin producir ni completar la carga jugable:
+
+```powershell
+.\build-verified\src\dl2sim.exe labor "C:\GOG Games\Deadlock 2\TUTORIAL.SAV"
+.\build-verified\src\dl2sim.exe labor-archive "C:\GOG Games\Deadlock 2\LEVELS" CHCHT1
+```
+
+El informe muestra valores antes/después; no modifica el archivo original ni
+permite guardar el estado parcial. Véase [LABOR_BALANCE.md](docs/LABOR_BALANCE.md).
 
 ## Regenerar la exportación de Ghidra
 

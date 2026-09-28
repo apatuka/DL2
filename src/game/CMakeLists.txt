@@ -17,6 +17,7 @@ set(GAME_SOURCES
     tax_phase.cpp
     resource_needs.cpp
     production_plan.cpp
+    labor_balance.cpp
     # END MODULE SOURCES
 )
 

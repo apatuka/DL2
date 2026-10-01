@@ -263,6 +263,8 @@ State& State::operator=(State&& other) noexcept {
         document_ = std::move(other.document_);
         graph_ = std::move(other.graph_);
         stage_ = std::exchange(other.stage_, Stage::Empty);
+        rng_ = other.rng_;
+        other.rng_ = {};
         other.graph_ = {};
         other.buildingSlots_.clear(); other.armySlots_.clear();
         other.buildingDenseSlots_.clear(); other.armyDenseSlots_.clear();
@@ -290,6 +292,7 @@ bool State::copyForEdit(State& candidate, save::Error& error) const {
     candidate.buildingSlots_ = buildingSlots_; candidate.armySlots_ = armySlots_;
     candidate.buildingDenseSlots_ = buildingDenseSlots_; candidate.armyDenseSlots_ = armyDenseSlots_;
     candidate.preparationIdentity_ = preparationIdentity_;
+    candidate.rng_ = rng_;
     return true;
 }
 
@@ -396,6 +399,66 @@ bool State::normalizeLabor(simulation::LaborBalancePlan& report, save::Error& er
                 territory.materials[material] = after.materialsAfter[material];
         }
         stage_ = Stage::LaborBalanced;
+        error = {}; return true;
+    }, error);
+}
+
+const char* missingLoadCapabilityName(MissingLoadCapability capability) {
+    switch (capability) {
+    case MissingLoadCapability::AiInitialization: return "ai_initialization";
+    case MissingLoadCapability::Visibility: return "visibility";
+    case MissingLoadCapability::Contacts: return "contacts";
+    case MissingLoadCapability::BuildingIntelligence: return "building_intelligence";
+    case MissingLoadCapability::NativeEventLog: return "native_event_log";
+    case MissingLoadCapability::TransientSessionState: return "transient_session_state";
+    case MissingLoadCapability::ChangedWorldScan: return "changed_world_scan";
+    }
+    return "unknown";
+}
+
+bool State::normalizeLoad(const simulation::LoadProfile& profile, LoadReport& report,
+                          save::Error& error, LoadScope scope) {
+    return guarded([&] {
+        if (scope != LoadScope::Partial)
+            return fail(error, save::ErrorCode::InvalidState,
+                "Complete load activation unavailable: AI, visibility, contacts, intelligence, event log and transient session state remain incomplete");
+        if (!document_ || stage_ != Stage::Prepared)
+            return fail(error, save::ErrorCode::InvalidState, "Load normalization requires a fresh prepared snapshot");
+        State candidate;
+        LoadReport result;
+        if (!copyForEdit(candidate, error)) return false;
+        auto& d = *candidate.document_;
+        if (!simulation::normalizeLoadCore(d, profile, d, result.core, error) ||
+            !simulation::rebuildLoadDerived(d, d, result.derived, error) ||
+            !simulation::planLaborBalance(d, result.labor, error)) return false;
+        for (size_t i = 0; i < result.labor.buildings.size(); ++i) {
+            auto& b = d.buildings[i];
+            const auto& after = result.labor.buildings[i].after;
+            b.flags = after.flags;
+            for (size_t slot = 0; slot < 5; ++slot) {
+                b.task[slot] = after.tasks[slot]; b.labor[slot] = after.labor[slot];
+            }
+        }
+        for (size_t i = 0; i < result.labor.territories.size(); ++i) {
+            auto& t = d.territories[i].data;
+            const auto& after = result.labor.territories[i];
+            t.morale = after.moraleAfter;
+            for (size_t m = 0; m < kNumMaterials; ++m) t.materials[m] = after.materialsAfter[m];
+        }
+        // orig: 004501b0, AFTER AfterMovePhase(load=1)/EndTurnBalance.
+        // The fixed address 004fc4dc is tech[47].availableMask, NOT the
+        // forbidden technology's mask. Preserve the original oddity.
+        for (size_t p = 0; p < kMaxPlayers; ++p) if (result.core.forbiddenResearchPlayers & (1u << p)) {
+            d.techs[47].availableMask &= uint16_t(~(1u << p));
+            d.players[p].currentResearch = 0;
+        }
+        if (!candidate.rng_.initializeAfterLegacyLoad(d, error) ||
+            !save::validate(d, error) || !candidate.rebuildGraph(error)) return false;
+        result.rng = candidate.rng_.snapshot();
+        candidate.stage_ = Stage::LoadNormalized;
+        // Everything that can allocate or reject precedes this no-throw commit.
+        report = std::move(result);
+        *this = std::move(candidate);
         error = {}; return true;
     }, error);
 }

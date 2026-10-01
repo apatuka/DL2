@@ -15,10 +15,16 @@
 #pragma once
 #include <cstdint>
 #include <functional>
+#include <array>
+#include <span>
 
 #include "game/game_state.h"
 #include "game/globals.h"
 #include "game/queue_pool.h"   // pool de QueueHead/QueueRecord (módulo gameflow): dl2::ptr(Ptr32<QueueHead>), QueueAlloc...
+#include "game/data_tables.h"
+#include "game/supplemental_tables.h"
+#include "game/table_views.h"
+#include "game/legacy_fields.h"
 
 namespace dl2::econ {
 
@@ -62,10 +68,11 @@ namespace domain { constexpr int8_t Land = 1, Sea = 2, Air = 3; }
 
 constexpr int kMaterialCap = 10000;      // FUN_0046c780 / FUN_00472974
 constexpr int kNumQueues = 5;
-constexpr int kNumCampaigns = 32;
+constexpr int kNumCampaigns = data::kNumCampaigns; // All 43 records, including no-campaign row 0.
 
 // ----------------------------------------------------------------------------------------
-// Tablas estáticas del EXE (economy_tables.cpp)
+// Legacy row adapters derived from data::* (economy_tables.cpp). Not SAV layouts.
+// Field spellings are retained for excluded legacy consumers; values have one source.
 // ----------------------------------------------------------------------------------------
 struct BldgType {              // DAT_004f9dbc, 48 x 0x32 (kBuildingTypes)
     const char* name;          // +0x00
@@ -100,10 +107,10 @@ struct UnitType {              // PTR_s_No_Unit_004faf7c, 39 x 0x24 (kUnitTypes)
     int8_t   unk12;            // +0x12
     int8_t   attack;           // +0x13 (FUN_00447c2c)
     int8_t   defense;          // +0x14 (FUN_00447da4)
-    int8_t   range;            // +0x15 (FUN_00447f44)
+    int8_t   range;            // +0x15 legacy spelling: SPEED, not attack range (FUN_00447f44)
     int8_t   rof;              // +0x16 (FUN_00448008)
-    int8_t   unk17;            // +0x17 (FUN_004480a8)
-    int16_t  unk18;            // +0x18
+    int8_t   unk17;            // +0x17 squared attack range (FUN_004480a8)
+    int32_t  unk18;            // +0x18 sound ID (full dword, not int16)
 };
 struct CampaignGoal {          // 0x44 bytes dentro de la tabla de campañas (DAT_004c61a0 + k*0x44)
     int32_t type;              // +0x00 0 ninguno, 1.. (FUN_0044fe38: 1 y 11 = "unidad")
@@ -118,32 +125,38 @@ struct CampaignDef {           // DAT_004c6194 + camp*0xd8
     CampaignGoal goal[3];      // +0x0c
 };
 
-extern const BldgType kBuildingTypes[48];        // DAT_004f9dbc
-extern const UnitType kUnitTypes[39];            // PTR_s_No_Unit_004faf7c
-extern const int32_t  kBuildingCosts[48][11];    // DAT_004fa71c materiales por edificio
-extern const int32_t  kUnitCosts[39][11];        // DAT_004fb4f8 materiales por unidad
-extern const int32_t  kLaborYield[11][11];       // DAT_004f9bc4 [maxLabor(<=10)][labor(<=10)] -> %
-extern const int32_t  kSiteOrder[36];            // DAT_004c5e58 orden de búsqueda de casillas
-extern const int32_t  kGrowthByTerrain[6];       // DAT_004d5808 % crecimiento base por terreno
-extern const int32_t  kCrowdingByTerrain[6];     // DAT_004d5820 población "cómoda" por terreno
-extern const int32_t  kTaxIncomeByLevel[6];      // DAT_004d5838 % de ingresos por nivel de impuestos
-extern const int32_t  kStarvationMorale[8];      // DAT_004d5850 moral por nivel de hambruna
-extern const int32_t  kTaxMoraleByLevel[7];      // DAT_004d57ec moral por nivel de impuestos
-extern const int32_t  kMetalForSteel[4];         // DAT_004d6334 materiales que valen como "acero"
-extern const int32_t  kMetalSteelValue[4];       // DAT_004d6344 valor en acero de cada uno
-extern const int32_t  kAssistantPriority[23];    // DAT_004c53f4 orden de tareas del Colony Assistant
-extern const int32_t  kSkillMoraleAdjust[5];     // DAT_004c52c8
-extern const int32_t  kCityCenterCost[11];       // DAT_004fad78
-extern const uint16_t kCityCenterWork;           // DAT_004fa500 (600)
-extern const int8_t   kCityCenterTech;           // DAT_004fa51d
-extern const int32_t  kUnitGroupLimitLand[4];    // DAT_004faf6c
-extern const int32_t  kUnitGroupLimitSea[4];     // DAT_004faf5c
-extern const char* const kMaterialNames[11];     // PTR_s_Money_0050906c
-extern const char* const kMaterialNamesLower[11];// PTR_s_credits_005090c4
-extern const char* const kBuildingTaskNames[20]; // DAT_00509180
-extern const char* const kRaceNames[7];          // PTR_s_ChCh_t_00509038
-extern const char* const kUnitShortNames[39];    // PTR_s_No_Unit_005095e4 ("%s %s #%d")
-extern CampaignDef gCampaigns[kNumCampaigns];    // DAT_004c6194 (mutable: CampaignGoal::done)
+extern const std::array<BldgType, data::kNumBuildingTypes> kBuildingTypes;
+extern const std::array<UnitType, data::kNumUnitTypes> kUnitTypes;
+inline constexpr data::MemberTableView<data::BuildingDef, data::kNumBuildingTypes, &data::BuildingDef::cost>
+    kBuildingCosts{data::kBuildingTypes};
+inline constexpr data::MemberTableView<data::UnitDef, data::kNumUnitTypes, &data::UnitDef::cost>
+    kUnitCosts{data::kUnitTypes};
+inline constexpr auto& kLaborYield = data::kLaborProductionTable;
+using data::kSiteOrder;
+inline constexpr auto& kGrowthByTerrain = data::kPopulationGrowthByTerrain;
+inline constexpr auto& kCrowdingByTerrain = data::kTerrainMaxPopulation;
+inline constexpr auto& kTaxIncomeByLevel = data::kTaxIncomePercent;
+inline constexpr auto& kStarvationMorale = data::kMoraleByLevel;
+using data::kTaxMoraleByLevel; // Exactly six levels, 0..5 (0046adac clamps).
+using data::kMetalForSteel;
+using data::kMetalSteelValue;
+using data::kAssistantPriority;
+using data::kSkillMoraleAdjust;
+inline constexpr auto& kCityCenterCost = data::kBuildingTypes[37].cost;
+inline constexpr auto& kCityCenterWork = data::kBuildingTypes[37].buildLabor;
+inline constexpr auto& kCityCenterTech = data::kBuildingTypes[37].techRequired;
+inline constexpr auto& kUnitGroupLimitLand = data::kMaxUnitsPerTerritoryLand; // 004faf6c, not terrain predicate
+inline constexpr auto& kUnitGroupLimitSea = data::kMaxUnitsPerTerritorySea;   // 004faf5c
+using data::kMaterialNames;
+using data::kMaterialNamesLower;
+inline constexpr std::span<const char* const, 20> kBuildingTaskNames{data::kTaskNames + 2, 20};
+using data::kRaceNames;
+using data::kUnitShortNames;
+extern const std::array<CampaignDef, kNumCampaigns> kCampaignDefaults;
+// Explicit LEGACY mutable bridge only, shared with turn/campaign headers.
+// New owned runtime/document code must not use or mutate this global.
+extern std::array<CampaignDef, kNumCampaigns> gCampaigns;
+static_assert(sizeof(CampaignGoal) == 0x44 && sizeof(CampaignDef) == 0xd8);
 
 // ----------------------------------------------------------------------------------------
 // Accesores a campos de las structs que game_state.h todavía llama unk_XX
@@ -177,7 +190,7 @@ inline int32_t&  siteKnownLabor(BuildingSite& s, int k){ return *reinterpret_cas
 inline uint16_t& siteKnownFlags(BuildingSite& s){ return *reinterpret_cast<uint16_t*>(&s.unk_18[0x1a]); } // +0x32
 inline int16_t&  researchPoints(Player& p)     { return p.lastIncome; }                               // +0x40 investigación acumulada del turno
 inline uint16_t& techKnown(int tech)           { return gs.techs[tech].knownMask; }
-inline bool      techKnownBy(int tech, int player) { return (gs.techs[tech].knownMask >> player) & 1; }
+inline bool      techKnownBy(int tech, int player) { return dl2::techKnown(tech, player); }
 inline int16_t   raceStat(int row, int race)   { return gs.raceStats.v[row][race]; }                  // DAT_00559e00[row][race]
 inline Territory* terrOf(const Building& b)    { return &gs.territories[b.territory]; }
 inline Player*    ownerOf(const Territory& t)  { return t.owner < 0 ? nullptr : &gs.players[t.owner]; }

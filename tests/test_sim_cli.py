@@ -86,6 +86,17 @@ def main():
                  (1, "1junk", 0), (1, 1, "2147483648"), (1, 1, "")):
         assert not run("placement", tutorial, *args, success=False).stdout
     assert "Full turn unavailable" in run("turn", tutorial, success=False).stderr
+    assert "Complete load activation unavailable" in run("activate", tutorial, success=False).stderr
+    normalized = run("normalize-load", tutorial)
+    assert normalized == run("normalize-load", tutorial)
+    assert normalized["stage"] == "load_normalized_in_memory"
+    assert not normalized["complete_load"] and not normalized["can_play"] and not normalized["complete_turn"]
+    assert normalized["turn_before"] == normalized["turn_after"] == prepared["turn"]
+    assert all(normalized[k] for k in ("continents_rebuilt", "roads_rebuilt", "shrines_rebuilt", "labor_normalized"))
+    assert normalized["territories"] == prepared["territories"] and normalized["buildings"] == prepared["buildings"]
+    assert normalized["rng"]["seed_source"] == "options.gameId" and normalized["rng"]["operations"] == 0
+    assert normalized["rng"]["rtl_low"] == normalized["rng"]["secondary"] and normalized["rng"]["rtl_high"] == 0
+    assert {"ai_initialization", "visibility", "contacts", "building_intelligence"} <= set(normalized["missing"])
     with tempfile.TemporaryDirectory(prefix="sim-cli-", dir=output) as temporary:
         folder = Path(temporary)
         copy = folder / "prepared.sav"
@@ -94,7 +105,7 @@ def main():
         run("roundtrip", tutorial, copy, success=False)
         assert copy.read_bytes() == original
         run("prepare", folder / "missing.sav", success=False)
-        for command in ("economy", "energy", "labor"):
+        for command in ("economy", "energy", "labor", "normalize-load", "activate"):
             assert not run(command, folder / "missing.sav", success=False).stdout
             partial = folder / "forbidden-partial.sav"
             rejected = subprocess.run([str(binary), command, str(tutorial), str(partial)],
@@ -111,6 +122,7 @@ def main():
         assert run("economy-archive", data / "LEVELS", "CHCHT1")["read_only"]
         assert run("energy-archive", data / "LEVELS", "CHCHT1")["isolated"]
         assert run("labor-archive", data / "LEVELS", "CHCHT1")["isolated"]
+        assert not run("normalize-load-archive", data / "LEVELS", "CHCHT1")["can_play"]
         assert run("placement-archive", data / "LEVELS", "CHCHT1", 1, 1, 0)["read_only"]
         run("prepare-archive", data / "LEVELS", "MISSING", success=False)
     assert hashlib.sha256(tutorial.read_bytes()).digest() == hashlib.sha256(original).digest()

@@ -144,6 +144,26 @@ void economy(const runtime::State& state, const simulation::ProductionPlan& prod
     }
     std::cout << "]}\n";
 }
+void load(const runtime::State& state, const runtime::LoadReport& report, int before) {
+    std::cout << "{\"stage\":\"load_normalized_in_memory\",\"complete_load\":false,\"can_play\":false,"
+                 "\"complete_turn\":false,\"turn_before\":" << before
+              << ",\"turn_after\":" << state.document()->options.turn
+              << ",\"local_player\":" << report.core.localPlayer
+              << ",\"ai_skill\":" << report.core.aiSkillAfter
+              << ",\"campaign_goal_mask\":" << report.core.campaignGoalMask
+              << ",\"campaign_progress\":";
+    numbers(report.core.campaignProgress);
+    std::cout << ",\"continents_rebuilt\":true,\"roads_rebuilt\":true,\"shrines_rebuilt\":true,"
+                 "\"labor_normalized\":true,\"territories\":" << report.labor.territories.size()
+              << ",\"buildings\":" << report.labor.buildings.size()
+              << ",\"shrine_notices\":" << report.derived.notices.size()
+              << ",\"rng\":{\"seed_source\":\"options.gameId\",\"rtl_low\":" << report.rng.rtlLow
+              << ",\"rtl_high\":" << report.rng.rtlHigh << ",\"secondary\":" << report.rng.secondary
+              << ",\"operations\":" << report.rng.counters.operations << "},\"missing\":[";
+    for (size_t i = 0; i < report.missing.size(); ++i)
+        std::cout << (i ? "," : "") << '"' << runtime::missingLoadCapabilityName(report.missing[i]) << '"';
+    std::cout << "]}\n";
+}
 int usage() {
     std::cout << "Execution preparation / economic laboratory. NOT a complete turn.\n"
                  "  dl2sim prepare <save>\n"
@@ -157,6 +177,9 @@ int usage() {
                  "  dl2sim energy-archive <HDX/HDD-base> <entry>\n"
                  "  dl2sim labor <save>  (isolated task/labor normalization and stock caps)\n"
                  "  dl2sim labor-archive <HDX/HDD-base> <entry>\n"
+                 "  dl2sim normalize-load <save>  (partial offline load; NOT playable)\n"
+                 "  dl2sim normalize-load-archive <HDX/HDD-base> <entry>\n"
+                 "  dl2sim activate <save>  (complete load explicitly unavailable)\n"
                  "  dl2sim placement <save> <territory> <building-type> <site>\n"
                  "  dl2sim placement-archive <HDX/HDD-base> <entry> <territory> <building-type> <site>\n"
                  "    Read-only placement/footprint, NOT ownership/technology/affordability permission.\n"
@@ -173,9 +196,10 @@ int main(int argc, char** argv) {
         const bool isPlacement = command == "placement" || command == "placement-archive";
         const bool archive = command == "prepare-archive" || command == "taxes-archive" ||
                              command == "economy-archive" || command == "energy-archive" || command == "labor-archive" ||
-                             command == "placement-archive";
+                             command == "placement-archive" || command == "normalize-load-archive";
         if (!((argc == 3 && (command == "prepare" || command == "taxes" || command == "turn" ||
-                            command == "economy" || command == "energy" || command == "labor")) ||
+                            command == "economy" || command == "energy" || command == "labor" ||
+                            command == "normalize-load" || command == "activate")) ||
               (argc == 4 && ((!isPlacement && archive) || command == "roundtrip")) ||
               (isPlacement && argc == (archive ? 7 : 6)))) return usage();
         auto document = std::make_unique<save::Document>();
@@ -185,7 +209,12 @@ int main(int argc, char** argv) {
         runtime::State state;
         require(state.prepare(*document, error), error);
         if (command == "turn") { require(state.advanceTurn(error), error); return 1; }
-        if (isPlacement) {
+        if (command == "normalize-load" || command == "normalize-load-archive" || command == "activate") {
+            runtime::LoadReport report;
+            require(state.normalizeLoad({}, report, error,
+                command == "activate" ? runtime::LoadScope::Complete : runtime::LoadScope::Partial), error);
+            load(state, report, document->options.turn);
+        } else if (isPlacement) {
             const int offset = archive ? 4 : 3;
             const int territory = integer(argv[offset]);
             if (territory <= 0) throw std::runtime_error("Territory index must be positive");

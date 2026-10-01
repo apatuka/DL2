@@ -6,6 +6,8 @@ set(GAME_SOURCES
     rtl_compat.cpp
     # BEGIN MODULE SOURCES
     data_tables.cpp
+    economy_tables.cpp
+    supplemental_tables.cpp
     gameflow.cpp
     queue_pool.cpp
     queues.cpp
@@ -19,6 +21,9 @@ set(GAME_SOURCES
     production_plan.cpp
     labor_balance.cpp
     entity_rules.cpp
+    load_profile.cpp
+    load_derived.cpp
+    session_rng.cpp
     # END MODULE SOURCES
 )
 

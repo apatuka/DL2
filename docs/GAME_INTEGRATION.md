@@ -201,10 +201,18 @@ Los callbacks de IA/temporizadores en `flow::cb` siguen siendo opcionales y
 actualmente no tienen módulos reales instalados. Enlazar omitiendo estas
 funciones no demostraría que una partida cargada esté preparada para jugar.
 
-Existe además una discrepancia de tablas: `econ::kNumCampaigns` es **32**,
-mientras `campaign_flow.h` y `data::kNumCampaigns` describen **43** entradas
-(sin campaña + 42 escenarios). Debe resolverse antes de conectar campañas;
-no se debe llenar un array de 32 con los 43 valores del ejecutable.
+**Actualización EST-06 (2026-10-01):** la discrepancia histórica de 32 frente a
+43 campañas está resuelta. `economy_tables.cpp` compilado usa adaptadores de las
+tablas canónicas, con 43 defaults inmutables y un único puente mutable heredado.
+`newgame.h` y `turn_api.h` comparten los contratos; sus declaraciones de lógica
+ausente no se convierten en callbacks vacíos. Las filas anteriores describen los
+bloqueos del cargador global histórico, no todos los módulos propietarios nuevos.
+
+El lote EST-01..08 añade núcleo offline de carga, continentes/caminos/santuarios,
+normalización laboral encadenada, restricciones de investigación y RNG de sesión.
+`State::normalizeLoad` publica todo transaccionalmente como `LoadNormalized` y
+enumera dependencias pendientes. No habilita `saveload.cpp` global ni activación
+jugable. Alcance y evidencia en [LOAD_NORMALIZATION.md](LOAD_NORMALIZATION.md).
 
 ## Correcciones necesarias antes de probar partidas en C++
 

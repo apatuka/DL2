@@ -17,8 +17,8 @@
 
 namespace dl2 {
 
-constexpr int kNumCampaignDefs = 43;                      // DAT_004c6194: registros 0..42
-extern const econ::CampaignDef kCampaignDefaults[kNumCampaignDefs];
+constexpr int kNumCampaignDefs = data::kNumCampaigns;     // DAT_004c6194: registros 0..42
+using econ::kCampaignDefaults;
 void CampaignTableReset();                                // copia kCampaignDefaults en econ::gCampaigns
 inline int campaignRace(int campaign)    { return (campaign - 1) / 6; }         // FUN_00468030: 1..42 -> raza 0..6
 inline int campaignChapter(int campaign) { return (campaign - 1) % 6 + 1; }     // 1..6
@@ -36,8 +36,8 @@ struct CampaignPlayerDef {           // DAT_004dc434 + i*0x9c (FUN_0047c730)
     int32_t  pactType;               // +0x98
 };
 static_assert(sizeof(CampaignPlayerDef) == 0x9c);
-constexpr int kNumCampaignPlayers = 10;
-extern const CampaignPlayerDef kCampaignPlayers[kNumCampaignPlayers];
+constexpr int kNumCampaignPlayers = data::kNumAiArrivals;
+extern const std::array<CampaignPlayerDef, kNumCampaignPlayers> kCampaignPlayers;
 
 int  CampaignPlayerTerritory(int defIndex);               // orig: FUN_0047c6c0
 void CampaignAddPlayer();                                 // orig: FUN_0047c730 (CampaignAddPlayer): se llama cada turno

@@ -16,6 +16,7 @@
 #include "game/economy.h"
 #include "game/game_state.h"
 #include "game/globals.h"
+#include "game/legacy_fields.h"
 
 namespace dl2 {
 
@@ -117,9 +118,8 @@ inline uint32_t continentReach(int c)                { return *reinterpret_cast<
 // Army: campos con significado demostrado por este módulo
 inline uint8_t& armyMovesLeft(Army& a) { return a.strength; }   // Army+0x0a: movimiento restante (FUN_00446084: rango - coste)
 inline uint8_t& armyTactic(Army& a)    { return a.moves; }      // Army+0x24: Tactic
-inline uint8_t& armyMission(Army& a)   { return a.unk_25; }     // Army+0x25: Mission
 inline uint8_t& armyRetreatPct(Army& a){ return a.health; }     // Army+0x26 (FUN_0040f060 lo pone a 100 al atacar)
-inline int16_t& armyDamage(Army& a)    { return a.unk_2c; }     // Army+0x2c (FUN_00401108: defensa - daño; misión Repair)
+// armyMission (+0x25) / armyDamage (+0x2c): shared legacy_fields.h contracts.
 
 // Job: enlaces padre/hijos (Job+0x84: [0] padre, [1..15] hijos; ids 1-based) y campos auxiliares
 inline int32_t* jobLinks(Job& j)     { return &j.parentJob; }
@@ -135,7 +135,7 @@ inline Territory* lastTerritory()       { return &gs.territories[gs.world.numTer
 inline int  playerType(int p)           { return gs.players[p].type; }
 inline int  playerRace(int p)           { return gs.players[p].race; }
 inline uint8_t ministerLevel(int p, int m) { return gs.players[p].ministers[m].unk_01; }     // DAT_0059f1bf + m*0x5a (prioridad/fuerza base)
-inline bool techKnown(int tech, int p)  { return ((1 << (p & 31)) & (int)(int16_t)gs.techs[tech].knownMask) != 0; }
+// techKnown: shared legacy_fields.h signed-mask/shift contract.
 inline uint32_t pathMask(int p)         { return 0x2000u << (p & 31); }                      // 0x2000 << player (Territory::flags)
 // MinisterJob: campos de estado que ponen los handlers (+0xc "trabajado este turno", +0x10 "terminado: borrar")
 inline int32_t& mjobWorked(MinisterJob& j) { return j.unk_0c; }

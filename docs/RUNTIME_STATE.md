@@ -11,6 +11,10 @@ Esto no equivale a activar completamente `LoadGame` ni a ejecutar un turno.
 No hay incremento ficticio del contador de turno ni éxito silencioso para las
 fases aún ausentes. El inspector gráfico sigue siendo de sólo lectura.
 
+El lote EST-01..08 añade `normalizeLoad`: núcleo offline, continentes/caminos/
+santuarios, balance laboral y RNG propietario, con capacidades ausentes explícitas.
+Contrato, versiones y comandos en [LOAD_NORMALIZATION.md](LOAD_NORMALIZATION.md).
+
 ## Propiedad y preparación transaccional
 
 `State::prepare(const save::Document&, Error&)` valida el documento, construye una
@@ -32,7 +36,8 @@ su identidad tras insertar/retirar entidades, incluso si cambia su posición en
 el documento denso. No indexar `Graph::buildings/armies` mediante `handle.slot`:
 usar `buildingLinks`/`armyLinks`. Los punteros prestados sí deben descartarse tras
 una mutación estructural o sustitución exitosa. Mover un `State` transfiere juntos
-documento, identidades y grafo y deja vacío el origen.
+documento, identidades, grafo y RNG y deja vacío el origen. La normalización parcial
+también conserva handles, pero invalida punteros prestados tras su commit.
 Contrato detallado y límites: [ENTITY_RUNTIME.md](ENTITY_RUNTIME.md).
 
 ## Referencias resueltas y palabras conservadas
@@ -76,9 +81,12 @@ no ASCII. La presentación de texto de la UI no cambia estos datos binarios.
 | `EnergyApplied` | Sólo stock y porcentaje energético modificados; no permite repetir, encadenar impuestos ni capturar para guardar |
 | `LaborBalanced` | Tareas/labor/flags, moral y topes de almacén normalizados explícitamente; no es activación completa ni permite encadenar fases o capturar para guardar |
 | `EntitiesEdited` | Inserciones/retiradas estructurales limitadas; admite más ediciones estructurales, pero no captura ni fases económicas ni turno completo |
+| `LoadNormalized` | Subconjunto explícito de carga offline y RNG inicializado; capacidades incompletas, sin captura SAV, edición, encadenamiento de fases ni turno |
 
 `prepare` puede construir una preparación nueva desde cualquier estado. La fase
 actual es una propiedad **en memoria**, no una marca añadida al formato SAV.
+También reinicia el RNG propietario a no inicializado; `normalizeLoad` lo siembra
+al final desde `options.gameId`. Pedir carga completa falla sin modificar estado.
 `collectTaxes` requiere `Prepared` y, al tener éxito, pasa a `TaxesApplied` sin
 modificar `options.turn`. El informe y el estado permanecen intactos ante fallo.
 
@@ -207,9 +215,10 @@ datos, transacciones, aplicación fiscal única y bloqueo de exportaciones
 parciales. El resultado de las ejecuciones integradas se registra en
 [RECOVERY.md](RECOVERY.md), sin deducirlo de que exista el código de pruebas.
 
-Faltan perfiles explícitos de normalización del cargador original para versiones
-antiguas, campañas, opciones, IA, visibilidad, semillas y reinicios de RNG. La
-preparación actual conserva los datos; no afirma que cada palabra histórica sea
+Existe un perfil parcial offline para 0x26..0x120, opciones/campañas y reseed final
+de RNG. Faltan versiones anteriores, IA, visibilidad/contactos, inteligencia y
+transitorios de carga (ver `LOAD_NORMALIZATION.md`). La preparación archival
+conserva los datos; no afirma que cada palabra histórica sea
 semánticamente correcta para una nueva simulación. Tampoco incorpora todavía
 creación/destrucción con efectos de gameplay ni el resto de fases. Ya dispone
 del backend estructural limitado e identidades estables descritos arriba; no son

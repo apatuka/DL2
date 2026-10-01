@@ -10,6 +10,9 @@
 #include "game/tax_phase.h"
 #include "game/resource_needs.h"
 #include "game/labor_balance.h"
+#include "game/load_profile.h"
+#include "game/load_derived.h"
+#include "game/session_rng.h"
 
 namespace dl2::runtime {
 template<class Tag> struct Handle {
@@ -88,7 +91,27 @@ struct EntityEditReport {
     bool operator==(const EntityEditReport&) const = default;
 };
 
-enum class Stage { Empty, Prepared, TaxesApplied, EnergyApplied, LaborBalanced, EntitiesEdited };
+enum class LoadScope { Partial, Complete };
+enum class MissingLoadCapability {
+    AiInitialization, Visibility, Contacts, BuildingIntelligence,
+    NativeEventLog, TransientSessionState, ChangedWorldScan
+};
+struct LoadReport {
+    simulation::LoadCoreReport core;
+    simulation::LoadDerivedReport derived;
+    simulation::LaborBalancePlan labor;
+    simulation::RngSnapshot rng;
+    bool complete = false;
+    std::array<MissingLoadCapability, 7> missing{
+        MissingLoadCapability::AiInitialization, MissingLoadCapability::Visibility,
+        MissingLoadCapability::Contacts, MissingLoadCapability::BuildingIntelligence,
+        MissingLoadCapability::NativeEventLog, MissingLoadCapability::TransientSessionState,
+        MissingLoadCapability::ChangedWorldScan};
+    bool operator==(const LoadReport&) const = default;
+};
+const char* missingLoadCapabilityName(MissingLoadCapability capability);
+
+enum class Stage { Empty, Prepared, TaxesApplied, EnergyApplied, LaborBalanced, EntitiesEdited, LoadNormalized };
 class State {
 public:
     State() = default;
@@ -112,6 +135,14 @@ public:
     // cap material stocks. NOT full LoadGame activation or a production phase.
     // Once from Prepared; cannot chain experiments or publish a partial save.
     bool normalizeLabor(simulation::LaborBalancePlan& report, save::Error& error);
+    // Offline generation-4 load subset, in explicit order: core profile,
+    // continents/shrines/tile roads, labor, campaign research restriction,
+    // final owned RNG reseed. NOT playable activation. Complete scope rejects.
+    // Once from Prepared; all-or-nothing, including graph, handles and RNG.
+    // No normalized SAV export, no partial-to-full-turn chaining.
+    bool normalizeLoad(const simulation::LoadProfile& profile, LoadReport& report,
+                       save::Error& error, LoadScope scope = LoadScope::Partial);
+    simulation::RngSnapshot sessionRng() const { return rng_.snapshot(); }
     // Structural storage operations, NOT construction, manufacturing, demolition
     // or combat orders. Callers supply complete payloads and explicit file IDs;
     // only list references and the building's anchor-site reference are derived.
@@ -159,9 +190,10 @@ private:
     bool finishEdit(State&& candidate, save::Error& error);
     std::unique_ptr<save::Document> document_;
     Graph graph_;
+    simulation::SessionRng rng_;
     Stage stage_ = Stage::Empty;
 };
 // All returned pointers and Graph references are borrowed until the next
-// successful structural mutation or prepare/move assignment. Keep handles,
-// not pointers: surviving entity handles remain valid across structural edits.
+// successful structural mutation, load normalization or prepare/move assignment.
+// Keep handles, not pointers: surviving identities endure edits/normalization.
 } // namespace dl2::runtime

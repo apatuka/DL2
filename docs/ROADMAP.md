@@ -144,6 +144,13 @@ La integración económica debe respetar los reinicios explícitos y el orden:
 producción 1 antes de reservas/importaciones/comida/energía. No puede sustituir
 ese primer pase por la suma de los outputs consultivos.
 
+El lote EST-01..08 integra `normalizeLoad` parcial: opciones/perfil offline,
+enlaces de objetos/trabajos, continentes/caminos/santuarios, labor y RNG propietario
+inicializado al final desde gameId. Las tablas heredadas ya comparten la fuente
+canónica de 43 campañas. Véase [LOAD_NORMALIZATION.md](LOAD_NORMALIZATION.md).
+La siguiente dependencia de carga sigue siendo visibilidad/contactos/inteligencia,
+IA y transitorios; `LoadNormalized` no se puede exportar ni jugar.
+
 Completar primero economía, población, recursos, trabajo y colas de producción;
 después unidades, movimiento y las fases de turno que los coordinan. Establecer
 una única secuencia de fases a partir de `WinMain` y sus llamadas originales.

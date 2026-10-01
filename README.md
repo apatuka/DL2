@@ -12,6 +12,8 @@ rendimientos de edificios y necesidades de recursos, y ejecuta experimentos aisl
 de impuestos, energía o normalización laboral, sin guardar ni presentar un turno parcial como completo.
 También consulta emplazamientos de edificios. El estado propietario ya dispone de
 inserción/retirada estructural limitada con referencias estables; aún no son órdenes jugables.
+`normalize-load` integra un subconjunto explícito de carga offline y RNG por sesión;
+informa las capacidades pendientes y no permite exportar ni jugar el estado parcial.
 La demostración previa del motor y del panel SMenu `D000` se conserva mediante `--demo`.
 
 - [Recuperación de la sesión de Claude](docs/RECOVERY.md): entregables, evidencias y archivos recuperables.
@@ -23,6 +25,7 @@ La demostración previa del motor y del panel SMenu `D000` se conserva mediante 
 - [Inspector gráfico del mundo](docs/WORLD_INSPECTOR.md): controles, copias seguras y límites visuales.
 - [Estado de ejecución y primera fase fiscal](docs/RUNTIME_STATE.md): referencias propias, pruebas y CLI.
 - [Laboratorio económico](docs/ECONOMY_LAB.md): consultas de producción/necesidades y consumo energético aislado.
+- [Normalización de carga y RNG](docs/LOAD_NORMALIZATION.md): perfil, derivados, tablas compartidas y límites del lote EST-01..08.
 - [Tareas y balance laboral](docs/LABOR_BALANCE.md): reconstrucción explícita, reparto de trabajadores y límites de almacén.
 - [Entidades y emplazamiento](docs/ENTITY_RUNTIME.md): referencias estables, edición estructural limitada y consultas de casillas.
 
@@ -73,12 +76,12 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools/build.ps1 -BuildDir bu
 ```
 
 El hito de serialización pasó 8/8, el del inspector 15/15 y el de preparación/fiscalidad 18/18.
-La suite actual, que añade también gestión estructural de entidades y consultas de emplazamiento, pasa **23/23 sin omisiones**, tanto
+La suite actual, incluido el lote EST-01..08, pasa **28/28 sin omisiones**, tanto
 en `build-verified` como con AddressSanitizer en `build-save-asan`. Incluye 46
-capturas exactas del estado preparado, consultas sobre 983 registros de edificios
-y experimentos fiscales/energéticos y normalización laboral deterministas, además
-de inserciones/retiradas reversibles y consultas sobre 2.753 territorios; no valida
-un turno completo. Alcance y evidencia en `docs/RECOVERY.md`.
+capturas exactas, entidades/emplazamientos y experimentos económicos, además de
+RNG propietario, tablas compartidas y carga parcial: 38 documentos normalizados
+y 8 escenarios antiguos rechazados sin mutación, aún válidos para inspección/copia.
+No acredita carga jugable ni turno completo. Alcance y evidencia en `docs/RECOVERY.md`.
 El script armoniza la codificación de consola para que Ninja detecte las cabeceras con MSVC
 localizado. Si una caché antigua muestra cientos de líneas `Nota: inclusión del archivo`,
 configurar un directorio nuevo con el script; no reutilizar esa caché defectuosa.
@@ -182,6 +185,19 @@ en memoria, sin producir ni completar la carga jugable:
 
 El informe muestra valores antes/después; no modifica el archivo original ni
 permite guardar el estado parcial. Véase [LABOR_BALANCE.md](docs/LABOR_BALANCE.md).
+
+Para probar el subconjunto integrado de carga offline (opciones, enlaces,
+continentes/caminos/santuarios, labor y RNG), sólo en memoria:
+
+```powershell
+.\build-verified\src\dl2sim.exe normalize-load "C:\GOG Games\Deadlock 2\TUTORIAL.SAV"
+.\build-verified\src\dl2sim.exe normalize-load-archive "C:\GOG Games\Deadlock 2\LEVELS" CHCHT1
+```
+
+La salida declara `complete_load:false`, `can_play:false` y lo pendiente.
+`activate` rechaza explícitamente la carga completa: faltan IA, visibilidad,
+contactos e inteligencia, entre otros transitorios. Véase
+[LOAD_NORMALIZATION.md](docs/LOAD_NORMALIZATION.md).
 
 ## Regenerar la exportación de Ghidra
 

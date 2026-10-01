@@ -9,22 +9,24 @@
 
 #include "game/game_state.h"
 #include "game/globals.h"
+#include "game/data_tables.h"
+#include "game/supplemental_tables.h"
 
 namespace dl2 {
 
 // ----------------------------------------------------------------------------------------
 // Tablas del EXE
 // ----------------------------------------------------------------------------------------
-extern const char* const kRaceNames[7];         // PTR_s_ChCh_t_00509038
-extern const char* const kAiLeaderNames[7];     // PTR_s_Sting_00509938
-extern const char       kRaceShortNames[7][6];  // s_ChCht_005099cf ("%s%03d")
-extern const char* const kRaceUpperNames[7];    // PTR_s_CHCHT_004d5188 (entradas de LEVELS.HDD "%s%d")
-extern const int16_t     kRaceStatsDefault[64][8]; // DAT_004fc50c
-extern const int16_t     kRaceStatsRows61[3][8];   // DAT_004fc8dc
-extern const int32_t     kLandingTerrainScore[6];  // DAT_004b7d5c (FUN_00427854)
-extern const int32_t     kWinCitiesChoices[5];     // DAT_004c425c {2,3,5,7,10}
-extern const int32_t     kWinShrinesChoices[3];    // DAT_004c4274 {2,3,5}
-extern const int32_t     kWinTurnsChoices[3];      // DAT_004c4280 {3,5,8}
+using data::kRaceNames;
+using data::kAiLeaderNames;
+using data::kRaceShortNames; // String table, no fabricated fixed char[7][6] representation.
+using data::kRaceUpperNames;
+using data::kRaceStatsDefault;
+using data::kRaceStatsRows61;
+using data::kLandingTerrainScore;
+using data::kWinCitiesChoices;
+using data::kWinShrinesChoices;
+using data::kWinTurnsChoices;
 
 // ----------------------------------------------------------------------------------------
 // Reset / inicialización

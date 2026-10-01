@@ -16,6 +16,48 @@ inspección: mapa, territorios, edificios, unidades y copias sin modificación. 
 lógica de partida está parcialmente escrita y todavía no está integrada. Cargar
 el documento no equivale a activar el estado de juego, simular un turno ni jugar.
 
+## Lote EST-01..08 — 2026-10-01
+
+Sobre `acdda61`, se integró una normalización **parcial** offline, distinta de la
+preparación archival: opciones/perfil, enlaces de edificios y trabajos, continentes,
+caminos de tiles, santuarios, balance laboral, restricción de investigación y
+resembra final de RNG propietario desde `options.gameId`. El commit se realiza
+sólo después de validar documento/grafo/RNG; errores conservan todo el estado.
+
+`LoadNormalized` no es jugable ni exportable como SAV reanudable. `normalize-load`
+y `normalize-load-archive` imprimen JSON con las siete capacidades pendientes;
+`activate` rechaza explícitamente la carga completa. El inspector no cambia.
+Contrato y fuentes en [LOAD_NORMALIZATION.md](LOAD_NORMALIZATION.md).
+
+Las tablas de economía ahora son adaptadores de la fuente canónica. Campañas
+son **43**, no 32, en todos los contratos compartidos. Una prueba incluye juntas
+las cabeceras heredadas (descubrió y permitió unificar tres helpers de IA/turnos),
+comprueba cada campo de los adaptadores y contrasta tablas adicionales y campañas
+directamente contra bytes del EXE original. No instala callbacks de gameplay vacíos.
+
+Verificación: **28/28 sin omisiones** tanto normal (`build-verified`, **43,20 s**)
+como con AddressSanitizer (`build-save-asan`, **144,16 s**, `/fsanitize=address`).
+Cinco pruebas nuevas (`session_rng`, `load_derived`, `load_profile`,
+`table_contracts`, `runtime_load`) y contrato CLI ampliado. No hubo hallazgos
+de memoria en la suite ASAN final.
+
+El corpus tiene **38 normalizaciones parciales exitosas y 8 rechazos esperados**:
+`CYTH3`, `HUMAN5`, `RELU5`, `TARTH2`, `TARTH3`, `TARTH4`, `UVA3`, `UVA4`, todos
+versión 35. Esos ocho siguen pasando inspección y round-trip archival exacto;
+se verifica el rechazo transaccional porque faltan sus migraciones de carga.
+No se cambiaron entradas para forzar aceptación. Las hojas de derivados y RNG
+aisladas se verificaron en las 46 muestras. El tutorial normalizado conserva
+turno 1, informa 36 territorios/6 edificios y seed final 7788 en ambos generadores;
+no se escribió ningún archivo en la instalación original.
+
+Se comprobaron rollback tras fallar el balance laboral, handles estables durante
+normalización, movimiento/reset de sesión con RNG, bloqueo de exportación y de
+turno parcial, alias fuente/destino y aislamiento de `gs/gg`/RNG global. Oráculos
+numéricos provienen de decompilado/assembly; no son resultados obtenidos ejecutando
+el juego original. EST-03/06/08 quedan cubiertos en su contrato; EST-01/02/04/05/07
+siguen parciales. IA, visibilidad/contactos, efectos completos de entidades y el
+orden de consumo RNG de las futuras fases no se declaran terminados.
+
 ## Verificación de entidades y emplazamiento — 2026-09-28
 
 El lote posterior a `3793805` pasó **23/23 pruebas, sin omisiones**, en

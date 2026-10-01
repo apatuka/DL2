@@ -1,7 +1,7 @@
 # Checklist de cierre: Deadlock II individual
 
-Revisión: 2026-09-28. Base previa: `3793805`, ampliada con el lote de entidades
-propietarias y emplazamiento descrito en [ENTITY_RUNTIME.md](ENTITY_RUNTIME.md).
+Revisión: 2026-10-01. Base previa: `acdda61`, ampliada con el lote EST-01..08
+descrito en [LOAD_NORMALIZATION.md](LOAD_NORMALIZATION.md).
 
 ## Qué significa «100% funcionando»
 
@@ -37,25 +37,38 @@ funcional descubre comportamientos originales aún no identificados.
 - [x] Normalización explícita de tareas, trabajadores y topes de almacén, integrada en el estado propietario y el CLI.
 - [x] Identidades estables y edición estructural limitada de edificios/unidades, con transacciones y rechazo de referencias retiradas o ajenas; todavía no son órdenes de gameplay.
 - [x] Consultas de huella y emplazamiento originales, con motivos de rechazo y CLI de sólo lectura; no autorizan por sí solas construir.
+- [x] Carga parcial offline transaccional: perfil/opciones, enlaces, continentes/caminos/santuarios, labor y RNG propietario; estado no jugable explícito.
+- [x] Tablas canónicas compartidas, 43 campañas y pruebas de contratos entre cabeceras heredadas.
 
-Última verificación: **23/23 pruebas**, sin omisiones, normal y con
-AddressSanitizer. El nuevo lote comprobó 46 preparaciones e inserciones/retiradas
-reversibles, y consultas sobre 2.753 territorios y 983 edificios, además de los
-casos sintéticos. Siguen sin acreditar **una partida completa**.
+Última verificación: **28/28 pruebas sin omisiones**, normal y AddressSanitizer.
+La suite incluye 46 documentos: **38** admiten el nuevo perfil de carga parcial;
+**8 escenarios de versión 35** se rechazan transaccionalmente para normalización
+y siguen disponibles para inspección/copia exacta. Derivados y reseed RNG aislados
+se comprueban en los 46. Resultados de compilación/pruebas en
+[RECOVERY.md](RECOVERY.md). No acreditan **una partida completa**.
 
 ## 1. Estado activo e integración de reglas — bloqueante
 
 - [ ] **EST-01** Completar la activación de una partida: reinicios, jugador local, opciones y perfiles de normalización originales.
+  - [x] **EST-01a** Perfil offline 0x26..0x120: jugador/nombre explícitos, dificultad, opciones de campaña, conversión de humanos a IA y reinicios conocidos. Integrado en `normalizeLoad`, sin ejecutar IA.
+  - [ ] **EST-01b** Completar IA/ministros, transitorios/temporizadores, mundo cambiado y conversiones de versiones 35..37. No existe aún una etapa `Active`.
 - [ ] **EST-02** Reconstruir continentes, caminos, santuarios, contactos, visibilidad y datos derivados al cargar.
-- [x] **EST-03** Reconstruir tareas, equilibrar trabajadores y aplicar topes de almacén como normalización explícita (`State::normalizeLabor`). La activación de toda la carga sigue pendiente en EST-01/02.
+  - [x] **EST-02a** Continentes, caminos de tiles, contadores de ciudades/santuarios y avisos semánticos originales, sin globales ni RNG.
+  - [ ] **EST-02b** Visibilidad, contactos, población conocida, caches de edificios y demás postprocesamiento de movimiento/carga.
+- [x] **EST-03** Reconstruir tareas, equilibrar trabajadores y aplicar topes de almacén como normalización explícita (`State::normalizeLabor`), también integrada en la secuencia parcial de `normalizeLoad`. La carga completa sigue en EST-01/02.
 - [ ] **EST-04** Implementar creación/destrucción de edificios y unidades, listas libres/activas, límites y referencias estables durante la simulación.
   - [x] **EST-04a** Handles estables y rechazo de referencias retiradas, ajenas o de una preparación anterior, incluso tras reutilizar slots/IDs.
   - [x] **EST-04b** Backend estructural de inserción/retirada para registros simples explícitos, validación de listas, reserva de capacidad y rechazo de dependencias; sin efectos de gameplay ni exportación SAV.
   - [ ] **EST-04c** Inicialización real, IDs de partida y efectos completos de construcción/bajas: huellas, transporte, empleos, IA, costes, eventos y casos especiales.
+  - [x] **EST-04d** Reconstruir enlaces de edificios y vínculos de trabajos/unidades durante la carga parcial, preservando las identidades existentes y publicando el grafo transaccionalmente.
 - [ ] **EST-05** Integrar un estado RNG de partida: semillas, orden de consumo y restauración/inicialización conforme al original.
-- [ ] **EST-06** Unificar tablas y contratos heredados; resolver duplicados y discrepancias, incluida la tabla de campañas de 32 frente a 43 entradas.
+  - [x] **EST-05a** RNG propietario de sesión con primitivas originales, orden/contadores, snapshots y reseed final offline desde `options.gameId`; no altera RNG global ni la copia archival.
+  - [ ] **EST-05b** Conectar y verificar el orden real de consumo en producción, combate, IA, guardado jugable y otras fases aún pendientes. No inventar reseed offline por turno.
+- [x] **EST-06** Unificar tablas y contratos heredados: fuente canónica `data::*`, adaptadores de economía, 43 campañas y helpers compartidos. Contrastes de tablas con el EXE y cabeceras compiladas juntas; no implica implementar las funciones de gameplay declaradas.
 - [ ] **EST-07** Conectar efectos reales entre módulos, sustituyendo los callbacks ausentes necesarios; no aceptar operaciones vacías como éxito.
-- [ ] **EST-08** Mantener carga transaccional y manejo explícito de datos inválidos; distinguir documento preservado de estado normalizado para jugar.
+  - [x] **EST-07a** Conexión directa del subconjunto de carga implementado y rechazo explícito de `Complete`; se eliminan asignaciones a fallbacks inexistentes en `turn_api.h`.
+  - [ ] **EST-07b** Conectar el resto de efectos reales de gameplay. Los callbacks opcionales del cargador/edificios heredados excluidos siguen sin habilitarse; no son una ruta jugable alternativa.
+- [x] **EST-08** Transacciones en las rutas propietarias implementadas: errores conservan documento, grafo, identidades, RNG e informe. Separación `Prepared`/`LoadNormalized`; la normalización parcial no puede capturarse como SAV reanudable ni avanzar turno. Una futura etapa jugable requiere cerrar EST-01/02/07.
 
 Cierre: cargar una muestra deja una sesión coherente y utilizable por la lógica,
 sin depender de punteros del EXE, de globales ajenos ni de reparaciones silenciosas.

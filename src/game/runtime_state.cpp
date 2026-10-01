@@ -265,6 +265,9 @@ State& State::operator=(State&& other) noexcept {
         stage_ = std::exchange(other.stage_, Stage::Empty);
         rng_ = other.rng_;
         other.rng_ = {};
+        core_ = std::move(other.core_); other.core_.reset();
+        events_ = std::move(other.events_); other.events_.reset();
+        timer_ = std::move(other.timer_); other.timer_.reset();
         other.graph_ = {};
         other.buildingSlots_.clear(); other.armySlots_.clear();
         other.buildingDenseSlots_.clear(); other.armyDenseSlots_.clear();
@@ -293,6 +296,7 @@ bool State::copyForEdit(State& candidate, save::Error& error) const {
     candidate.buildingDenseSlots_ = buildingDenseSlots_; candidate.armyDenseSlots_ = armyDenseSlots_;
     candidate.preparationIdentity_ = preparationIdentity_;
     candidate.rng_ = rng_;
+    candidate.core_ = core_; candidate.events_ = events_; candidate.timer_ = timer_;
     return true;
 }
 
@@ -417,19 +421,30 @@ const char* missingLoadCapabilityName(MissingLoadCapability capability) {
 }
 
 bool State::normalizeLoad(const simulation::LoadProfile& profile, LoadReport& report,
-                          save::Error& error, LoadScope scope) {
+                          save::Error& error, LoadScope scope, const LoadContext& context) {
     return guarded([&] {
         if (scope != LoadScope::Partial)
             return fail(error, save::ErrorCode::InvalidState,
-                "Complete load activation unavailable: AI, visibility, contacts, intelligence, event log and transient session state remain incomplete");
+                "Complete load activation unavailable: executable AI, changed-world presentation and remaining transient session dependencies are not integrated");
         if (!document_ || stage_ != Stage::Prepared)
             return fail(error, save::ErrorCode::InvalidState, "Load normalization requires a fresh prepared snapshot");
         State candidate;
         LoadReport result;
         if (!copyForEdit(candidate, error)) return false;
         auto& d = *candidate.document_;
-        if (!simulation::normalizeLoadCore(d, profile, d, result.core, error) ||
-            !simulation::rebuildLoadDerived(d, d, result.derived, error) ||
+        if (!simulation::normalizeLoadCore(d, profile, d, result.core, error)) return false;
+        // LoadEventLog precedes CountShrines: special portraits compare prior
+        // session city counts, not the counts rebuilt from this document later.
+        if (context.events || d.events.empty()) {
+            simulation::LoadedEventLog log;
+            if (!simulation::rebuildLoadedEvents(d, context.events.value_or(simulation::EventLoadContext{}), log, error)) return false;
+            result.eventsRebuilt = true; result.loadedEvents = uint32_t(log.entries.size());
+            result.eventRandomDraws = uint32_t(log.randomDraws.size());
+            std::erase(result.missing, MissingLoadCapability::NativeEventLog);
+            candidate.events_ = std::move(log);
+        }
+        if (!simulation::rebuildLoadDerived(d, d, result.derived, error) ||
+            !simulation::rebuildLoadIntelligence(d, context.intelligence, d, result.intelligence, error) ||
             !simulation::planLaborBalance(d, result.labor, error)) return false;
         for (size_t i = 0; i < result.labor.buildings.size(); ++i) {
             auto& b = d.buildings[i];
@@ -452,14 +467,39 @@ bool State::normalizeLoad(const simulation::LoadProfile& profile, LoadReport& re
             d.techs[47].availableMask &= uint16_t(~(1u << p));
             d.players[p].currentResearch = 0;
         }
+        if (context.clockMs) {
+            simulation::LoadTimerReport timer;
+            if (!simulation::planLoadTimer(d, context.previousTimer, *context.clockMs, timer, error)) return false;
+            result.timerPlanned = true; candidate.timer_ = timer;
+        }
         if (!candidate.rng_.initializeAfterLegacyLoad(d, error) ||
             !save::validate(d, error) || !candidate.rebuildGraph(error)) return false;
         result.rng = candidate.rng_.snapshot();
+        candidate.core_ = result.core;
         candidate.stage_ = Stage::LoadNormalized;
         // Everything that can allocate or reject precedes this no-throw commit.
         report = std::move(result);
         *this = std::move(candidate);
         error = {}; return true;
+    }, error);
+}
+
+bool State::createCompletedBuilding(const simulation::BuildingCreationRequest& request,
+                                    BuildingHandle& created, simulation::BuildingCreationReport& report,
+                                    save::Error& error) {
+    return guarded([&] {
+        State candidate;
+        if (!copyForEdit(candidate, error)) return false;
+        simulation::BuildingCreationReport result;
+        auto& d = *candidate.document_;
+        if (!simulation::createCompletedBuilding(d, request, d, result, error)) return false;
+        if (d.buildings.size() != buildingDenseSlots_.size() + 1 || d.buildings.back().id != result.buildingId)
+            return fail(error, save::ErrorCode::InvalidState, "Building initialization did not append exactly one entity");
+        if (!allocateSlot(candidate.buildingSlots_, candidate.buildingDenseSlots_, error)) return false;
+        const auto slot = candidate.buildingDenseSlots_.back();
+        const BuildingHandle handle{slot, candidate.buildingSlots_[slot - 1].identity};
+        if (!finishEdit(std::move(candidate), error)) return false;
+        created = handle; report = std::move(result); return true;
     }, error);
 }
 

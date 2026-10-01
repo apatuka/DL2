@@ -11,8 +11,10 @@ Esto no equivale a activar completamente `LoadGame` ni a ejecutar un turno.
 No hay incremento ficticio del contador de turno ni éxito silencioso para las
 fases aún ausentes. El inspector gráfico sigue siendo de sólo lectura.
 
-El lote EST-01..08 añade `normalizeLoad`: núcleo offline, continentes/caminos/
-santuarios, balance laboral y RNG propietario, con capacidades ausentes explícitas.
+Los lotes EST añaden `normalizeLoad`: núcleo offline con migraciones antiguas y
+metadatos de IA, continentes/caminos/santuarios, visibilidad/inteligencia, balance
+laboral y RNG propietario. Eventos y timer admiten contexto previo explícito;
+las capacidades ausentes siguen enumeradas.
 Contrato, versiones y comandos en [LOAD_NORMALIZATION.md](LOAD_NORMALIZATION.md).
 
 ## Propiedad y preparación transaccional
@@ -70,6 +72,9 @@ nativos. No se completan mediante callbacks vacíos.
 recrean listas con direcciones del ejecutable original. El texto de eventos es
 un vector de bytes con longitud explícita; se conservan NUL internos y bytes
 no ASCII. La presentación de texto de la UI no cambia estos datos binarios.
+La proyección nativa opcional `loadedEvents()` exige un dominio más limitado
+(sin NUL interno ni expulsión del pool); no modifica el contrato archival.
+`loadCore()` y `loadTimer()` exponen también metadatos propietarios, no globales.
 
 ## Estados y operaciones permitidas
 
@@ -80,7 +85,7 @@ no ASCII. La presentación de texto de la UI no cambia estos datos binarios.
 | `TaxesApplied` | Sólo créditos modificados por impuestos; no permite repetir la subfase ni exportar una partida reanudable |
 | `EnergyApplied` | Sólo stock y porcentaje energético modificados; no permite repetir, encadenar impuestos ni capturar para guardar |
 | `LaborBalanced` | Tareas/labor/flags, moral y topes de almacén normalizados explícitamente; no es activación completa ni permite encadenar fases o capturar para guardar |
-| `EntitiesEdited` | Inserciones/retiradas estructurales limitadas; admite más ediciones estructurales, pero no captura ni fases económicas ni turno completo |
+| `EntitiesEdited` | Ediciones estructurales y creación limitada de edificios terminados; admite más ediciones de ese dominio, no captura ni fases económicas ni turno completo |
 | `LoadNormalized` | Subconjunto explícito de carga offline y RNG inicializado; capacidades incompletas, sin captura SAV, edición, encadenamiento de fases ni turno |
 
 `prepare` puede construir una preparación nueva desde cualquier estado. La fase
@@ -107,6 +112,11 @@ los casos firmados peculiares del original y los límites seguros se describen e
 completos y IDs explícitos; no son construcción, fabricación, demolición o bajas
 de combate. Su dominio limitado y las dependencias rechazadas se detallan en
 [ENTITY_RUNTIME.md](ENTITY_RUNTIME.md). El inspector sigue sin estas órdenes.
+
+`createCompletedBuilding` comparte ese dominio de etapas, pero sí inicializa un
+edificio terminado ordinario, asigna ID de partida y aplica huella, labor local
+y caminos de sitios. No es iniciar una construcción pagada; no fabrica unidades
+ni resuelve bajas. Los casos especiales no implementados fallan transaccionalmente.
 
 `capture` sólo acepta `Prepared`: copia el documento conservado, valida el
 resultado y reemplaza su destino al finalizar. Tras aplicar cualquier experimento falla
@@ -205,6 +215,11 @@ mutación. Requieren territorio, tipo e índice de casilla. No autorizan por sí
 construir: no comprueban propiedad, tecnología o recursos. Ejemplos y códigos de
 rechazo en `ENTITY_RUNTIME.md`.
 
+`create-building`/`create-building-archive` ejecutan en memoria el inicializador
+terminado y sus efectos locales. No aceptan destino SAV. `normalize-load-seeded`
+aporta un contexto explícito de prueba para retratos de eventos; no recupera
+una secuencia histórica que el archivo no contiene.
+
 ## Verificación y límites pendientes
 
 Las pruebas de `tax_phase` contienen oráculos numéricos de redondeo, tasas,
@@ -215,13 +230,14 @@ datos, transacciones, aplicación fiscal única y bloqueo de exportaciones
 parciales. El resultado de las ejecuciones integradas se registra en
 [RECOVERY.md](RECOVERY.md), sin deducirlo de que exista el código de pruebas.
 
-Existe un perfil parcial offline para 0x26..0x120, opciones/campañas y reseed final
-de RNG. Faltan versiones anteriores, IA, visibilidad/contactos, inteligencia y
-transitorios de carga (ver `LOAD_NORMALIZATION.md`). La preparación archival
+Existe un perfil parcial offline para 35..0x120, opciones/campañas, inteligencia
+y reseed final de RNG. Las conversiones antiguas y los reinicios de datos IA
+ya están portados; faltan ejecución IA, rama visual de mundo cambiado y parte
+de los transitorios/contextos de carga (ver `LOAD_NORMALIZATION.md`). La preparación archival
 conserva los datos; no afirma que cada palabra histórica sea
 semánticamente correcta para una nueva simulación. Tampoco incorpora todavía
-creación/destrucción con efectos de gameplay ni el resto de fases. Ya dispone
-del backend estructural limitado e identidades estables descritos arriba; no son
+creación/destrucción completas ni el resto de fases. Ya dispone de creación
+terminada limitada, backend estructural e identidades estables; no son
 una reproducción del layout ni del orden físico de los pools Borland.
 
 La secuencia económica observada en `FUN_0046c7d4` es impuestos, producción 1,

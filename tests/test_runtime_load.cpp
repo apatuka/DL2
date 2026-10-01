@@ -4,6 +4,7 @@
 #include "game/globals.h"
 #include "game/rtl_compat.h"
 #include "formats/hdx_archive.h"
+#include <algorithm>
 #include <cstring>
 #include <filesystem>
 #include <iostream>
@@ -78,9 +79,16 @@ void transactionalIntegration() {
     ok(state.normalizeLoad(profile, report, e), e);
     require(e.code == save::ErrorCode::None && state.stage() == rt::Stage::LoadNormalized && !report.complete,
         "partial load has a distinct, successful but nonplayable stage");
-    require(report.missing.size() == 7 && report.derived.continentsRebuilt && report.derived.roadsRebuilt &&
+    require(report.missing.size() == 3 && report.derived.continentsRebuilt && report.derived.roadsRebuilt &&
         report.derived.shrineCountsRebuilt && !report.derived.visibilityRebuilt && !report.derived.contactsRebuilt,
         "implemented and missing capabilities are explicit");
+    require(report.intelligence.visibilityRebuilt && report.intelligence.detectionRebuilt &&
+        report.intelligence.buildingIntelligenceRebuilt && report.intelligence.populationKnownRebuilt &&
+        report.intelligence.contactDiscoverySkippedOnLoad, "load rebuilds intelligence but skips new discoveries as original");
+    require(state.loadCore() && state.loadCore()->session.initialized && !state.loadCore()->session.aiExecutable &&
+        state.loadCore()->session.ai[1].initialized && state.loadCore()->session.ai[1].initializations == 2,
+        "effective AI reset metadata is owned by the state, not only the report");
+    require(state.loadedEvents() && state.loadedEvents()->entries.empty(), "empty event log needs no guessed RNG context");
     require(state.armyById(60000) == army && state.territoryByIndex(1) == territory && state.army(army)->job == 5,
         "load rebuild preserves handle identity and binds jobs");
     require(state.graph().jobs[0][4].armies[0] == army, "typed graph rebuilt alongside normalized document");
@@ -104,14 +112,16 @@ void transactionalIntegration() {
     require(bytes(*state.document()) == normalized && state.sessionRng() == prior.rng,
         "all rejected operations retain loaded document and RNG");
     rt::State moved = std::move(state);
-    require(!state.document() && !state.sessionRng().initialized && moved.army(army) && moved.sessionRng() == prior.rng,
+    require(!state.document() && !state.sessionRng().initialized && !state.loadCore() && !state.loadedEvents() &&
+        moved.loadCore() && moved.loadedEvents() && moved.army(army) && moved.sessionRng() == prior.rng,
         "owned RNG moves with graph and invalidates moved-from state");
     source->header.version = 0;
     require(!moved.prepare(*source, e) && bytes(*moved.document()) == normalized && moved.sessionRng() == prior.rng,
         "failed replacement preserves previous normalized session");
     source->header.version = kSaveVersion;
     ok(moved.prepare(*source, e), e);
-    require(!moved.sessionRng().initialized && !moved.army(army), "fresh preparation resets RNG and old identities");
+    require(!moved.sessionRng().initialized && !moved.army(army) && !moved.loadCore() && !moved.loadedEvents() &&
+        !moved.loadTimer(), "fresh preparation resets RNG, session projections and old identities");
     require(bytes(*source) == original && !std::memcmp(gsBefore.data(), &gs, sizeof(gs)) &&
         !std::memcmp(ggBefore.data(), &gg, sizeof(gg)) && rtl::seed() == low && rtl::seedHi() == high,
         "load source and global state/RNG are untouched");
@@ -138,24 +148,19 @@ void rollbackLateFailure() {
 void corpus(const std::filesystem::path& directory) {
     namespace fs = std::filesystem;
     if (directory.empty()) return;
-    size_t documents = 0, archivalOnly = 0;
+    size_t documents = 0, migrated = 0;
     const auto inspect = [&](const save::Document& d, const std::string& label) {
         try {
             const auto original = bytes(d);
             rt::State first, second; save::Error e; rt::LoadReport a, b;
             ok(first.prepare(d, e), e); ok(second.prepare(d, e), e);
             const auto oldTerritory = first.territoryByIndex(1);
-            if (d.header.version < 0x26) {
-                a.core.localPlayer = 6; const auto previous = a;
-                const auto* document = first.document();
-                require(!first.normalizeLoad({}, a, e) && e.code == save::ErrorCode::UnsupportedVersion &&
-                    a == previous && first.document() == document && bytes(*first.document()) == original &&
-                    first.territory(oldTerritory) && !first.sessionRng().initialized &&
-                    first.stage() == rt::Stage::Prepared, "older corpus version remains archival without partial mutation");
-                std::cout << "archival-only corpus: " << label << " version " << d.header.version << '\n';
-                ++archivalOnly; return;
-            }
             ok(first.normalizeLoad({}, a, e), e); ok(second.normalizeLoad({}, b, e), e);
+            if (d.header.version < 0x26) {
+                require(a.core.discardedLegacyJobs && a.core.version == d.header.version &&
+                    a.core.normalizedVersion == first.document()->header.version, "legacy migration is explicit");
+                ++migrated;
+            }
             require(a == b && bytes(*first.document()) == bytes(*second.document()), "deterministic load pipeline");
             require(bytes(d) == original && first.territory(oldTerritory) &&
                 d.options.turn == first.document()->options.turn, "source/turn preserved and static handles stable");
@@ -175,13 +180,50 @@ void corpus(const std::filesystem::path& directory) {
             ok(save::readScenario(directory / "LEVELS", entry.name, *d, e), e); inspect(*d, entry.name);
         }
     }
-    std::cout << "runtime_load corpus: " << documents << " normalized, " << archivalOnly
-              << " explicitly archival-only\n";
+    std::cout << "runtime_load corpus: " << documents << " normalized, " << migrated << " explicit legacy migrations\n";
+}
+
+void nativeContextIntegration() {
+    auto d = fixture(); d->options.campaign = 0;
+    d->options.autoTimer = 1; d->options.autoTimerClock = 300;
+    for (uint16_t type : {uint16_t(1), uint16_t(2)}) {
+        save::Event event; event.record = {type, 1, 0, 99}; event.text = {'x'};
+        d->events.push_back(event);
+    }
+    d->options.eventCount = 2;
+    const auto original = bytes(*d);
+    rt::State state; save::Error e; rt::LoadReport report;
+    rt::LoadContext context; context.events.emplace(); context.clockMs = 1234;
+    ok(state.prepare(*d, e), e);
+    const auto* before = state.document(); const auto sentinel = report;
+    require(!state.normalizeLoad({}, report, e, rt::LoadScope::Partial, context) &&
+        report == sentinel && state.document() == before && bytes(*state.document()) == original,
+        "random event portraits require explicit initialized RNG; failure rolls back whole load");
+    simulation::SessionRng rng; ok(rng.initialize(123, e), e);
+    context.events->rngBeforeEvents = rng.snapshot();
+    ok(state.normalizeLoad({}, report, e, rt::LoadScope::Partial, context), e);
+    require(report.eventsRebuilt && report.loadedEvents == 2 && report.eventRandomDraws == 2 &&
+        state.loadedEvents() && state.loadedEvents()->randomDraws.size() == 2 &&
+        state.loadedEvents()->randomDraws[0].ordinal == 1 && state.loadedEvents()->randomDraws[1].ordinal == 2,
+        "native event portraits consume real secondary RNG in file order");
+    require(report.rng.counters.operations == 0 && report.rng.secondary == uint32_t(d->options.gameId) &&
+        state.loadedEvents()->rngAfterEvents.counters.secondary15 == 2,
+        "event consumer trace precedes final gameplay reseed rather than sharing its reset counters");
+    require(report.timerPlanned && state.loadTimer() && state.loadTimer()->state.running &&
+        state.loadTimer()->state.startedMs == 1234 && state.loadTimer()->state.seconds == 300,
+        "load timer uses explicit clock and owns the resulting state");
+    require(std::find(report.missing.begin(), report.missing.end(), rt::MissingLoadCapability::NativeEventLog) == report.missing.end(),
+        "implemented native log is no longer reported absent");
+    require(bytes(*d) == original, "event/timer integration leaves source untouched");
+    rt::State moved = std::move(state);
+    require(moved.loadedEvents() && moved.loadTimer() && !state.loadedEvents() && !state.loadTimer(), "session projections move with document");
+    ok(moved.prepare(*d, e), e);
+    require(!moved.loadedEvents() && !moved.loadTimer() && !moved.loadCore(), "prepare drops prior session projections");
 }
 }
 int main(int argc, char** argv) {
     try {
-        transactionalIntegration(); rollbackLateFailure();
+        transactionalIntegration(); rollbackLateFailure(); nativeContextIntegration();
         corpus(argc > 1 ? std::filesystem::path(argv[1]) : std::filesystem::path{});
         std::cout << "runtime_load: explicit partial pipeline, capability gates, identity/RNG ownership and rollback passed\n";
         return 0;

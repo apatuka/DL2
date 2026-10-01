@@ -5,6 +5,7 @@
 #include <array>
 #include <cstdint>
 #include <memory>
+#include <optional>
 #include <vector>
 #include "game/save_document.h"
 #include "game/tax_phase.h"
@@ -13,6 +14,9 @@
 #include "game/load_profile.h"
 #include "game/load_derived.h"
 #include "game/session_rng.h"
+#include "game/load_session.h"
+#include "game/load_intelligence.h"
+#include "game/entity_creation.h"
 
 namespace dl2::runtime {
 template<class Tag> struct Handle {
@@ -99,17 +103,27 @@ enum class MissingLoadCapability {
 struct LoadReport {
     simulation::LoadCoreReport core;
     simulation::LoadDerivedReport derived;
+    simulation::LoadIntelligenceReport intelligence;
     simulation::LaborBalancePlan labor;
     simulation::RngSnapshot rng;
     bool complete = false;
-    std::array<MissingLoadCapability, 7> missing{
-        MissingLoadCapability::AiInitialization, MissingLoadCapability::Visibility,
-        MissingLoadCapability::Contacts, MissingLoadCapability::BuildingIntelligence,
+    bool eventsRebuilt = false, timerPlanned = false;
+    uint32_t loadedEvents = 0, eventRandomDraws = 0;
+    std::vector<MissingLoadCapability> missing{
+        MissingLoadCapability::AiInitialization,
         MissingLoadCapability::NativeEventLog, MissingLoadCapability::TransientSessionState,
         MissingLoadCapability::ChangedWorldScan};
     bool operator==(const LoadReport&) const = default;
 };
 const char* missingLoadCapabilityName(MissingLoadCapability capability);
+struct LoadContext {
+    simulation::LoadIntelligenceContext intelligence;
+    // Omit only for a partial load. A nonempty native event log requires its
+    // actual pre-event RNG/city context, not an invented seed from the SAV.
+    std::optional<simulation::EventLoadContext> events;
+    std::optional<uint32_t> clockMs;
+    simulation::LoadTimerState previousTimer;
+};
 
 enum class Stage { Empty, Prepared, TaxesApplied, EnergyApplied, LaborBalanced, EntitiesEdited, LoadNormalized };
 class State {
@@ -135,14 +149,23 @@ public:
     // cap material stocks. NOT full LoadGame activation or a production phase.
     // Once from Prepared; cannot chain experiments or publish a partial save.
     bool normalizeLabor(simulation::LaborBalancePlan& report, save::Error& error);
-    // Offline generation-4 load subset, in explicit order: core profile,
-    // continents/shrines/tile roads, labor, campaign research restriction,
+    // Offline generation-4 load subset, in explicit order: core profile/events,
+    // continents/shrines/tile roads, intelligence, labor, research restriction,
     // final owned RNG reseed. NOT playable activation. Complete scope rejects.
     // Once from Prepared; all-or-nothing, including graph, handles and RNG.
     // No normalized SAV export, no partial-to-full-turn chaining.
     bool normalizeLoad(const simulation::LoadProfile& profile, LoadReport& report,
-                       save::Error& error, LoadScope scope = LoadScope::Partial);
+                       save::Error& error, LoadScope scope = LoadScope::Partial,
+                       const LoadContext& context = {});
     simulation::RngSnapshot sessionRng() const { return rng_.snapshot(); }
+    const simulation::LoadCoreReport* loadCore() const { return core_ ? &*core_ : nullptr; }
+    const simulation::LoadedEventLog* loadedEvents() const { return events_ ? &*events_ : nullptr; }
+    const simulation::LoadTimerReport* loadTimer() const { return timer_ ? &*timer_ : nullptr; }
+    // Completed-building initializer with real local labor/footprint/roads.
+    // Not a paid construction order; shares the explicit nonplayable edit stage.
+    bool createCompletedBuilding(const simulation::BuildingCreationRequest& request,
+                                 BuildingHandle& created, simulation::BuildingCreationReport& report,
+                                 save::Error& error);
     // Structural storage operations, NOT construction, manufacturing, demolition
     // or combat orders. Callers supply complete payloads and explicit file IDs;
     // only list references and the building's anchor-site reference are derived.
@@ -191,6 +214,9 @@ private:
     std::unique_ptr<save::Document> document_;
     Graph graph_;
     simulation::SessionRng rng_;
+    std::optional<simulation::LoadCoreReport> core_;
+    std::optional<simulation::LoadedEventLog> events_;
+    std::optional<simulation::LoadTimerReport> timer_;
     Stage stage_ = Stage::Empty;
 };
 // All returned pointers and Graph references are borrowed until the next

@@ -50,6 +50,60 @@ bool campaign(save::Document& d, LoadCoreReport& result, save::Error& error) {
     }
     return true;
 }
+// orig: LoadJobs 00461078 reads all 350 jobs, then clears all 0x10bf8 bytes
+// for versions <0x26. Its following aiWarMask/scratch blocks are still loaded.
+// LoadSpiesAndBlackMarket 00461418 supplies defaults only before version 0x24.
+void migrateLegacyBlocks(save::Document& d, LoadCoreReport& result) {
+    if (result.version < 0x26) {
+        std::memset(d.jobs.data(), 0, sizeof(d.jobs));
+        result.discardedLegacyJobs = true;
+    }
+    if (result.version < 0x24) {
+        // orig: ResetSpies 0047d460 and BlackMarketReset 00450c9c.
+        for (auto& playerSpies : d.spies) for (auto& spy : playerSpies)
+            spy = Spy{-1, 0, 0, 0};
+        for (auto& market : d.blackMarket) market = BlackMarketState{0, -1};
+        result.initializedMissingSpiesMarket = true;
+        // Deliberate representation migration, NOT an original header write:
+        // v35 has no spy/market block and archival validation rejects nonzero
+        // values there. Keep the source/report version intact and use the first
+        // capable layout for this partial, non-capturable runtime candidate.
+        d.header.version = 0x24;
+    }
+    result.normalizedVersion = d.header.version;
+}
+// orig: ResetVariables 0046da14 -> ResetAI 004018d8, LoadJobs 00461078 and
+// LoadGame 004618e8 -> PlayerInitAI 00401830 -> 00408784 -> 0040233c.
+// ResetAI happens BEFORE loading players, minister jobs, aiWarMask and scratch
+// jobs. Do not erase those loaded records. The six 0040231c reset callees are
+// actual RET functions in this executable, not missing simulation callbacks.
+bool initializeSessionMetadata(const save::Document& d, LoadCoreReport& result, save::Error& error) {
+    auto& session = result.session;
+    session.localPlayer = session.hostPlayer = result.localPlayer;
+    for (size_t p = 0; p < kMaxPlayers; ++p) {
+        auto& ai = session.ai[p];
+        if (d.players[p].type != uint8_t(LoadAiPersonality::Machiavelli)) continue;
+        ai.initialized = true;
+        ai.personality = LoadAiPersonality::Machiavelli;
+        const auto savedType = result.playerTypesBefore[p];
+        ai.initializations = savedType == 1 || savedType == 2 ? 2 : 1;
+        ai.strategyCountdown = 40;
+        for (size_t m = 0; m < ai.ministers.size(); ++m) {
+            const auto& config = data::kAiMinisterConfigDefault[m];
+            if (config.kind < 0 || config.kind >= 6 || config.param < 0 || config.param > UINT8_MAX)
+                return fail(error, save::ErrorCode::InvalidState, "Load profile: invalid canonical minister configuration");
+            auto& minister = ai.ministers[m];
+            minister.role = Minister(m);
+            minister.kind = uint8_t(config.kind);
+            minister.parameter = uint8_t(config.param);
+            // Scratch/state remain zero from the owned metadata constructor.
+            // Personality and minister selectors identify canonical bindings;
+            // never copy EXE addresses or install success-shaped no-op callbacks.
+        }
+    }
+    session.initialized = true;
+    return true;
+}
 }
 
 bool normalizeLoadCore(const save::Document& source, const LoadProfile& profile,
@@ -58,9 +112,6 @@ bool normalizeLoadCore(const save::Document& source, const LoadProfile& profile,
         if (!save::validate(source, error)) return false;
         if (source.header.isMap)
             return fail(error, save::ErrorCode::InvalidState, "Load profile requires a saved game, not a reduced map");
-        if (source.header.version < 0x26)
-            return fail(error, save::ErrorCode::UnsupportedVersion,
-                        "Load profile supports generation 4 versions 0x26..0x120; older files remain archival only");
         if (profile.localPlayer < -1 || profile.localPlayer >= kMaxPlayers ||
             profile.localPlayerName.size() > 32 || profile.localPlayerName.find('\0') != std::string::npos)
             return fail(error, save::ErrorCode::InvalidState, "Load profile has an invalid local player slot or name");
@@ -96,12 +147,14 @@ bool normalizeLoadCore(const save::Document& source, const LoadProfile& profile,
             else if (player.type == 1 || player.type == 2) player.type = 3;
             result.playerTypesAfter[p] = player.type;
         }
+        if (!initializeSessionMetadata(d, result, error)) return false;
         // Event text is opaque binary here; native EventLog rebuild/indices are
         // not simulated. Original discards ALL stored events for older versions.
-        if (d.header.version != kSaveVersion) {
+        if (result.version != kSaveVersion) {
             result.discardedEvents = uint32_t(d.events.size());
             d.events.clear(); d.options.eventCount = 0;
         }
+        migrateLegacyBlocks(d, result);
         for (auto& record : d.territories) {
             auto* first = reinterpret_cast<uint8_t*>(&record.data) + kTerritorySavedBytes;
             std::fill(first, reinterpret_cast<uint8_t*>(&record.data) + sizeof(Territory), uint8_t(0));

@@ -214,6 +214,15 @@ normalización laboral encadenada, restricciones de investigación y RNG de sesi
 enumera dependencias pendientes. No habilita `saveload.cpp` global ni activación
 jugable. Alcance y evidencia en [LOAD_NORMALIZATION.md](LOAD_NORMALIZATION.md).
 
+La continuación EST-01b/02b/04c/05b/07b porta migraciones 35..37, metadatos de
+reinicio IA/ministros, detección/visibilidad/inteligencia de carga, replay de
+eventos con retratos y RNG en orden y planificación de timer con contexto
+explícito. La rama load=1 no ejecuta descubrimientos de contactos. También
+integra creación terminada ordinaria con huella, labor y caminos locales;
+no habilita órdenes pagadas, bajas, IA ejecutable ni generación de mundo cambiado.
+Estas rutas propietarias sustituyen hojas verificadas; las tablas de bloqueos
+anteriores siguen describiendo el cargador global excluido, no su reemplazo parcial.
+
 ## Correcciones necesarias antes de probar partidas en C++
 
 La revisión de código detectó estos riesgos todavía sin corregir en el módulo

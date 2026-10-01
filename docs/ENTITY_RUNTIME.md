@@ -1,9 +1,11 @@
 # Entidades propietarias y consultas de emplazamiento
 
 Este bloque prepara la gestión dinámica que necesitarán construcción y
-fabricación. **No habilita todavía esas órdenes de juego.** Separa dos contratos:
-almacenamiento estructural en `runtime::State` y consulta pura de casillas en
-`simulation::checkBuildingPlacement`.
+fabricación. **No habilita todavía esas órdenes de juego.** Separa el almacenamiento
+estructural en `runtime::State`, la consulta pura de casillas en
+`simulation::checkBuildingPlacement` y la creación local de edificios terminados
+en `simulation::createCompletedBuilding`. Esta última ya inicializa registros,
+trabajadores, huellas y caminos, pero no es una orden pagada de construcción.
 
 ## Identidad y vida de las referencias
 
@@ -123,7 +125,149 @@ Ejemplos de consulta sin escritura:
 El JSON distingue `placement_allowed` de `complete_build_permission:false`, y
 señala `read_only:true` y `applies_construction:false`. No admite destino SAV.
 
-## Verificación ejecutada
+## Creación local de edificios terminados (EST-04c, corte parcial)
+
+`src/game/entity_creation.h/.cpp` porta el corte de `CreateBuilding` (`0044dcf4`),
+distinto de `StartConstruction` (`0044db50`). La API propietaria es:
+
+```cpp
+bool simulation::createCompletedBuilding(
+    const save::Document& source, const BuildingCreationRequest& request,
+    save::Document& destination, BuildingCreationReport& report, save::Error& error);
+```
+
+`BuildingCreationRequest` contiene `territory`, `buildingType` y `site` explícito.
+El resultado identifica ID, territorio, tipo, casilla, contador anterior/posterior,
+huella y ejecución del balance local y los caminos. Todo se calcula sobre copia:
+un fallo conserva fuente, destino e informe, incluso cuando fuente y destino son
+el mismo documento; un éxito limpia el error. No hay acceso a `gs`, `gg`, RNG,
+callbacks ni archivos. El documento candidato no equivale a una partida activada.
+
+### Dominio admitido y restricciones deliberadas
+
+- Partida guardada válida, no mapa reducido; territorio terrestre con propietario
+  entre 0 y 6; tipo ordinario de tamaño uno o dos; ancla explícita entre 0 y 35.
+- Huella completa libre y consulta `CheckConstructionSite` aceptada. Es una
+  restricción de seguridad explícita: el `CreateBuilding` original con casilla
+  explícita no vuelve a ejecutar esa comprobación. No se amplía su aceptación
+  sobre plataformas libres ni se reparan casillas ocupadas.
+- Sin plataforma, SeaHab ni santuarios; sin modo editor ni selección automática
+  de casilla. No se consume azar para resolver `site=-1`.
+- Lista global de edificios coherente y capacidad para mantener un nodo libre:
+  como máximo 1199 activos después de insertar. El nuevo registro va al final
+  de la lista, independientemente del orden del vector guardado.
+- Sin edificios con `minister != 0` en el territorio que se va a balancear,
+  ni trabajo de ministro tipo 3 dirigido a cualquier celda de la nueva huella.
+  Las dependencias IA no se omiten silenciosamente.
+- Razas, referencias e índices de tablas efectivamente utilizados deben ser
+  válidos. Se rechaza el acceso original de vivienda sin tarea de destino
+  (`slot=-1`) y se aplican límites explícitos de trabajo a recorridos patológicos.
+
+Estas comprobaciones no constituyen permiso completo para construir: no se
+comprueban fondos, importaciones ni disponibilidad tecnológica de una orden.
+La tecnología sí interviene donde el original la usa para tareas y mejoras.
+
+### IDs e inicialización
+
+`NextGlobalId` (`00474cfc`) incrementa una vez el contador de 32 bits, conservando
+su wrap, y toma sus 16 bits bajos como ID. El corte nuevo reproduce ese cálculo,
+pero rechaza cero o colisión con cualquier edificio **o unidad** existente.
+No busca otro ID ni salta valores ocupados. Ante cualquier rechazo se revierte
+también el contador: esta atomicidad es deliberada, no una afirmación de que los
+wrappers originales deshacían todos los intentos fallidos.
+
+`InitBuilding` (`0044d890`) aporta tipo/categoría de tabla, flags activo/construido
+(`6`), obra restante cero, raza para los tipos raciales y valores iniciales nulos.
+El centro urbano cuenta los centros del mismo propietario, incluido el nuevo,
+y conserva el estrechamiento con signo a byte de `cantidad-1` para `hubLevel`.
+Se reconstruyen únicamente las tareas del edificio recién creado.
+
+### Trabajadores, ocupación y caminos
+
+El helper `prepareCreatedBuildingLabor` reutiliza las reglas portadas de labor:
+refresca sólo el edificio nuevo, ejecuta `BalanceLabor` sólo en su territorio y
+aplica `RedistributeLabor(T,-1,nuevo)`/`MoveHousingLabor`. El primer slot distinto
+de cero y de mejora recibe los trabajadores disponibles de tarea 20, con los
+límites y la aritmética firmada originales. No reparte uniformemente entre
+tareas, no refresca otros edificios y no ejecuta los topes de existencias de
+`EndTurnBalance`. La labor local sí puede cambiar; con población cero también
+se aplica la moral 100 original. Los demás territorios no se balancean.
+
+`PlaceBuildingOnSite` (`0044d7b4`) escribe el ID únicamente en el ancla. Tamaño
+uno marca `0x3000`; tamaño dos marca ancla `0x1000`, derecha `0x2000`, arriba
+`0x3000` y arriba-derecha `0x4000`, conservando los bits anteriores mediante OR.
+Los ajustes iniciales de caminos se hacen en el byte `Site+0x10`, nunca en los
+punteros de edificios vecinos.
+
+`RecomputeSiteRoads` (`0047dfdc`, hojas `0047dd58`/`0047de94`/`0047ded8`) limpia
+los 36 bytes de camino y busca desde el primer edificio de categoría guardada
+17 hacia los demás anclajes. Conserva búsqueda en profundidad, orden de cuatro
+direcciones, costes, poda y máscaras recíprocas. La búsqueda usa índices de
+casilla; el trazado usa sus coordenadas persistidas con signo. También conserva
+las escrituras de coste temporal en `Site+0x12` y su ausencia cuando no hay
+búsquedas. No modifica caminos del mapa mundial ni tiles. Un terreno que
+indexaría fuera de la tabla causa rollback, no una ruta inventada.
+
+### Integración propietaria y CLI
+
+`State::createCompletedBuilding(request, createdHandle, report, error)` conserva
+las identidades de todas las entidades supervivientes, asigna identidad al
+nuevo edificio y reconstruye sus enlaces tipados. Se admite desde `Prepared`
+o `EntitiesEdited`; el éxito deja `EntitiesEdited`. Los fallos conservan estado,
+grafo, fase, informe y handle de salida. La captura SAV, las fases económicas
+aisladas y `advanceTurn` continúan bloqueados después de esta operación.
+
+El CLI ejecuta el experimento sólo en memoria y devuelve JSON, sin destino SAV:
+
+```powershell
+.\build-verified\src\dl2sim.exe create-building "C:\GOG Games\Deadlock 2\TUTORIAL.SAV" 14 1 35
+```
+
+La variante de archivo es `create-building-archive <base-HDX/HDD> <entrada>
+<territorio> <tipo-edificio> <casilla>`. El JSON distingue
+`stage:"entities_edited_in_memory"`, `finished_building:true`,
+`paid_construction_order:false` y `complete_turn:false`; muestra el ID, contador,
+huella y efectos locales. No hay conexión a botones de construcción del inspector.
+
+## Plantillas de unidades, sin inserción
+
+`simulation::initializeArmyTemplate(document, ArmyTemplateRequest, Army&, error)`
+es un inicializador de registro separado de `CreateUnit`, no una unidad fabricada.
+Recibe territorio, propietario, tipo e ID explícito no usado globalmente. No
+incrementa el contador, no comprueba capacidad ni ejecuta `CanCreateUnit`, no
+enlaza listas, no adjunta carga y no inserta el resultado en el documento.
+
+Porta los valores de `00445d30`/`00447190`/`004a6b48`: tipo/clase de tabla,
+movimiento base y bonus de Transporters, táctica 26 para las clases de soporte
+admitidas, umbral de retirada 100 —el campo heredado `health`, no salud— y cero
+en experiencia/daño/carga/jobs/enlaces. Los tres territorios iniciales apuntan
+al territorio indicado. El nombre combina raza completa, nombre corto de unidad
+e `id & 0x3ff`: copia exactamente hasta 24 bytes, rellena con cero si sobra
+espacio y no inventa terminador cuando el nombre ocupa toda la capacidad.
+
+Se rechazan propietarios/razas/tipos inválidos, IDs ocupados, transporte,
+parejas de asedio, tierra en mar que exigiría carga y barcos en tierra. Tampoco
+se permite usar como salida un registro Army perteneciente al documento de
+entrada. Un fallo conserva la salida anterior. Esta plantilla no supone pago,
+eventos, combate, descubrimiento, integración IA ni una orden de fabricación;
+no tiene comando CLI propio.
+
+## Cobertura escrita para EST-04c
+
+`tests/test_entity_creation.cpp` añade oráculos de registros completos, huellas,
+labor local, tecnologías, caminos y coordenadas persistidas, IDs extremos,
+colisiones cruzadas, reserva de capacidad y rechazo de ramas pendientes. También
+comprueba rollback, alias de documentos, aislamiento de globales/RNG y la
+integración con handles/grafo/captura de `State`. El corpus opcional intenta
+creaciones soportadas sobre copias de las muestras originales; una negativa
+explícita también debe conservar el candidato. Los tests CLI cubren el informe
+de creación, entradas rechazadas y ausencia de salida SAV.
+
+Esta sección describe las pruebas añadidas, no afirma su ejecución ni paridad
+observada ejecutando el juego original. Los resultados de cada compilación se
+registran en [RECOVERY.md](RECOVERY.md).
+
+## Verificación del corte estructural anterior
 
 La suite integrada pasó **23/23**, sin omisiones, en compilación normal y con
 AddressSanitizer. `runtime_entities` comprobó 46 preparaciones exactas y un ciclo
@@ -134,7 +278,8 @@ listas, dependencias, límites, referencias caducadas/ajenas, reutilización y
 conservación de estado/informes ante fallos. El CLI comprueba entradas inválidas,
 ausencia de destinos SAV e integridad del archivo original.
 
-Son pruebas de este corte y oráculos derivados del decompilado/EXE, no una
+Esos resultados corresponden al corte estructural anterior, no a la creación
+EST-04c añadida después. Son oráculos derivados del decompilado/EXE, no una
 comparación de partidas completas ejecutadas en el juego original. Tiempos y
 registros de ejecución: [RECOVERY.md](RECOVERY.md).
 
@@ -149,10 +294,13 @@ No activar sin revisión el `buildings.cpp` recuperado. La auditoría detectó
 enlaces `prev/next` invertidos en su reconstrucción de listas y offsets erróneos
 en la colocación de tamaño dos: `0044d7b4` modifica bytes de carretera
 `Site[s+1]+0x10` y `Site[s-5]+0x10`, no punteros de edificios vecinos.
-Ese módulo sigue fuera de compilación; las consultas nuevas no lo invocan.
+Ese módulo sigue fuera de compilación; las consultas y creación propietarias
+nuevas no lo invocan.
 
-El siguiente paso es integrar inicialización real de registros, huellas y caminos,
-asignación local de trabajadores, pago/importaciones y eventos de construcción;
-después finalización y fabricación con capacidad/transporte y trabajos IA.
-EST-04, CON-02 y las órdenes de construcción/fabricación siguen parcialmente
+El corte nuevo añade `InitBuilding`/`CreateBuilding` local, `NextGlobalId`,
+`RedistributeLabor` y caminos de sitios, pero quedan pago/importaciones y eventos
+de `StartConstruction`, progreso/finalización de obra y fabricación con límites,
+transporte y trabajos IA. También siguen pendientes las ramas especiales de
+creación y las bajas completas, demolición, devolución de recursos y cascadas.
+EST-04/EST-04c, CON-02 y las órdenes de construcción/fabricación siguen parcialmente
 pendientes en [SINGLE_PLAYER_CHECKLIST.md](SINGLE_PLAYER_CHECKLIST.md).

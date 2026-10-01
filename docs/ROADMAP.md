@@ -136,9 +136,10 @@ encadenamiento con fases fiscales/energéticas aisladas.
 
 El bloque de entidades añade handles estables, inserción/retirada estructural
 restringida y consultas puras de emplazamiento/huella. Véase
-[ENTITY_RUNTIME.md](ENTITY_RUNTIME.md). Falta completar efectos de creación/baja,
-huellas/caminos, pagos y fabricación antes de conectar las órdenes al jugador;
-`EntitiesEdited` sólo permite experimentos estructurales sin exportación SAV.
+[ENTITY_RUNTIME.md](ENTITY_RUNTIME.md). La creación terminada ordinaria ya aplica
+ID, huella, labor local y caminos de sitios. Faltan casos especiales, pagos,
+fabricación y bajas antes de conectar las órdenes al jugador; `EntitiesEdited`
+permite esos experimentos limitados sin exportación SAV.
 
 La integración económica debe respetar los reinicios explícitos y el orden:
 producción 1 antes de reservas/importaciones/comida/energía. No puede sustituir
@@ -148,8 +149,10 @@ El lote EST-01..08 integra `normalizeLoad` parcial: opciones/perfil offline,
 enlaces de objetos/trabajos, continentes/caminos/santuarios, labor y RNG propietario
 inicializado al final desde gameId. Las tablas heredadas ya comparten la fuente
 canónica de 43 campañas. Véase [LOAD_NORMALIZATION.md](LOAD_NORMALIZATION.md).
-La siguiente dependencia de carga sigue siendo visibilidad/contactos/inteligencia,
-IA y transitorios; `LoadNormalized` no se puede exportar ni jugar.
+La continuación incorpora migraciones 35..37, datos de reinicio IA, visibilidad/
+inteligencia de carga y replay de eventos/timer con contexto explícito. Contactos
+nuevos se omiten en carga, igual que el original. Faltan IA ejecutable, mundo
+cambiado visual y transitorios restantes; `LoadNormalized` no se exporta ni juega.
 
 Completar primero economía, población, recursos, trabajo y colas de producción;
 después unidades, movimiento y las fases de turno que los coordinan. Establecer

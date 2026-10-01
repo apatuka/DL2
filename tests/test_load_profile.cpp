@@ -59,6 +59,10 @@ LoadCoreReport sentinel() {
     report.campaignGoalMask=0xabcdefu; report.campaignProgress={17,18,19};
     report.playerTypesBefore.fill(9); report.playerTypesAfter.fill(8);
     report.discardedEvents=77; report.armyJobBindings=22; report.forbiddenResearchPlayers=0x66;
+    report.normalizedVersion=124; report.discardedLegacyJobs=true; report.initializedMissingSpiesMarket=true;
+    report.session.initialized=true; report.session.aiExecutable=true; report.session.hostPlayer=6;
+    report.session.ai[3].initialized=true; report.session.ai[3].strategyCountdown=-123;
+    report.session.ai[3].ministers[4].scratch.fill(0xac);
     return report;
 }
 std::unique_ptr<Document> fixture() {
@@ -81,6 +85,8 @@ std::unique_ptr<Document> fixture() {
         auto& player=d->players[p]; player.index=uint8_t(p); player.race=int8_t(p);
         player.type=p<3?uint8_t(p+1):0; player.credits=int32_t(100+p); player.currentResearch=23;
         player.defeated=int32_t(9+p); player.aiVtbl[1]=0xaabbccdd; player.localList.raw=0xdead1200u+uint32_t(p);
+        player.aiParam1=0xabab0000u+uint32_t(p); player.aiParam2=0xcdcd0000u+uint32_t(p);
+        std::memset(player.ministers,int(0x5a+p),sizeof(player.ministers));
         std::memset(player.name,int('A'+p),sizeof(player.name)); player.name[8]='\0';
         d->options.hasWon[p]=uint16_t(p+1); d->options.shrineTurns[p]=int32_t(100+p);
         d->ministerJobs[p].resize(1); d->ministerJobs[p][0].type=1;
@@ -169,9 +175,19 @@ void goldenCoreAndAliasing() {
     require(snapshot(*destination)==snapshot(*expected),"load normalization changed bytes outside its documented core writes");
     require(snapshot(*source)==original,"load normalization mutated source");
     LoadCoreReport wanted;
-    wanted.version=kSaveVersion; wanted.localPlayer=0; wanted.aiSkillBefore=9; wanted.aiSkillAfter=4;
+    wanted.version=wanted.normalizedVersion=kSaveVersion; wanted.localPlayer=0; wanted.aiSkillBefore=9; wanted.aiSkillAfter=4;
     wanted.campaignProgress={7,129,255}; wanted.armyJobBindings=6;
     wanted.playerTypesBefore={1,2,3,0,255,128,0}; wanted.playerTypesAfter={1,3,3,0,255,128,0};
+    wanted.session.initialized=true;
+    constexpr uint8_t parameters[]{20,10,0,30,40,50};
+    for (const size_t p:{size_t(1),size_t(2)}) {
+        auto& ai=wanted.session.ai[p]; ai.initialized=true;
+        ai.initializations=p==1?2:1; ai.personality=LoadAiPersonality::Machiavelli; ai.strategyCountdown=40;
+        for (size_t m=0;m<6;++m) {
+            ai.ministers[m].role=Minister(m); ai.ministers[m].kind=uint8_t(m);
+            ai.ministers[m].parameter=parameters[m];
+        }
+    }
     require(report==wanted,"core normalization report differs from independent expected fields");
     require(destination->armies[0].job==4 && destination->armies[3].job==50,
             "high-bit global IDs must be zero-extended, and the last job reference must win");
@@ -213,10 +229,7 @@ void profileAndVersionDomains() {
     bad=fixture(); bad->players[1].index=6; rejected(*bad,profile);
     bad=fixture(); bad->players[3].type=4; rejected(*bad,profile);
     bad=fixture(); bad->players[2].race=7; rejected(*bad,profile);
-    for (const uint32_t version:{35u,36u,37u}) {
-        source->header.version=version; rejected(*source,profile);
-    }
-    for (const uint32_t version:{0x26u,0x119u,0x11fu,kSaveVersion}) {
+    for (const uint32_t version:{35u,36u,37u,0x26u,0x119u,0x11fu,kSaveVersion}) {
         source->header.version=version; normalize(*source,profile,*destination,report);
         const bool discard=version!=kSaveVersion;
         require(report.discardedEvents==(discard?1u:0u) && destination->events.size()==(discard?0u:1u) &&
@@ -224,10 +237,116 @@ void profileAndVersionDomains() {
         if (!discard) require(destination->events[0].text==source->events[0].text,"current-version binary event text changed");
     }
     bad=fixture(); bad->header.isMap=1; bad->mapTerritories.resize(1); rejected(*bad,profile);
+    bad=fixture(); bad->header.version=34; rejected(*bad,profile);
     bad=fixture(); bad->world.width=0; rejected(*bad,profile);
     bad=fixture(); bad->jobs[0][0].armyIds[0]=60001; rejected(*bad,profile);
     bad=fixture(); bad->options.campaign=-1; rejected(*bad,profile);
     bad=fixture(); bad->options.campaign=43; rejected(*bad,profile);
+}
+
+void legacyMigrations() {
+    auto out=fixture(); LoadCoreReport report;
+    for (const uint32_t version:{35u,36u,37u,38u}) {
+        auto source=fixture(); source->header.version=version;
+        // These values are loaded AFTER ResetAI; resetting them again is wrong.
+        source->aiWarMask={0xf0000000,1,0x12345678,3,4,5,6};
+        std::memset(&source->raceStats,0x3a,sizeof(source->raceStats));
+        source->ministerJobs[2].push_back(MinisterJob{});
+        source->ministerJobs[2][0].next.raw=0xffffffff;
+        source->ministerJobs[2][1].type=12;
+        source->ministerJobs[2][1].priority=57;
+        if (version>=36) {
+            source->spies[2][24]={-1,111,9,7};
+            source->blackMarket[6]={1,12345};
+        }
+        const auto original=snapshot(*source);
+        std::vector<uint8_t> originalFile; save::Error error;
+        require(save::encode(*source,originalFile,error),"legacy source failed archival encoding");
+        normalize(*source,{},*out,report);
+        require(report.version==version && report.normalizedVersion==(version==35?36u:version) &&
+                out->header.version==report.normalizedVersion && source->header.version==version,
+                "legacy promotion must be minimal and preserve the source version");
+        require(report.discardedLegacyJobs==(version<38) && report.initializedMissingSpiesMarket==(version==35),
+                "legacy migration flags do not match original thresholds");
+        require(report.discardedEvents==1 && out->events.empty() && out->options.eventCount==0,
+                "minimal version promotion changed old-event discard semantics");
+        if (version<38) {
+            const decltype(source->jobs) empty{};
+            require(std::memcmp(out->jobs.data(),empty.data(),sizeof(empty))==0,
+                    "pre38 migration must zero every byte of all 350 jobs");
+            for (const auto& army:out->armies)
+                require(army.job==0,"discarded legacy job still binds an army");
+            require(report.armyJobBindings==0,"discarded legacy jobs produced binding counts");
+        } else {
+            require(std::memcmp(out->jobs.data(),source->jobs.data(),sizeof(source->jobs))==0 && report.armyJobBindings==6,
+                    "version38 must preserve jobs and rebuild their army bindings");
+        }
+        require(out->aiWarMask==source->aiWarMask &&
+                std::memcmp(&out->scratchJob1,&source->scratchJob1,sizeof(Job))==0 &&
+                std::memcmp(&out->scratchJob2,&source->scratchJob2,sizeof(Job))==0 &&
+                std::memcmp(&out->raceStats,&source->raceStats,sizeof(RaceStats))==0,
+                "legacy migration erased restored scratch/war data or misapplied pre35 race defaults");
+        for (size_t p=0;p<kMaxPlayers;++p)
+            require(out->ministerJobs[p].size()==source->ministerJobs[p].size() &&
+                    std::memcmp(out->ministerJobs[p].data(),source->ministerJobs[p].data(),source->ministerJobs[p].size()*sizeof(MinisterJob))==0,
+                    "AI reset must not erase or alter loaded minister jobs");
+        if (version==35) {
+            for (const auto& spies:out->spies) for (const auto& spy:spies)
+                require(spy.owner==-1 && spy.territory==0 && spy.mission==0 && spy.turns==0,
+                        "ResetSpies default is {-1,0,0,0}, not an all-zero spy");
+            for (const auto& market:out->blackMarket)
+                require(market.pending==0 && market.turn==-1,"BlackMarketReset default is {0,-1}");
+        } else {
+            require(std::memcmp(out->spies.data(),source->spies.data(),sizeof(source->spies))==0 &&
+                    std::memcmp(out->blackMarket.data(),source->blackMarket.data(),sizeof(source->blackMarket))==0,
+                    "version36+ must retain saved spies and market offers");
+        }
+        require(snapshot(*source)==original,"legacy migration changed source memory");
+        std::vector<uint8_t> afterFile;
+        require(save::encode(*source,afterFile,error) && afterFile==originalFile,"legacy migration changed archival source bytes");
+        auto inPlace=std::make_unique<Document>(*source); LoadCoreReport aliasReport;
+        normalize(*inPlace,{},*inPlace,aliasReport);
+        require(snapshot(*inPlace)==snapshot(*out) && aliasReport==report,"legacy migration is not alias-safe");
+    }
+    auto invalid=fixture(); invalid->header.version=35; invalid->spies[0][0].owner=-1;
+    rejected(*invalid,{}); // A source must still satisfy the archival v35 contract.
+    invalid=fixture(); invalid->header.version=35; invalid->players[6].type=4;
+    rejected(*invalid,{}); // A migration request cannot bypass semantic validation.
+}
+
+void ownedAiResetMetadata() {
+    auto source=fixture(),out=fixture(); LoadCoreReport report;
+    constexpr uint8_t parameters[]{20,10,0,30,40,50};
+    for (int local:{0,1,2}) {
+        LoadProfile profile; profile.localPlayer=local;
+        normalize(*source,profile,*out,report);
+        const auto& session=report.session;
+        require(session.initialized && !session.aiExecutable && session.localPlayer==local && session.hostPlayer==local &&
+                !session.netGame && !session.netJoined && !session.netRestore && !session.gameAborted,
+                "offline reset metadata must be initialized without claiming executable AI");
+        for (size_t p=0;p<kMaxPlayers;++p) {
+            const auto& ai=session.ai[p];
+            if (p<3 && int(p)!=local) {
+                require(ai.initialized && ai.personality==LoadAiPersonality::Machiavelli &&
+                        ai.initializations==(p==2?1:2) && ai.strategyState==0 && ai.strategyCountdown==40 && ai.unknown53317c==0,
+                        "AI reset count/personality/scratch defaults differ from the original load call order");
+                for (size_t m=0;m<6;++m) {
+                    const auto& minister=ai.ministers[m];
+                    require(minister.role==Minister(m) && size_t(minister.kind)==m && minister.parameter==parameters[m] &&
+                            std::all_of(minister.scratch.begin(),minister.scratch.end(),[](uint8_t v){return v==0;}),
+                            "minister reset metadata has incorrect typed role/configuration/scratch bytes");
+                }
+                // A typed consumer selects a role, never dereferences file callbacks.
+                require(ai.ministers[size_t(Minister::Tech)].parameter==40 &&
+                        ai.ministers[size_t(Minister::War)].kind==1,"typed minister role lookup is inconsistent");
+            } else require(ai==LoadAiPlayerResetMetadata{},"local/inactive player acquired invented AI state");
+            const auto& before=source->players[p]; const auto& after=out->players[p];
+            require(std::memcmp(before.aiVtbl,after.aiVtbl,sizeof(before.aiVtbl))==0 &&
+                    before.aiParam1==after.aiParam1 && before.aiParam2==after.aiParam2 &&
+                    std::memcmp(before.ministers,after.ministers,sizeof(before.ministers))==0,
+                    "metadata reconstruction installed or cleared raw legacy callback words");
+        }
+    }
 }
 
 void campaignOracles() {
@@ -286,11 +405,25 @@ std::vector<std::string> scenarioNames(const fs::path& path) {
 }
 void corpusOne(const Document& d) {
     const auto original=snapshot(d);
-    if (d.header.version<0x26) { rejected(d,{}); return; }
     auto first=std::make_unique<Document>(), second=std::make_unique<Document>();
     LoadCoreReport a,b; normalize(d,{},*first,a); normalize(d,{},*second,b);
     require(snapshot(*first)==snapshot(*second) && a==b,"load core is not deterministic");
     require(snapshot(d)==original,"corpus source changed");
+    require(a.version==d.header.version && a.normalizedVersion==(d.header.version==35?36u:d.header.version) &&
+            a.discardedLegacyJobs==(d.header.version<38) && a.initializedMissingSpiesMarket==(d.header.version==35),
+            "corpus migration does not match its source version");
+    if (d.header.version==35) {
+        require(first->header.version==36,"real version35 scenario was not minimally promoted");
+        for (const auto& spies:first->spies) for (const auto& spy:spies)
+            require(spy.owner==-1 && !spy.territory && !spy.mission && !spy.turns,"real version35 spy defaults differ");
+        for (const auto& market:first->blackMarket)
+            require(!market.pending && market.turn==-1,"real version35 market defaults differ");
+    }
+    if (d.header.version<38) {
+        const auto* begin=reinterpret_cast<const uint8_t*>(first->jobs.data());
+        require(std::all_of(begin,begin+sizeof(first->jobs),[](uint8_t value){return value==0;}),"real pre38 jobs were not discarded");
+        require(a.armyJobBindings==0,"real pre38 discarded jobs still bound armies");
+    }
     for (const auto& t:first->territories) {
         const auto* raw=reinterpret_cast<const uint8_t*>(&t.data);
         require(std::all_of(raw+kTerritorySavedBytes,raw+sizeof(Territory),[](uint8_t v){return v==0;}),"corpus transient tail retained stale bytes");
@@ -303,12 +436,13 @@ void optionalCorpus(const fs::path& directory) {
     if(directory.empty() || !fs::is_regular_file(directory/"TUTORIAL.SAV")) {
         std::cout<<"load profile: optional corpus unavailable; synthetic tests ran\n"; return;
     }
-    size_t count=0;
+    size_t count=0,legacyCount=0;
     for(const char* name:{"TUTORIAL.SAV","Saves/AUTOSAVE.SAV","Campaign/AUTOSAVE.CPN","Campaign/ChCht001.CPN"}) {
         if(!fs::is_regular_file(directory/name)) continue;
         auto d=std::make_unique<Document>(); save::Error error;
         if(!save::readDocument(directory/name,*d,error)) throw std::runtime_error(error.message);
         try { corpusOne(*d); } catch(const std::exception& ex) { throw std::runtime_error(std::string(name)+": "+ex.what()); }
+        legacyCount+=d->header.version<38;
         ++count;
     }
     if(fs::is_regular_file(directory/"LEVELS.HDX") && fs::is_regular_file(directory/"LEVELS.HDD"))
@@ -316,9 +450,10 @@ void optionalCorpus(const fs::path& directory) {
             auto d=std::make_unique<Document>(); save::Error error;
             if(!save::readScenario(directory/"LEVELS",name,*d,error)) throw std::runtime_error(error.message);
             try { corpusOne(*d); } catch(const std::exception& ex) { throw std::runtime_error(name+": "+ex.what()); }
+            legacyCount+=d->header.version<38;
             ++count;
         }
-    std::cout<<"load profile corpus: "<<count<<" documents, source preserved\n";
+    std::cout<<"load profile corpus: "<<count<<" documents, "<<legacyCount<<" legacy migrations, source preserved\n";
 }
 } // namespace
 
@@ -328,7 +463,7 @@ int main(int argc,char** argv) {
         const auto lo=rtl::seed(),hi=rtl::seedHi(); gg.rng2Seed=0xabcd0123;
         const auto globals=std::make_unique<GameGlobals>(gg);
         const auto game=std::make_unique<GameState>(gs);
-        goldenCoreAndAliasing(); profileAndVersionDomains(); campaignOracles();
+        goldenCoreAndAliasing(); profileAndVersionDomains(); legacyMigrations(); ownedAiResetMetadata(); campaignOracles();
         optionalCorpus(argc>1?fs::path(argv[1]):fs::path{});
         require(rtl::seed()==lo && rtl::seedHi()==hi && std::memcmp(&gg,globals.get(),sizeof(gg))==0 &&
                 std::memcmp(&gs,game.get(),sizeof(gs))==0,"load normalization modified global game/RNG state");

@@ -16,7 +16,55 @@ inspección: mapa, territorios, edificios, unidades y copias sin modificación. 
 lógica de partida está parcialmente escrita y todavía no está integrada. Cargar
 el documento no equivale a activar el estado de juego, simular un turno ni jugar.
 
-## Lote EST-01..08 — 2026-10-01
+## Continuación EST-01b/02b/04c/05b/07b — 2026-10-01
+
+Sobre `c06197a`, se incorporaron cuatro módulos propietarios y sus integraciones:
+
+- `load_profile`: migraciones 35..37, espías/mercado ausentes y datos de reinicio
+  IA/ministros. La versión 35 se representa como 36 sólo en el candidato parcial,
+  conservando versión fuente y copia archival; no ejecuta decisiones IA.
+- `load_intelligence`: detección, visibilidad, población conocida y caché de
+  edificios/sitios. El original omite nuevos descubrimientos de contactos al
+  cargar. Los slots inactivos con raza −1 usan la dirección original dentro de
+  RaceStats; no se normalizan las entradas para hacer pasar el corpus.
+- `load_session`/`event_portraits`: registro de eventos, páginas, retratos y
+  consumo secundario en orden con snapshot previo explícito; 455 nombres
+  contrastados directamente contra el PE. Timer auto/último jugador con estado
+  previo y reloj explícitos. Sin activación UI ni avance automático del turno.
+- `entity_creation`: inicialización terminada ordinaria, ID global, huella,
+  balance laboral local y caminos de sitios; plantilla de unidad sin inserción.
+  No se confunde con iniciar una construcción pagada ni fabricar/bajar unidades.
+
+Se mantienen las transacciones, handles, aislamiento de globales, documentos
+originales intactos y bloqueo de captura/turno parcial. Las proyecciones de IA,
+eventos y timer pertenecen al State y se transfieren/reinician con la sesión.
+El CLI añade `create-building` y `normalize-load-seeded`, ambos sin destino SAV.
+
+Verificación final: **31/31 sin omisiones** en `build-verified` (**47,85 s**) y
+`build-save-asan` (**146,42 s**, `/fsanitize=address`), sin hallazgos de memoria.
+Logs locales en `Testing/Temporary/LastTest.log` de cada build. La primera
+ejecución detectó la peculiaridad racial de slots inactivos; se corrigió contra
+assembly y se añadieron oráculos de dirección y límites. Las pruebas CLI usan
+un territorio sin edificios gestionados por ministro para el caso admitido y
+comprueban que el otro dominio se rechaza explícitamente.
+
+El corpus ahora pasa **46 normalizaciones parciales**, con **8 migraciones
+antiguas explícitas**, **46 reconstrucciones de inteligencia** y **46 creaciones
+soportadas** sobre copias. Los 46 originales mantienen sus round-trips exactos.
+Se añadieron `load_intelligence`, `entity_creation` y `load_session`, y se
+ampliaron pruebas de perfil, runtime y CLI. También se comprueban límites de
+pool, NUL internos, rollback tardío tras RNG, contexto de ciudades previo,
+asignación de IDs, huellas, caminos y límites de direcciones raciales.
+
+EST-02b queda cubierto para la rama de carga. EST-01b/04c/05b/07b avanzan pero
+siguen parciales: faltan IA ejecutable, mundo cambiado visual y transitorios,
+órdenes pagadas/fabricación/bajas y consumidores/efectos de las futuras fases.
+No se habilita una partida jugable. Las referencias numéricas provienen del
+assembly/decompilado y bytes del EXE, no de ejecutar una partida del original.
+Contratos y límites: [LOAD_NORMALIZATION.md](LOAD_NORMALIZATION.md) y
+[ENTITY_RUNTIME.md](ENTITY_RUNTIME.md).
+
+## Lote EST-01..08 — 2026-10-01 (corte anterior)
 
 Sobre `acdda61`, se integró una normalización **parcial** offline, distinta de la
 preparación archival: opciones/perfil, enlaces de edificios y trabajos, continentes,

@@ -96,7 +96,26 @@ def main():
     assert normalized["territories"] == prepared["territories"] and normalized["buildings"] == prepared["buildings"]
     assert normalized["rng"]["seed_source"] == "options.gameId" and normalized["rng"]["operations"] == 0
     assert normalized["rng"]["rtl_low"] == normalized["rng"]["secondary"] and normalized["rng"]["rtl_high"] == 0
-    assert {"ai_initialization", "visibility", "contacts", "building_intelligence"} <= set(normalized["missing"])
+    assert "ai_initialization" in normalized["missing"] and not normalized["ai_executable"]
+    assert normalized["ai_data_initialized"] and normalized["visibility_rebuilt"]
+    assert normalized["building_intelligence_rebuilt"] and normalized["contact_discovery_skipped_on_load"]
+    assert not {"visibility", "contacts", "building_intelligence"} & set(normalized["missing"])
+    seeded = run("normalize-load-seeded", tutorial, 123)
+    assert seeded == run("normalize-load-seeded", tutorial, 123) and seeded["events_rebuilt"]
+    assert seeded["rng"] == normalized["rng"], "pre-event draws cannot leak past final gameplay reseed"
+    assert not run("normalize-load-seeded", tutorial, "bad", success=False).stdout
+    # Territory14 is human-owned; territory1's minister-managed buildings are
+    # deliberately outside this completed-building initializer's safe domain.
+    created = run("create-building", tutorial, 14, 1, 35)
+    assert created == run("create-building", tutorial, 14, 1, 35)
+    assert created["stage"] == "entities_edited_in_memory" and not created["complete_turn"]
+    assert created["finished_building"] and not created["paid_construction_order"]
+    assert created["local_labor_balanced"] and created["site_roads_rebuilt"]
+    assert created["building_count"] == prepared["buildings"] + 1 and created["footprint"] == [35]
+    assert created["turn"] == prepared["turn"] and created["building_id"] == (created["counter_after"] & 0xffff)
+    assert not run("create-building", tutorial, 14, 1, 36, success=False).stdout
+    assert not run("create-building", tutorial, 14, 1, -1, success=False).stdout
+    assert "minister-managed" in run("create-building", tutorial, 1, 1, 35, success=False).stderr
     with tempfile.TemporaryDirectory(prefix="sim-cli-", dir=output) as temporary:
         folder = Path(temporary)
         copy = folder / "prepared.sav"
@@ -116,6 +135,10 @@ def main():
         rejected = subprocess.run([str(binary), "placement", str(tutorial), "1", "1", "0", str(partial)],
                                   capture_output=True, text=True)
         assert rejected.returncode == 2 and not partial.exists(), "placement cannot accept a save destination"
+        for command, args in (("create-building", (1, 1, 35)), ("normalize-load-seeded", (123,))):
+            rejected = subprocess.run([str(binary), command, str(tutorial), *map(str, args), str(partial)],
+                                      capture_output=True, text=True)
+            assert rejected.returncode == 2 and not partial.exists(), "new experiments cannot accept a save destination"
     if (data / "LEVELS.HDX").is_file() and (data / "LEVELS.HDD").is_file():
         assert run("prepare-archive", data / "LEVELS", "CHCHT1")["stage"] == "prepared"
         assert not run("taxes-archive", data / "LEVELS", "CHCHT1")["complete_turn"]
@@ -123,6 +146,9 @@ def main():
         assert run("energy-archive", data / "LEVELS", "CHCHT1")["isolated"]
         assert run("labor-archive", data / "LEVELS", "CHCHT1")["isolated"]
         assert not run("normalize-load-archive", data / "LEVELS", "CHCHT1")["can_play"]
+        migrated = run("normalize-load-archive", data / "LEVELS", "CYTH3")
+        assert migrated["source_version"] == 35 and migrated["normalized_version"] == 36
+        assert migrated["legacy_jobs_discarded"] and not migrated["can_play"]
         assert run("placement-archive", data / "LEVELS", "CHCHT1", 1, 1, 0)["read_only"]
         run("prepare-archive", data / "LEVELS", "MISSING", success=False)
     assert hashlib.sha256(tutorial.read_bytes()).digest() == hashlib.sha256(original).digest()

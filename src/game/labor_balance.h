@@ -52,4 +52,15 @@ struct LaborBalancePlan {
 bool planLaborBalance(const save::Document& document, LaborBalancePlan& destination,
                       save::Error& error);
 
+// Creation-only leaf: the specified building must already be appended/placed,
+// finished, active and have zero labor/tasks. Rebuilds ONLY its tasks, balances
+// ONLY its territory, then applies RedistributeLabor(T,-1,newBuilding), including
+// MoveHousingLabor. No task refresh elsewhere, stock clamp or roads. The fresh
+// record's zero labor makes refreshing just after placement equivalent to the
+// InitBuilding refresh before placement (shrines/platforms are excluded).
+// Source/destination may alias; failures preserve destination. Not a general
+// labor-command API and not StartConstruction's assistant/urgency branch.
+bool prepareCreatedBuildingLabor(const save::Document& source, uint32_t buildingId,
+                                 save::Document& destination, save::Error& error);
+
 } // namespace dl2::simulation

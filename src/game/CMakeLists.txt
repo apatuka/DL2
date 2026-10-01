@@ -24,6 +24,10 @@ set(GAME_SOURCES
     load_profile.cpp
     load_derived.cpp
     session_rng.cpp
+    load_intelligence.cpp
+    entity_creation.cpp
+    event_portraits.cpp
+    load_session.cpp
     # END MODULE SOURCES
 )
 

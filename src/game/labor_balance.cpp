@@ -424,4 +424,80 @@ bool planLaborBalance(const save::Document& source, LaborBalancePlan& destinatio
     return false;
 }
 
+bool prepareCreatedBuildingLabor(const save::Document& source, uint32_t buildingId,
+                                 save::Document& destination, save::Error& error) try {
+    if (!save::validate(source, error)) return false;
+    if (source.header.isMap) return fail(error, "creation requires a saved game");
+    const auto* fresh = source.buildingById(buildingId);
+    if (!fresh || fresh->type == 0 || fresh->type >= data::kNumBuildingTypes ||
+        fresh->turnsLeft != 0 || fresh->flags != 6 || fresh->minister != 0 ||
+        fresh->type == 38 || fresh->type == 39 || data::kBuildingTypes[fresh->type].category == 11 ||
+        fresh->category != data::kBuildingTypes[fresh->type].category)
+        return fail(error, "creation helper requires a fresh ordinary finished building");
+    for (int slot = 0; slot < 5; ++slot)
+        if (fresh->labor[slot] || fresh->task[slot])
+            return fail(error, "creation helper requires zero initial tasks/labor");
+    const size_t territory = size_t(fresh->territory - 1);
+    const int owner = source.territories[territory].data.owner;
+    if (owner < 0 || owner >= kMaxPlayers)
+        return fail(error, "creation helper requires an owned territory");
+    auto candidate = std::make_unique<save::Document>(source);
+    Work work{*candidate, {}};
+    if (!work.validate(error)) return false;
+    auto& building = *work.at(territory, size_t(fresh->site));
+    if (!work.refresh(building, candidate->players[size_t(owner)], error)) return false;
+    TerritoryLaborBalance ignored;
+    if (!work.balance(territory, ignored, error)) return false;
+
+    // orig: 0044c754 + 0044c9a0. Housing is identified by first task20, NOT
+    // stored building category, and additions retain their signed low32 bits.
+    int32_t available = 0;
+    for (size_t site = 0; site < kNumSites; ++site) if (const auto* b = work.at(territory, site)) {
+        const int slot = findTask(*b, 20);
+        if (slot >= 0) available = add(available, b->labor[slot]);
+    }
+    const int32_t requested = std::min(available, work.maxLabor(building));
+    int targetSlot = -1;
+    for (int slot = 0; slot < 5; ++slot)
+        if (building.task[slot] != 0 && building.task[slot] != 21) { targetSlot = slot; break; }
+    // Finished ordinary table rows never select construction. Do not fake the
+    // assistant/TaskUrgency dependency if that premise changes in the future.
+    if (targetSlot >= 0 && building.task[targetSlot] == 2)
+        return fail(error, "creation cannot execute the construction urgency branch");
+    // orig: MoveHousingLabor 0044c79c. Failed moves do NOT end this loop.
+    for (int32_t attempt = 0; targetSlot >= 0 && attempt < requested; ++attempt) {
+        if (work.transferSteps == Work::kMaxTransferSteps) {
+            error = {save::ErrorCode::Limit, 0, "Creation labor exceeds 1000000 transfer attempts"};
+            return false;
+        }
+        ++work.transferSteps;
+        const int32_t total = totalLabor(building), maximum = work.maxLabor(building);
+        if (building.category == 17 && total == maximum) {
+            const int housing = findTask(building, 20);
+            if (housing >= 0 && building.labor[housing] != 0) {
+                building.labor[targetSlot] = add(building.labor[targetSlot], 1);
+                building.labor[housing] = subtract(building.labor[housing], 1);
+            }
+        } else if (total < maximum) {
+            for (size_t site = 0; site < kNumSites; ++site) if (auto* b = work.at(territory, site)) {
+                const int housing = findTask(*b, 20);
+                if (housing >= 0 && b->labor[housing] != 0) {
+                    building.labor[targetSlot] = add(building.labor[targetSlot], 1);
+                    b->labor[housing] = subtract(b->labor[housing], 1);
+                    break;
+                }
+            }
+        }
+    }
+    destination = std::move(*candidate);
+    error = {};
+    return true;
+} catch (const std::bad_alloc&) {
+    error = {save::ErrorCode::Limit, 0, "Creation labor allocation failed"};
+    return false;
+} catch (const std::length_error&) {
+    error = {save::ErrorCode::Limit, 0, "Creation labor exceeds container limits"};
+    return false;
+}
+
 } // namespace dl2::simulation

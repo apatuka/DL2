@@ -51,7 +51,7 @@ target_link_libraries(test_entity_rules PRIVATE dl2game dl2engine)
 add_test(NAME entity_rules COMMAND test_entity_rules "${DL2_DATA_DIR}")
 set_tests_properties(entity_rules PROPERTIES TIMEOUT 60)
 
-foreach(_module session_rng load_derived load_profile table_contracts runtime_load)
+foreach(_module session_rng load_derived load_profile table_contracts runtime_load load_intelligence entity_creation load_session)
     add_executable(test_${_module} test_${_module}.cpp)
     target_link_libraries(test_${_module} PRIVATE dl2game dl2engine)
     add_test(NAME ${_module} COMMAND test_${_module} "${DL2_DATA_DIR}")
@@ -128,7 +128,7 @@ endif()
 if(WIN32 AND TARGET SDL2::SDL2)
     get_target_property(_dl2_sdl_type SDL2::SDL2 TYPE)
     if(_dl2_sdl_type STREQUAL "SHARED_LIBRARY")
-        foreach(_target test_engine test_resources test_input test_inspector_session test_world_inspector test_production_plan test_labor_balance test_runtime_entities test_entity_rules test_session_rng test_load_derived test_load_profile test_table_contracts test_runtime_load)
+        foreach(_target test_engine test_resources test_input test_inspector_session test_world_inspector test_production_plan test_labor_balance test_runtime_entities test_entity_rules test_session_rng test_load_derived test_load_profile test_table_contracts test_runtime_load test_load_intelligence test_entity_creation test_load_session)
             add_custom_command(TARGET ${_target} POST_BUILD
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different
                     $<TARGET_FILE:SDL2::SDL2> $<TARGET_FILE_DIR:${_target}>)

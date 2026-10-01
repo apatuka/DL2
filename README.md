@@ -12,8 +12,11 @@ rendimientos de edificios y necesidades de recursos, y ejecuta experimentos aisl
 de impuestos, energía o normalización laboral, sin guardar ni presentar un turno parcial como completo.
 También consulta emplazamientos de edificios. El estado propietario ya dispone de
 inserción/retirada estructural limitada con referencias estables; aún no son órdenes jugables.
+`create-building` inicializa edificios terminados ordinarios con ID, huella, trabajadores y
+caminos locales; no es una orden pagada ni permite guardar ese experimento.
 `normalize-load` integra un subconjunto explícito de carga offline y RNG por sesión;
-informa las capacidades pendientes y no permite exportar ni jugar el estado parcial.
+incluye migraciones antiguas, datos de reinicio IA, visibilidad e inteligencia. Los eventos
+admiten contexto previo explícito; informa pendientes y no permite exportar ni jugar el estado parcial.
 La demostración previa del motor y del panel SMenu `D000` se conserva mediante `--demo`.
 
 - [Recuperación de la sesión de Claude](docs/RECOVERY.md): entregables, evidencias y archivos recuperables.
@@ -76,11 +79,11 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools/build.ps1 -BuildDir bu
 ```
 
 El hito de serialización pasó 8/8, el del inspector 15/15 y el de preparación/fiscalidad 18/18.
-La suite actual, incluido el lote EST-01..08, pasa **28/28 sin omisiones**, tanto
+La suite actual, incluida la continuación EST, pasa **31/31 sin omisiones**, tanto
 en `build-verified` como con AddressSanitizer en `build-save-asan`. Incluye 46
 capturas exactas, entidades/emplazamientos y experimentos económicos, además de
-RNG propietario, tablas compartidas y carga parcial: 38 documentos normalizados
-y 8 escenarios antiguos rechazados sin mutación, aún válidos para inspección/copia.
+RNG propietario, tablas compartidas y carga parcial: 46 documentos normalizados,
+incluidas ocho migraciones antiguas, inteligencia, eventos/timer y creación local.
 No acredita carga jugable ni turno completo. Alcance y evidencia en `docs/RECOVERY.md`.
 El script armoniza la codificación de consola para que Ninja detecte las cabeceras con MSVC
 localizado. Si una caché antigua muestra cientos de líneas `Nota: inclusión del archivo`,

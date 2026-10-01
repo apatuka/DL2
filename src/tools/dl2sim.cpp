@@ -19,7 +19,7 @@ int integer(std::string_view value) {
     int result = 0;
     const auto parsed = std::from_chars(value.data(), value.data() + value.size(), result);
     if (parsed.ec != std::errc{} || parsed.ptr != value.data() + value.size())
-        throw std::runtime_error("Placement arguments must be decimal integers in int32 range");
+        throw std::runtime_error("Numeric arguments must be decimal integers in int32 range");
     return result;
 }
 void placement(const runtime::State& state, const simulation::BuildingPlacement& result) {
@@ -145,11 +145,15 @@ void economy(const runtime::State& state, const simulation::ProductionPlan& prod
     std::cout << "]}\n";
 }
 void load(const runtime::State& state, const runtime::LoadReport& report, int before) {
-    std::cout << "{\"stage\":\"load_normalized_in_memory\",\"complete_load\":false,\"can_play\":false,"
+    std::cout << std::boolalpha << "{\"stage\":\"load_normalized_in_memory\",\"complete_load\":false,\"can_play\":false,"
                  "\"complete_turn\":false,\"turn_before\":" << before
               << ",\"turn_after\":" << state.document()->options.turn
               << ",\"local_player\":" << report.core.localPlayer
               << ",\"ai_skill\":" << report.core.aiSkillAfter
+              << ",\"source_version\":" << report.core.version << ",\"normalized_version\":" << report.core.normalizedVersion
+              << ",\"legacy_jobs_discarded\":" << report.core.discardedLegacyJobs
+              << ",\"ai_data_initialized\":" << report.core.session.initialized
+              << ",\"ai_executable\":" << report.core.session.aiExecutable
               << ",\"campaign_goal_mask\":" << report.core.campaignGoalMask
               << ",\"campaign_progress\":";
     numbers(report.core.campaignProgress);
@@ -157,11 +161,27 @@ void load(const runtime::State& state, const runtime::LoadReport& report, int be
                  "\"labor_normalized\":true,\"territories\":" << report.labor.territories.size()
               << ",\"buildings\":" << report.labor.buildings.size()
               << ",\"shrine_notices\":" << report.derived.notices.size()
+              << ",\"visibility_rebuilt\":" << report.intelligence.visibilityRebuilt
+              << ",\"building_intelligence_rebuilt\":" << report.intelligence.buildingIntelligenceRebuilt
+              << ",\"contact_discovery_skipped_on_load\":" << report.intelligence.contactDiscoverySkippedOnLoad
+              << ",\"events_rebuilt\":" << report.eventsRebuilt << ",\"loaded_events\":" << report.loadedEvents
+              << ",\"event_random_draws\":" << report.eventRandomDraws
               << ",\"rng\":{\"seed_source\":\"options.gameId\",\"rtl_low\":" << report.rng.rtlLow
               << ",\"rtl_high\":" << report.rng.rtlHigh << ",\"secondary\":" << report.rng.secondary
               << ",\"operations\":" << report.rng.counters.operations << "},\"missing\":[";
     for (size_t i = 0; i < report.missing.size(); ++i)
         std::cout << (i ? "," : "") << '"' << runtime::missingLoadCapabilityName(report.missing[i]) << '"';
+    std::cout << "]}\n";
+}
+void createdBuilding(const runtime::State& state, const simulation::BuildingCreationReport& report) {
+    std::cout << "{\"stage\":\"entities_edited_in_memory\",\"complete_turn\":false,\"paid_construction_order\":false,"
+                 "\"finished_building\":true,\"building_id\":" << report.buildingId
+              << ",\"territory\":" << report.territory << ",\"building_type\":" << report.buildingType
+              << ",\"site\":" << report.site << ",\"counter_before\":" << report.counterBefore
+              << ",\"counter_after\":" << report.counterAfter << ",\"building_count\":" << state.document()->buildings.size()
+              << ",\"local_labor_balanced\":true,\"site_roads_rebuilt\":true,\"turn\":" << state.document()->options.turn
+              << ",\"footprint\":[";
+    for (size_t i = 0; i < report.footprint.size(); ++i) std::cout << (i ? "," : "") << int(report.footprint[i]);
     std::cout << "]}\n";
 }
 int usage() {
@@ -179,6 +199,11 @@ int usage() {
                  "  dl2sim labor-archive <HDX/HDD-base> <entry>\n"
                  "  dl2sim normalize-load <save>  (partial offline load; NOT playable)\n"
                  "  dl2sim normalize-load-archive <HDX/HDD-base> <entry>\n"
+                 "  dl2sim normalize-load-seeded <save> <seed-int32>\n"
+                 "    Explicit pre-event RNG seed, zero prior city counts; NOT replay of an unknown previous session.\n"
+                 "  dl2sim create-building <save> <territory> <building-type> <site>\n"
+                 "  dl2sim create-building-archive <HDX/HDD-base> <entry> <territory> <building-type> <site>\n"
+                 "    Finished-building initializer with local effects; NOT paid construction or SAV export.\n"
                  "  dl2sim activate <save>  (complete load explicitly unavailable)\n"
                  "  dl2sim placement <save> <territory> <building-type> <site>\n"
                  "  dl2sim placement-archive <HDX/HDD-base> <entry> <territory> <building-type> <site>\n"
@@ -194,14 +219,15 @@ int main(int argc, char** argv) {
         if (argc < 3) return usage();
         const std::string command = argv[1];
         const bool isPlacement = command == "placement" || command == "placement-archive";
+        const bool isCreation = command == "create-building" || command == "create-building-archive";
         const bool archive = command == "prepare-archive" || command == "taxes-archive" ||
                              command == "economy-archive" || command == "energy-archive" || command == "labor-archive" ||
-                             command == "placement-archive" || command == "normalize-load-archive";
+                             command == "placement-archive" || command == "normalize-load-archive" || command == "create-building-archive";
         if (!((argc == 3 && (command == "prepare" || command == "taxes" || command == "turn" ||
                             command == "economy" || command == "energy" || command == "labor" ||
                             command == "normalize-load" || command == "activate")) ||
-              (argc == 4 && ((!isPlacement && archive) || command == "roundtrip")) ||
-              (isPlacement && argc == (archive ? 7 : 6)))) return usage();
+              (argc == 4 && ((!isPlacement && !isCreation && archive) || command == "roundtrip" || command == "normalize-load-seeded")) ||
+              ((isPlacement || isCreation) && argc == (archive ? 7 : 6)))) return usage();
         auto document = std::make_unique<save::Document>();
         save::Error error;
         require(archive ? save::readScenario(argv[2], argv[3], *document, error)
@@ -209,11 +235,25 @@ int main(int argc, char** argv) {
         runtime::State state;
         require(state.prepare(*document, error), error);
         if (command == "turn") { require(state.advanceTurn(error), error); return 1; }
-        if (command == "normalize-load" || command == "normalize-load-archive" || command == "activate") {
+        if (command == "normalize-load" || command == "normalize-load-archive" || command == "normalize-load-seeded" || command == "activate") {
             runtime::LoadReport report;
+            runtime::LoadContext context;
+            if (command == "normalize-load-seeded") {
+                simulation::SessionRng rng;
+                require(rng.initialize(uint32_t(integer(argv[3])), error), error);
+                context.events.emplace(); context.events->rngBeforeEvents = rng.snapshot();
+            }
             require(state.normalizeLoad({}, report, error,
-                command == "activate" ? runtime::LoadScope::Complete : runtime::LoadScope::Partial), error);
+                command == "activate" ? runtime::LoadScope::Complete : runtime::LoadScope::Partial, context), error);
             load(state, report, document->options.turn);
+        } else if (isCreation) {
+            const int offset = archive ? 4 : 3;
+            const int territory = integer(argv[offset]);
+            if (territory <= 0) throw std::runtime_error("Territory index must be positive");
+            simulation::BuildingCreationReport report; runtime::BuildingHandle handle;
+            require(state.createCompletedBuilding({uint32_t(territory), integer(argv[offset + 1]), integer(argv[offset + 2])},
+                handle, report, error), error);
+            createdBuilding(state, report);
         } else if (isPlacement) {
             const int offset = archive ? 4 : 3;
             const int territory = integer(argv[offset]);

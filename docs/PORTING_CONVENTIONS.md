@@ -20,6 +20,10 @@ Estas reglas permiten que varios módulos se porten en paralelo y encajen sin fr
   Sus subpasos no constituyen una fase completa de producción ni un turno.
   `ECONOMY_LAB.md` describe el tramo conectado desde reinicios hasta costes:
   `EconomyPrefixApplied` sigue siendo incompleto y no puede capturarse/repetirse.
+  `EconomicPhaseContext` añade flags vivos de campaña y conecta hasta balance
+  final; `EconomyPhaseApplied` NO significa turno completo ni habilita exportar.
+  Preservar el rechazo de varargs nativos inválidos de deserción local87/86;
+  cambiar IDs/textos requiere una política explícita, no una corrección oculta.
 - `docs/LOAD_NORMALIZATION.md`: perfil offline, datos derivados, orden de carga parcial,
   RNG de sesión, contexto de eventos/timer, migraciones y tablas canónicas;
   `LoadNormalized` nunca significa carga jugable.

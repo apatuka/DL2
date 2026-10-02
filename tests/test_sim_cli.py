@@ -183,6 +183,15 @@ def main():
     assert prefix["primary_territories"] == prefix["refinement_territories"] > 0
     assert not run("production-prefix", tutorial, "bad", success=False).stdout
     assert not run("production-prefix", tutorial, "2147483648", success=False).stdout
+    phase = run("production-phase", tutorial, 1)
+    assert phase == run("production-phase", tutorial, 1)
+    assert phase["stage"] == "economic_phase_applied" and phase["cold_lab_context"]
+    assert phase["complete_economic_phase"] and not phase["complete_turn"] and not phase["can_save"]
+    assert phase["completed_steps"] == prefix["completed_steps"] + ["population_growth", "morale", "research", "unrest", "final_balance"]
+    assert phase["campaign_flags"] == 0 and phase["turn"] == prepared["turn"]
+    assert phase["growth_territories"] > 0 and phase["balanced_territories"] == prepared["territories"]
+    assert not run("production-phase", tutorial, "bad", success=False).stdout
+    assert not run("production-phase", tutorial, "2147483648", success=False).stdout
     for command, bad_args in (
         ("queue-unit", ((0, 1, 1), (14, 0, 1), (14, 39, 1), (14, 1, "bad"))),
         ("dequeue-unit", ((0, 1, 0), (14, 0, 0), (14, 6, 0), (14, 1, -1))),
@@ -229,7 +238,7 @@ def main():
                               ("start-building", (14, 1, 35, 1)), ("find-site", (14, 1, 1)),
                               ("queue-unit", (14, 1, 1)), ("dequeue-unit", (14, 1, 0)),
                               ("produce-units", (14, 1, 30, 1)), ("progress-buildings", (14, 1)),
-                              ("production-prefix", (1,))):
+                              ("production-prefix", (1,)), ("production-phase", (1,))):
             rejected = subprocess.run([str(binary), command, str(tutorial), *map(str, args), str(partial)],
                                       capture_output=True, text=True)
             assert rejected.returncode == 2 and not partial.exists(), "new experiments cannot accept a save destination"

@@ -25,6 +25,7 @@
 #include "game/building_progress.h"
 #include "game/unit_manufacturing.h"
 #include "game/economic_prefix.h"
+#include "game/economic_phase.h"
 
 namespace dl2::runtime {
 template<class Tag> struct Handle {
@@ -150,7 +151,7 @@ struct LoadContext {
     simulation::LoadTimerState previousTimer;
 };
 
-enum class Stage { Empty, Prepared, TaxesApplied, EnergyApplied, LaborBalanced, EntitiesEdited, LoadNormalized, EconomyPrefixApplied };
+enum class Stage { Empty, Prepared, TaxesApplied, EnergyApplied, LaborBalanced, EntitiesEdited, LoadNormalized, EconomyPrefixApplied, EconomyPhaseApplied };
 class State {
 public:
     State() = default;
@@ -236,6 +237,10 @@ public:
     // No growth/morale/research/riots/final balance, repeat, edits or SAV export.
     bool runEconomicProductionPrefix(const simulation::EconomicPrefixContext& context,
                                      simulation::EconomicPrefixReport& report, save::Error& error);
+    // Complete economic sequence within its documented safe domain, NOT a full
+    // turn. Same entry/continuation restrictions; terminal and never exportable.
+    bool runEconomicPhase(const simulation::EconomicPhaseContext& context,
+                          simulation::EconomicPhaseReport& report, save::Error& error);
     bool createArmy(const simulation::ArmyCreationRequest& request,
                     const simulation::ArmyCreationContext& context, ArmyHandle& created,
                     simulation::ArmyLifecycleReport& report, save::Error& error);
@@ -292,6 +297,8 @@ private:
     template<class Request> bool applyManufacturing(const Request& request,
         const simulation::UnitManufacturingContext& context,
         simulation::UnitManufacturingReport& report, save::Error& error);
+    template<class Context, class Report> bool applyEconomic(const Context& context,
+        Report& report, save::Error& error);
     std::unique_ptr<save::Document> document_;
     Graph graph_;
     simulation::SessionRng rng_;

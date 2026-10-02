@@ -16,6 +16,11 @@ const char* economicStepName(EconomicStep step) {
     case EconomicStep::Upkeep: return "upkeep";
     case EconomicStep::Refinement: return "refinement";
     case EconomicStep::BuildingCosts: return "building_costs";
+    case EconomicStep::PopulationGrowth: return "population_growth";
+    case EconomicStep::Morale: return "morale";
+    case EconomicStep::Research: return "research";
+    case EconomicStep::Unrest: return "unrest";
+    case EconomicStep::FinalBalance: return "final_balance";
     }
     return "unknown";
 }

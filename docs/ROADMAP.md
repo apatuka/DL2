@@ -146,8 +146,12 @@ experimentos y el inicio explícito del tramo económico, sin exportación SAV.
 →comida→energía→mantenimiento→producción2→costes. Usa recorridos intercalados
 de obras/tareas, presupuestos reales de colas, efectos de abastecimiento y un
 único contexto de eventos/IA/RNG. No sustituye el primer pase por sumar outputs.
-Faltan crecimiento, moral, investigación, revueltas y balance final en esa
-secuencia; `EconomyPrefixApplied` impide repetir/capturar el tramo incompleto.
+`production-phase` extiende esa secuencia con crecimiento, moral, investigación,
+disturbios/deserciones y balance final. `EconomyPrefixApplied` y
+`EconomyPhaseApplied` impiden repetir/capturar experimentos. La fase completa
+mantiene dominios seguros explícitos: error nativo de texto de deserción local
+y bajas con referencias taskforce vivas se rechazan sin cambios parciales.
+Siguen faltando el resto del turno y su activación/UI/guardado jugables.
 
 El lote EST-01..08 integra `normalizeLoad` parcial: opciones/perfil offline,
 enlaces de objetos/trabajos, continentes/caminos/santuarios, labor y RNG propietario

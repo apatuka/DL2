@@ -535,4 +535,22 @@ bool AiSession::reactEvent(const save::Document& source, const AiEventRequest& r
     return reaction(state_,source,request,context,destination,report,error,
                     [](ReactionWork& work, const AiEventRequest& input) { return work.event(input); });
 }
+
+bool changeAiAttitude(const save::Document& source,const AiAttitudeRequest& request,
+                      const AiReactionContext& context,save::Document& destination,
+                      AiReactionReport& report,save::Error& error) {
+    try {
+        if (!gameDocument(source,error)) return false;
+        SessionRng rng;
+        if (!rng.restore(context.rng,error)) return false;
+        if (context.pendingMessages.size()>kAiMessageCapacity)
+            return fail(error,"AI message FIFO exceeds its original41-message capacity",save::ErrorCode::Limit);
+        auto candidate=std::make_unique<save::Document>(source); AiReactionReport result;
+        result.contextAfter=context; result.handled=true;
+        ReactionWork work{*candidate,result,rng,error};
+        if (!work.change(request.player,request.other,request.delta) || !save::validate(*candidate,error)) return false;
+        destination=std::move(*candidate); report=std::move(result); error={}; return true;
+    } catch (const std::bad_alloc&) { return fail(error,"Insufficient memory changing owned AI attitude",save::ErrorCode::Limit); }
+      catch (const std::exception& e) { error={save::ErrorCode::InvalidState,0,e.what()}; return false; }
+}
 } // namespace dl2::simulation

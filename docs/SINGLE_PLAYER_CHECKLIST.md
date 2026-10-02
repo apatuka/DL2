@@ -1,7 +1,7 @@
 # Checklist de cierre: Deadlock II individual
 
-Revisión: 2026-10-02. Continuación sobre `728ee94`, ampliada con producción,
-logística, consumo y costes conectados en [ECONOMY_LAB.md](ECONOMY_LAB.md).
+Revisión: 2026-10-02. Continuación sobre `1f45bfd`, ampliada con crecimiento,
+moral, investigación, disturbios y balance final en [ECONOMY_LAB.md](ECONOMY_LAB.md).
 
 ## Qué significa «100% funcionando»
 
@@ -45,10 +45,11 @@ funcional descubre comportamientos originales aún no identificados.
 - [x] Progreso/finalización/reparación y mejoras por trabajo asignado, con tareas, labor, relocalización, caminos, eventos y contadores de ciudades; subpaso aislado, no producción completa.
 - [x] Cinco colas propietarias: añadir/cancelar, cobro incremental, trabajo, creación de unidades, repetición y avisos. Integradas en State/CLI; reciben presupuestos reales de fábricas dentro del tramo económico conectado.
 - [x] Tramo económico transaccional desde reinicios hasta financiación de obras: impuestos, dos pases con obras/colas intercaladas, necesidades/importaciones, comida, energía y mantenimiento. `EconomyPrefixApplied` no es fase completa ni turno jugable.
+- [x] Continuación económica hasta crecimiento, moral, investigación, disturbios/deserciones y balance final, en una única transacción. `EconomyPhaseApplied` no es turno jugable ni exportable; dominios pendientes documentados en ECO-07/09/11.
 - [x] Inicialización IA, reacciones diplomáticas, taskforces y determinados eventos con estado/RNG propietarios; no es el turno IA completo.
 - [x] Tablas canónicas compartidas, 43 campañas y pruebas de contratos entre cabeceras heredadas.
 
-Última verificación: **47/47 pruebas sin omisiones**, normal y AddressSanitizer.
+Última verificación: **52/52 pruebas sin omisiones**, normal y AddressSanitizer.
 Los **46 documentos** admiten normalización parcial, incluidos los **8 escenarios
 de versión 35** mediante migraciones explícitas; sus copias archivales siguen
 siendo exactas. Se verificaron 46 reconstrucciones de inteligencia, 46 creaciones
@@ -67,15 +68,15 @@ soportadas sobre copias y 455 nombres de retratos contra el PE. Resultados en
 - [ ] **EST-04** Implementar creación/destrucción de edificios y unidades, listas libres/activas, límites y referencias estables durante la simulación.
   - [x] **EST-04a** Handles estables y rechazo de referencias retiradas, ajenas o de una preparación anterior, incluso tras reutilizar slots/IDs.
   - [x] **EST-04b** Backend estructural de inserción/retirada para registros simples explícitos, validación de listas, reserva de capacidad y rechazo de dependencias; sin efectos de gameplay ni exportación SAV.
-  - [ ] **EST-04c — parcial.** Implementados edificios especiales, creación/bajas con transporte/parejas, demolición no-santuario, selección de sitio, comienzo pagado de obra, progreso/finalización/mejoras y fabricación por colas con eventos/logística/labor, conectados a los dos pases económicos. Faltan demolición de santuarios con campaña y coordinación en órdenes, resto económico, turno y UI completos; las bajas que dejarían referencias taskforce vivas se rechazan con rollback.
+  - [ ] **EST-04c — parcial.** Implementados edificios especiales, creación/bajas con transporte/parejas, demolición no-santuario, selección de sitio, comienzo pagado de obra, progreso/finalización/mejoras y fabricación por colas con eventos/logística/labor, conectados a la secuencia económica hasta balance final. Faltan demolición de santuarios con campaña y coordinación en órdenes, turno y UI completos; las bajas que dejarían referencias taskforce vivas se rechazan con rollback.
   - [x] **EST-04d** Reconstruir enlaces de edificios y vínculos de trabajos/unidades durante la carga parcial, preservando las identidades existentes y publicando el grafo transaccionalmente.
 - [ ] **EST-05** Integrar un estado RNG de partida: semillas, orden de consumo y restauración/inicialización conforme al original.
   - [x] **EST-05a** RNG propietario de sesión con primitivas originales, orden/contadores, snapshots y reseed final offline desde `options.gameId`; no altera RNG global ni la copia archival.
-  - [ ] **EST-05b — parcial.** Conectados reinicio, mundo cambiado, eventos cargados/nuevos, santuarios, diplomacia/reacciones IA, selección de sitio, obras/fabricación y ambos pases de producción (incluido arte), consumo/logística/costes; frontera RNG de SaveGame probada como plan. Faltan crecimiento/revueltas y otros consumidores del resto económico, combate, turno IA completo y guardado jugable. No inventar semillas del SAV ni reseed offline por turno.
+  - [ ] **EST-05b — parcial.** Conectados reinicio, mundo cambiado, eventos cargados/nuevos, santuarios, diplomacia/reacciones IA y la secuencia económica completa, incluidos crecimiento, investigación y disturbios/robo tecnológico; frontera RNG de SaveGame probada como plan. Faltan consumidores de movimiento/combate, turno IA completo y guardado jugable; se mantiene rechazo del evento nativo inválido de deserción local. No inventar semillas del SAV ni reseed offline por turno.
 - [x] **EST-06** Unificar tablas y contratos heredados: fuente canónica `data::*`, adaptadores de economía, 43 campañas y helpers compartidos. Contrastes de tablas con el EXE y cabeceras compiladas juntas; no implica implementar las funciones de gameplay declaradas.
 - [ ] **EST-07** Conectar efectos reales entre módulos, sustituyendo los callbacks ausentes necesarios; no aceptar operaciones vacías como éxito.
   - [x] **EST-07a** Conexión directa del subconjunto de carga implementado y rechazo explícito de `Complete`; se eliminan asignaciones a fallbacks inexistentes en `turn_api.h`.
-  - [ ] **EST-07b — parcial.** Conectados carga→santuarios→log/IA, construcción→cobro/importación→evento→labor/caminos/puerto, obras/colas→producción real, producción→necesidades/importaciones→comida/energía→mantenimiento→refinamiento/costes, bajas→transporte/taskforces/refunds y diplomacia→actitudes/cola/RNG. Faltan el resto económico, movimiento, combate, coordinación de turno IA y presentación jugable. Los callbacks excluidos no son una ruta alternativa.
+  - [ ] **EST-07b — parcial.** Conectados carga→santuarios→log/IA, construcción→cobro/importación→evento→labor/caminos/puerto, obras/colas→producción real y toda la secuencia económica hasta crecimiento/moral/investigación/disturbios/balance; bajas→transporte/taskforces/refunds y diplomacia→actitudes/cola/RNG. Faltan movimiento, combate, coordinación de turno IA y presentación jugable, además de dominios inseguros documentados. Los callbacks excluidos no son una ruta alternativa.
 - [x] **EST-08** Transacciones en las rutas propietarias implementadas: errores conservan documento, grafo, identidades, RNG e informe. Separación `Prepared`/`LoadNormalized`; la normalización parcial no puede capturarse como SAV reanudable ni avanzar turno. Una futura etapa jugable requiere cerrar EST-01/02/07.
 
 Cierre: cargar una muestra deja una sesión coherente y utilizable por la lógica,
@@ -84,18 +85,18 @@ sin depender de punteros del EXE, de globales ajenos ni de reparaciones silencio
 ## 2. Economía, población y logística — parcial, bloqueante
 
 - [ ] **ECO-01** Completar asignación/reasignación de trabajadores y su conexión a órdenes e interfaz. Reconstrucción y balance automático ya implementados en EST-03; las órdenes manuales y la integración jugable siguen pendientes.
-- [ ] **ECO-02** Integrar la recaudación ya calculada con niveles fiscales y efectos sobre la moral.
-- [x] **ECO-03** Primer pase aplicado en orden original: recursos, créditos, cultura, investigación acumulada, clonación, entrenamiento, curación y arte con RNG. Obras/tareas intercaladas y colas antes de ganancias; integrado en el tramo propietario, no resolución posterior de investigación ni turno completo.
+- [x] **ECO-02** Recaudación integrada con niveles fiscales globales/locales y su efecto original sobre la moral posterior, dentro de la misma fase económica transaccional.
+- [x] **ECO-03** Primer pase aplicado en orden original: recursos, créditos, cultura, investigación acumulada, clonación, entrenamiento, curación y arte con RNG. Obras/tareas intercaladas y colas antes de ganancias; resolución de investigación conectada en su fase posterior, no turno completo.
 - [x] **ECO-04** Necesidades/reservas e importaciones conectadas tras producción1, con conectividad, transportes, costes, transferencias parciales y eventos reales. Proveedores, reinicios y orden por material/rondas comprobados.
-- [ ] **ECO-05 — parcial.** ConsumeFood completo para civiles/unidades, abastecimiento, avisos e indicadores conectado; su efecto de desbandado llega a mantenimiento. Las consecuencias posteriores sobre crecimiento/moral siguen en ECO-09/10.
+- [x] **ECO-05** ConsumeFood para civiles/unidades, abastecimiento, avisos e indicadores conectado; efectos posteriores enlazados a mantenimiento, crecimiento y moral en la misma secuencia económica.
 - [x] **ECO-06** Consumo energético conectado después de comida y antes de mantenimiento/refinamiento: stock, porcentaje y eventos51 reales. El porcentaje resultante alimenta producción2; los efectos posteriores de moral se cierran en ECO-10.
 - [ ] **ECO-07 — parcial.** Mantenimiento y financiación de obras integrados: costes cuadráticos, déficit, avisos, selección/desbandado, cascadas/refunds y pagos pendientes. Falta cerrar el dominio de desbandado que dejaría referencias vivas de task forces; hoy se rechaza transaccionalmente sin desvinculación inventada.
 - [x] **ECO-08** Segundo pase aplicado después de mantenimiento, con imports hierro/endurium antes de ambas conversiones, pagos, signed16 y efectos originales aun con producción cero; no duplica los ingresos del primer pase.
-- [ ] **ECO-09** Implementar crecimiento, capacidad de vivienda, traslado de población y restricciones de empleo.
-- [ ] **ECO-10** Calcular moral completa: impuestos, ocupación, hambre, hacinamiento, energía, policía, cultura, arte y hospitales.
-- [ ] **ECO-11** Aplicar disturbios, revueltas y cambios de control con sus efectos sobre población, edificios y trabajo.
+- [ ] **ECO-09 — parcial.** Crecimiento, capacidades física/vivienda, hambre, raza/campaña y restricciones laborales conectados, incluida deserción entre territorios. Faltan órdenes manuales de traslado de población y cerrar el dominio de deserción hacia local.
+- [x] **ECO-10** Moral original completa: diez componentes, total bruto y valor aplicado, impuestos/ocupación/hambre/hacinamiento/clonación/guarnición/cultura/arte/hospitales. Energía afecta outputs previos; no se añade un componente inexistente. Integrada antes de investigación/disturbios.
+- [ ] **ECO-11 — parcial.** Disturbios, daño de edificios, población emigrada y robo/adquisición tecnológica conectados; balance posterior actualiza trabajo. Falta resolver explícitamente el bug nativo de formatos87/86 para deserciones hacia local (ahora rechazo atómico).0046c49c no cambia dueños: los cambios de control pertenecen a otras rutas aún pendientes, no se inventan aquí.
 - [ ] **ECO-12** Conectar el asistente de colonia y los informes económicos a las reglas reales de producción/logística.
-- [ ] **ECO-13 — parcial.** Conectado reinicios→impuestos→producción1→necesidades/importaciones→comida→energía→mantenimiento→producción2→costes. Faltan crecimiento, moral, resolución de investigación, revueltas y balance final. State impide repetir/capturar el tramo incompleto.
+- [x] **ECO-13** Orden económico completo conectado hasta crecimiento→moral→investigación→disturbios→balance final, con una continuación RNG/log/IA y rollback de los quince pasos. Dominios pendientes permanecen en ECO-07/09/11; no implica turno completo. `EconomyPhaseApplied` es terminal y no exportable.
 
 Orden que debe preservarse: reinicios → impuestos → producción 1 → necesidades
 → importaciones → comida → energía → mantenimiento → producción 2 → costes de
@@ -156,7 +157,7 @@ las clases y acciones disponibles tienen una ruta funcional.
 
 ## 6. Investigación, diplomacia, comercio y espionaje — pendiente
 
-- [ ] **SIS-01** Completar investigación: selección, prerrequisitos, progreso, descubrimiento y elección automática cuando corresponda.
+- [ ] **SIS-01 — parcial.** Progreso desde producción real, prerrequisitos/campaña, descubrimiento, pactos, excedentes, cola local y autoselección conectados al ciclo económico. Faltan órdenes/pantalla jugables de selección y cierre de su integración con el turno completo.
 - [ ] **SIS-02** Aplicar efectos tecnológicos y raciales a todos los sistemas, incluidas restricciones de campaña.
 - [ ] **SIS-03** Implementar relaciones, propuestas, aceptación/rechazo, pactos, ruptura y vencimiento, con efectos sobre acceso y hostilidad.
 - [ ] **SIS-04** Ejecutar comercio, intercambios y transferencias permitidos por el original, con pagos, límites, entrega y notificaciones.

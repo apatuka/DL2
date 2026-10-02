@@ -74,6 +74,15 @@ struct AiReactionReport {
     bool operator==(const AiReactionReport&) const = default;
 };
 struct AiDiplomacyRequest { int player = -1, other = -1, category = 0; };
+struct AiAttitudeRequest { int player = -1, other = -1; int32_t delta = 0; };
+//0040526c/004051c4 offline leaf, shared by diplomacy and research sharing.
+// No personality callback is invoked by this helper: callers may supply a
+// physical Player.index differing from their Player* slot. Enforces the actual
+// campaign/skill/relation-change mask, clamping and signed arithmetic through
+// the same implementation used by AiSession. Never draws or guesses a mask.
+bool changeAiAttitude(const save::Document& source,const AiAttitudeRequest& request,
+                      const AiReactionContext& context,save::Document& destination,
+                      AiReactionReport& report,save::Error& error);
 struct AiEventRequest {
     int player = -1, eventType = 0;
     // Actual arguments7/8 at004047a9/[ebp+20] and004049f8/[ebp+24].

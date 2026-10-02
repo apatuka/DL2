@@ -43,6 +43,11 @@ set(GAME_SOURCES
     building_costs.cpp
     economic_upkeep.cpp
     economic_prefix.cpp
+    population_growth.cpp
+    colony_morale.cpp
+    research_phase.cpp
+    colony_unrest.cpp
+    economic_phase.cpp
     # END MODULE SOURCES
 )
 

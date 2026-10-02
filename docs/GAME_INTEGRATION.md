@@ -1,6 +1,17 @@
 # Integración de la infraestructura de juego — 2026-09-27
 
-## Producción y costes conectados — 2026-10-02
+## Fase económica conectada — continuación 2026-10-02
+
+Sobre `1f45bfd`, `economic_phase.*` añade al tramo existente crecimiento,
+moral, investigación, disturbios/deserciones y balance final. CLI:
+`production-phase <save> <seed-int32>`; contexto frío explícito con flags de
+campaña0. Un único contexto/eventos/IA/RNG y rollback de los quince pasos.
+`EconomyPhaseApplied` conserva identidades y sigue sin permitir repetir/exportar.
+No habilita `Active` ni `advanceTurn`; faltan los demás sistemas del turno/UI.
+Los dominios inseguros, incluido el bug original de formato87/86 en deserción
+hacia local, rechazan toda la operación. Contrato en [ECONOMY_LAB.md](ECONOMY_LAB.md).
+
+## Producción y costes conectados — corte anterior 2026-10-02
 
 Sobre `728ee94`, `economic_prefix.*` conecta un tramo original de diez pasos en
 `runtime::State`, desde reinicios hasta financiación de obras. Añade producción

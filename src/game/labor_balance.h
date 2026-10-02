@@ -8,6 +8,13 @@
 
 namespace dl2::simulation {
 
+struct LaborAvailability {
+    int32_t available=0,unavailable=0;
+    bool operator==(const LaborAvailability&) const = default;
+};
+//0046c3fc, pure original labor-pool query for growth/unrest orchestration.
+bool territoryLaborAvailability(const save::Document&,uint32_t,LaborAvailability&,save::Error&);
+
 struct BuildingLaborState {
     uint16_t flags = 0;
     std::array<uint8_t, 5> tasks{};

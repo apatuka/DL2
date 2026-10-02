@@ -54,6 +54,9 @@ struct ConstructionOrderContext {
     EventLoadContext events; // CURRENT RNG/city counts, not the original load snapshot.
     AiReactionContext ai;
     const AiSession* aiSession = nullptr; // Borrowed; required only by nonlocal AI events.
+    // Explicit live DAT0059f100 for research leaves00450150 (bit4). Zero means
+    // disabled, NOT an instruction to infer a mask from options.campaign.
+    uint32_t researchCampaignFlags = 0;
 };
 enum class ConstructionOrderDenial { None, Placement, ReservedPoolSlot, Payment };
 struct ConstructionOrderEvent {

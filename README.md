@@ -22,6 +22,10 @@ este último recibe trabajo explícito, sin ejecutar el resto de la producción 
 impuestos, importaciones, comida, energía, mantenimiento, refinamiento y pagos
 pendientes. Se detiene antes de crecimiento/moral/investigación/revueltas y no
 permite guardar ni presentar ese tramo como turno completo.
+`production-phase` añade crecimiento, moral, resolución de investigación,
+disturbios/deserciones y balance laboral final, con rollback de la secuencia
+entera. Sigue siendo un experimento económico, no un turno jugable; rechaza
+dominios nativos inseguros (incluido un error de formato de deserción local).
 `normalize-load` integra un subconjunto explícito de carga offline y RNG por sesión;
 incluye migraciones, reinicio IA, visibilidad, inteligencia y avisos de santuarios.
 `normalize-session` incorpora reinicio, mapa cambiado y temporizador con un contexto frío explícito.
@@ -89,7 +93,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools/build.ps1 -BuildDir bu
 ```
 
 El hito de serialización pasó 8/8, el del inspector 15/15 y el de preparación/fiscalidad 18/18.
-La suite actual, incluida la continuación económica, pasa **47/47 sin omisiones**, tanto
+La suite actual, incluida la fase económica hasta balance final, pasa **52/52 sin omisiones**, tanto
 en `build-verified` como con AddressSanitizer en `build-save-asan`. Incluye 46
 capturas exactas, entidades/emplazamientos y experimentos económicos, además de
 RNG propietario, tablas compartidas y carga parcial: 46 documentos normalizados,
@@ -175,9 +179,9 @@ Para preparar un estado con referencias tipadas o ejecutar sólo la fase fiscal:
 ```
 
 Los comandos fiscales devuelven JSON y no escriben partidas. El turno no aumenta:
-el tramo económico ya conecta producción, consumo y logística, pero faltan
-población/moral/investigación/revueltas, movimiento/combate, IA completa y demás
-fases. `dl2sim turn` devuelve un error explícito.
+la fase económica ya conecta producción, consumo, logística, población, moral,
+investigación, disturbios y balance final dentro de sus dominios seguros. Faltan
+movimiento/combate, IA completa y demás fases. `dl2sim turn` devuelve un error explícito.
 La aplicación gráfica permanece en modo de inspección.
 
 El laboratorio económico añade:
@@ -186,6 +190,7 @@ El laboratorio económico añade:
 .\build-verified\src\dl2sim.exe economy "C:\GOG Games\Deadlock 2\TUTORIAL.SAV"
 .\build-verified\src\dl2sim.exe energy "C:\GOG Games\Deadlock 2\TUTORIAL.SAV"
 .\build-verified\src\dl2sim.exe production-prefix "C:\GOG Games\Deadlock 2\TUTORIAL.SAV" 1
+.\build-verified\src\dl2sim.exe production-phase "C:\GOG Games\Deadlock 2\TUTORIAL.SAV" 1
 ```
 
 `economy` devuelve el rendimiento calculado por tarea y las necesidades actuales,

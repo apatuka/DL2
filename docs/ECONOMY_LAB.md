@@ -15,6 +15,7 @@ jugable. Las entradas originales son de sólo lectura.
 | `simulation::planEnergy` | Proyección de consumo energético y solicitudes semánticas de déficit | Ninguna |
 | `State::consumeEnergy` | Aplica la proyección energética una sola vez desde `Prepared` | Sólo almacén de energía y porcentaje energético, en memoria |
 | `State::runEconomicProductionPrefix` | Reinicios → impuestos → producción 1 → necesidades/importaciones → comida → energía → mantenimiento → producción 2 → financiación de obras | Tramo conectado y transaccional; se detiene antes de crecimiento, moral, investigación y revueltas |
+| `State::runEconomicPhase` | Secuencia anterior → crecimiento → moral → investigación → disturbios/deserciones → balance final | Fase económica transaccional dentro de sus dominios seguros; NO turno completo ni exportación |
 
 Todos los planes reciben `const save::Document&`, devuelven errores explícitos y
 conservan el informe anterior si fallan. No usan `gs`, `gg`, RNG, callbacks ni
@@ -274,7 +275,57 @@ repetición, nuevas ediciones, exportación SAV ni avance de turno. La salida JS
 declara `complete_turn:false`, `complete_economic_phase:false`, `can_save:false`
 y `next_step:"population_growth"`. Los comandos previos conservan sus contratos.
 
-Faltan crecimiento y movimiento poblacional, moral, resolución de investigación,
-revueltas y balance final en esta secuencia, además de la integración con órdenes,
-UI, movimiento/combate, IA y guardado jugable. El balance final ya tiene una hoja
-independiente; no puede adelantarse saltando sus predecesoras.
+El comando anterior conserva ese corte. La API/comando siguiente añade sus cinco
+pasos pendientes sin saltar predecesores ni repetir impuestos/producción.
+
+## Fase económica hasta balance final — 2026-10-02
+
+`economic_phase.*` / `State::runEconomicPhase` completan los quince pasos de
+`0046c7d4` dentro de un único rollback. Reciben `EconomicPhaseContext`: el contexto
+anterior más los flags vivos de campaña `DAT0059f100`, ausentes del SAV.
+La máscara controla tanto bit10 de crecimiento como bit4 de restricción de
+tecnologías, también durante robo/adquisición en deserciones. Es autoritativa
+sobre `effects.researchCampaignFlags`, entrada explícita para las hojas aisladas
+de investigación; ninguna hoja deduce que bit4 esté activo sólo por el número
+de campaña guardado.
+
+```powershell
+.\build-verified\src\dl2sim.exe production-phase "C:\GOG Games\Deadlock 2\TUTORIAL.SAV" 1
+```
+
+El CLI declara contexto frío, semilla explícita y `campaign_flags:0`; no pretende
+recuperar la sesión histórica. No normaliza carga ni ejecuta movimiento/IA antes
+de producción. `complete_economic_phase:true` sólo se publica tras ejecutar todos
+los pasos; `complete_turn:false` y `can_save:false` siguen siendo obligatorios.
+
+- `population_growth.*`: capacidad física/vivienda, hambre, tasa racial,
+  producción rápida, narrowing, avisos52/53 y restricción local de campaña bit10.
+  Conserva el trigger nativo confirmado en assembly `new/100-(old-100)`, aunque
+  no sea la diferencia de centenas esperable. El balance temprano sólo ocurre
+  cuando ese valor es positivo.
+- `colony_morale.*`: diez componentes originales y total sin clamp, además del
+  resultado limitado. Impuestos, hambre, ocupación, hacinamiento, clonación,
+  guarnición, cultura, arte y hospitales; la energía afecta los outputs previos,
+  no se inventa un componente adicional. La rama racial fija80 permanece.
+- `research_phase.*`: presupuesto signed16 real de `lastIncome`, descubrimiento,
+  reparto por pactos, cambios de actitud IA, excedente a piezas electrónicas,
+  tecnología33/santuarios, prerrequisitos, restricciones de campaña, cola local y
+  autoselección. Tecnología0 conserva su semántica; no se trata como no-op universal.
+- `colony_unrest.*`: RNG y ramas de agitación, disturbios/daño, deserción a otro
+  territorio y posible tecnología robada. La búsqueda usa pactos, adyacencia y
+  distancias originales. No cambia propietarios: ese efecto NO está en0046c49c.
+- `planLaborBalance`: se aplica al final, después del daño a edificios y cambios
+  de población; reconstruye tareas, reparte trabajo y limita materiales1..10.
+
+Límite descubierto: `0046c5dc` envía evento87 con un entero donde el formato del
+PE espera `%s`; `0046c60c` envía86 con la forma inversa. Assembly y tabla binaria
+confirman un bug del original. Una deserción **hacia el jugador local** se rechaza
+atómicamente, sin intercambiar IDs ni fabricar texto. Hacia IA se conserva el
+dispatch nativo, que no formatea esos argumentos. También permanecen los dominios
+rechazados de hojas anteriores (p.ej. baja que dejaría task force colgante).
+
+`EconomyPhaseApplied` es terminal: mantiene handles supervivientes, retira las
+colas/unidades realmente consumidas y posee log/IA/RNG/logística/ciudades finales.
+No admite repetición, edición posterior, captura ni `advanceTurn`. Faltan órdenes
+jugables, activación/presentación, movimiento, combate, turno IA y persistencia
+del turno completo. La fase económica no equivale a terminar ese trabajo.

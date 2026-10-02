@@ -8,7 +8,8 @@
 
 namespace dl2::simulation {
 enum class EconomicStep { Reset, Taxes, PrimaryProduction, RecordNeeds, Imports,
-                          Food, Energy, Upkeep, Refinement, BuildingCosts };
+                          Food, Energy, Upkeep, Refinement, BuildingCosts,
+                          PopulationGrowth, Morale, Research, Unrest, FinalBalance };
 const char* economicStepName(EconomicStep step);
 using EconomicPrefixContext = TerritoryProductionContext;
 struct EconomicPrefixReport {

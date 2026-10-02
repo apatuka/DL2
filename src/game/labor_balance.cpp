@@ -376,6 +376,21 @@ struct Work {
 
 } // namespace
 
+bool territoryLaborAvailability(const save::Document& source,uint32_t territory,
+                                LaborAvailability& result,save::Error& error) {
+    if (!save::validate(source,error)) return false;
+    const auto* record=source.territoryByIndex(territory);
+    if (source.header.isMap || !record) return fail(error,"labor availability requires a saved-game territory");
+    const auto& t=record->data;
+    const int32_t tier=(int32_t(t.morale)+9)/10;
+    const int32_t percent=add(subtract(100,multiply(tier,10))/4,multiply(tier,10));
+    LaborAvailability value;
+    value.available=multiply(t.population,percent)/10000;
+    if (t.population!=0) value.available=std::max(value.available,1);
+    value.unavailable=std::max(subtract(int32_t(t.population)/100,value.available),0);
+    result=value; error={}; return true;
+}
+
 bool planLaborBalance(const save::Document& source, LaborBalancePlan& destination, save::Error& error) try {
     error = {};
     // Reject oversized/invalid documents before allocating an owning copy.

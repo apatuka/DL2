@@ -9,6 +9,15 @@ trabajadores, huellas y caminos, pero no es una orden pagada de construcción.
 
 ## Identidad y vida de las referencias
 
+La secuencia económica ahora también alcanza crecimiento/moral/investigación,
+disturbios y balance final (`State::runEconomicPhase`). Usa la misma reconciliación
+de altas/bajas que el prefijo: sobreviven identidades existentes y una unidad
+creada/desbandada dentro de la transacción no deja un handle público. La
+investigación y los disturbios no crean entidades ni cambian dueños; el daño
+de edificios se conserva hasta la reconstrucción final de tareas.
+`EconomyPhaseApplied` es terminal y no exportable, igual que el corte anterior.
+Véanse contratos y dominios rechazados en [ECONOMY_LAB.md](ECONOMY_LAB.md).
+
 Los handles tipados contienen un slot y una identidad de vida no serializada.
 No son IDs SAV ni direcciones del ejecutable. Un registro independiente traduce
 los slots de edificios/unidades a posiciones del documento denso. Borrar un

@@ -5,7 +5,10 @@ tipadas, separado de los globales heredados `gs` y `gg`. Ya permite resolver
 objetos, consultar sus relaciones, capturar una preparación sin cambios y
 ejecutar **experimentos fiscales, energéticos y de balance laboral aislados, sólo en memoria**.
 También conecta un tramo económico de diez pasos, desde reinicios hasta financiación
-de obras pendientes; se detiene antes de crecimiento/moral/investigación/revueltas.
+de obras pendientes mediante `runEconomicProductionPrefix`. `runEconomicPhase`
+añade crecimiento, moral, investigación, disturbios/deserciones y balance final,
+con una sola transacción. Sus estados terminales `EconomyPrefixApplied` y
+`EconomyPhaseApplied` impiden repetición, edición, captura y avance completo.
 También puede consultarse rendimiento de edificios y necesidades sobre el
 documento preparado; véase [ECONOMY_LAB.md](ECONOMY_LAB.md).
 
@@ -87,9 +90,10 @@ La proyección nativa opcional `loadedEvents()` exige un dominio más limitado
 | `TaxesApplied` | Sólo créditos modificados por impuestos; no permite repetir la subfase ni exportar una partida reanudable |
 | `EnergyApplied` | Sólo stock y porcentaje energético modificados; no permite repetir, encadenar impuestos ni capturar para guardar |
 | `LaborBalanced` | Tareas/labor/flags, moral y topes de almacén normalizados explícitamente; no es activación completa ni permite encadenar fases o capturar para guardar |
-| `EntitiesEdited` | Ediciones/órdenes de entidades; admite más ediciones soportadas o iniciar explícitamente el tramo `runEconomicProductionPrefix`, no captura ni turno completo |
+| `EntitiesEdited` | Ediciones/órdenes de entidades; admite más ediciones soportadas o iniciar explícitamente `runEconomicProductionPrefix`/`runEconomicPhase`, no captura ni turno completo |
 | `LoadNormalized` | Subconjunto explícito de carga offline y RNG inicializado; capacidades incompletas, sin captura SAV, edición, encadenamiento de fases ni turno |
 | `EconomyPrefixApplied` | Diez pasos económicos conectados y aplicados una vez; consultas, sin repetición, edición, captura ni turno completo |
+| `EconomyPhaseApplied` | Quince pasos hasta balance final, dentro del dominio seguro; consultas, sin repetición, edición, captura ni turno completo |
 
 `prepare` puede construir una preparación nueva desde cualquier estado. La fase
 actual es una propiedad **en memoria**, no una marca añadida al formato SAV.
@@ -275,8 +279,9 @@ producción 2, costes de edificios, población, moral, investigación, revueltas
 balance final. Ejecutar sólo impuestos no permite omitir ese resto ni incrementar
 el turno. Las colas ya utilizan presupuestos de fábricas, logística, creación de
 entidades y eventos reales dentro del tramo conectado; comida incluye unidades
-y suministro, no sólo población. Faltan las fases posteriores a costes y su
-unión con el resto del turno, no esos subpasos ya implementados.
+y suministro, no sólo población. `runEconomicPhase` conecta también las fases
+posteriores a costes hasta balance final. Faltan cerrar sus dominios inseguros
+documentados y unirlas con el resto del turno/UI/guardado jugable.
 
 Para ampliar la capacidad, seguir [ROADMAP.md](ROADMAP.md) y
 [GAME_INTEGRATION.md](GAME_INTEGRATION.md), con criterios de aceptación por fase

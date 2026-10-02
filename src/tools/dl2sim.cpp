@@ -308,6 +308,23 @@ void economicPrefix(const runtime::State& state, const simulation::EconomicPrefi
     for (int p = 0; p < kMaxPlayers; ++p) std::cout << (p ? "," : "") << state.document()->players[size_t(p)].credits;
     std::cout << "],\"turn\":" << state.document()->options.turn << "}\n";
 }
+void economicPhase(const runtime::State& state, const simulation::EconomicPhaseReport& r) {
+    std::cout << std::boolalpha << "{\"stage\":\"economic_phase_applied\",\"complete_turn\":false,"
+        "\"complete_economic_phase\":true,\"can_save\":false,\"cold_lab_context\":true,\"campaign_flags\":0,\"completed_steps\":[";
+    for (size_t i = 0; i < r.completed.size(); ++i)
+        std::cout << (i ? "," : "") << '"' << simulation::economicStepName(r.completed[i]) << '"';
+    std::cout << "],\"created_ids\":"; numbers(r.prefix.createdIds);
+    std::cout << ",\"retired_ids\":"; numbers(r.prefix.retiredIds);
+    std::cout << ",\"growth_territories\":" << r.growth.territories.size()
+              << ",\"morale_territories\":" << r.morale.territories.size()
+              << ",\"research_players\":" << r.research.players.size()
+              << ",\"acquisitions\":" << r.research.acquisitions.size()
+              << ",\"unrest_territories\":" << r.unrest.territories.size()
+              << ",\"balanced_territories\":" << r.balance.territories.size()
+              << ",\"logged_events\":" << r.logAfter.entries.size()
+              << ",\"rng_operations\":" << r.rngAfter.counters.operations
+              << ",\"turn\":" << state.document()->options.turn << "}\n";
+}
 int usage() {
     std::cout << "Execution preparation / economic laboratory. NOT a complete turn.\n"
                  "  dl2sim prepare <save>\n"
@@ -342,6 +359,9 @@ int usage() {
                  "  dl2sim produce-units <save> <territory> <queue1..5> <work-int32> <seed-int32>\n"
                  "  dl2sim production-prefix <save> <seed-int32>\n"
                  "    Original economic order from resets through building costs; stops BEFORE growth/morale/research/riots.\n"
+                 "  dl2sim production-phase <save> <seed-int32>\n"
+                 "    Full economic sequence through growth/morale/research/unrest/final balance; NOT a whole turn.\n"
+                 "    Explicit cold context, including campaign flags0; undefined native branches fail atomically.\n"
                  "    Work is an explicit laboratory input, not an executed economic turn.\n"
                  "  dl2sim delete-unit <save> <unit-id>\n"
                  "  dl2sim disband-unit <save> <unit-id>\n"
@@ -369,7 +389,7 @@ int main(int argc, char** argv) {
                             command == "economy" || command == "energy" || command == "labor" ||
                             command == "normalize-load" || command == "activate")) ||
               (argc == 4 && ((!isPlacement && !isCreation && archive) || command == "roundtrip" || command == "normalize-load-seeded" ||
-                             command == "normalize-session" || command == "production-prefix" || command == "delete-unit" || command == "disband-unit" || command == "delete-building")) ||
+                             command == "normalize-session" || command == "production-prefix" || command == "production-phase" || command == "delete-unit" || command == "disband-unit" || command == "delete-building")) ||
               (argc == 5 && (command == "demolish-building" || command == "progress-buildings")) ||
               (argc == 7 && (command == "start-building" || command == "produce-units")) ||
               (argc == 6 && (command == "create-unit" || command == "find-site" || command == "queue-unit" || command == "dequeue-unit")) ||
@@ -405,6 +425,12 @@ int main(int argc, char** argv) {
             require(simulation::findConstructionSite(*document,uint32_t(territory),integer(argv[4]),rng.snapshot(),report,error),error);
             std::cout << std::boolalpha << "{\"read_only\":true,\"applies_construction\":false,\"complete_turn\":false,\"found\":"
                       << report.found << ",\"site\":" << report.site << ",\"rng_operations\":" << report.rngAfter.counters.operations << "}\n";
+        } else if (command == "production-phase") {
+            simulation::EconomicPhaseContext context;
+            context.effects = coldOrderContext(*document, 0, integer(argv[3]), error);
+            auto report = std::make_unique<simulation::EconomicPhaseReport>();
+            require(state.runEconomicPhase(context, *report, error), error);
+            economicPhase(state, *report);
         } else if (command == "production-prefix") {
             simulation::EconomicPrefixContext context;
             context.effects = coldOrderContext(*document, 0, integer(argv[3]), error);

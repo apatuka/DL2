@@ -16,7 +16,76 @@ inspección: mapa, territorios, edificios, unidades y copias sin modificación. 
 lógica de partida está parcialmente escrita y todavía no está integrada. Cargar
 el documento no equivale a activar el estado de juego, simular un turno ni jugar.
 
-## Producción económica conectada — 2026-10-02
+## Fase económica hasta balance final — continuación 2026-10-02
+
+Continuación sobre `1f45bfd`. `economic_phase.*` conecta los quince pasos
+propietarios de `0046c7d4`: el prefijo existente más crecimiento, moral,
+resolución de investigación, disturbios/deserciones y EndTurnBalance. El comando
+`dl2sim production-phase <save> <seed-int32>` ejecuta la secuencia en memoria.
+`EconomyPhaseApplied` es terminal y NO es `Active`, turno completo ni SAV
+reanudable. Mantiene handles supervivientes y una continuación real de
+log/IA/RNG/logística/ciudades; cualquier error revierte incluso producción,
+entidades nuevas, bajas y cambios de colas anteriores.
+
+Nuevos módulos:
+
+- `population_growth`:0046b074/0046b0e4/0046b1ac, límites físicos/vivienda,
+  hambre/raza/fastProduction, eventos52/53, campaña y balance condicional.
+  Assembly confirma `new/100-(old-100)`: se conserva, no se corrige la fórmula.
+- `colony_morale`:0046bdfc/0046c1a8, diez componentes, total bruto, clamp y
+  límite de mejora; hojas reales de fuerza militar/ocupación y disponibilidad
+  de trabajadores compartidas con disturbios.
+- `research_phase`:00484114, adquisición00483d58, selector robable0048514c,
+  cola local/autoselección, prerequisitos, pactos y cambio real de actitud IA,
+  excedentes a piezas8 y revelación de santuarios tech33. El cuarto requisito
+  de las48 filas PE es0; ambos selectores nativos de límites devuelven10.
+- `colony_unrest`:0046c49c/DoRiot, migración por distancia/pactos, población,
+  daño, avisos y robo/adquisición (incluida tecnología0). No cambia propietarios
+  ni crea/elimina entidades, porque esas acciones no aparecen en esta función.
+- `economic_phase`: secuencia completa y aplicación final de tareas/labor/topes,
+  integrada con State/CLI y la reconciliación de identidades del prefijo.
+
+Dos límites importantes:
+
+1. Los flags vivos de campaña `DAT0059f100` no están en el SAV. El contexto de
+   fase los exige explícitos: bit10 controla crecimiento y bit4 restricciones
+   de tecnología, también en adquisiciones por deserción. El CLI declara0.
+   Para hojas aisladas, `ConstructionOrderContext::researchCampaignFlags`
+   recibe esa máscara; no se deduce del número de campaña. Los tests de corpus
+   de investigación toman explícitamente `LoadCoreReport::campaignGoalMask`.
+2. Assembly0046c5dc/0046c60c y la tabla física de eventos confirman formatos
+   intercambiados87/86: una deserción hacia local intentaría usar un entero como
+   puntero de texto. Se rechaza la transacción completa. No se intercambian IDs
+   sin una política explícita ni se declara esa rama completada. Permanecen
+   además los dominios seguros de fases anteriores, como la baja con referencia
+   taskforce viva.
+
+Las pruebas nuevas cubren aritmética/narrowing, componentes de moral, RNG,
+prerrequisitos y campañas on/off, progreso con Player.index distinto del slot,
+eventos y cola real, daño/migración, rollback tardío, alias, aislamiento de
+globales e integración de fábricas→comida/mantenimiento→crecimiento/investigación
+→disturbios→balance. Incluyen cuatro partidas originales de sólo lectura para
+la fase completa,48 filas tecnológicas contra PE y46 variantes de investigación
+con núcleo de carga normalizado. Son oráculos derivados del ejecutable y
+pruebas del port, no una comparación observada ejecutando el juego original.
+
+Checklist: ECO-02/05/10/13 cerrados dentro del contrato económico; ECO-09/11 y
+SIS-01 avanzan, manteniendo pendientes los traslados manuales, deserción local
+segura, selección jugable e integración del turno/UI. EST-04c/05b/07b siguen
+parciales por sus dependencias del juego completo, no por faltar el orden
+económico. Siguientes áreas: órdenes/activación, movimiento, combate, turno IA,
+presentación y guardado jugable.
+
+Verificación final, después del ajuste de flags vivos de campaña: **52/52 sin
+omisiones** en `build-verified` (**92,33 s**) y **52/52** en
+`build-save-asan` (**228,08 s**), sin hallazgos de AddressSanitizer. Compilación
+normal sin advertencias de código; ASAN conserva sólo el aviso de configuración
+D9025 (`/W3` sustituido por `/W4`). `git diff --check` limpio. Logs en
+`build-*/Testing/Temporary/LastTest.log`. Los cuatro comandos `production-phase`
+con semilla1 publicaron15 pasos, turno sin incrementar, `complete_turn:false`
+y `can_save:false`, sin escribir partidas originales.
+
+## Producción económica conectada — corte anterior 2026-10-02
 
 Continuación sobre `728ee94`. Se integra `economic_prefix.*` en State/CLI:
 reinicios → impuestos → producción1 → necesidades → importaciones → comida →

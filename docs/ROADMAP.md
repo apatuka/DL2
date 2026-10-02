@@ -123,10 +123,10 @@ avanza el turno. API, aritmética, desviación deliberada de ranuras vacías y C
 [ECONOMY_LAB.md](ECONOMY_LAB.md). Los resultados integrados de las nuevas pruebas
 se registran en `RECOVERY.md`.
 
-Antes de activar más fases, completar perfiles de normalización del cargador
-original para versiones antiguas, campañas, IA, visibilidad y reinicio de RNG,
-además de la gestión de creación/destrucción y las listas libres necesarias.
-Resolver referencias conocidas no demuestra haber realizado ese postprocesamiento.
+Los perfiles de normalización del cargador para versiones antiguas, campañas,
+IA, visibilidad y RNG ya tienen un subconjunto propietario explícito. Su entrega
+al motor y la activación jugable siguen pendientes. Resolver referencias
+conocidas no demuestra haber realizado ese postprocesamiento.
 La reconstrucción de tareas, el balance laboral y el tope de almacenes ya tienen
 una operación explícita y transaccional: `State::normalizeLabor`, con consultas
 puras en `labor_balance.*` y CLI `labor`. Véase [LABOR_BALANCE.md](LABOR_BALANCE.md).
@@ -137,13 +137,17 @@ encadenamiento con fases fiscales/energéticas aisladas.
 El bloque de entidades añade handles estables, inserción/retirada estructural
 restringida y consultas puras de emplazamiento/huella. Véase
 [ENTITY_RUNTIME.md](ENTITY_RUNTIME.md). La creación terminada ordinaria ya aplica
-ID, huella, labor local y caminos de sitios. Faltan casos especiales, pagos,
-fabricación y bajas antes de conectar las órdenes al jugador; `EntitiesEdited`
-permite esos experimentos limitados sin exportación SAV.
+ID, huella, labor local y caminos de sitios. También hay casos especiales,
+pagos, fabricación y bajas con dominios seguros explícitos; faltan órdenes de UI,
+demolición de santuarios/campaña y cierre jugable. `EntitiesEdited` permite estos
+experimentos y el inicio explícito del tramo económico, sin exportación SAV.
 
-La integración económica debe respetar los reinicios explícitos y el orden:
-producción 1 antes de reservas/importaciones/comida/energía. No puede sustituir
-ese primer pase por la suma de los outputs consultivos.
+`production-prefix` conecta reinicios→impuestos→producción1→necesidades/imports
+→comida→energía→mantenimiento→producción2→costes. Usa recorridos intercalados
+de obras/tareas, presupuestos reales de colas, efectos de abastecimiento y un
+único contexto de eventos/IA/RNG. No sustituye el primer pase por sumar outputs.
+Faltan crecimiento, moral, investigación, revueltas y balance final en esa
+secuencia; `EconomyPrefixApplied` impide repetir/capturar el tramo incompleto.
 
 El lote EST-01..08 integra `normalizeLoad` parcial: opciones/perfil offline,
 enlaces de objetos/trabajos, continentes/caminos/santuarios, labor y RNG propietario
@@ -151,8 +155,10 @@ inicializado al final desde gameId. Las tablas heredadas ya comparten la fuente
 canónica de 43 campañas. Véase [LOAD_NORMALIZATION.md](LOAD_NORMALIZATION.md).
 La continuación incorpora migraciones 35..37, datos de reinicio IA, visibilidad/
 inteligencia de carga y replay de eventos/timer con contexto explícito. Contactos
-nuevos se omiten en carga, igual que el original. Faltan IA ejecutable, mundo
-cambiado visual y transitorios restantes; `LoadNormalized` no se exporta ni juega.
+nuevos se omiten en carga, igual que el original. Ya están conectados mundo
+cambiado visual, reinicio propietario, avisos de santuarios y reacciones IA.
+Faltan turno IA completo y entrega nativa de la presentación;
+`LoadNormalized` no se exporta ni juega.
 
 Completar primero economía, población, recursos, trabajo y colas de producción;
 después unidades, movimiento y las fases de turno que los coordinan. Establecer

@@ -173,6 +173,16 @@ def main():
     assert progressed == run("progress-buildings", tutorial, 14, 1)
     assert progressed["initial_labor_balanced"] and progressed["isolated"]
     assert not progressed["complete_production_pass"] and not progressed["can_save"] and progressed["turn"] == prepared["turn"]
+    prefix = run("production-prefix", tutorial, 1)
+    assert prefix == run("production-prefix", tutorial, 1)
+    assert prefix["stage"] == "economic_prefix_applied" and prefix["cold_lab_context"]
+    assert not prefix["complete_turn"] and not prefix["complete_economic_phase"] and not prefix["can_save"]
+    assert prefix["completed_steps"] == ["reset", "taxes", "primary_production", "record_needs", "imports",
+                                         "food", "energy", "upkeep", "refinement", "building_costs"]
+    assert prefix["next_step"] == "population_growth" and prefix["turn"] == prepared["turn"]
+    assert prefix["primary_territories"] == prefix["refinement_territories"] > 0
+    assert not run("production-prefix", tutorial, "bad", success=False).stdout
+    assert not run("production-prefix", tutorial, "2147483648", success=False).stdout
     for command, bad_args in (
         ("queue-unit", ((0, 1, 1), (14, 0, 1), (14, 39, 1), (14, 1, "bad"))),
         ("dequeue-unit", ((0, 1, 0), (14, 0, 0), (14, 6, 0), (14, 1, -1))),
@@ -218,7 +228,8 @@ def main():
                               ("delete-building", (10241,)), ("demolish-building", (10241, 0)),
                               ("start-building", (14, 1, 35, 1)), ("find-site", (14, 1, 1)),
                               ("queue-unit", (14, 1, 1)), ("dequeue-unit", (14, 1, 0)),
-                              ("produce-units", (14, 1, 30, 1)), ("progress-buildings", (14, 1))):
+                              ("produce-units", (14, 1, 30, 1)), ("progress-buildings", (14, 1)),
+                              ("production-prefix", (1,))):
             rejected = subprocess.run([str(binary), command, str(tutorial), *map(str, args), str(partial)],
                                       capture_output=True, text=True)
             assert rejected.returncode == 2 and not partial.exists(), "new experiments cannot accept a save destination"

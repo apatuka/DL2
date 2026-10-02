@@ -1,7 +1,7 @@
 # Laboratorio económico sobre documentos guardados
 
 El laboratorio separa las **consultas sobre una instantánea guardada** de los
-experimentos que aplican una sola subfase. No ejecuta un turno, no sustituye la
+experimentos que aplican una subfase o un tramo económico explícito. No ejecuta un turno, no sustituye la
 normalización original de carga y no convierte el inspector en una partida
 jugable. Las entradas originales son de sólo lectura.
 
@@ -14,6 +14,7 @@ jugable. Las entradas originales son de sólo lectura.
 | `simulation::planNeeds` | Necesidad actual de comida/energía y su representación como reserva `s16` | Ninguna |
 | `simulation::planEnergy` | Proyección de consumo energético y solicitudes semánticas de déficit | Ninguna |
 | `State::consumeEnergy` | Aplica la proyección energética una sola vez desde `Prepared` | Sólo almacén de energía y porcentaje energético, en memoria |
+| `State::runEconomicProductionPrefix` | Reinicios → impuestos → producción 1 → necesidades/importaciones → comida → energía → mantenimiento → producción 2 → financiación de obras | Tramo conectado y transaccional; se detiene antes de crecimiento, moral, investigación y revueltas |
 
 Todos los planes reciben `const save::Document&`, devuelven errores explícitos y
 conservan el informe anterior si fallan. No usan `gs`, `gg`, RNG, callbacks ni
@@ -67,6 +68,10 @@ Hay dos diferencias importantes entre las funciones originales:
   de otra ranura. El flujo se confirmó en assembly. El informe nuevo **normaliza
   deliberadamente las ranuras vacías a labor/output cero**, en lugar de
   reproducir un valor indeterminado. No se promete paridad absoluta de ese caso.
+  El pase aplicado distingue esa consulta: al completar una obra puede activarse
+  una tarea posterior que usa el output cacheado de una ranura anteriormente
+  vacía. Conserva el arrastre definido de labor de la tarea anterior, sin
+  sustituirlo por cero ni recalcular el rendimiento después de terminar la obra.
   TaskOutput escalar sí tiene un caso definido: edificio activo, tarea cero y
   labor positiva puede devolver uno; el port lo conserva.
 
@@ -137,7 +142,7 @@ sin cambiar `options.turn`. No puede repetirse ni encadenarse después de
 `capture` rechaza ambos estados parciales. Preparar de nuevo crea otra
 instantánea, no continúa una secuencia de turno.
 
-## Orden original y preparación que todavía falta
+## Orden original y límites de la secuencia conectada
 
 La secuencia de `FUN_0046c7d4` es:
 
@@ -178,13 +183,14 @@ La carga original también hace más que resolver referencias. Tras leer,
 que actualiza visibilidad, snapshots de sitios/población, contactos y caminos,
 y termina en EndTurnBalance (`0046c780`). Este último reconstruye tareas
 (`GetBuildingTasks`, `0044e7ec`), redistribuye/recorta labor (`0044bea8`) y limita
-materiales 1..10 a 10000. Campañas, versiones antiguas, IA y RNG añaden otros
-perfiles de normalización pendientes.
+materiales 1..10 a 10000. Estos efectos de carga cuentan con su implementación
+propietaria explícita en [LOAD_NORMALIZATION.md](LOAD_NORMALIZATION.md); no se
+ejecutan como efecto oculto de una consulta ni de `production-prefix`.
 
 Por tanto, una consulta del archivo no afirma ser idéntica a una consulta
 **después de abrirlo y normalizarlo en el ejecutable original**. La preparación
-propietaria conserva el documento para su round-trip; activar aquellas
-normalizaciones requerirá una operación explícita y pruebas de sus cambios.
+propietaria conserva el documento para su round-trip; las normalizaciones se
+solicitan mediante las operaciones de carga documentadas, sin activación jugable.
 
 ## CLI y verificación
 
@@ -193,6 +199,7 @@ normalizaciones requerirá una operación explícita y pruebas de sus cambios.
 .\build\src\dl2sim.exe economy-archive "C:\GOG Games\Deadlock 2\LEVELS" CHCHT1
 .\build\src\dl2sim.exe energy "C:\GOG Games\Deadlock 2\TUTORIAL.SAV"
 .\build\src\dl2sim.exe energy-archive "C:\GOG Games\Deadlock 2\LEVELS" CHCHT1
+.\build\src\dl2sim.exe production-prefix "C:\GOG Games\Deadlock 2\TUTORIAL.SAV" 1
 ```
 
 `economy` imprime JSON de outputs y necesidades, con `read_only:true` y
@@ -220,25 +227,54 @@ de `EndTurnBalance` están implementados separadamente en `labor_balance.*`.
 contrato de `economy`: éste continúa consultando la instantánea tal como se guardó.
 Reglas, límites y pruebas: [LABOR_BALANCE.md](LABOR_BALANCE.md).
 
-## Siguiente corte de implementación
+## Tramo de producción aplicado — 2026-10-02
 
-Las consultas ya proporcionan las hojas numéricas, pero no el pase aplicado.
-La reconstrucción de tareas (`0044e7ec`) y el balance de labor (`0044bea8`) ya se
-pueden aplicar explícitamente; faltan otras normalizaciones de carga y definir
-el encadenamiento real. Hacen falta creación de unidades,
-colas, construcciones/mejoras, RNG propio y logística para ejecutar producción 1
-y 2 en su orden real.
+`economic_prefix.*` conecta los diez primeros pasos de `0046c7d4`, desde sus
+reinicios hasta `0044f110`. La API exige una instantánea que represente la entrada
+a producción y un único contexto vivo de log, IA, ciudades, proveedores y RNG.
+No ejecuta movimiento ni IA anteriores, ni normaliza una partida a escondidas.
+`production-prefix` proporciona un **contexto frío de laboratorio**, con semilla
+explícita y reconstrucción del log guardado; no recupera transitorios ausentes del SAV.
 
-La auditoría logística dejó trampas concretas para el próximo port:
+- `territory_production.*` recorre territorios 1..N y sitios/ranuras en orden.
+  Comparte el recorrido de obras/mejoras: tareas vivas y outputs cacheados por
+  edificio; arte consume Long31 y sus eventos se intercalan con las obras.
+  Las cinco colas reciben trabajo asignado real antes de sumar créditos,
+  clonación, investigación, entrenamiento, curación y materiales.
+- El segundo pase importa hierro y endurium antes de ambas conversiones y
+  preserva los narrowing signed16. **Ambos pases** balancean labor, limitan
+  población y ejecutan TrainMilitia incluso con cero entrenamiento. Las
+  conversiones son hierro→acero y endurium→triidium; `electronics` en el informe
+  de refinamiento es un nombre interno, no cambio del material7.
+- `economic_logistics.*` registra necesidades, importa por material/rondas de
+  territorios y conserva proveedores/transferencias. FindSupplier elige el
+  primer candidato viable; CollectMaterial puede transferir parcialmente y
+  devolver −1, con límites por créditos incluso cuando el flete es cero.
+- `economic_consumption.*` alimenta civiles y luego unidades en el orden físico
+  propietario. La búsqueda gratuita consulta la misión `Army+25`, no su clase;
+  el fallback cobra/importa realmente. Aplica hambre, flags y eventos50/60/2.
+  La energía aplica stock/porcentaje y entrega los eventos51 reales.
+- `economic_upkeep.*` agrupa unidades canónicas y calcula el mantenimiento
+  cuadrático original, no una suma de la columna upkeep. Procesa los siete
+  jugadores, avisa de déficit y desbanda por precio/experiencia/ID, con bajas en
+  cascada y devoluciones. Una referencia viva de task force que quedaría inválida
+  provoca rechazo transaccional; no se inventa una desvinculación.
+- `building_costs.*` financia obras pendientes en orden unsigned16 de ID, con
+  escala guardada para City Center, cobros parciales y eventos60. No vuelve a
+  cobrar dinero base ni comprobar tecnología. Al completar el pago activa bit2
+  y limpia los once paid; el trabajo empezará en una pasada posterior.
 
-- `FindSupplier` (`00472844`) usa el primer candidato viable según orden de
-  recorrido, no una ruta óptima que pueda sustituirse libremente.
-- `CollectMaterial` (`00472974`) puede transferir parcialmente y devolver −1;
-  incluso coste cero limita la cantidad por créditos. Su consulta sin aplicación
-  modifica reservas transitorias, así que requiere contexto de cálculo propio.
-- `ConsumeFood` recorre también unidades y modifica indicadores alimentarios y
-  eventos. `00446bf0`, llamado `IsMobileUnit` en un header heredado, comprueba
-  misiones en `Army+0x25`, no simplemente la movilidad de la clase.
-- Los eventos originales pueden activar lógica de IA. Informar una solicitud
-  semántica no implementa esa reacción; el turno completo debe seguir bloqueado
-  hasta integrar sus efectos necesarios.
+Todos los pasos comparten el mismo log y RNG; los avisos se entregan a los
+implementadores reales locales/IA, sin callbacks ficticios. Un error tardío
+revierte el tramo entero, incluidas entidades creadas, bajas, colas e identidades.
+Una unidad creada y desbandada dentro del mismo tramo no deja handles colgantes.
+
+State termina en `EconomyPrefixApplied`, con consultas permitidas pero sin
+repetición, nuevas ediciones, exportación SAV ni avance de turno. La salida JSON
+declara `complete_turn:false`, `complete_economic_phase:false`, `can_save:false`
+y `next_step:"population_growth"`. Los comandos previos conservan sus contratos.
+
+Faltan crecimiento y movimiento poblacional, moral, resolución de investigación,
+revueltas y balance final en esta secuencia, además de la integración con órdenes,
+UI, movimiento/combate, IA y guardado jugable. El balance final ya tiene una hoja
+independiente; no puede adelantarse saltando sus predecesoras.

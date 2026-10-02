@@ -16,7 +16,68 @@ inspección: mapa, territorios, edificios, unidades y copias sin modificación. 
 lógica de partida está parcialmente escrita y todavía no está integrada. Cargar
 el documento no equivale a activar el estado de juego, simular un turno ni jugar.
 
-## Progreso de obras y fabricación — 2026-10-02
+## Producción económica conectada — 2026-10-02
+
+Continuación sobre `728ee94`. Se integra `economic_prefix.*` en State/CLI:
+reinicios → impuestos → producción1 → necesidades → importaciones → comida →
+energía → mantenimiento → producción2 → financiación de obras pendientes.
+No es la fase completa: se detiene antes de crecimiento, moral, resolución de
+investigación, revueltas y balance final. **No se habilitan Active, advanceTurn
+ni exportación de partidas parciales.**
+
+Implementación nueva:
+
+- `territory_production.*` y recorrido compartido con `building_progress`:
+  obras/mejoras, tareas vivas con outputs cacheados, arte/Long31 y eventos
+  intercalados, fábrica→colas antes de ingresos, recursos, cultura/investigación
+  acumuladas, clonación, entrenamiento y curación. Ambos pases conservan clamp
+  poblacional/TrainMilitia(0); el segundo importa antes de refinar.
+- `economic_logistics.*`: hojas CollectMaterial/FindSupplier, registro de
+  necesidades, reinicios e importaciones por material/rondas. Proveedores y
+  transferencias son datos propietarios; eventos60 se entregan realmente.
+- `economic_consumption.*`: civiles y unidades en orden físico propietario,
+  suministro gratuito por misión/aviación, fallback pagado, hambre y flags;
+  energía con stock/porcentaje y eventos51 reales.
+- `economic_upkeep.*`: mantenimiento cuadrático por clase canónica, avisos,
+  fondos insuficientes y desbandado por precio/experiencia/ID, cascadas y
+  devoluciones. Referencias taskforce que quedarían inválidas provocan rechazo
+  atómico; no se inventa detach que no existe en ese caller original.
+- `building_costs.*`: financiación parcial por ID unsigned16, escala de City
+  Center guardada, flags y limpieza de paid, sin volver a cobrar dinero base.
+- `EconomyPrefixApplied`: una sola continuación log/AI/RNG/ciudades/logística,
+  reconciliación de identidades tras fabricación y bajas, y rollback del tramo
+  completo si falla una etapa tardía. No permite repetir ni seguir editando.
+
+CLI nuevo: `dl2sim production-prefix <save> <seed-int32>`. Contexto frío explícito
+con reconstrucción de eventos guardados, no recuperación de transitorios del SAV.
+Declara el siguiente paso `population_growth` y rechaza un destino de guardado.
+
+Pruebas: oráculos de tareas/cache, orden art→obra, cola antes de ingresos,
+conversión/imports, desbordamientos, consumo civil/unidades, déficit/repetición,
+costes/selección/bajas y error tardío. La integración conecta fábrica→unidad→
+comida→mantenimiento, pago de obras después de ambos pases y creación seguida
+de desbandado dentro de una única transacción. Se conservan handles supervivientes.
+El tramo completo implementado se ejecuta sobre **cuatro archivos originales**
+de sólo lectura (tutorial, autosave de partida y dos campañas). Costes y
+mantenimiento recorren además el corpus de **46 documentos**, con perfil de
+carga explícito; el ensayo de mantenimiento dota créditos y limpia la solicitud
+de baja para aislar el cobro. No se presenta como replay diferencial del EXE ni
+como prueba de todos los casos de turnos reales.
+
+Checklist: **ECO-03/04/06/08** implementados e integrados dentro del tramo;
+ECO-05/07/13 y CON-03c/05c avanzan con los límites precisados. Los EST parcialmente
+abiertos no se cierran de forma cosmética: faltan activación/presentación, resto
+económico, combate/movimiento, IA completa y guardado jugable.
+
+Verificación final: **47/47 pruebas sin omisiones** en `build-verified`
+(**86,09 s**) y **47/47** en `build-save-asan` (**219,15 s**), sin hallazgos de
+AddressSanitizer. Compilación normal sin advertencias de código; ASAN conserva
+el aviso previo de configuración `/W3` sustituido por `/W4`. Logs en
+`Testing/Temporary/LastTest.log` de cada build. Los primeros ensayos detectaron
+expectativas/fixtures incorrectos (rendimiento task6, enlaces/adyacencia y
+contexto de carga), corregidos antes de ambas suites finales completas.
+
+## Progreso de obras y fabricación — 2026-10-02 (corte anterior)
 
 Continuación sobre `6750c22`. Se incorporan dos módulos propietarios y sus
 integraciones State/CLI, sin modificar la instalación original:

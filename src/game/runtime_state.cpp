@@ -778,6 +778,79 @@ bool State::queueUnit(const simulation::QueueUnitRequest& request,
                       simulation::UnitManufacturingReport& report, save::Error& error) {
     return applyManufacturing(request, context, report, error);
 }
+
+bool State::runEconomicProductionPrefix(const simulation::EconomicPrefixContext& context,
+                                       simulation::EconomicPrefixReport& report, save::Error& error) {
+    return guarded([&] {
+        const auto& effects = context.effects;
+        if ((rng_.snapshot().initialized && effects.events.rngBeforeEvents != rng_.snapshot()) ||
+            (aiReaction_ && effects.ai != *aiReaction_) || (events_ && effects.log != *events_) ||
+            (collection_ && effects.payment.collection != *collection_) ||
+            (eventCities_ && effects.events.citiesBeforeLoad != *eventCities_))
+            return fail(error, save::ErrorCode::InvalidState, "Economic prefix context differs from the owned continuation");
+        State candidate;
+        if (!copyForEdit(candidate, error)) return false;
+        auto input = context; input.effects.aiSession = nullptr;
+        const auto aiPlayer = [&](int p) {
+            return p >= 0 && p < kMaxPlayers && p != candidate.document_->options.localPlayer &&
+                std::bit_cast<int8_t>(candidate.document_->players[size_t(p)].type) >= 3;
+        };
+        bool needsAi = false;
+        for (const auto& t : candidate.document_->territories) needsAi |= aiPlayer(t.data.owner);
+        for (const auto& a : candidate.document_->armies) needsAi |= aiPlayer(a.owner);
+        for (int p = 0; p < kMaxPlayers; ++p)
+            needsAi |= aiPlayer(p) && (candidate.document_->players[size_t(p)].credits < 0 ||
+                                      (candidate.document_->players[size_t(p)].foodFlags & 4));
+        if (needsAi) {
+            if (!candidate.ai_) {
+                candidate.ai_.emplace();
+                if (!candidate.ai_->initializeAfterLoad(*candidate.document_, error)) return false;
+            }
+            input.effects.aiSession = &*candidate.ai_;
+        }
+        auto outcome = std::make_unique<simulation::EconomicPrefixReport>(); auto& result = *outcome;
+        if (!simulation::runEconomicProductionPrefix(*candidate.document_, input, *candidate.document_, result, error)) return false;
+        if (candidate.document_->buildings.size() != document_->buildings.size())
+            return fail(error, save::ErrorCode::InvalidState, "Economic prefix unexpectedly changed building allocation");
+        for (size_t i = 0; i < document_->buildings.size(); ++i)
+            if (candidate.document_->buildings[i].id != document_->buildings[i].id)
+                return fail(error, save::ErrorCode::InvalidState, "Economic prefix changed building allocation order");
+        // Replay allocation/removal REPORT order to preserve every surviving
+        // handle, including creation then disband in this same transaction.
+        std::vector<uint32_t> expected;
+        for (const auto& a : document_->armies) expected.push_back(a.id);
+        const auto append = [&](const std::vector<uint32_t>& ids) {
+            for (auto id : ids) {
+                if (!id || std::find(expected.begin(), expected.end(), id) != expected.end()) return false;
+                expected.push_back(id);
+            }
+            return true;
+        };
+        if (!append(result.primary.createdIds))
+            return fail(error, save::ErrorCode::InvalidState, "Economic primary allocation report collides with live IDs");
+        for (auto id : result.retiredIds) {
+            const auto where = std::find(expected.begin(), expected.end(), id);
+            if (where == expected.end()) return fail(error, save::ErrorCode::InvalidState, "Economic retirement report references an absent army");
+            expected.erase(where);
+        }
+        if (!append(result.refinement.createdIds) || expected.size() != candidate.document_->armies.size())
+            return fail(error, save::ErrorCode::InvalidState, "Economic report does not match army allocation count");
+        for (size_t i = 0; i < expected.size(); ++i)
+            if (candidate.document_->armies[i].id != expected[i])
+                return fail(error, save::ErrorCode::InvalidState, "Economic report differs from physical army order");
+        for (size_t i = document_->armies.size(); i > 0; --i)
+            if (std::find(result.retiredIds.begin(), result.retiredIds.end(), document_->armies[i - 1].id) != result.retiredIds.end())
+                retireSlot(candidate.armySlots_, candidate.armyDenseSlots_, uint32_t(i - 1));
+        while (candidate.armyDenseSlots_.size() < expected.size())
+            if (!allocateSlot(candidate.armySlots_, candidate.armyDenseSlots_, error)) return false;
+        if (!candidate.rng_.restore(result.rngAfter, error)) return false;
+        candidate.events_ = result.logAfter; candidate.aiReaction_ = result.aiAfter;
+        candidate.collection_ = result.collectionAfter; candidate.eventCities_ = result.citiesAfter;
+        if (!finishEdit(std::move(candidate), error, result.queueStructureChanged)) return false;
+        stage_ = Stage::EconomyPrefixApplied;
+        report = std::move(result); return true;
+    }, error);
+}
 bool State::produceUnits(const simulation::ProduceUnitsRequest& request,
                          const simulation::UnitManufacturingContext& context,
                          simulation::UnitManufacturingReport& report, save::Error& error) {

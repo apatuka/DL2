@@ -65,7 +65,7 @@ struct Work {
     size_t steps = 0;
     Work(save::Document& d, ConstructionPaymentReport& r, uint32_t t, uint32_t selection)
         : document(d), report(r), territories(d.territories.size()+1), city(territories.size()),
-          target(t), selected(selection), owner(d.territories[t-1].data.owner) {
+          target(t), selected(selection), owner(r.owner) {
         for (size_t i = 0; i < d.territories.size(); ++i) {
             territories[i+1] = d.territories[i].data;
             for (const auto& site : territories[i+1].sites) {
@@ -384,4 +384,56 @@ bool collectConstructionRequirements(const save::Document& source, uint32_t terr
   catch (const std::bad_alloc&) { error = {save::ErrorCode::Limit,0,"Incremental construction collection allocation failed"}; return false; }
   catch (const std::length_error&) { error = {save::ErrorCode::Limit,0,"Incremental construction collection allocation exceeds limit"}; return false; }
   catch (const std::exception& e) { error = {save::ErrorCode::InvalidState,0,e.what()}; return false; }
+
+namespace {
+bool collectionSource(const save::Document& source,uint32_t territory,int player,int material,save::Error& error) {
+    if (!save::validate(source,error)) return false;
+    if (source.header.isMap || !territory || territory>source.territories.size())
+        return fail(error,"Material collection requires a saved-game territory1..N");
+    if (player<0 || player>=kMaxPlayers || material<1 || material>=kNumMaterials)
+        return fail(error,"Material collection player/material is outside0..6/1..10");
+    return true;
+}
+}
+
+// orig: FUN_00472974 (CollectMaterial), with its explicit payer argument.
+bool collectMaterialResources(const save::Document& source,const MaterialCollectionRequest& request,
+    const ResourceCollectionState& before,save::Document& destination,
+    MaterialCollectionReport& report,save::Error& error) try {
+    if (!collectionSource(source,request.territory,request.player,request.material,error)) return false;
+    auto candidate=std::make_unique<save::Document>(source); ConstructionPaymentReport scratch;
+    scratch.territory=request.territory; scratch.owner=request.player; scratch.collection=before;
+    Work work(*candidate,scratch,request.territory,0);
+    if (!work.validate(error,false)) return false;
+    MaterialCollectionReport result; result.request=request;
+    result.result=work.collect(request.material,request.amount,request.apply,result.remaining,result.cost);
+    work.publish();
+    result.collection=std::move(scratch.collection); result.importFailures=std::move(scratch.importFailures);
+    if (!save::validate(*candidate,error)) return false;
+    destination=std::move(*candidate); report=std::move(result); error={}; return true;
+} catch (const StepLimit&) { error={save::ErrorCode::Limit,0,"Material collection exceeds traversal/transfer bound"}; return false; }
+  catch (const std::bad_alloc&) { error={save::ErrorCode::Limit,0,"Material collection allocation failed"}; return false; }
+  catch (const std::length_error&) { error={save::ErrorCode::Limit,0,"Material collection exceeds allocation bound"}; return false; }
+  catch (const std::exception& e) { error={save::ErrorCode::InvalidState,0,e.what()}; return false; }
+
+// orig: FUN_00472844 (FindSupplier). Never silently clears a prior cache.
+bool findMaterialSupplier(const save::Document& source,const SupplierSearchRequest& request,
+    const ResourceCollectionState& before,save::Document& destination,
+    SupplierSearchReport& report,save::Error& error) try {
+    if (!collectionSource(source,request.territory,request.player,request.material,error)) return false;
+    if (request.maximumMode<0 || request.maximumMode>3)
+        return fail(error,"Supplier search mode is outside0..3");
+    auto candidate=std::make_unique<save::Document>(source); ConstructionPaymentReport scratch;
+    scratch.territory=request.territory; scratch.owner=request.player; scratch.collection=before;
+    Work work(*candidate,scratch,request.territory,0);
+    if (!work.validate(error,false)) return false;
+    SupplierSearchReport result;
+    result.found=work.findSupplier(request.material,request.maximumMode);
+    result.stockExists=work.donorStockExists; work.publish(); result.collection=std::move(scratch.collection);
+    if (!save::validate(*candidate,error)) return false;
+    destination=std::move(*candidate); report=std::move(result); error={}; return true;
+} catch (const StepLimit&) { error={save::ErrorCode::Limit,0,"Supplier search exceeds traversal bound"}; return false; }
+  catch (const std::bad_alloc&) { error={save::ErrorCode::Limit,0,"Supplier search allocation failed"}; return false; }
+  catch (const std::length_error&) { error={save::ErrorCode::Limit,0,"Supplier search exceeds allocation bound"}; return false; }
+  catch (const std::exception& e) { error={save::ErrorCode::InvalidState,0,e.what()}; return false; }
 } // namespace dl2::simulation

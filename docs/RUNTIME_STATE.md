@@ -4,6 +4,8 @@
 tipadas, separado de los globales heredados `gs` y `gg`. Ya permite resolver
 objetos, consultar sus relaciones, capturar una preparación sin cambios y
 ejecutar **experimentos fiscales, energéticos y de balance laboral aislados, sólo en memoria**.
+También conecta un tramo económico de diez pasos, desde reinicios hasta financiación
+de obras pendientes; se detiene antes de crecimiento/moral/investigación/revueltas.
 También puede consultarse rendimiento de edificios y necesidades sobre el
 documento preparado; véase [ECONOMY_LAB.md](ECONOMY_LAB.md).
 
@@ -85,8 +87,9 @@ La proyección nativa opcional `loadedEvents()` exige un dominio más limitado
 | `TaxesApplied` | Sólo créditos modificados por impuestos; no permite repetir la subfase ni exportar una partida reanudable |
 | `EnergyApplied` | Sólo stock y porcentaje energético modificados; no permite repetir, encadenar impuestos ni capturar para guardar |
 | `LaborBalanced` | Tareas/labor/flags, moral y topes de almacén normalizados explícitamente; no es activación completa ni permite encadenar fases o capturar para guardar |
-| `EntitiesEdited` | Ediciones estructurales y creación limitada de edificios terminados; admite más ediciones de ese dominio, no captura ni fases económicas ni turno completo |
+| `EntitiesEdited` | Ediciones/órdenes de entidades; admite más ediciones soportadas o iniciar explícitamente el tramo `runEconomicProductionPrefix`, no captura ni turno completo |
 | `LoadNormalized` | Subconjunto explícito de carga offline y RNG inicializado; capacidades incompletas, sin captura SAV, edición, encadenamiento de fases ni turno |
+| `EconomyPrefixApplied` | Diez pasos económicos conectados y aplicados una vez; consultas, sin repetición, edición, captura ni turno completo |
 
 `prepare` puede construir una preparación nueva desde cualquier estado. La fase
 actual es una propiedad **en memoria**, no una marca añadida al formato SAV.
@@ -96,8 +99,8 @@ al final desde `options.gameId`. Pedir carga completa falla sin modificar estado
 modificar `options.turn`. El informe y el estado permanecen intactos ante fallo.
 
 `consumeEnergy` también requiere una preparación nueva y pasa a `EnergyApplied`.
-No puede ejecutarse después de impuestos ni viceversa: faltan producción,
-importaciones y consumo alimentario entre esas fases del turno original. Su
+No puede ejecutarse después de impuestos ni viceversa: esos experimentos omiten
+producción, importaciones y comida entre las fases del turno original. Su
 informe incluye solicitudes semánticas de evento 0x33; no se añaden textos
 inventados al log SAV ni se ejecutan callbacks de IA.
 
@@ -112,6 +115,17 @@ los casos firmados peculiares del original y los límites seguros se describen e
 completos y IDs explícitos; no son construcción, fabricación, demolición o bajas
 de combate. Su dominio limitado y las dependencias rechazadas se detallan en
 [ENTITY_RUNTIME.md](ENTITY_RUNTIME.md). El inspector sigue sin estas órdenes.
+
+`runEconomicProductionPrefix` exige `Prepared` o `EntitiesEdited` y un contexto
+que coincida con la continuación propia si ya existe: log, AI, RNG, ciudades y
+logística. No acepta un nuevo seed para rebobinar eventos. Conecta las dos pasadas
+reales y sus predecesoras; los detalles están en [ECONOMY_LAB.md](ECONOMY_LAB.md).
+La reconciliación sigue creación primaria → bajas de mantenimiento → creación
+de refinamiento, conserva handles supervivientes y retira todos los nodos de
+cola reemplazados, incluso ante repetición byte-idéntica. Una unidad creada y
+eliminada dentro de la operación no publica identidad. Fallos tardíos conservan
+estado, informes, handles y contextos anteriores. `EconomyPrefixApplied` impide
+repetir cobros/reinicios o continuar editando una economía incompleta.
 
 `createCompletedBuilding` comparte ese dominio de etapas, pero sí inicializa un
 edificio terminado ordinario, asigna ID de partida y aplica huella, labor local
@@ -259,9 +273,10 @@ La secuencia económica observada en `FUN_0046c7d4` es impuestos, producción 1,
 registro de necesidades, importación de déficits, comida, energía, mantenimiento,
 producción 2, costes de edificios, población, moral, investigación, revueltas y
 balance final. Ejecutar sólo impuestos no permite omitir ese resto ni incrementar
-el turno. Las colas ya utilizan logística, creación de entidades y eventos reales,
-pero falta integrarlas con el presupuesto producido en el pase económico;
-comida incluye unidades y suministro, no sólo población.
+el turno. Las colas ya utilizan presupuestos de fábricas, logística, creación de
+entidades y eventos reales dentro del tramo conectado; comida incluye unidades
+y suministro, no sólo población. Faltan las fases posteriores a costes y su
+unión con el resto del turno, no esos subpasos ya implementados.
 
 Para ampliar la capacidad, seguir [ROADMAP.md](ROADMAP.md) y
 [GAME_INTEGRATION.md](GAME_INTEGRATION.md), con criterios de aceptación por fase

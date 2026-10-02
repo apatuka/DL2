@@ -24,6 +24,7 @@
 #include "game/ai_session.h"
 #include "game/building_progress.h"
 #include "game/unit_manufacturing.h"
+#include "game/economic_prefix.h"
 
 namespace dl2::runtime {
 template<class Tag> struct Handle {
@@ -149,7 +150,7 @@ struct LoadContext {
     simulation::LoadTimerState previousTimer;
 };
 
-enum class Stage { Empty, Prepared, TaxesApplied, EnergyApplied, LaborBalanced, EntitiesEdited, LoadNormalized };
+enum class Stage { Empty, Prepared, TaxesApplied, EnergyApplied, LaborBalanced, EntitiesEdited, LoadNormalized, EconomyPrefixApplied };
 class State {
 public:
     State() = default;
@@ -229,6 +230,12 @@ public:
                       simulation::UnitManufacturingReport& report, save::Error& error);
     bool dequeueUnit(const simulation::DequeueUnitRequest& request,
                      simulation::UnitDequeueReport& report, save::Error& error);
+    // Contiguous ProductionPhase prefix: reset through pending building costs,
+    // with both actual passes, food/import/energy/upkeep in original order.
+    // From Prepared/EntitiesEdited only; enters a terminal experimental stage.
+    // No growth/morale/research/riots/final balance, repeat, edits or SAV export.
+    bool runEconomicProductionPrefix(const simulation::EconomicPrefixContext& context,
+                                     simulation::EconomicPrefixReport& report, save::Error& error);
     bool createArmy(const simulation::ArmyCreationRequest& request,
                     const simulation::ArmyCreationContext& context, ArmyHandle& created,
                     simulation::ArmyLifecycleReport& report, save::Error& error);

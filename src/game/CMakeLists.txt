@@ -37,6 +37,12 @@ set(GAME_SOURCES
     construction_site.cpp
     building_progress.cpp
     unit_manufacturing.cpp
+    territory_production.cpp
+    economic_logistics.cpp
+    economic_consumption.cpp
+    building_costs.cpp
+    economic_upkeep.cpp
+    economic_prefix.cpp
     # END MODULE SOURCES
 )
 

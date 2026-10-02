@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <bit>
+#include <cstring>
 #include <exception>
 #include <limits>
 #include <new>
@@ -79,9 +80,14 @@ bool foodNeed(const save::Document& source, const Territory& territory,
     const int owner = territory.owner;
     if (owner < 0 || owner >= kMaxPlayers) { result = 0; return true; }
     const int race = source.players[size_t(owner)].race;
-    if (race < 0 || race >= data::kNumRaces)
-        return invalid(error, territory.index, "owner race is outside 0..6");
-    result = wrapMultiply(territory.population, source.raceStats.v[61][race]) / 10000;
+    // The original adds signed race to a flat row61 address. Cross-row reads
+    // remain defined while inside the actual saved RaceStats block.
+    const int word=61*kMaxPlayers+race;
+    if (word<0 || word>=int(sizeof(RaceStats)/sizeof(int16_t)))
+        return invalid(error, territory.index, "food racial address is outside the saved RaceStats block");
+    int16_t racial;
+    std::memcpy(&racial,reinterpret_cast<const uint8_t*>(&source.raceStats)+size_t(word)*2,2);
+    result = wrapMultiply(territory.population, racial) / 10000;
     return true;
 }
 

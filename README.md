@@ -18,6 +18,10 @@ obra pendiente y conecta eventos, trabajadores, caminos y puertos. No permite gu
 `progress-buildings` aplica trabajo real asignado a obras/mejoras. `queue-unit`,
 `dequeue-unit` y `produce-units` conectan pago, cancelación, repetición y fabricación;
 este último recibe trabajo explícito, sin ejecutar el resto de la producción económica.
+`production-prefix` conecta los presupuestos reales de fábricas y obras con
+impuestos, importaciones, comida, energía, mantenimiento, refinamiento y pagos
+pendientes. Se detiene antes de crecimiento/moral/investigación/revueltas y no
+permite guardar ni presentar ese tramo como turno completo.
 `normalize-load` integra un subconjunto explícito de carga offline y RNG por sesión;
 incluye migraciones, reinicio IA, visibilidad, inteligencia y avisos de santuarios.
 `normalize-session` incorpora reinicio, mapa cambiado y temporizador con un contexto frío explícito.
@@ -33,7 +37,7 @@ La demostración previa del motor y del panel SMenu `D000` se conserva mediante 
 - [Carga/guardado C++ verificable](docs/SAVE_CODEC.md): documentos de partida, CLI y límites.
 - [Inspector gráfico del mundo](docs/WORLD_INSPECTOR.md): controles, copias seguras y límites visuales.
 - [Estado de ejecución y primera fase fiscal](docs/RUNTIME_STATE.md): referencias propias, pruebas y CLI.
-- [Laboratorio económico](docs/ECONOMY_LAB.md): consultas de producción/necesidades y consumo energético aislado.
+- [Laboratorio económico](docs/ECONOMY_LAB.md): consultas, experimentos y tramo conectado de producción/logística/consumo/costes.
 - [Normalización de carga y RNG](docs/LOAD_NORMALIZATION.md): perfil, derivados, tablas compartidas y límites del lote EST-01..08.
 - [Tareas y balance laboral](docs/LABOR_BALANCE.md): reconstrucción explícita, reparto de trabajadores y límites de almacén.
 - [Entidades y emplazamiento](docs/ENTITY_RUNTIME.md): referencias estables, edición estructural limitada y consultas de casillas.
@@ -85,14 +89,16 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools/build.ps1 -BuildDir bu
 ```
 
 El hito de serialización pasó 8/8, el del inspector 15/15 y el de preparación/fiscalidad 18/18.
-La suite actual, incluida la continuación EST, pasa **41/41 sin omisiones**, tanto
+La suite actual, incluida la continuación económica, pasa **47/47 sin omisiones**, tanto
 en `build-verified` como con AddressSanitizer en `build-save-asan`. Incluye 46
 capturas exactas, entidades/emplazamientos y experimentos económicos, además de
 RNG propietario, tablas compartidas y carga parcial: 46 documentos normalizados,
 incluidas ocho migraciones antiguas, inteligencia, eventos/timer y creación local.
 También cubre reinicio/mundo cambiado, avisos de santuarios, reacciones IA,
 transporte y bajas, cobro/importaciones, comienzo/progreso/finalización de obra,
-mejoras y fabricación/repetición por colas.
+mejoras y fabricación/repetición por colas. El tramo económico conectado se verifica
+sobre cuatro partidas originales de sólo lectura y estados sintéticos de orden,
+abastecimiento, financiación, bajas, continuaciones y rollback tardío.
 No acredita carga jugable ni turno completo. Alcance y evidencia en `docs/RECOVERY.md`.
 El script armoniza la codificación de consola para que Ninja detecte las cabeceras con MSVC
 localizado. Si una caché antigua muestra cientos de líneas `Nota: inclusión del archivo`,
@@ -169,8 +175,9 @@ Para preparar un estado con referencias tipadas o ejecutar sólo la fase fiscal:
 ```
 
 Los comandos fiscales devuelven JSON y no escriben partidas. El turno no aumenta:
-producción, consumo, logística, población, investigación, movimiento/combate, IA
-y demás fases aún no están integrados. `dl2sim turn` devuelve un error explícito.
+el tramo económico ya conecta producción, consumo y logística, pero faltan
+población/moral/investigación/revueltas, movimiento/combate, IA completa y demás
+fases. `dl2sim turn` devuelve un error explícito.
 La aplicación gráfica permanece en modo de inspección.
 
 El laboratorio económico añade:
@@ -178,6 +185,7 @@ El laboratorio económico añade:
 ```powershell
 .\build-verified\src\dl2sim.exe economy "C:\GOG Games\Deadlock 2\TUTORIAL.SAV"
 .\build-verified\src\dl2sim.exe energy "C:\GOG Games\Deadlock 2\TUTORIAL.SAV"
+.\build-verified\src\dl2sim.exe production-prefix "C:\GOG Games\Deadlock 2\TUTORIAL.SAV" 1
 ```
 
 `economy` devuelve el rendimiento calculado por tarea y las necesidades actuales,

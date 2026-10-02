@@ -53,6 +53,51 @@ struct ConstructionPaymentReport {
     bool operator==(const ConstructionPaymentReport&) const = default;
 };
 
+struct MaterialCollectionRequest {
+    uint32_t territory = 0;
+    int player = -1, material = 0;
+    int32_t amount = 0;
+    bool apply = true;
+    bool operator==(const MaterialCollectionRequest&) const = default;
+};
+struct MaterialCollectionReport {
+    MaterialCollectionRequest request;
+    int32_t remaining = 0, cost = 0, result = 0;
+    ResourceCollectionState collection;
+    std::vector<MaterialImportFailure> importFailures;
+    bool operator==(const MaterialCollectionReport&) const = default;
+};
+struct SupplierSearchRequest {
+    uint32_t territory = 0;
+    int player = -1, material = 0, maximumMode = 0;
+    bool operator==(const SupplierSearchRequest&) const = default;
+};
+struct SupplierSearchReport {
+    bool found = false, stockExists = false;
+    ResourceCollectionState collection;
+    bool operator==(const SupplierSearchReport&) const = default;
+};
+
+//00472974 alone. Player is explicit: army food can be collected in foreign or
+// unowned territory. No reservation/cache reset and no local-stock consumption.
+// apply=false reserves donor stock and restores only cached supplier ID (not
+// its fee); apply=true transfers stock/debits freight and reports semantic60.
+// result is the native return: cost when remaining==0, otherwise -1, including
+// amount<=0. Both output words are always written. Events are NOT dispatched by
+// this low-level leaf; economic_logistics::collectMaterial provides that layer.
+// No affordability quote, base-money charge, RNG/global use or native pointers.
+// False preserves BOTH outputs even with aliased source/destination.
+bool collectMaterialResources(const save::Document& source,
+    const MaterialCollectionRequest& request, const ResourceCollectionState& before,
+    save::Document& destination, MaterialCollectionReport& report, save::Error& error);
+
+//00472844 alone: territory-order first affordable reachable donor, retaining
+// search scratch and cached supplier exactly. No stock/credit debit or event.
+// maximumMode0..3 is explicit (ConsumeFood uses3 even without technology46).
+bool findMaterialSupplier(const save::Document& source,
+    const SupplierSearchRequest& request, const ResourceCollectionState& before,
+    save::Document& destination, SupplierSearchReport& report, save::Error& error);
+
 //0044de9c/0044de48. Call BEFORE InitBuilding for City Center price scaling:
 // original count uses Player.index, not necessarily its physical owner slot.
 bool buildingConstructionRequirements(const save::Document& source,

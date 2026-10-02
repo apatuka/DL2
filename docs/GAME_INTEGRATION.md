@@ -1,5 +1,21 @@
 # Integración de la infraestructura de juego — 2026-09-27
 
+## Producción y costes conectados — 2026-10-02
+
+Sobre `728ee94`, `economic_prefix.*` conecta un tramo original de diez pasos en
+`runtime::State`, desde reinicios hasta financiación de obras. Añade producción
+territorial intercalada (no suma posterior de consultas), necesidades/imports,
+alimentación de civiles/unidades, energía con eventos, mantenimiento/desbandado
+y refinamiento. CLI: `production-prefix <save> <seed-int32>`.
+
+El estado final `EconomyPrefixApplied` impide repetir cobros, editar o exportar
+una fase incompleta. Conserva identidades supervivientes y una única continuación
+RNG/log/IA/logística/ciudades; los fallos tardíos revierten la operación entera.
+No activa `Active` ni `advanceTurn`: faltan crecimiento, moral, investigación,
+revueltas y balance final, además del resto del turno/UI. Alcance y límites
+actuales en [ECONOMY_LAB.md](ECONOMY_LAB.md). Las secciones inferiores conservan
+los cortes históricos de integración, no sustituyen este estado actualizado.
+
 ## Alcance recuperado
 
 `dl2game` incorpora `gameflow.cpp`, `queue_pool.cpp` y `queues.cpp`, además de los

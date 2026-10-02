@@ -2,6 +2,7 @@
 #include "game/data_tables.h"
 #include "game/labor_balance.h"
 #include "game/production_plan.h"
+#include "game/territory_production.h"
 #include <algorithm>
 #include <bit>
 #include <cstring>
@@ -170,8 +171,9 @@ bool shrinkSite(save::Document& d,uint32_t id,save::Error& error) {
 }
 } // namespace
 
-bool progressBuildingWork(const save::Document& source,uint32_t territory,const BuildingProgressContext& context,
-                         save::Document& destination,BuildingProgressReport& report,save::Error& error) try {
+static bool runBuildingSlots(const save::Document& source,uint32_t territory,const BuildingProgressContext& context,
+                         save::Document& destination,BuildingProgressReport& report,ProductionTotals* accumulated,
+                         int pass,save::Error& error) try {
     if (!save::validate(source,error)) return false;
     const auto* original=source.territoryByIndex(territory);
     if (source.header.isMap || !original || original->data.owner<0 || original->data.owner>=kMaxPlayers)
@@ -182,6 +184,7 @@ bool progressBuildingWork(const save::Document& source,uint32_t territory,const 
     BuildingProgressReport result; result.territory=territory;
     result.logAfter=context.log; result.aiAfter=context.ai; result.rngAfter=context.events.rngBeforeEvents;
     result.aiAfter.rng=result.rngAfter; result.citiesAfter=context.events.citiesBeforeLoad;
+    ProductionTotals totals;
     if (!balanceTerritoryLabor(d,territory,d,error)) return false;
     result.initialLaborBalanced=true;
     const int owner=original->data.owner;
@@ -190,12 +193,60 @@ bool progressBuildingWork(const save::Document& source,uint32_t territory,const 
         if (!id) continue;
         const auto& b=building(d,id);
         if (!b.type || (b.flags&6)!=6) continue;
-        if (std::none_of(std::begin(b.task),std::end(b.task),[](uint8_t task){return task==2 || task==21;})) continue;
+        if (!accumulated && std::none_of(std::begin(b.task),std::end(b.task),[](uint8_t task){return task==2 || task==21;})) continue;
         const int32_t total=labor(b); std::array<int32_t,5> outputs{};
         if (!cachedOutput(d,id,outputs,error)) return false;
+        //0044eb4c leaves local_18 unchanged for task0. Once a preceding task
+        // initialized it, empty slots have a DEFINED 0/1 output. Completion of
+        // slot0 can activate these cached slots later in THIS building visit.
+        // Leading empty slots are indeterminate but cannot become an active
+        // earlier slot retroactively; their normalized zero is never consumed.
+        bool carryKnown=false; int32_t carryLabor=0;
+        for (int i=0;i<5;++i) {
+            const bool effective=b.task[i]!=0 || (i==1 && (b.type==46 || b.type==47));
+            if (effective) { carryKnown=true; carryLabor=b.labor[i]; }
+            else if (carryKnown) outputs[size_t(i)]=carryLabor!=0?1:0;
+        }
         for (int slot=0;slot<5;++slot) {
             auto& current=building(d,id); const uint8_t task=current.task[slot];
-            if (task!=2 && task!=21) continue;
+            const int32_t output=outputs[size_t(slot)];
+            if (accumulated) {
+                totals.visits.push_back({id,site,slot,task,output});
+                if (pass==1) switch (task) {
+                case 3: totals.materials[4]=add(totals.materials[4],short16(output)); break;
+                case 4: totals.materials[6]=add(totals.materials[6],short16(output)); break;
+                case 5: totals.research=add(totals.research,short16(output)); break;
+                case 6: totals.materials[8]=add(totals.materials[8],short16(output)); break;
+                case 7: totals.culture=add(totals.culture,short16(output)); break;
+                case 8: {
+                    SessionRng random; RngEvent draw;
+                    if (!random.restore(result.rngAfter,error) || !random.apply({RngOperation::TaggedRange,100,0,"Art"},draw,error)) return false;
+                    result.rngAfter=random.snapshot(); result.aiAfter.rng=result.rngAfter; totals.artDraws.push_back(draw);
+                    if (draw.value<uint32_t(output)) {
+                        totals.materials[10]=add(totals.materials[10],1);
+                        std::string territoryName; if (!name(d.territories[territory-1].data,territoryName,error)) return false;
+                        if (!emit(d,owner,{61,{territoryName},{}},context,result,error)) return false;
+                    }
+                    break;
+                }
+                case 11: {
+                    const int queue=data::kBuildingTypes[current.type].productionQueue;
+                    if (queue<0 || queue>=6) return fail(error,"factory queue address outside six original counters");
+                    totals.queues[size_t(queue)]=add(totals.queues[size_t(queue)],output); break;
+                }
+                case 12: totals.materials[1]=add(totals.materials[1],short16(output)); break;
+                case 13: totals.materials[3]=add(totals.materials[3],short16(output)); break;
+                case 14: totals.credits=add(totals.credits,short16(output)); break;
+                case 15: totals.materials[2]=add(totals.materials[2],short16(output)); break;
+                case 16: totals.materials[9]=add(totals.materials[9],short16(output)); break;
+                case 17: totals.population=add(totals.population,short16(output)); break;
+                case 18: totals.training=add(totals.training,short16(output)); break;
+                case 19: totals.healing=add(totals.healing,short16(output)); break;
+                default: break;
+                }
+                else { if (task==9) totals.steel=add(totals.steel,output); if (task==10) totals.electronics=add(totals.electronics,output); }
+            }
+            if (pass!=1 || (task!=2 && task!=21)) continue;
             int32_t required=-1;
             if (task==21 && (!queryBuildingUpgrade(d,id,required,error) || required==-1)) {
                 if (error.code!=save::ErrorCode::None) return false;
@@ -266,8 +317,18 @@ bool progressBuildingWork(const save::Document& source,uint32_t territory,const 
         }
     }
     if (!save::validate(d,error)) return false;
-    destination=std::move(d); report=std::move(result); error={}; return true;
+    destination=std::move(d); report=std::move(result); if (accumulated) *accumulated=std::move(totals); error={}; return true;
 } catch (const std::bad_alloc&) { error={save::ErrorCode::Limit,0,"Building-work allocation failed"}; return false; }
   catch (const std::length_error&) { error={save::ErrorCode::Limit,0,"Building-work container bound exceeded"}; return false; }
   catch (const std::exception& e) { error={save::ErrorCode::InvalidState,0,e.what()}; return false; }
+
+bool progressBuildingWork(const save::Document& source,uint32_t territory,const BuildingProgressContext& context,
+                         save::Document& destination,BuildingProgressReport& report,save::Error& error) {
+    return runBuildingSlots(source,territory,context,destination,report,nullptr,1,error);
+}
+bool detail::accumulateBuildingProduction(const save::Document& source,uint32_t territory,
+    ProductionPass pass,const BuildingProgressContext& context,save::Document& destination,
+    BuildingProgressReport& work,ProductionTotals& totals,save::Error& error) {
+    return runBuildingSlots(source,territory,context,destination,work,&totals,int(pass),error);
+}
 } // namespace dl2::simulation

@@ -1,7 +1,7 @@
 # Checklist de cierre: Deadlock II individual
 
-Revisión: 2026-10-02. Continuación sobre `6750c22`, ampliada con progreso de obras,
-mejoras y fabricación, descritos en [ENTITY_RUNTIME.md](ENTITY_RUNTIME.md).
+Revisión: 2026-10-02. Continuación sobre `728ee94`, ampliada con producción,
+logística, consumo y costes conectados en [ECONOMY_LAB.md](ECONOMY_LAB.md).
 
 ## Qué significa «100% funcionando»
 
@@ -43,11 +43,12 @@ funcional descubre comportamientos originales aún no identificados.
 - [x] Creación/bajas de unidades con transporte y parejas, edificios especiales y demolición no-santuario, integradas con identidades y rollback.
 - [x] Cobro/importaciones y comienzo de obra conectado a eventos, labor, caminos y puertos; la obra conserva trabajo pendiente y no produce un turno ni SAV jugable.
 - [x] Progreso/finalización/reparación y mejoras por trabajo asignado, con tareas, labor, relocalización, caminos, eventos y contadores de ciudades; subpaso aislado, no producción completa.
-- [x] Cinco colas propietarias: añadir/cancelar, cobro incremental, trabajo, creación de unidades, repetición y avisos. Integradas en State/CLI; el presupuesto de fabricación sigue siendo explícito hasta integrar la fase económica.
+- [x] Cinco colas propietarias: añadir/cancelar, cobro incremental, trabajo, creación de unidades, repetición y avisos. Integradas en State/CLI; reciben presupuestos reales de fábricas dentro del tramo económico conectado.
+- [x] Tramo económico transaccional desde reinicios hasta financiación de obras: impuestos, dos pases con obras/colas intercaladas, necesidades/importaciones, comida, energía y mantenimiento. `EconomyPrefixApplied` no es fase completa ni turno jugable.
 - [x] Inicialización IA, reacciones diplomáticas, taskforces y determinados eventos con estado/RNG propietarios; no es el turno IA completo.
 - [x] Tablas canónicas compartidas, 43 campañas y pruebas de contratos entre cabeceras heredadas.
 
-Última verificación: **41/41 pruebas sin omisiones**, normal y AddressSanitizer.
+Última verificación: **47/47 pruebas sin omisiones**, normal y AddressSanitizer.
 Los **46 documentos** admiten normalización parcial, incluidos los **8 escenarios
 de versión 35** mediante migraciones explícitas; sus copias archivales siguen
 siendo exactas. Se verificaron 46 reconstrucciones de inteligencia, 46 creaciones
@@ -66,15 +67,15 @@ soportadas sobre copias y 455 nombres de retratos contra el PE. Resultados en
 - [ ] **EST-04** Implementar creación/destrucción de edificios y unidades, listas libres/activas, límites y referencias estables durante la simulación.
   - [x] **EST-04a** Handles estables y rechazo de referencias retiradas, ajenas o de una preparación anterior, incluso tras reutilizar slots/IDs.
   - [x] **EST-04b** Backend estructural de inserción/retirada para registros simples explícitos, validación de listas, reserva de capacidad y rechazo de dependencias; sin efectos de gameplay ni exportación SAV.
-  - [ ] **EST-04c — parcial.** Implementados edificios especiales, creación/bajas con transporte/parejas, demolición no-santuario, selección de sitio, comienzo pagado de obra, progreso/finalización/mejoras y fabricación por colas con eventos/logística/labor. Faltan demolición de santuarios con campaña y coordinación de estas operaciones en órdenes, fases de producción, turno y UI completos.
+  - [ ] **EST-04c — parcial.** Implementados edificios especiales, creación/bajas con transporte/parejas, demolición no-santuario, selección de sitio, comienzo pagado de obra, progreso/finalización/mejoras y fabricación por colas con eventos/logística/labor, conectados a los dos pases económicos. Faltan demolición de santuarios con campaña y coordinación en órdenes, resto económico, turno y UI completos; las bajas que dejarían referencias taskforce vivas se rechazan con rollback.
   - [x] **EST-04d** Reconstruir enlaces de edificios y vínculos de trabajos/unidades durante la carga parcial, preservando las identidades existentes y publicando el grafo transaccionalmente.
 - [ ] **EST-05** Integrar un estado RNG de partida: semillas, orden de consumo y restauración/inicialización conforme al original.
   - [x] **EST-05a** RNG propietario de sesión con primitivas originales, orden/contadores, snapshots y reseed final offline desde `options.gameId`; no altera RNG global ni la copia archival.
-  - [ ] **EST-05b — parcial.** Conectados reinicio, mundo cambiado, eventos cargados/nuevos, santuarios, diplomacia/reacciones IA, selección de sitio y eventos de obra/mejoras/fabricación; frontera RNG de SaveGame probada como plan. Faltan restantes consumidores de producción, combate, turno IA completo y guardado jugable. No inventar semillas del SAV ni reseed offline por turno.
+  - [ ] **EST-05b — parcial.** Conectados reinicio, mundo cambiado, eventos cargados/nuevos, santuarios, diplomacia/reacciones IA, selección de sitio, obras/fabricación y ambos pases de producción (incluido arte), consumo/logística/costes; frontera RNG de SaveGame probada como plan. Faltan crecimiento/revueltas y otros consumidores del resto económico, combate, turno IA completo y guardado jugable. No inventar semillas del SAV ni reseed offline por turno.
 - [x] **EST-06** Unificar tablas y contratos heredados: fuente canónica `data::*`, adaptadores de economía, 43 campañas y helpers compartidos. Contrastes de tablas con el EXE y cabeceras compiladas juntas; no implica implementar las funciones de gameplay declaradas.
 - [ ] **EST-07** Conectar efectos reales entre módulos, sustituyendo los callbacks ausentes necesarios; no aceptar operaciones vacías como éxito.
   - [x] **EST-07a** Conexión directa del subconjunto de carga implementado y rechazo explícito de `Complete`; se eliminan asignaciones a fallbacks inexistentes en `turn_api.h`.
-  - [ ] **EST-07b — parcial.** Conectados carga→santuarios→log/IA, construcción→cobro/importación→evento→labor/caminos/puerto, obra→finalización/mejora, colas→pago/trabajo→unidades/eventos, bajas→transporte/taskforces/refunds y diplomacia→actitudes/cola/RNG. Faltan producción completa, movimiento, combate, coordinación de turno IA y presentación jugable. Los callbacks excluidos no son una ruta alternativa.
+  - [ ] **EST-07b — parcial.** Conectados carga→santuarios→log/IA, construcción→cobro/importación→evento→labor/caminos/puerto, obras/colas→producción real, producción→necesidades/importaciones→comida/energía→mantenimiento→refinamiento/costes, bajas→transporte/taskforces/refunds y diplomacia→actitudes/cola/RNG. Faltan el resto económico, movimiento, combate, coordinación de turno IA y presentación jugable. Los callbacks excluidos no son una ruta alternativa.
 - [x] **EST-08** Transacciones en las rutas propietarias implementadas: errores conservan documento, grafo, identidades, RNG e informe. Separación `Prepared`/`LoadNormalized`; la normalización parcial no puede capturarse como SAV reanudable ni avanzar turno. Una futura etapa jugable requiere cerrar EST-01/02/07.
 
 Cierre: cargar una muestra deja una sesión coherente y utilizable por la lógica,
@@ -84,17 +85,17 @@ sin depender de punteros del EXE, de globales ajenos ni de reparaciones silencio
 
 - [ ] **ECO-01** Completar asignación/reasignación de trabajadores y su conexión a órdenes e interfaz. Reconstrucción y balance automático ya implementados en EST-03; las órdenes manuales y la integración jugable siguen pendientes.
 - [ ] **ECO-02** Integrar la recaudación ya calculada con niveles fiscales y efectos sobre la moral.
-- [ ] **ECO-03** Aplicar el primer pase de producción: recursos, créditos, cultura, investigación, clonación, entrenamiento, curación y arte con RNG.
-- [ ] **ECO-04** Registrar necesidades/reservas y realizar importaciones entre territorios, con conectividad, transportes, costes y transferencias parciales. El colector completo ya se usa en construcción; falta encadenarlo al registro de necesidades y fases económicas del turno.
-- [ ] **ECO-05** Consumir comida para población y unidades; resolver abastecimiento, déficit, indicadores y consecuencias de hambre.
-- [ ] **ECO-06** Integrar el consumo de energía ya aislado en su lugar real del turno, con sus eventos y consecuencias.
-- [ ] **ECO-07** Aplicar mantenimiento y costes de edificios/unidades, incluida la respuesta original a fondos insuficientes.
-- [ ] **ECO-08** Aplicar el segundo pase: conversiones industriales y obtención/pago de insumos, sin duplicar recursos.
+- [x] **ECO-03** Primer pase aplicado en orden original: recursos, créditos, cultura, investigación acumulada, clonación, entrenamiento, curación y arte con RNG. Obras/tareas intercaladas y colas antes de ganancias; integrado en el tramo propietario, no resolución posterior de investigación ni turno completo.
+- [x] **ECO-04** Necesidades/reservas e importaciones conectadas tras producción1, con conectividad, transportes, costes, transferencias parciales y eventos reales. Proveedores, reinicios y orden por material/rondas comprobados.
+- [ ] **ECO-05 — parcial.** ConsumeFood completo para civiles/unidades, abastecimiento, avisos e indicadores conectado; su efecto de desbandado llega a mantenimiento. Las consecuencias posteriores sobre crecimiento/moral siguen en ECO-09/10.
+- [x] **ECO-06** Consumo energético conectado después de comida y antes de mantenimiento/refinamiento: stock, porcentaje y eventos51 reales. El porcentaje resultante alimenta producción2; los efectos posteriores de moral se cierran en ECO-10.
+- [ ] **ECO-07 — parcial.** Mantenimiento y financiación de obras integrados: costes cuadráticos, déficit, avisos, selección/desbandado, cascadas/refunds y pagos pendientes. Falta cerrar el dominio de desbandado que dejaría referencias vivas de task forces; hoy se rechaza transaccionalmente sin desvinculación inventada.
+- [x] **ECO-08** Segundo pase aplicado después de mantenimiento, con imports hierro/endurium antes de ambas conversiones, pagos, signed16 y efectos originales aun con producción cero; no duplica los ingresos del primer pase.
 - [ ] **ECO-09** Implementar crecimiento, capacidad de vivienda, traslado de población y restricciones de empleo.
 - [ ] **ECO-10** Calcular moral completa: impuestos, ocupación, hambre, hacinamiento, energía, policía, cultura, arte y hospitales.
 - [ ] **ECO-11** Aplicar disturbios, revueltas y cambios de control con sus efectos sobre población, edificios y trabajo.
 - [ ] **ECO-12** Conectar el asistente de colonia y los informes económicos a las reglas reales de producción/logística.
-- [ ] **ECO-13** Ejecutar la secuencia económica completa con sus reinicios temporales y balance final, sin reutilizar saldos de otro turno.
+- [ ] **ECO-13 — parcial.** Conectado reinicios→impuestos→producción1→necesidades/importaciones→comida→energía→mantenimiento→producción2→costes. Faltan crecimiento, moral, resolución de investigación, revueltas y balance final. State impide repetir/capturar el tramo incompleto.
 
 Orden que debe preservarse: reinicios → impuestos → producción 1 → necesidades
 → importaciones → comida → energía → mantenimiento → producción 2 → costes de
@@ -113,12 +114,12 @@ actual no satisface este bloque.
 - [ ] **CON-03** Iniciar, avanzar y finalizar construcciones y mejoras, pagando sus costes y actualizando tareas/capacidad.
   - [x] **CON-03a** Inicio pagado con importaciones, eventos, labor y caminos.
   - [x] **CON-03b** Ramas originales de progreso/finalización/mejora a partir del trabajo asignado, tareas/labor, relocalización, eventos y conteos, integradas en State/CLI y probadas.
-  - [ ] **CON-03c** Conectar órdenes de mejora/activación y su financiación pendiente con ProcessBuildingCosts, pases económicos, UI y guardado intermedio jugable.
+  - [ ] **CON-03c — parcial.** ProcessBuildingCosts y financiación pendiente conectados después de ambos pases. Faltan órdenes de mejora/activación, UI y guardado intermedio jugable.
 - [ ] **CON-04** Resolver activación/desactivación, demolición, daños y reparación según las reglas de cada edificio. La rama de trabajo/reparación ya está implementada; no sustituye la aplicación de daños, órdenes ni demolición de santuarios.
 - [ ] **CON-05** Conectar las cinco colas de fabricación: añadir, ordenar/cancelar según permita el original, progresar y producir unidades reales.
   - [x] **CON-05a** QueueUnit/DequeueUnit propietarios con costes, imports, población de colonizadores y devoluciones originales.
   - [x] **CON-05b** ProduceUnits con financiación incremental, trabajo signed16, unidades reales, puerto, límites, repetición, eventos/IA/RNG y referencias de cola seguras.
-  - [ ] **CON-05c** Integrar el presupuesto de trabajo de todas las fábricas en el pase económico completo, con órdenes de UI y persistencia de una sesión jugable.
+  - [ ] **CON-05c — parcial.** Presupuestos reales de todas las fábricas agregados por cola y consumidos dentro de cada pase, antes de ingresos. Faltan órdenes de UI y persistencia de una sesión jugable.
 - [ ] **CON-06** Aplicar carreteras, vías mejoradas, puertos, instalaciones marinas y demás infraestructuras especiales con sus restricciones.
 - [ ] **CON-07** Verificar todos los tipos construibles y unidades fabricables, no sólo los presentes en el tutorial.
 

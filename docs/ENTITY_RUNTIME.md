@@ -389,6 +389,14 @@ en [RECOVERY.md](RECOVERY.md).
 
 ## Progreso de obras y mejoras
 
+Desde el lote económico del 2026-10-02, el mismo recorrido también se usa en
+los pases aplicados `processTerritoryProduction`: conserva outputs cacheados
+y tareas vivas, intercalando trabajo, arte y demás rendimientos. El tramo
+`State::runEconomicProductionPrefix` conecta presupuestos reales de fábricas,
+comida/mantenimiento de las unidades recién creadas y financiación pendiente
+de edificios después de producción2. Véase [ECONOMY_LAB.md](ECONOMY_LAB.md).
+Los comandos aislados descritos a continuación mantienen sus límites previos.
+
 `building_progress` y `State::progressBuildingWork` ejecutan las ramas de tareas
 2 y 21 de `0044f3f0`, no toda la producción. Balancean labor local, recorren las
 casillas en orden y calculan el trabajo a partir de los trabajadores asignados.

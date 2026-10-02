@@ -131,6 +131,10 @@ void foodArithmetic() {
     d->raceStats.v[61][6] = 100; d->options.fastProduction = -1;
     require(needs(*d).territories[0].foodNeed == 10,
             "food need ignores type/index/numPlayers/fastProduction and uses owner slot");
+    t.owner=0; d->players[0].race=-1; d->raceStats.v[60][6]=230;
+    require(needs(*d).territories[0].foodNeed==23,"signed race-1 physically reads row60column6");
+    d->players[0].race=7; d->raceStats.v[62][0]=310;
+    require(needs(*d).territories[0].foodNeed==31,"race7 physically reads row62column0 without normalization");
 }
 
 void buildingConditions() {
@@ -205,7 +209,7 @@ void transactionality() {
         require(same(n, priorN) && same(e, priorE), "failed plan replaced the prior output");
     };
     save::Error error;
-    d->players[0].race = 7;
+    d->players[0].race = 127; //row61+127 lies OUTSIDE the actual saved block.
     failure(simulation::planNeeds(*d, n, error), error);
     // Energy has no race dependency and must not inherit food-only validation.
     require(simulation::planEnergy(*d, e, error) && same(e, priorE), "energy does not read owner race");

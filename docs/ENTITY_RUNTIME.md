@@ -1,6 +1,6 @@
 # Entidades propietarias y consultas de emplazamiento
 
-Este bloque implementa gestión dinámica y comienzo de construcción en operaciones
+Este bloque implementa gestión dinámica, construcción y fabricación en operaciones
 propietarias aisladas. **No habilita un turno completo ni botones jugables.** Separa el almacenamiento
 estructural en `runtime::State`, la consulta pura de casillas en
 `simulation::checkBuildingPlacement` y la creación local de edificios terminados
@@ -303,8 +303,8 @@ en la colocación de tamaño dos: `0044d7b4` modifica bytes de carretera
 Ese módulo sigue fuera de compilación; las consultas y creación propietarias
 nuevas no lo invocan.
 
-Quedan progreso/finalización de obra, fabricación por colas/turno, demolición de
-santuarios con efectos de campaña y su integración completa. No presentar las
+Quedan coordinación de las fases completas de producción/turno, órdenes de UI,
+demolición de santuarios con efectos de campaña y su integración completa. No presentar las
 operaciones aisladas siguientes como un turno ni una partida exportable.
 
 ## Ciclo de vida de unidades y edificios
@@ -386,3 +386,76 @@ recupera transitorios ausentes del SAV. Ningún comando admite destino de guarda
 Pruebas nuevas: `entity_lifecycle`, `construction_payment`, `construction_order`,
 `construction_site`, más ampliaciones de creación/State/CLI. Resultados integrados
 en [RECOVERY.md](RECOVERY.md).
+
+## Progreso de obras y mejoras
+
+`building_progress` y `State::progressBuildingWork` ejecutan las ramas de tareas
+2 y 21 de `0044f3f0`, no toda la producción. Balancean labor local, recorren las
+casillas en orden y calculan el trabajo a partir de los trabajadores asignados.
+El output se obtiene una vez por edificio visitado; las tareas se leen vivas,
+porque terminar una obra o mejorarla puede cambiarlas durante el recorrido.
+
+Se aplican trabajo signed16, finalización/reparación, nuevas tareas y reparto de
+labor, eventos canónicos, mejoras y sus cambios de huella/casilla/caminos. Una
+relocalización hacia una casilla posterior puede volver a visitar el edificio.
+La rama de centro urbano puede recontar ciudades/santuarios y emitir el aviso de
+ciudad; en este llamador, victoria 0 excluye los avisos de santuario 77/78.
+Los contadores posteriores se conservan como contexto de los nuevos retratos.
+Terminar una plataforma no crea un SeaHab en esta función original.
+
+No se aplican los demás outputs: recursos, investigación, entrenamiento y
+fabricación deben encadenarse en su orden dentro de una futura fase completa.
+Tampoco se simulan ataques para iniciar reparaciones ni se añaden botones de
+asignación/activación de mejoras. Los efectos presentes se prueban como subpasos,
+no como turnos jugados en el original.
+
+## Colas y fabricación de unidades
+
+`unit_manufacturing` integra QueueUnit `0044df94`, DequeueUnit `0044e0a8` y
+ProduceUnits `0044e174`, con las cinco categorías originales. Añadir cobra los
+costes y reserva población para colonizadores; cancelar devuelve el dinero
+canónico y los materiales pagados con el estrechamiento original a signed16.
+El campo heredado `QueueRecord.count` contiene **trabajo restante**, no unidades.
+
+ProduceUnits recibe trabajo explícito de su llamador. Financia sólo la cabeza
+inicial, resta trabajo, crea unidades reales con transporte/parejas y genera
+avisos de terminación/cola vacía. Las unidades navales usan `portTarget`; una
+creación denegada conserva la cabeza y consume el ID intentado. La repetición
+automática usa los bits 1..5 de `Territory.hoverway`, nombre heredado que no
+describe una carretera. Se conservan el orden de reinserción, el cobro parcial
+y la peculiar máscara `0xf001` del original.
+
+La nueva hoja `collectConstructionRequirements` porta la recaudación incremental
+`004720f4`: sólo materiales pendientes y transporte, sin otra cotización, sin
+comprobar tecnología ni volver a cobrar el precio monetario completo. El llamador
+financia antes el déficit de créditos. Si termina de financiar la primera cabeza,
+el original reinicia su trabajo pero **no escribe los nuevos importes pagados**;
+se conserva esa rareza, incluso si provoca otro cobro en una visita posterior.
+
+Límites explícitos: cola de 255 nodos por formato de archivo, guardas contra
+bucles patológicos y rechazo del territorio centinela 0 como destino naval.
+El byte opaco +0x01 de un nodo nuevo se pone a cero; el original no lo inicializa.
+Los nodos ya cargados conservan su byte. No se afirma equivalencia con memoria
+indeterminada del asignador nativo.
+
+Las colas tienen handles estables, pero sus nodos carecen de ID persistido:
+**una mutación de contenido u orden invalida todos los QueueNodeHandle**. Se
+readquieren desde QueueHandle. Esto incluye sacar y reponer un nodo idéntico
+durante repetición automática. Los errores de API no invalidan nada; los handles
+de edificios/unidades/territorios sobreviven. El estado posee log, máscaras/cola
+IA, colector, contadores de ciudades y RNG, y rechaza continuaciones rebobinadas.
+
+CLI nuevo (siempre en memoria, sin destino SAV):
+
+```powershell
+.\build-verified\src\dl2sim.exe progress-buildings "C:\GOG Games\Deadlock 2\TUTORIAL.SAV" 14 1
+.\build-verified\src\dl2sim.exe queue-unit "C:\GOG Games\Deadlock 2\TUTORIAL.SAV" 14 1 1
+.\build-verified\src\dl2sim.exe dequeue-unit "C:\GOG Games\Deadlock 2\TUTORIAL.SAV" 14 1 0
+.\build-verified\src\dl2sim.exe produce-units "C:\GOG Games\Deadlock 2\TUTORIAL.SAV" 14 1 30 1
+```
+
+Cada comando vuelve a partir del archivo intacto: el último ejemplo no recibe
+la cola creada por el comando anterior. `produce-units` recibe trabajo de
+laboratorio explícito; no lo calcula de máximos hipotéticos ni ejecuta economía.
+Las pruebas de integración sí encadenan órdenes, trabajo y bajas sobre un mismo
+State, sin permitir exportación o incremento de turno.

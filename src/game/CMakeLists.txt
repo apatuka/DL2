@@ -35,6 +35,8 @@ set(GAME_SOURCES
     construction_payment.cpp
     load_shrine_events.cpp
     construction_site.cpp
+    building_progress.cpp
+    unit_manufacturing.cpp
     # END MODULE SOURCES
 )
 

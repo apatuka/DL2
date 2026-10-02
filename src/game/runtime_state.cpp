@@ -4,11 +4,13 @@
 #include <algorithm>
 #include <atomic>
 #include <bit>
+#include <cstring>
 #include <exception>
 #include <limits>
 #include <new>
 #include <stdexcept>
 #include <string>
+#include <type_traits>
 #include <unordered_map>
 #include <utility>
 
@@ -70,7 +72,7 @@ template<class Slots, class Dense> void retireSlot(Slots& slots, Dense& dense, u
 bool buildGraph(const save::Document& d, Graph& graph,
                 const std::vector<BuildingHandle>& buildingHandles,
                 const std::vector<ArmyHandle>& armyHandles,
-                uint64_t preparationIdentity, save::Error& error) {
+                uint64_t preparationIdentity, uint64_t queueNodeIdentity, save::Error& error) {
     std::unordered_map<uint32_t, BuildingHandle> buildings;
     std::unordered_map<uint32_t, ArmyHandle> armies;
     for (size_t i = 0; i < d.buildings.size(); ++i) buildings.emplace(d.buildings[i].id, buildingHandles[i]);
@@ -101,11 +103,11 @@ bool buildGraph(const save::Document& d, Graph& graph,
             const auto& records = record.queues[q];
             Queue queue;
             queue.count = uint32_t(records.size());
-            if (!records.empty()) queue.first = queue.cursor = {uint32_t(graph.queueNodes.size() + 1), preparationIdentity};
+            if (!records.empty()) queue.first = queue.cursor = {uint32_t(graph.queueNodes.size() + 1), queueNodeIdentity};
             for (size_t n = 0; n < records.size(); ++n) {
                 QueueNode node;
                 node.record = records[n]; node.record.next.raw = 0;
-                if (n + 1 < records.size()) node.next = {uint32_t(graph.queueNodes.size() + 2), preparationIdentity};
+                if (n + 1 < records.size()) node.next = {uint32_t(graph.queueNodes.size() + 2), queueNodeIdentity};
                 graph.queueNodes.push_back(node);
             }
             resolved.queues[q] = {uint32_t(graph.queues.size() + 1), preparationIdentity};
@@ -261,6 +263,7 @@ State& State::operator=(State&& other) noexcept {
         buildingDenseSlots_ = std::move(other.buildingDenseSlots_);
         armyDenseSlots_ = std::move(other.armyDenseSlots_);
         preparationIdentity_ = std::exchange(other.preparationIdentity_, 0);
+        queueNodeIdentity_ = std::exchange(other.queueNodeIdentity_, 0);
         document_ = std::move(other.document_);
         graph_ = std::move(other.graph_);
         stage_ = std::exchange(other.stage_, Stage::Empty);
@@ -276,6 +279,7 @@ State& State::operator=(State&& other) noexcept {
         ai_ = std::move(other.ai_); other.ai_.reset();
         aiReaction_ = std::move(other.aiReaction_); other.aiReaction_.reset();
         collection_ = std::move(other.collection_); other.collection_.reset();
+        eventCities_ = std::move(other.eventCities_); other.eventCities_.reset();
         other.graph_ = {};
         other.buildingSlots_.clear(); other.armySlots_.clear();
         other.buildingDenseSlots_.clear(); other.armyDenseSlots_.clear();
@@ -291,7 +295,7 @@ bool State::rebuildGraph(save::Error& error) {
     for (const auto slot : buildingDenseSlots_) buildings.push_back({slot, buildingSlots_[slot - 1].identity});
     for (const auto slot : armyDenseSlots_) armies.push_back({slot, armySlots_[slot - 1].identity});
     Graph candidate;
-    if (!buildGraph(*document_, candidate, buildings, armies, preparationIdentity_, error)) return false;
+    if (!buildGraph(*document_, candidate, buildings, armies, preparationIdentity_, queueNodeIdentity_, error)) return false;
     graph_ = std::move(candidate);
     return true;
 }
@@ -303,6 +307,7 @@ bool State::copyForEdit(State& candidate, save::Error& error) const {
     candidate.buildingSlots_ = buildingSlots_; candidate.armySlots_ = armySlots_;
     candidate.buildingDenseSlots_ = buildingDenseSlots_; candidate.armyDenseSlots_ = armyDenseSlots_;
     candidate.preparationIdentity_ = preparationIdentity_;
+    candidate.queueNodeIdentity_ = queueNodeIdentity_;
     candidate.rng_ = rng_;
     candidate.core_ = core_; candidate.events_ = events_; candidate.timer_ = timer_;
     candidate.derived_ = derived_;
@@ -310,10 +315,25 @@ bool State::copyForEdit(State& candidate, save::Error& error) const {
     if (startup_) candidate.startup_ = std::make_unique<simulation::LoadStartupReport>(*startup_);
     candidate.world_ = world_; candidate.ai_ = ai_; candidate.aiReaction_ = aiReaction_;
     candidate.collection_ = collection_;
+    candidate.eventCities_ = eventCities_;
     return true;
 }
 
-bool State::finishEdit(State&& candidate, save::Error& error) {
+bool State::finishEdit(State&& candidate, save::Error& error, bool queueNodesReplaced) {
+    // Nodes are positional, unlike stable entity registries. Never let an old
+    // handle silently resolve to another item after erase/reinsert/append. A
+    // rejected transaction consumes at most an internal token, not live handles.
+    bool queuesChanged = queueNodesReplaced || document_->territories.size() != candidate.document_->territories.size();
+    for (size_t t = 0; !queuesChanged && t < document_->territories.size(); ++t) {
+        for (size_t q = 0; !queuesChanged && q < 5; ++q) {
+            const auto& before = document_->territories[t].queues[q];
+            const auto& after = candidate.document_->territories[t].queues[q];
+            queuesChanged = before.size() != after.size();
+            for (size_t n = 0; !queuesChanged && n < before.size(); ++n)
+                queuesChanged = std::memcmp(&before[n], &after[n], kQueueRecordSaved) != 0;
+        }
+    }
+    if (queuesChanged && !newIdentity(candidate.queueNodeIdentity_, error)) return false;
     if (!save::validate(*candidate.document_, error) || !candidate.rebuildGraph(error)) return false;
     candidate.stage_ = Stage::EntitiesEdited;
     *this = std::move(candidate);
@@ -329,6 +349,7 @@ bool State::prepare(const save::Document& source, save::Error& error) {
         State candidate;
         candidate.document_ = std::make_unique<save::Document>(source);
         if (!newIdentity(candidate.preparationIdentity_, error)) return false;
+        candidate.queueNodeIdentity_ = candidate.preparationIdentity_;
         for (size_t i = 0; i < source.buildings.size(); ++i)
             if (!allocateSlot(candidate.buildingSlots_, candidate.buildingDenseSlots_, error)) return false;
         for (size_t i = 0; i < source.armies.size(); ++i)
@@ -503,6 +524,7 @@ bool State::normalizeLoad(const simulation::LoadProfile& profile, LoadReport& re
         } else if (result.derived.notices.empty()) result.shrineNoticesDelivered = true;
         if (result.shrineNoticesDelivered) std::erase(result.missing, MissingLoadCapability::ShrineEventDelivery);
         candidate.derived_ = result.derived;
+        candidate.eventCities_ = result.derived.cities;
         if (!simulation::rebuildLoadIntelligence(d, context.intelligence, d, result.intelligence, error) ||
             !simulation::planLaborBalance(d, result.labor, error)) return false;
         for (size_t i = 0; i < result.labor.buildings.size(); ++i) {
@@ -626,7 +648,8 @@ bool State::startConstruction(const simulation::BuildingCreationRequest& request
     return guarded([&] {
         if ((rng_.snapshot().initialized && context.events.rngBeforeEvents != rng_.snapshot()) ||
             (aiReaction_ && context.ai != *aiReaction_) || (events_ && context.log != *events_) ||
-            (collection_ && context.payment.collection != *collection_))
+            (collection_ && context.payment.collection != *collection_) ||
+            (eventCities_ && context.events.citiesBeforeLoad != *eventCities_))
             return fail(error, save::ErrorCode::InvalidState, "Construction context differs from the owned continuation");
         State candidate;
         if (!copyForEdit(candidate, error)) return false;
@@ -661,8 +684,114 @@ bool State::startConstruction(const simulation::BuildingCreationRequest& request
         candidate.events_ = result.logAfter;
         candidate.aiReaction_ = result.aiAfter;
         candidate.collection_ = result.paymentEvaluated ? result.payment.collection : context.payment.collection;
+        candidate.eventCities_ = context.events.citiesBeforeLoad;
         if (!finishEdit(std::move(candidate), error)) return false;
         created = handle; report = std::move(result); return true;
+    }, error);
+}
+
+bool State::progressBuildingWork(uint32_t territory, const simulation::BuildingProgressContext& context,
+                                simulation::BuildingProgressReport& report, save::Error& error) {
+    return guarded([&] {
+        if ((rng_.snapshot().initialized && context.events.rngBeforeEvents != rng_.snapshot()) ||
+            (aiReaction_ && context.ai != *aiReaction_) || (events_ && context.log != *events_) ||
+            (eventCities_ && context.events.citiesBeforeLoad != *eventCities_))
+            return fail(error, save::ErrorCode::InvalidState, "Building progress context differs from the owned continuation");
+        State candidate;
+        if (!copyForEdit(candidate, error)) return false;
+        // This caller recounts shrines only under victory0, where notices77/78
+        // are disabled. Other nonlocal human players do not require AI bindings.
+        auto inputs = context; inputs.aiSession = nullptr;
+        const auto* region = candidate.document_->territoryByIndex(territory);
+        if (region && region->data.owner >= 0 && region->data.owner < kMaxPlayers &&
+            region->data.owner != candidate.document_->options.localPlayer &&
+            std::bit_cast<int8_t>(candidate.document_->players[size_t(region->data.owner)].type) >= 3) {
+            if (!candidate.ai_) {
+                candidate.ai_.emplace();
+                if (!candidate.ai_->initializeAfterLoad(*candidate.document_, error)) return false;
+            }
+            inputs.aiSession = &*candidate.ai_;
+        }
+        simulation::BuildingProgressReport result;
+        if (!simulation::progressBuildingWork(*candidate.document_, territory, inputs, *candidate.document_, result, error)) return false;
+        if (candidate.document_->buildings.size() != document_->buildings.size() || !result.createdIds.empty())
+            return fail(error, save::ErrorCode::InvalidState, "Building work unexpectedly allocated entities");
+        for (size_t i = 0; i < document_->buildings.size(); ++i)
+            if (candidate.document_->buildings[i].id != document_->buildings[i].id)
+                return fail(error, save::ErrorCode::InvalidState, "Building work changed entity identity or allocation order");
+        if (!candidate.rng_.restore(result.rngAfter, error)) return false;
+        candidate.events_ = result.logAfter; candidate.aiReaction_ = result.aiAfter;
+        candidate.eventCities_ = result.citiesAfter;
+        if (!finishEdit(std::move(candidate), error)) return false;
+        report = std::move(result); return true;
+    }, error);
+}
+
+template<class Request> bool State::applyManufacturing(const Request& request,
+    const simulation::UnitManufacturingContext& context,
+    simulation::UnitManufacturingReport& report, save::Error& error) {
+    return guarded([&] {
+        const auto& effects = context.effects;
+        if ((rng_.snapshot().initialized && effects.events.rngBeforeEvents != rng_.snapshot()) ||
+            (aiReaction_ && effects.ai != *aiReaction_) || (events_ && effects.log != *events_) ||
+            (collection_ && effects.payment.collection != *collection_) ||
+            (eventCities_ && effects.events.citiesBeforeLoad != *eventCities_))
+            return fail(error, save::ErrorCode::InvalidState, "Manufacturing context differs from the owned continuation");
+        State candidate;
+        if (!copyForEdit(candidate, error)) return false;
+        auto inputs = context; inputs.effects.aiSession = nullptr;
+        const auto* region = candidate.document_->territoryByIndex(request.territory);
+        if (region && region->data.owner >= 0 && region->data.owner < kMaxPlayers &&
+            region->data.owner != candidate.document_->options.localPlayer &&
+            std::bit_cast<int8_t>(candidate.document_->players[size_t(region->data.owner)].type) >= 3) {
+            if (!candidate.ai_) {
+                candidate.ai_.emplace();
+                if (!candidate.ai_->initializeAfterLoad(*candidate.document_, error)) return false;
+            }
+            inputs.effects.aiSession = &*candidate.ai_;
+        }
+        simulation::UnitManufacturingReport result;
+        if constexpr (std::is_same_v<Request, simulation::QueueUnitRequest>) {
+            if (!simulation::queueUnit(*candidate.document_, request, inputs, *candidate.document_, result, error)) return false;
+        } else {
+            if (!simulation::produceUnits(*candidate.document_, request, inputs, *candidate.document_, result, error)) return false;
+        }
+        const size_t original = document_->armies.size();
+        if (candidate.document_->armies.size() != original + result.createdIds.size())
+            return fail(error, save::ErrorCode::InvalidState, "Manufacturing report does not match allocated units");
+        for (size_t i = 0; i < result.createdIds.size(); ++i) {
+            if (candidate.document_->armies[original + i].id != result.createdIds[i])
+                return fail(error, save::ErrorCode::InvalidState, "Manufacturing allocation order differs from report");
+            if (!allocateSlot(candidate.armySlots_, candidate.armyDenseSlots_, error)) return false;
+        }
+        if (!candidate.rng_.restore(result.rngAfter, error)) return false;
+        candidate.events_ = result.logAfter; candidate.aiReaction_ = result.aiAfter;
+        candidate.collection_ = result.collectionAfter;
+        candidate.eventCities_ = effects.events.citiesBeforeLoad;
+        if (!finishEdit(std::move(candidate), error, result.queueStructureChanged)) return false;
+        report = std::move(result); return true;
+    }, error);
+}
+
+bool State::queueUnit(const simulation::QueueUnitRequest& request,
+                      const simulation::UnitManufacturingContext& context,
+                      simulation::UnitManufacturingReport& report, save::Error& error) {
+    return applyManufacturing(request, context, report, error);
+}
+bool State::produceUnits(const simulation::ProduceUnitsRequest& request,
+                         const simulation::UnitManufacturingContext& context,
+                         simulation::UnitManufacturingReport& report, save::Error& error) {
+    return applyManufacturing(request, context, report, error);
+}
+bool State::dequeueUnit(const simulation::DequeueUnitRequest& request,
+                        simulation::UnitDequeueReport& report, save::Error& error) {
+    return guarded([&] {
+        State candidate;
+        if (!copyForEdit(candidate, error)) return false;
+        simulation::UnitDequeueReport result;
+        if (!simulation::dequeueUnit(*candidate.document_, request, *candidate.document_, result, error)) return false;
+        if (!finishEdit(std::move(candidate), error)) return false;
+        report = std::move(result); return true;
     }, error);
 }
 
@@ -936,6 +1065,6 @@ const save::TerritoryRecord* State::territory(TerritoryHandle h) const {
 }
 const Tile* State::tile(TileHandle h) const { return document_ ? at(document_->tiles, h, preparationIdentity_) : nullptr; }
 const Queue* State::queue(QueueHandle h) const { return at(graph_.queues, h, preparationIdentity_); }
-const QueueNode* State::queueNode(QueueNodeHandle h) const { return at(graph_.queueNodes, h, preparationIdentity_); }
+const QueueNode* State::queueNode(QueueNodeHandle h) const { return at(graph_.queueNodes, h, queueNodeIdentity_); }
 const MinisterNode* State::minister(MinisterHandle h) const { return at(graph_.ministers, h, preparationIdentity_); }
 } // namespace dl2::runtime

@@ -120,5 +120,8 @@ combinaciones de una partida futura ni paridad completa con el original.
 Las rutas propietarias posteriores ya incorporan ciclo de vida, comienzo pagado
 de obra, logística, RNG, visibilidad y normalización de campaña/IA. El helper
 `prepareStartedBuildingLabor` refresca tareas y aplica la urgencia de construcción
-humana sin fingir progreso de obra. Siguen pendientes mejoras/finalización,
-fabricación, los dos pases de producción, IA completa y órdenes manuales/interfaz.
+humana sin fingir progreso de obra. `building_progress` reutiliza hojas locales
+de refresh/reparto/movimiento a viviendas para completar y mejorar edificios;
+`unit_manufacturing` balancea al reservar/devolver población de colonizadores.
+Siguen pendientes los dos pases completos de producción, IA completa y órdenes
+manuales/interfaz. Las hojas nuevas no ejecutan un balance global implícito.

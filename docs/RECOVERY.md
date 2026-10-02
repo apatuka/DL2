@@ -16,7 +16,56 @@ inspección: mapa, territorios, edificios, unidades y copias sin modificación. 
 lógica de partida está parcialmente escrita y todavía no está integrada. Cargar
 el documento no equivale a activar el estado de juego, simular un turno ni jugar.
 
-## Ampliación de los EST pendientes — 2026-10-01
+## Progreso de obras y fabricación — 2026-10-02
+
+Continuación sobre `6750c22`. Se incorporan dos módulos propietarios y sus
+integraciones State/CLI, sin modificar la instalación original:
+
+- `building_progress`: ramas 2/21 de `ProcessTerritoryProduction`, trabajo
+  asignado, finalización/reparación, mejoras, reparto laboral, relocalización,
+  caminos y eventos. Centros urbanos bajo victoria 0 recontabilizan ciudades y
+  santuarios antes del retrato; no se inventa un SeaHab al terminar plataforma.
+- `unit_manufacturing`: cinco colas, añadir/cancelar, reserva/devolución de
+  colonizadores, financiación incremental, trabajo signed16, unidades reales,
+  salida naval, repetición y eventos. El presupuesto de trabajo lo da el llamador.
+- `construction_payment` añade la hoja incremental `004720f4` sin otra
+  cotización ni cobro del precio base. Se conservan créditos canónicos frente a
+  materiales signed16 al cancelar, pagos parciales, máscara de repetición
+  `0xf001` y la financiación que reinicia trabajo sin actualizar el paid guardado.
+- Hojas locales de producción/labor/caminos evitan consultar máximos o productores
+  ajenos al edificio que avanza. Conservan aritmética y accesos raciales originales
+  dentro de dominios seguros; los índices o bucles inseguros fallan con rollback.
+- State conserva también los contadores de ciudades. Un cambio o reemplazo de
+  nodos de cola retira sus handles posicionales incluso cuando los bytes finales
+  coinciden; edificios, unidades, territorios y cabeceras de cola conservan identidad.
+
+CLI: `progress-buildings`, `queue-unit`, `dequeue-unit` y `produce-units`, siempre
+en memoria y sin destino SAV. Los comandos independientes no comparten sus
+experimentos: cada uno lee de nuevo el archivo original intacto.
+
+Cobertura nueva: obra/reparación, upgrades y cambio de huella, bloqueos y
+overflow, eventos de investigación/ciudad/AI, pagos parciales e importaciones,
+repetición con reemplazo idéntico, puerto/parejas/límites y rollback tardío tras
+crear una unidad. Las pruebas de State encadenan pago→trabajo→entidad/eventos y
+rechazan rebobinado de RNG/log/ciudades. Se conservan los round-trips de los 46
+documentos; la comprobación de fabricación sobre ese corpus es lectura/no-op de
+colas, no una ejecución de turnos completos. Las ramas activas usan fixtures
+con oráculos derivados de decompilado/assembly, no replay diferencial del EXE.
+
+Se cierran los subpasos **CON-03a/03b y CON-05a/05b**, no sus bloques jugables
+completos. Faltan financiación/órdenes de mejora, restantes outputs y secuencia
+de producción, UI y guardado intermedio; también siguen pendientes combate,
+movimiento, IA completa y campaña. **No se habilitan Active, advanceTurn ni
+exportación de un experimento parcial.**
+
+Verificación final: **41/41 pruebas sin omisiones**, tanto en `build-verified`
+(**82,99 s**) como en `build-save-asan` (**202,96 s**, `/fsanitize=address`), sin
+hallazgos de AddressSanitizer. Antes pasó el subconjunto de siete pruebas de
+producción/labor/pagos/obras/fabricación/State/CLI (**17,87 s**). Compilación normal
+sin advertencias de código; ASAN conserva el aviso previo de configuración
+`/W3` sustituido por `/W4`. Logs: `Testing/Temporary/LastTest.log` de cada build.
+
+## Ampliación de los EST pendientes — 2026-10-01 (corte anterior)
 
 Sobre `e92af09`, la continuación incorpora implementación, integración propietaria
 y pruebas de las siguientes ramas reales, sin modificar la instalación original:

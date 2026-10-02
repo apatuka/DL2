@@ -553,4 +553,47 @@ bool prepareStartedBuildingLabor(const save::Document& source, uint32_t building
     return prepareFreshBuildingLabor(source,buildingId,false,redistribute,destination,error);
 }
 
+namespace {
+template<class Action>
+bool laborLeaf(const save::Document& source, uint32_t id, save::Document& destination,
+               save::Error& error, Action action) try {
+    if (!save::validate(source,error)) return false;
+    if (source.header.isMap || !source.buildingById(id)) return fail(error,"work leaf requires an existing saved-game building");
+    auto candidate=std::make_unique<save::Document>(source); Work work{*candidate,{}};
+    if (!work.validate(error)) return false;
+    const auto* before=source.buildingById(id);
+    auto& b=*work.at(size_t(before->territory-1),size_t(before->site));
+    if (!action(work,b,*candidate,error)) return false;
+    destination=std::move(*candidate); error={}; return true;
+} catch (const std::bad_alloc&) { error={save::ErrorCode::Limit,0,"Building labor leaf allocation failed"}; return false; }
+  catch (const std::length_error&) { error={save::ErrorCode::Limit,0,"Building labor leaf exceeds container limits"}; return false; }
+}
+bool queryBuildingUpgrade(const save::Document& source, uint32_t id, int32_t& required, save::Error& error) try {
+    int32_t value=-1;
+    auto ignored=std::make_unique<save::Document>();
+    if (!laborLeaf(source,id,*ignored,error,[&](Work& work,Building& b,save::Document&,save::Error&){
+        if (work.canUpgrade(b)) value=multiply(subtract(signed16(data::kBuildingTypes[b.type+1].buildLabor),
+            signed16(data::kBuildingTypes[b.type].buildLabor)),3);
+        return true;
+    })) return false;
+    required=value; return true;
+} catch (const std::bad_alloc&) { error={save::ErrorCode::Limit,0,"Upgrade query allocation failed"}; return false; }
+bool refreshBuildingLabor(const save::Document& source, uint32_t id, save::Document& destination, save::Error& error) {
+    return laborLeaf(source,id,destination,error,[](Work& work,Building& b,save::Document& d,save::Error& e){
+        const int owner=d.territories[size_t(b.territory-1)].data.owner;
+        return owner>=0 ? work.refresh(b,d.players[size_t(owner)],e) : fail(e,"task refresh requires an owned building");
+    });
+}
+bool distributeBuildingLabor(const save::Document& source, uint32_t id, int32_t labor,
+                             save::Document& destination, save::Error& error) {
+    return laborLeaf(source,id,destination,error,[&](Work& work,Building& b,save::Document&,save::Error& e){return work.distribute(b,labor,e);});
+}
+bool moveBuildingLaborToHousing(const save::Document& source, uint32_t id, int slot,
+                                save::Document& destination, bool& moved, save::Error& error) {
+    if (slot<0 || slot>=5) return fail(error,"housing transfer slot is outside0..4");
+    bool value=false;
+    if (!laborLeaf(source,id,destination,error,[&](Work& work,Building& b,save::Document&,save::Error&){value=work.moveToHousing(b,slot); return true;})) return false;
+    moved=value; return true;
+}
+
 } // namespace dl2::simulation

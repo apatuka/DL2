@@ -79,4 +79,14 @@ bool prepareStartedBuildingLabor(const save::Document& source, uint32_t building
 bool balanceTerritoryLabor(const save::Document& source, uint32_t territory,
                            save::Document& destination, save::Error& error);
 
+// Explicit work-progress leaves; no unrelated refresh or territory reset.
+bool queryBuildingUpgrade(const save::Document& source, uint32_t buildingId,
+                          int32_t& requiredWork, save::Error& error); // -1 means denied.
+bool refreshBuildingLabor(const save::Document& source, uint32_t buildingId,
+                          save::Document& destination, save::Error& error);
+bool distributeBuildingLabor(const save::Document& source, uint32_t buildingId, int32_t labor,
+                             save::Document& destination, save::Error& error);
+bool moveBuildingLaborToHousing(const save::Document& source, uint32_t buildingId, int slot,
+                                save::Document& destination, bool& moved, save::Error& error);
+
 } // namespace dl2::simulation

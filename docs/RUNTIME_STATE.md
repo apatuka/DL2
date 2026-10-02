@@ -240,6 +240,18 @@ semánticamente correcta para una nueva simulación. Tampoco incorpora todavía
 el resto de fases. Ya dispone de creación especial, unidades/transporte/cascadas,
 demolición no-santuario y comienzo pagado de construcción con eventos/logística,
 además de reacciones IA con continuación explícita y rechazo de rebobinado.
+`progressBuildingWork` añade trabajo/finalización/reparación y mejoras a partir
+de la labor asignada. `queueUnit`, `dequeueUnit` y `produceUnits` añaden colas,
+cobros, devoluciones, repetición y creación real de unidades. Son subpasos
+explícitos, no un pase económico completo; `produceUnits` recibe su presupuesto
+de trabajo del llamador. Las continuaciones conservan también los contadores
+de ciudades utilizados al seleccionar retratos de eventos.
+
+Los nodos de cola no tienen ID persistido. Tras modificar contenido/orden o
+reemplazar nodos se retiran todos sus handles posicionales, incluso si los bytes
+resultantes son idénticos. Los handles de las colas, territorios, edificios y
+unidades supervivientes siguen siendo válidos. Una operación fallida no cambia
+ninguna identidad; una edición ajena a colas no las invalida.
 Las operaciones aisladas e identidades estables no son
 una reproducción del layout ni del orden físico de los pools Borland.
 
@@ -247,8 +259,9 @@ La secuencia económica observada en `FUN_0046c7d4` es impuestos, producción 1,
 registro de necesidades, importación de déficits, comida, energía, mantenimiento,
 producción 2, costes de edificios, población, moral, investigación, revueltas y
 balance final. Ejecutar sólo impuestos no permite omitir ese resto ni incrementar
-el turno. Producción y colas requieren logística, creación de entidades y
-eventos reales; comida incluye unidades y suministro, no sólo población.
+el turno. Las colas ya utilizan logística, creación de entidades y eventos reales,
+pero falta integrarlas con el presupuesto producido en el pase económico;
+comida incluye unidades y suministro, no sólo población.
 
 Para ampliar la capacidad, seguir [ROADMAP.md](ROADMAP.md) y
 [GAME_INTEGRATION.md](GAME_INTEGRATION.md), con criterios de aceptación por fase

@@ -13,6 +13,8 @@ struct EventLoadContext {
     RngSnapshot rngBeforeEvents;
     // Original city counters are not reset or loaded before LoadEventLog.
     // Supply the previous session's values, or explicit zeros for a fresh one.
+    // For NEW LogEvent calls this same field supplies the CURRENT counters;
+    // retain citiesAfter when a gameplay step executes CountShrines.
     std::array<int32_t, kMaxPlayers> citiesBeforeLoad{};
 };
 struct LoadedEvent {

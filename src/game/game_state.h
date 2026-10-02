@@ -305,8 +305,8 @@ static_assert(offsetof(BuildingSite, building) == 0x14);
 struct QueueRecord {             // nodo de las 5 colas de producción (FUN_00484da8 asigna 0x34)
     uint8_t  unitType;           // 0x00 UnitType (FUN_00484ee0)
     uint8_t  unk_01;
-    uint16_t count;              // 0x02 cantidad pendiente (FUN_00484f10; ProduceUnits decrementa)
-    int32_t  data[11];           // 0x04 materiales/progreso (FUN_00484f48 copia 11 dwords)
+    uint16_t count;              // 0x02 alias legacy: TRABAJO restante, interpretado signed16 por ProduceUnits
+    int32_t  data[11];           // 0x04 dinero/materiales YA pagados (FUN_00484f48 copia 11 dwords)
     Ptr32<QueueRecord> next;     // 0x30 (no se guarda: en fichero van 0x30 bytes por nodo)
 };
 static_assert(sizeof(QueueRecord) == 0x34);
@@ -360,7 +360,7 @@ struct Territory {
     uint32_t coastal;            // 0x8ac 0/1 acceso al mar (FUN_004669d8, FUN_00466508)
     uint8_t  unk_8b0[0xea];      // 0x8b0
     Ptr32<QueueHead> queues[5];  // 0x99a punteros a 5 colas de producción en heap (save: crudos; luego u8 n + n*0x30 por cola)
-    uint8_t  hoverway;           // 0x9ae nivel de carretera/hoverway (FUN_0044c3fc, FUN_00476214); 0 en formato antiguo
+    uint8_t  hoverway;           // 0x9ae alias legacy: repetición de colas, bits1..5 (0044c3fc/ProduceUnits), NO carretera
     uint8_t  unk_9af;
     uint16_t portTarget;         // 0x9b0 territorio destino de puerto (FUN_0044da3c en formato antiguo)
     // ---- a partir de aquí NO se guarda (0xadc - 0x12a = 0x9b2) ----

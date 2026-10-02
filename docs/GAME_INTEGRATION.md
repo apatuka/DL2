@@ -124,6 +124,20 @@ Esto no implementa `StartConstruction`, fabricación, transporte, demolición o
 bajas con efectos IA. Los registros insertados son suministrados por el llamador,
 no inicializados mediante callbacks o defaults incompletos de gameplay.
 
+## Avance posterior: obra y fabricación propietarias — 2026-10-02
+
+Sobre el backend estructural anterior, las APIs nuevas ya ejecutan comienzo
+pagado de construcción, transporte/bajas, demolición no-santuario y sus efectos
+locales. `building_progress` añade el subpaso de finalización/reparación/mejora
+y `unit_manufacturing` las cinco colas con pagos, cancelación, trabajo, unidades
+reales y repetición. No se ha activado el `buildings.cpp` heredado ni callbacks
+sin implementación. Contratos y restricciones en [ENTITY_RUNTIME.md](ENTITY_RUNTIME.md).
+
+El estado y CLI integran esas operaciones en memoria, con RNG/eventos/IA,
+contadores de ciudades y logística propietarios. El presupuesto de fabricación
+es explícito; falta coordinar los outputs y restantes efectos de ambos pases
+económicos, así como las órdenes de UI y el guardado de una sesión jugable.
+
 ## Detalle de la infraestructura recuperada
 
 La API de `queue_pool.h/cpp` se recuperó de los mensajes `Write` del historial de

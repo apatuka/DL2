@@ -92,12 +92,12 @@ struct Work {
     uint32_t affordability();
     uint32_t collectRequired();
     void log(uint32_t from, int material, int32_t amount, int32_t cost);
-    bool validate(save::Error& error);
+    bool validate(save::Error& error, bool affordability = true);
     void publish() { for (size_t i = 1; i < territories.size(); ++i) document.territories[i-1].data = territories[i]; }
 };
 
-bool Work::validate(save::Error& error) {
-    if (selected >= territories.size()) return fail(error,"Construction payment selected territory is outside the owned graph");
+bool Work::validate(save::Error& error, bool affordability) {
+    if (affordability && selected >= territories.size()) return fail(error,"Construction payment selected territory is outside the owned graph");
     for (size_t i = 1; i < territories.size(); ++i) {
         const auto& t = territories[i];
         if (t.owner < -1 || t.owner >= kMaxPlayers) return fail(error,"Construction payment found an invalid territory owner");
@@ -116,7 +116,7 @@ bool Work::validate(save::Error& error) {
     for (const auto& entry : report.collection.transfers)
         if (!entry.from || !entry.to || entry.from >= territories.size() || entry.to >= territories.size() || entry.material < 1 || entry.material > 10)
             return fail(error,"Construction payment transfer log contains invalid entity/material references");
-    if (report.requirements.technology < 0 || report.requirements.technology >= kNumTechs)
+    if (affordability && (report.requirements.technology < 0 || report.requirements.technology >= kNumTechs))
         return fail(error,"Construction requirement technology is outside0..47");
     return true;
 }
@@ -349,6 +349,7 @@ bool payConstructionRequirements(const save::Document& source, uint32_t territor
     result.creditsBefore = source.players[size_t(result.owner)].credits;
     Work work(*candidate,result,territory,context.selectedTerritory);
     if (!work.validate(error)) return false;
+    result.affordabilityEvaluated = true;
     result.failureMask = work.affordability(); result.requirementsAccepted = result.failureMask == 0;
     if (result.requirementsAccepted) {
         work.credits() = sub(work.credits(),requirements.materials[0]); result.paid[0] = requirements.materials[0];
@@ -360,5 +361,27 @@ bool payConstructionRequirements(const save::Document& source, uint32_t territor
 } catch (const StepLimit&) { error = {save::ErrorCode::Limit,0,"Construction collection exceeds traversal/transfer storage safety bound"}; return false; }
   catch (const std::bad_alloc&) { error = {save::ErrorCode::Limit,0,"Construction payment allocation failed"}; return false; }
   catch (const std::length_error&) { error = {save::ErrorCode::Limit,0,"Construction payment allocation exceeds limit"}; return false; }
+  catch (const std::exception& e) { error = {save::ErrorCode::InvalidState,0,e.what()}; return false; }
+
+bool collectConstructionRequirements(const save::Document& source, uint32_t territory,
+    const ConstructionRequirements& requirements,
+    const std::array<int32_t, kNumMaterials>& paidBefore,
+    const ConstructionPaymentContext& context, save::Document& destination,
+    ConstructionPaymentReport& report, save::Error& error) try {
+    if (!basic(source,territory,error)) return false;
+    auto candidate = std::make_unique<save::Document>(source); ConstructionPaymentReport result;
+    result.territory = territory; result.owner = source.territories[territory-1].data.owner;
+    result.requirements = requirements; result.collection = context.collection; result.paid = paidBefore;
+    result.creditsBefore = source.players[size_t(result.owner)].credits;
+    Work work(*candidate,result,territory,context.selectedTerritory);
+    if (!work.validate(error,false)) return false;
+    result.collectionAttempted = true;
+    result.failureMask = work.collectRequired();
+    result.creditsAfter = work.credits(); work.publish();
+    if (!save::validate(*candidate,error)) return false;
+    destination = std::move(*candidate); report = std::move(result); error = {}; return true;
+} catch (const StepLimit&) { error = {save::ErrorCode::Limit,0,"Incremental construction collection exceeds traversal/transfer storage safety bound"}; return false; }
+  catch (const std::bad_alloc&) { error = {save::ErrorCode::Limit,0,"Incremental construction collection allocation failed"}; return false; }
+  catch (const std::length_error&) { error = {save::ErrorCode::Limit,0,"Incremental construction collection allocation exceeds limit"}; return false; }
   catch (const std::exception& e) { error = {save::ErrorCode::InvalidState,0,e.what()}; return false; }
 } // namespace dl2::simulation

@@ -55,4 +55,15 @@ bool planProduction(const save::Document& document, ProductionPlan& destination,
 bool taskOutput(const save::Document& document, uint32_t buildingId, int slot,
                 int32_t labor, int32_t& result, save::Error& error);
 
+// Execution leaves: same original assigned/scalar arithmetic, validating only
+// the addressed producer/table accesses (plus archive structural validation).
+// No hypothetical maxima or unrelated producers. Assigned task0 is explicitly
+// zero because its original carried/uninitialized labor is not a valid oracle.
+// Scalar task0 retains the defined active/nonzero-labor result1. Signed race
+// offsets must stay inside RaceStats; technology shifts retain index&31.
+bool assignedBuildingOutputs(const save::Document& document, uint32_t buildingId,
+                             std::array<int32_t,5>& result, save::Error& error);
+bool buildingTaskOutput(const save::Document& document, uint32_t buildingId, int slot,
+                        int32_t labor, int32_t& result, save::Error& error);
+
 } // namespace dl2::simulation

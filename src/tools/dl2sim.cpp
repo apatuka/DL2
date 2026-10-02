@@ -5,7 +5,9 @@
 #include "game/entity_rules.h"
 #include "game/save_files.h"
 #include <charconv>
+#include <bit>
 #include <iostream>
+#include <iterator>
 #include <memory>
 #include <stdexcept>
 #include <string>
@@ -80,7 +82,7 @@ void energy(const runtime::State& state, const simulation::EnergyPlan& plan, int
 }
 template<class Range> void numbers(const Range& values) {
     std::cout << "[";
-    for (size_t i = 0; i < values.size(); ++i) std::cout << (i ? "," : "") << int64_t(values[i]);
+    for (size_t i = 0; i < std::size(values); ++i) std::cout << (i ? "," : "") << int64_t(values[i]);
     std::cout << "]";
 }
 void laborSnapshot(const simulation::BuildingLaborState& state) {
@@ -230,6 +232,64 @@ void armyLifecycle(const runtime::State& state, const simulation::ArmyLifecycleR
               << ",\"refund_count\":" << report.refunds.size() << ",\"deferred_maintain_jobs\":" << report.deferredMaintainJobs
               << ",\"turn\":" << state.document()->options.turn << "}\n";
 }
+simulation::ConstructionOrderContext coldOrderContext(const save::Document& document, uint32_t territory,
+                                                       int seed, save::Error& error) {
+    simulation::ConstructionOrderContext context;
+    simulation::SessionRng rng;
+    require(rng.initialize(uint32_t(seed), error), error);
+    context.events.rngBeforeEvents = rng.snapshot();
+    require(simulation::rebuildLoadedEvents(document, context.events, context.log, error), error);
+    context.events.rngBeforeEvents = context.log.rngAfterEvents;
+    context.ai.rng = context.events.rngBeforeEvents;
+    context.payment.selectedTerritory = territory;
+    return context; // Explicit cold context, not recovery of absent SAV transients.
+}
+void queueContents(const runtime::State& state, uint32_t territory, int category) {
+    std::cout << ",\"queue_records\":[";
+    if (category >= 1 && category <= 5) {
+        const auto& records = state.document()->territories[territory - 1].queues[size_t(category - 1)];
+        for (size_t n = 0; n < records.size(); ++n) {
+            std::cout << (n ? "," : "") << "{\"unit_type\":" << int(records[n].unitType)
+                      << ",\"work_remaining\":" << std::bit_cast<int16_t>(records[n].count) << ",\"paid\":";
+            numbers(records[n].data); std::cout << "}";
+        }
+    }
+    std::cout << "]";
+}
+void manufacturing(const runtime::State& state, const simulation::UnitManufacturingReport& report) {
+    const auto& d = *state.document();
+    const int owner = d.territories[report.territory - 1].data.owner;
+    std::cout << std::boolalpha << "{\"stage\":\"entities_edited_in_memory\",\"isolated\":true,\"complete_turn\":false,"
+                 "\"manufacturing_substep\":true,\"can_save\":false,\"queued\":" << report.queued
+              << ",\"territory\":" << report.territory << ",\"queue\":" << report.queue
+              << ",\"failure_mask\":" << report.failureMask << ",\"head_financing_blocked\":" << report.headFinancingBlocked
+              << ",\"creation_blocked\":" << report.creationBlocked << ",\"production_supplied\":" << report.productionBefore
+              << ",\"production_remaining\":" << report.productionRemaining << ",\"created_ids\":";
+    numbers(report.createdIds);
+    std::cout << ",\"army_count\":" << d.armies.size() << ",\"credits_after\":" << d.players[size_t(owner)].credits
+              << ",\"population_before\":" << report.populationBefore << ",\"population_after\":" << report.populationAfter
+              << ",\"events_dispatched\":" << report.events.size() << ",\"logged_events\":" << report.logAfter.entries.size()
+              << ",\"rng_operations\":" << report.rngAfter.counters.operations << ",\"turn\":" << d.options.turn;
+    queueContents(state, report.territory, report.queue); std::cout << "}\n";
+}
+void buildingProgress(const runtime::State& state, const simulation::BuildingProgressReport& report) {
+    std::cout << std::boolalpha << "{\"stage\":\"entities_edited_in_memory\",\"isolated\":true,\"complete_turn\":false,"
+                 "\"complete_production_pass\":false,\"can_save\":false,\"territory\":" << report.territory
+              << ",\"initial_labor_balanced\":" << report.initialLaborBalanced << ",\"changes\":[";
+    for (size_t i = 0; i < report.changes.size(); ++i) {
+        const auto& c = report.changes[i];
+        std::cout << (i ? "," : "") << "{\"building_id\":" << c.buildingId << ",\"slot\":" << c.slot
+                  << ",\"task\":" << int(c.task) << ",\"output\":" << c.output
+                  << ",\"type_before\":" << int(c.typeBefore) << ",\"type_after\":" << int(c.typeAfter)
+                  << ",\"site_before\":" << int(c.siteBefore) << ",\"site_after\":" << int(c.siteAfter)
+                  << ",\"work_before\":" << c.workBefore << ",\"work_after\":" << c.workAfter
+                  << ",\"upgrade_before\":" << c.upgradeBefore << ",\"upgrade_after\":" << c.upgradeAfter
+                  << ",\"completed\":" << c.completed << ",\"upgraded\":" << c.upgraded << "}";
+    }
+    std::cout << "],\"events_dispatched\":" << report.events.size() << ",\"logged_events\":" << report.logAfter.entries.size()
+              << ",\"rng_operations\":" << report.rngAfter.counters.operations
+              << ",\"turn\":" << state.document()->options.turn << "}\n";
+}
 int usage() {
     std::cout << "Execution preparation / economic laboratory. NOT a complete turn.\n"
                  "  dl2sim prepare <save>\n"
@@ -257,6 +317,12 @@ int usage() {
                  "  dl2sim demolish-building <save> <building-id> <refund-player>\n"
                  "  dl2sim start-building <save> <territory> <building-type> <site> <seed-int32>\n"
                  "  dl2sim find-site <save> <territory> <building-type> <seed-int32>\n"
+                 "  dl2sim progress-buildings <save> <territory> <seed-int32>\n"
+                 "    Construction/upgrade work from assigned labor; NOT the whole production pass.\n"
+                 "  dl2sim queue-unit <save> <territory> <unit-type> <seed-int32>\n"
+                 "  dl2sim dequeue-unit <save> <territory> <queue1..5> <index0-based>\n"
+                 "  dl2sim produce-units <save> <territory> <queue1..5> <work-int32> <seed-int32>\n"
+                 "    Work is an explicit laboratory input, not an executed economic turn.\n"
                  "  dl2sim delete-unit <save> <unit-id>\n"
                  "  dl2sim disband-unit <save> <unit-id>\n"
                  "    Lifecycle with task-force detachment/cascades; NOT manufacturing, combat or SAV export.\n"
@@ -284,9 +350,9 @@ int main(int argc, char** argv) {
                             command == "normalize-load" || command == "activate")) ||
               (argc == 4 && ((!isPlacement && !isCreation && archive) || command == "roundtrip" || command == "normalize-load-seeded" ||
                              command == "normalize-session" || command == "delete-unit" || command == "disband-unit" || command == "delete-building")) ||
-              (argc == 5 && command == "demolish-building") ||
-              (argc == 7 && command == "start-building") ||
-              (argc == 6 && (command == "create-unit" || command == "find-site")) ||
+              (argc == 5 && (command == "demolish-building" || command == "progress-buildings")) ||
+              (argc == 7 && (command == "start-building" || command == "produce-units")) ||
+              (argc == 6 && (command == "create-unit" || command == "find-site" || command == "queue-unit" || command == "dequeue-unit")) ||
               ((isPlacement || isCreation) && argc == (archive ? 7 : 6)))) return usage();
         auto document = std::make_unique<save::Document>();
         save::Error error;
@@ -319,17 +385,41 @@ int main(int argc, char** argv) {
             require(simulation::findConstructionSite(*document,uint32_t(territory),integer(argv[4]),rng.snapshot(),report,error),error);
             std::cout << std::boolalpha << "{\"read_only\":true,\"applies_construction\":false,\"complete_turn\":false,\"found\":"
                       << report.found << ",\"site\":" << report.site << ",\"rng_operations\":" << report.rngAfter.counters.operations << "}\n";
+        } else if (command == "progress-buildings") {
+            const int territory = integer(argv[3]);
+            if (territory <= 0) throw std::runtime_error("Territory index must be positive");
+            const auto shared = coldOrderContext(*document, uint32_t(territory), integer(argv[4]), error);
+            simulation::BuildingProgressContext context{shared.log, shared.events, shared.ai};
+            simulation::BuildingProgressReport report;
+            require(state.progressBuildingWork(uint32_t(territory), context, report, error), error);
+            buildingProgress(state, report);
+        } else if (command == "queue-unit" || command == "produce-units") {
+            const int territory = integer(argv[3]);
+            if (territory <= 0) throw std::runtime_error("Territory index must be positive");
+            simulation::UnitManufacturingContext context;
+            context.effects = coldOrderContext(*document, uint32_t(territory), integer(argv[argc - 1]), error);
+            simulation::UnitManufacturingReport report;
+            if (command == "queue-unit")
+                require(state.queueUnit({uint32_t(territory), integer(argv[4])}, context, report, error), error);
+            else require(state.produceUnits({uint32_t(territory), integer(argv[4]), integer(argv[5])}, context, report, error), error);
+            manufacturing(state, report);
+        } else if (command == "dequeue-unit") {
+            const int territory = integer(argv[3]), index = integer(argv[5]);
+            if (territory <= 0 || index < 0) throw std::runtime_error("Territory must be positive and queue index nonnegative");
+            simulation::UnitDequeueReport report;
+            require(state.dequeueUnit({uint32_t(territory), integer(argv[4]), uint32_t(index)}, report, error), error);
+            std::cout << std::boolalpha << "{\"stage\":\"entities_edited_in_memory\",\"complete_turn\":false,\"can_save\":false,"
+                         "\"removed\":" << report.removed << ",\"territory\":" << report.territory << ",\"queue\":" << report.queue
+                      << ",\"unit_type\":" << report.unitType << ",\"refund_credits\":" << report.creditsRefunded
+                      << ",\"refund_materials\":";
+            numbers(report.materialsRefunded);
+            std::cout << ",\"population_before\":" << report.populationBefore << ",\"population_after\":" << report.populationAfter
+                      << ",\"turn\":" << state.document()->options.turn;
+            queueContents(state, report.territory, report.queue); std::cout << "}\n";
         } else if (command == "start-building") {
             const int territory = integer(argv[3]);
             if (territory <= 0) throw std::runtime_error("Territory index must be positive");
-            simulation::ConstructionOrderContext context;
-            simulation::SessionRng rng;
-            require(rng.initialize(uint32_t(integer(argv[6])), error), error);
-            context.events.rngBeforeEvents = rng.snapshot(); // Explicit cold log context.
-            require(simulation::rebuildLoadedEvents(*document, context.events, context.log, error), error);
-            context.events.rngBeforeEvents = context.log.rngAfterEvents;
-            context.ai.rng = context.events.rngBeforeEvents;
-            context.payment.selectedTerritory = uint32_t(territory);
+            const auto context = coldOrderContext(*document, uint32_t(territory), integer(argv[6]), error);
             simulation::ConstructionOrderReport report; runtime::BuildingHandle handle;
             require(state.startConstruction({uint32_t(territory),integer(argv[4]),integer(argv[5])}, context, handle, report, error), error);
             constructionOrder(state, report);

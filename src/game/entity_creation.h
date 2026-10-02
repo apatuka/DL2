@@ -93,6 +93,10 @@ bool startConstruction(const save::Document& source, const BuildingCreationReque
                        const ConstructionOrderContext& context, save::Document& destination,
                        ConstructionOrderReport& report, save::Error& error);
 
+// Exact site-road leaf0047dfdc for upgrade completion; no world roads/labor.
+bool rebuildTerritorySiteRoads(const save::Document& source, uint32_t territory,
+                               save::Document& destination, save::Error& error);
+
 struct ArmyTemplateRequest {
     uint32_t territory = 0;
     int owner = -1, unitType = 0;

@@ -218,13 +218,22 @@ por +0x38 ni derivar su salud a partir del umbral de retirada.
 | 0x8A8 | u32 | `exploredMask` | jugadores que lo han explorado |
 | 0x8AC | u32 | `coastal` | 0/1 |
 | 0x99A | ptr[5] | `queues` | punteros a 5 `QueueHead {ptr first; ptr cursor}` en heap (`malloc(8)`); van crudos y se reconstruyen |
-| 0x9AE | u8 | `hoverway` | `FUN_0044c3fc`; 0 en formato antiguo |
+| 0x9AE | u8 | `hoverway` (alias heredado) | Máscara de repetición de colas, bits 1..5 (`0044c3fc`, `ProduceUnits`); no es nivel de carretera. 0 en formato antiguo |
 | 0x9B0 | u16 | `portTarget` | `FUN_0044da3c` |
 | 0x9B2.. | — | **no se guarda** | `colonyFlag`, datos de IA, `production[11]` (+0xA7E), `consumption[11]` (+0xAAA) |
 
 Tras los 0x9B2 bytes se escriben las **5 colas** (`FUN_004607d8`/`FUN_004609e8`): por cola `u8 n` y `n`
 registros de 0x30 bytes (`u8 unitType; u8; u16 count; i32 data[11]`); en memoria cada nodo mide 0x34
 (`next` en +0x30, `FUN_00484da8`). En modo editor (`DAT_004d5aa0 ≠ 0`) `knowledge` se fuerza a 100.
+
+`count` es trabajo pendiente interpretado como **signed16**, no cantidad de unidades.
+`data[11]` contiene dinero y materiales ya entregados. `ProduceUnits` financia
+sólo la primera cabeza antes del bucle; `DequeueUnit` devuelve dinero canónico
+completo, pero cada material guardado se estrecha a signed16 antes de sumarlo.
+El byte +0x01 es opaco: el constructor original no lo inicializa; los nuevos
+nodos propietarios lo ponen a cero deliberadamente, mientras los ya cargados
+lo conservan. El límite 255 por cola deriva del contador físico del archivo,
+no de una restricción original de fabricación.
 
 Los nombres heredados de los dos arrays no persistentes están invertidos:
 `production` (+0xA7E) es demanda/reserva/scratch para importar materiales

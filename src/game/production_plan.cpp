@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <bit>
+#include <cstring>
 #include <new>
 #include <stdexcept>
 #include <string>
@@ -81,7 +82,14 @@ int32_t maximumLabor(const save::Document& d, const Territory& t, const Building
     if (b.turnsLeft != 0) return 4;
     int32_t value = signed8(data::kBuildingTypes[b.type].maxLabor);
     if (b.category == 17 && t.owner != -1)
-        value = multiply(d.raceStats.v[24][size_t(d.players[size_t(t.owner)].race)], value) / 100;
+    {
+        // Signed race may cross row boundaries but row24 +/- signed8 remains
+        // inside the physical saved block. Old public plan validation is kept.
+        int16_t racial;
+        const int word=24*kMaxPlayers+d.players[size_t(t.owner)].race;
+        std::memcpy(&racial,reinterpret_cast<const uint8_t*>(&d.raceStats)+size_t(word)*2,2);
+        value = multiply(racial, value) / 100;
+    }
     return value;
 }
 
@@ -194,13 +202,19 @@ bool calculate(const save::Document& d, const Territory& t, const Building& b,
         if (!maximum && usesEnergy(definition) && b.turnsLeft == 0)
             power = multiply(signed8(t.knowledge), 100) / 100;
         output = multiply(data::kLaborProductionTable[std::min(capacity, 10)][std::min(labor, 10)], power);
-        output = multiply(output, d.raceStats.v[task][size_t(d.players[size_t(t.owner)].race)]);
+        const int word=int(signed8(task))*kMaxPlayers+d.players[size_t(t.owner)].race;
+        if (word<0 || word>=int(sizeof(RaceStats)/sizeof(int16_t)))
+            return buildingFailure(error,b,"task/race address is outside saved racial block");
+        int16_t racial;
+        std::memcpy(&racial,reinterpret_cast<const uint8_t*>(&d.raceStats)+size_t(word)*2,2);
+        output = multiply(output, racial);
         output = multiply(output, rate) / 100000;
     }
     if (b.category == 11) {
         output = multiply(output, 2);
         // DAT_004fc21e = TechSaved[33].knownMask (Native Languages).
-        if (d.techs[33].knownMask & (1u << d.players[size_t(t.owner)].index)) output = multiply(output, 2);
+        if (uint32_t(int32_t(std::bit_cast<int16_t>(d.techs[33].knownMask))) &
+            (1u << (d.players[size_t(t.owner)].index&31u))) output = multiply(output, 2);
     }
     if (terrainTask(task)) {
         if (!siteYield(d, t, b, task, output / 10, output, error)) return false;
@@ -304,5 +318,41 @@ bool taskOutput(const save::Document& d, uint32_t buildingId, int slot,
     error = {save::ErrorCode::Limit, 0, "Production query exceeds container limits"};
     return false;
 }
+
+namespace {
+const Building* addressedBuilding(const save::Document& d,uint32_t id,save::Error& error) {
+    if (!save::validate(d,error)) return nullptr;
+    if (d.header.isMap) { fail(error,"production leaf requires a saved game"); return nullptr; }
+    const auto* b=d.buildingById(id);
+    if (!b || b->type==0 || b->type>=data::kNumBuildingTypes) { fail(error,"production leaf requires a typed building"); return nullptr; }
+    const auto& t=d.territories[size_t(b->territory-1)].data;
+    if (t.owner<0 || t.owner>=kMaxPlayers) { fail(error,"production leaf requires an owning player"); return nullptr; }
+    return b;
+}
+}
+bool assignedBuildingOutputs(const save::Document& d,uint32_t id,std::array<int32_t,5>& result,save::Error& error) try {
+    const auto* b=addressedBuilding(d,id,error); if (!b) return false;
+    const auto& t=d.territories[size_t(b->territory-1)].data;
+    std::array<int32_t,5> value{};
+    if (b->flags&4) for (int slot=0;slot<5;++slot) {
+        SlotProduction output;
+        if (!querySlot(d,t,*b,slot,false,0,output,error)) return false;
+        value[size_t(slot)]=output.output;
+    }
+    result=value; error={}; return true;
+} catch (const std::bad_alloc&) { error={save::ErrorCode::Limit,0,"Assigned production allocation failed"}; return false; }
+  catch (const std::length_error&) { error={save::ErrorCode::Limit,0,"Assigned production exceeds limits"}; return false; }
+bool buildingTaskOutput(const save::Document& d,uint32_t id,int slot,int32_t labor,int32_t& result,save::Error& error) try {
+    const auto* b=addressedBuilding(d,id,error); if (!b) return false;
+    if (slot<0 || slot>=5 || labor<0) return fail(error,"scalar production slot/labor is outside safe table domain");
+    const auto& t=d.territories[size_t(b->territory-1)].data; int32_t value=0;
+    if (b->flags&4) {
+        uint8_t task=b->task[slot]; int32_t rate=data::kBuildingTypes[b->type].taskRate[slot];
+        if (slot==1 && (b->type==46 || b->type==47)) { const auto shrine=shrineTask(t,*b); task=shrine.first; rate=shrine.second; }
+        if (!calculate(d,t,*b,task,labor,rate,false,false,value,error)) return false;
+    }
+    result=value; error={}; return true;
+} catch (const std::bad_alloc&) { error={save::ErrorCode::Limit,0,"Scalar production allocation failed"}; return false; }
+  catch (const std::length_error&) { error={save::ErrorCode::Limit,0,"Scalar production exceeds limits"}; return false; }
 
 } // namespace dl2::simulation

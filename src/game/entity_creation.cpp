@@ -394,6 +394,17 @@ bool startConstruction(const save::Document& source, const BuildingCreationReque
     error = {save::ErrorCode::Limit,0,"Construction order exceeds container limits"}; return false;
 }
 
+bool rebuildTerritorySiteRoads(const save::Document& source, uint32_t territory,
+                               save::Document& destination, save::Error& error) try {
+    if (!save::validate(source,error)) return false;
+    if (source.header.isMap || !source.territoryByIndex(territory)) return fail(error,"site roads require a saved-game territory");
+    auto candidate=std::make_unique<save::Document>(source);
+    SiteRoads roads{*candidate,candidate->territories[territory-1].data};
+    if (!roads.run(error)) return false;
+    destination=std::move(*candidate); error={}; return true;
+} catch (const std::bad_alloc&) { error={save::ErrorCode::Limit,0,"Site roads allocation failed"}; return false; }
+  catch (const std::length_error&) { error={save::ErrorCode::Limit,0,"Site roads exceeds allocation limits"}; return false; }
+
 bool initializeArmyTemplate(const save::Document& source, const ArmyTemplateRequest& request,
                             Army& destination, save::Error& error) try {
     for (const auto& army : source.armies)

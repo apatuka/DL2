@@ -155,6 +155,32 @@ def main():
     assert not site["applies_construction"] and site["rng_operations"] == 0
     assert run("placement", tutorial, 14, 1, site["site"])["placement_allowed"]
     assert not run("find-site", tutorial, 0, 1, 1, success=False).stdout
+    queued = run("queue-unit", tutorial, 14, 1, 1)
+    assert queued == run("queue-unit", tutorial, 14, 1, 1)
+    assert queued["queued"] and queued["queue"] == 1 and queued["credits_after"] == 465
+    assert queued["manufacturing_substep"] and queued["isolated"] and not queued["complete_turn"] and not queued["can_save"]
+    assert queued["queue_records"] == [{"unit_type": 1, "work_remaining": 30, "paid": [35] + [0] * 10}]
+    assert not queued["created_ids"] and queued["events_dispatched"] == 0 and queued["turn"] == prepared["turn"]
+    # All tutorial queues are empty. Separate commands always start from the
+    # untouched SAV; their experiments are not secretly persisted between calls.
+    dequeued = run("dequeue-unit", tutorial, 14, 1, 0)
+    assert not dequeued["removed"] and not dequeued["queue_records"] and dequeued["refund_credits"] == 0
+    produced = run("produce-units", tutorial, 14, 1, 30, 1)
+    assert produced == run("produce-units", tutorial, 14, 1, 30, 1)
+    assert produced["production_supplied"] == produced["production_remaining"] == 30
+    assert not produced["created_ids"] and produced["army_count"] == prepared["armies"] and not produced["complete_turn"]
+    progressed = run("progress-buildings", tutorial, 14, 1)
+    assert progressed == run("progress-buildings", tutorial, 14, 1)
+    assert progressed["initial_labor_balanced"] and progressed["isolated"]
+    assert not progressed["complete_production_pass"] and not progressed["can_save"] and progressed["turn"] == prepared["turn"]
+    for command, bad_args in (
+        ("queue-unit", ((0, 1, 1), (14, 0, 1), (14, 39, 1), (14, 1, "bad"))),
+        ("dequeue-unit", ((0, 1, 0), (14, 0, 0), (14, 6, 0), (14, 1, -1))),
+        ("produce-units", ((0, 1, 30, 1), (14, 6, 30, 1), (14, 1, "2147483648", 1))),
+        ("progress-buildings", ((0, 1), (37, 1), (14, "bad"))),
+    ):
+        for args in bad_args:
+            assert not run(command, tutorial, *args, success=False).stdout
     # Territory14 is human-owned; territory1's minister-managed buildings are
     # deliberately outside this completed-building initializer's safe domain.
     created = run("create-building", tutorial, 14, 1, 35)
@@ -190,7 +216,9 @@ def main():
                               ("normalize-session", (123,)), ("create-unit", (14, 0, 1)),
                               ("delete-unit", (10243,)), ("disband-unit", (10243,)),
                               ("delete-building", (10241,)), ("demolish-building", (10241, 0)),
-                              ("start-building", (14, 1, 35, 1)), ("find-site", (14, 1, 1))):
+                              ("start-building", (14, 1, 35, 1)), ("find-site", (14, 1, 1)),
+                              ("queue-unit", (14, 1, 1)), ("dequeue-unit", (14, 1, 0)),
+                              ("produce-units", (14, 1, 30, 1)), ("progress-buildings", (14, 1))):
             rejected = subprocess.run([str(binary), command, str(tutorial), *map(str, args), str(partial)],
                                       capture_output=True, text=True)
             assert rejected.returncode == 2 and not partial.exists(), "new experiments cannot accept a save destination"

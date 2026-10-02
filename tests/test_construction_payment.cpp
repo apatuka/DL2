@@ -258,6 +258,77 @@ void failuresAndIsolation() {
             rtl::seed() == low && rtl::seedHi() == high && snapshot(*d) == input,"no global state or input mutation on success/failure");
 }
 
+void incrementalCollection() {
+    auto d = fixture(); auto out = fixture(); ConstructionPaymentReport report; save::Error error;
+    ConstructionRequirements req; req.materials[0] = 1000; req.materials[3] = 10;
+    req.technology = std::numeric_limits<int32_t>::max(); //Collector does not read this field.
+    std::array<int32_t,11> paid{}; paid[0] = 17; paid[3] = 3;
+    auto ctx = context(); ctx.selectedTerritory = std::numeric_limits<uint32_t>::max();
+    t(*d,1).materials[3] = 20; d->players[0].credits = -5;
+    const auto input = snapshot(*d);
+    error = {save::ErrorCode::Io,91,"old"};
+    require(collectConstructionRequirements(*d,1,req,paid,ctx,*out,report,error),"incremental local collection succeeds");
+    require(error.code == save::ErrorCode::None && error.offset == 0 && error.message.empty(),"collector clears stale error");
+    require(!report.affordabilityEvaluated && !report.requirementsAccepted && report.collectionAttempted &&
+            report.failureMask == 0 && report.transportQuote == 0 && report.creditsBefore == -5 && report.creditsAfter == -5 &&
+            report.paid[0] == 17 && report.paid[3] == 10 && t(*out,1).materials[3] == 13,
+            "004720f4 preserves paid money; no base debit, quote, tech gate or selected-territory access");
+    require(snapshot(*d) == input,"incremental collector preserves source including transient scratch");
+    for (const auto& record : out->territories)
+        for (const int32_t reservation : record.data.production)
+            require(reservation == 0,"incremental collection resets all reservation arrays even without imports");
+
+    d = fixture(); adjacent(*d,1,2); t(*d,1).materials[3] = 2; t(*d,2).materials[3] = 5;
+    req = {}; req.materials[0] = 1000; req.materials[3] = 10; paid = {}; paid[0] = 77; paid[3] = 3; ctx = context();
+    require(collectConstructionRequirements(*d,1,req,paid,ctx,*out,report,error),"incremental imports succeed");
+    require(!report.failureMask && report.paid[0] == 77 && report.paid[3] == 10 && report.creditsAfter == 90 &&
+            t(*out,1).materials[3] == 0 && t(*out,2).materials[3] == 0 &&
+            report.collection.transfers == std::vector<MaterialTransfer>{{2,1,3,5,10}},
+            "prior paid3 + local2 + imported5 meets10 with freight10, no base moneycharge");
+    // Alias source/destination AND requirements/paid input with the report.
+    ctx.collection = report.collection;
+    const auto finished = report.paid;
+    require(collectConstructionRequirements(*out,1,report.requirements,report.paid,ctx,*out,report,error) &&
+            report.paid == finished && report.creditsBefore == 90 && report.creditsAfter == 90 &&
+            report.collection.transfers.size() == 1 && report.importFailures.empty(),
+            "already-paid repeat is idempotent for stocks/credits and nested output-input aliases are safe");
+
+    d = fixture(); t(*d,1).materials[3] = 2; t(*d,2).materials[3] = 100; ctx = context();
+    require(collectConstructionRequirements(*d,1,req,paid,ctx,*out,report,error),"blocked imports are evaluated, not rolled back");
+    require(report.failureMask == 8 && report.paid[0] == 77 && report.paid[3] == 5 && report.creditsAfter == 100 &&
+            t(*out,1).materials[3] == 0 && t(*out,2).materials[3] == 100 &&
+            report.importFailures == std::vector<MaterialImportFailure>{{0x3c,1,0,3}},
+            "blocked donor emits original60 and retains partiallocal collection plus prior paidvalues");
+
+    d = fixture(); req = {}; req.materials[4] = 15; paid = {}; paid[7] = 1; t(*d,1).materials[4] = 5;
+    require(collectConstructionRequirements(*d,1,req,paid,ctx,*out,report,error) && !report.failureMask &&
+            report.paid[7] == 1 && report.paid[4] == 5 && t(*out,1).materials[4] == 0,
+            "incremental metal credit uses weighted PREVIOUS paidTriidium10 plus five localIron");
+    d = fixture(); req = {}; req.materials[3] = std::numeric_limits<int32_t>::max();
+    paid = {}; paid[3] = std::numeric_limits<int32_t>::min();
+    require(collectConstructionRequirements(*d,1,req,paid,ctx,*out,report,error) && !report.failureMask &&
+            report.paid[3] == std::numeric_limits<int32_t>::max() && t(*out,1).materials[3] == 1,
+            "signed paid deficit wraps to-1 then min(-1,stock0) reproduces original defined32-bit narrowing");
+
+    d = fixture(); adjacent(*d,1,2); t(*d,2).materials[3] = 20;
+    req = {}; req.materials[3] = 10; paid = {};
+    const auto old = report; const auto previous = snapshot(*out), unchanged = snapshot(*d);
+    std::vector<uint8_t> gb(sizeof(gs)), gl(sizeof(gg));
+    std::memcpy(gb.data(),&gs,sizeof(gs)); std::memcpy(gl.data(),&gg,sizeof(gg));
+    const auto low = rtl::seed(), high = rtl::seedHi();
+    auto full = ctx; full.collection.transfers.assign(250,{2,1,1,1,1});
+    require(!collectConstructionRequirements(*d,1,req,paid,full,*out,report,error) &&
+            error.code == save::ErrorCode::Limit && report == old && snapshot(*out) == previous,
+            "late ledger exhaustion after freight/stock changes rolls back both outputs");
+    auto bad = ctx; bad.collection.suppliers[1] = {999,2};
+    require(!collectConstructionRequirements(*d,1,req,paid,bad,*out,report,error) && report == old && snapshot(*out) == previous,
+            "invalid supplier graph rejects transactionally");
+    require(collectConstructionRequirements(*d,1,req,paid,ctx,*out,report,error),"successful collector also runs underglobalguard");
+    require(std::memcmp(gb.data(),&gs,sizeof(gs)) == 0 && std::memcmp(gl.data(),&gg,sizeof(gg)) == 0 &&
+            rtl::seed() == low && rtl::seedHi() == high && snapshot(*d) == unchanged,
+            "incremental success/failure are isolated from input/globalgame/globalRNG state");
+}
+
 void corpus(const std::filesystem::path& directory) {
     namespace fs = std::filesystem;
     if (directory.empty()) { std::cout << "construction payment optional corpus: no directory\n"; return; }
@@ -295,7 +366,8 @@ void corpus(const std::filesystem::path& directory) {
 int main(int argc,char** argv) {
     try {
         costAndLocalOracles(); ordinaryImportsAndMasks(); routesAndTechnology(); cachedSupplierAndPartialCollection();
-        metalAndSignedDomains(); failuresAndIsolation(); corpus(argc>1?std::filesystem::path(argv[1]):std::filesystem::path{});
+        metalAndSignedDomains(); failuresAndIsolation(); incrementalCollection();
+        corpus(argc>1?std::filesystem::path(argv[1]):std::filesystem::path{});
         std::cout << "construction_payment: costs/imports/routes/metals/partialpayment oracles, rollback and isolation passed\n"; return 0;
     } catch (const std::exception& e) { std::cerr << "construction_payment: " << e.what() << '\n'; return 1; }
 }

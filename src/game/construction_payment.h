@@ -45,6 +45,7 @@ struct ConstructionPaymentReport {
     ConstructionRequirements requirements;
     int32_t transportQuote = 0, creditsBefore = 0, creditsAfter = 0;
     uint32_t failureMask = 0; //1credits, bits1..10 materials,1000tech,2000imports.
+    bool affordabilityEvaluated = false;
     bool requirementsAccepted = false, collectionAttempted = false;
     std::array<int32_t, kNumMaterials> paid{}; // DELIVERED amounts, not remainder.
     ResourceCollectionState collection;
@@ -71,4 +72,21 @@ bool buildingConstructionRequirements(const save::Document& source,
 bool payConstructionRequirements(const save::Document& source, uint32_t territory,
     const ConstructionRequirements& requirements, const ConstructionPaymentContext& context,
     save::Document& destination, ConstructionPaymentReport& report, save::Error& error);
+
+//004720f4 ONLY, for already-started buildings and the partial-paid HEAD in
+// ProduceUnits0044e174. Accumulates into paidBefore instead of clearing it.
+// Does NOT quote affordability, check technology or charge base money: paid[0]
+// is preserved verbatim, even when below requirements.materials[0]. The caller
+// must perform any original direct credit-deficit debit BEFORE this operation.
+// Freight can still debit credits, imports can fail/partially succeed, and all
+// territory reservation scratch is reset as in the original collector.
+// report.affordabilityEvaluated/requirementsAccepted stay false (not checked),
+// collectionAttempted=true; failureMask only describes material collection.
+// selectedTerritory and requirements.technology are not read by this leaf.
+// Same transactional and owned-state guarantees as payConstructionRequirements.
+bool collectConstructionRequirements(const save::Document& source, uint32_t territory,
+    const ConstructionRequirements& requirements,
+    const std::array<int32_t, kNumMaterials>& paidBefore,
+    const ConstructionPaymentContext& context, save::Document& destination,
+    ConstructionPaymentReport& report, save::Error& error);
 } // namespace dl2::simulation

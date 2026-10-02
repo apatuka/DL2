@@ -22,6 +22,8 @@
 #include "game/load_world_presentation.h"
 #include "game/load_shrine_events.h"
 #include "game/ai_session.h"
+#include "game/building_progress.h"
+#include "game/unit_manufacturing.h"
 
 namespace dl2::runtime {
 template<class Tag> struct Handle {
@@ -63,6 +65,10 @@ struct QueueNode {
     QueueRecord record{}; // next.raw is cleared; use the typed next below.
     QueueNodeHandle next;
 };
+// Queue nodes have no persistent ID. A content/order change in any queue retires
+// ALL positional QueueNodeHandles; reacquire through the stable QueueHandle.
+// Building/Army/Territory/Queue handles survive such changes. Failed edits do not
+// retire nodes, and unrelated entity edits preserve their identities.
 struct Queue {
     QueueNodeHandle first, cursor; // Cursor starts at first, as LoadQueue does.
     uint32_t count = 0;
@@ -186,6 +192,7 @@ public:
     const simulation::AiSession* aiSession() const { return ai_ ? &*ai_ : nullptr; }
     const simulation::AiReactionContext* aiReactionContext() const { return aiReaction_ ? &*aiReaction_ : nullptr; }
     const simulation::ResourceCollectionState* resourceCollection() const { return collection_ ? &*collection_ : nullptr; }
+    const std::array<int32_t, kMaxPlayers>* eventCities() const { return eventCities_ ? &*eventCities_ : nullptr; }
     // Explicit isolated AI reactions, not RunAITurns. First call requires the
     // real external transient context; subsequent calls must match its owned
     // continuation (queue, masks, RNG). No hidden rewind or empty-queue reset.
@@ -207,6 +214,21 @@ public:
                            const simulation::ConstructionOrderContext& context,
                            BuildingHandle& created, simulation::ConstructionOrderReport& report,
                            save::Error& error);
+    // Isolated construction/upgrade branch using actual assigned labor outputs.
+    // Not the complete production pass: other outputs and manufacturing are omitted.
+    bool progressBuildingWork(uint32_t territory, const simulation::BuildingProgressContext& context,
+                              simulation::BuildingProgressReport& report, save::Error& error);
+    // Real queue/payment/refund/spawn substeps. Explicit production comes from
+    // the caller; these do not synthesize a turn or maximum hypothetical labor.
+    // Effects must continue the owned log/AI/collection/RNG, never rewind them.
+    bool queueUnit(const simulation::QueueUnitRequest& request,
+                   const simulation::UnitManufacturingContext& context,
+                   simulation::UnitManufacturingReport& report, save::Error& error);
+    bool produceUnits(const simulation::ProduceUnitsRequest& request,
+                      const simulation::UnitManufacturingContext& context,
+                      simulation::UnitManufacturingReport& report, save::Error& error);
+    bool dequeueUnit(const simulation::DequeueUnitRequest& request,
+                     simulation::UnitDequeueReport& report, save::Error& error);
     bool createArmy(const simulation::ArmyCreationRequest& request,
                     const simulation::ArmyCreationContext& context, ArmyHandle& created,
                     simulation::ArmyLifecycleReport& report, save::Error& error);
@@ -256,9 +278,13 @@ private:
     std::vector<EntitySlot> buildingSlots_, armySlots_;
     std::vector<uint32_t> buildingDenseSlots_, armyDenseSlots_;
     uint64_t preparationIdentity_ = 0; // Static graph handles' owning lifetime.
+    uint64_t queueNodeIdentity_ = 0; // Positional queue graph generation, not SAV data.
     bool rebuildGraph(save::Error& error);
     bool copyForEdit(State& candidate, save::Error& error) const;
-    bool finishEdit(State&& candidate, save::Error& error);
+    bool finishEdit(State&& candidate, save::Error& error, bool queueNodesReplaced = false);
+    template<class Request> bool applyManufacturing(const Request& request,
+        const simulation::UnitManufacturingContext& context,
+        simulation::UnitManufacturingReport& report, save::Error& error);
     std::unique_ptr<save::Document> document_;
     Graph graph_;
     simulation::SessionRng rng_;
@@ -272,6 +298,7 @@ private:
     std::optional<simulation::AiSession> ai_;
     std::optional<simulation::AiReactionContext> aiReaction_;
     std::optional<simulation::ResourceCollectionState> collection_;
+    std::optional<std::array<int32_t, kMaxPlayers>> eventCities_;
     Stage stage_ = Stage::Empty;
 };
 // All returned pointers and Graph references are borrowed until the next

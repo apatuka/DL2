@@ -15,6 +15,9 @@ inserción/retirada estructural limitada con referencias estables; aún no son �
 `create-building` inicializa edificios terminados y especiales; los comandos de unidades/bajas
 incluyen transporte, parejas y devoluciones. `start-building` cobra/importa recursos, crea la
 obra pendiente y conecta eventos, trabajadores, caminos y puertos. No permite guardar el experimento.
+`progress-buildings` aplica trabajo real asignado a obras/mejoras. `queue-unit`,
+`dequeue-unit` y `produce-units` conectan pago, cancelación, repetición y fabricación;
+este último recibe trabajo explícito, sin ejecutar el resto de la producción económica.
 `normalize-load` integra un subconjunto explícito de carga offline y RNG por sesión;
 incluye migraciones, reinicio IA, visibilidad, inteligencia y avisos de santuarios.
 `normalize-session` incorpora reinicio, mapa cambiado y temporizador con un contexto frío explícito.
@@ -82,13 +85,14 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools/build.ps1 -BuildDir bu
 ```
 
 El hito de serialización pasó 8/8, el del inspector 15/15 y el de preparación/fiscalidad 18/18.
-La suite actual, incluida la continuación EST, pasa **38/38 sin omisiones**, tanto
+La suite actual, incluida la continuación EST, pasa **41/41 sin omisiones**, tanto
 en `build-verified` como con AddressSanitizer en `build-save-asan`. Incluye 46
 capturas exactas, entidades/emplazamientos y experimentos económicos, además de
 RNG propietario, tablas compartidas y carga parcial: 46 documentos normalizados,
 incluidas ocho migraciones antiguas, inteligencia, eventos/timer y creación local.
 También cubre reinicio/mundo cambiado, avisos de santuarios, reacciones IA,
-transporte y bajas, cobro/importaciones y comienzo pagado de construcción.
+transporte y bajas, cobro/importaciones, comienzo/progreso/finalización de obra,
+mejoras y fabricación/repetición por colas.
 No acredita carga jugable ni turno completo. Alcance y evidencia en `docs/RECOVERY.md`.
 El script armoniza la codificación de consola para que Ninja detecte las cabeceras con MSVC
 localizado. Si una caché antigua muestra cientos de líneas `Nota: inclusión del archivo`,

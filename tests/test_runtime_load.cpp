@@ -183,6 +183,43 @@ void corpus(const std::filesystem::path& directory) {
     std::cout << "runtime_load corpus: " << documents << " normalized, " << migrated << " explicit legacy migrations\n";
 }
 
+void startupContextIntegration() {
+    auto d=fixture(); d->options.campaign=0;
+    save::Error error; rt::State state; rt::LoadReport report;
+    rt::LoadContext context; simulation::SessionRng before;
+    ok(before.initialize(1,error),error);
+    context.startup=simulation::LoadStartupContext{before.snapshot()};
+    context.previousWorld=d->world; context.previousShadingSlope=73; context.clockMs=0;
+    ok(state.prepare(*d,error),error); const auto* original=state.document();
+    context.events=simulation::EventLoadContext{};
+    const auto sentinel=report;
+    require(!state.normalizeLoad({},report,error,rt::LoadScope::Partial,context) &&
+        state.document()==original && report==sentinel,"conflicting pre-reset/pre-event snapshots must reject atomically");
+    context.events.reset();
+    ok(state.normalizeLoad({},report,error,rt::LoadScope::Partial,context),error);
+    require(report.startupRebuilt && report.aiInitialized && report.worldPresentationRebuilt && report.timerPlanned &&
+        report.headlessComplete && report.shrineNoticesDelivered &&
+        report.missing==std::vector<rt::MissingLoadCapability>({rt::MissingLoadCapability::NativePresentation}),
+        "headless load completion must not require an AI turn that original LoadGame never executes");
+    require(state.loadDerived() && *state.loadDerived()==report.derived && state.loadShrineEvents(),
+        "load counters and delivered shrine effects must remain owned by State");
+    require(state.loadStartup() && state.loadStartup()->rngBeforeEvents.counters.rand15==3 &&
+        state.loadedEvents()->rngAfterEvents==state.loadStartup()->rngBeforeEvents && state.worldPresentation() &&
+        !state.worldPresentation()->changedWorld && state.worldPresentation()->shadingSlopeAfter==73 &&
+        state.worldPresentation()->rngAfter==state.loadedEvents()->rngAfterEvents,
+        "reset->events->unchanged world must share one owned ordered RNG sequence");
+    require(state.aiSession() && state.aiSession()->snapshot().initializationComplete &&
+        !state.aiSession()->snapshot().aiTurnImplemented && state.sessionRng().counters.operations==0 &&
+        state.document()->options.gameSeed==d->options.gameSeed,
+        "native AI initialization and final gameId reseed must not impersonate an AI turn or overwrite saved seeds");
+    const auto* startup=state.loadStartup();
+    rt::State moved=std::move(state);
+    require(moved.loadStartup()==startup && moved.worldPresentation() && moved.aiSession() &&
+        !state.loadStartup() && !state.worldPresentation() && !state.aiSession(),"all new session objects must move together");
+    ok(moved.prepare(*d,error),error);
+    require(!moved.loadStartup() && !moved.worldPresentation() && !moved.aiSession(),"new prepare must clear previous headless session data");
+}
+
 void nativeContextIntegration() {
     auto d = fixture(); d->options.campaign = 0;
     d->options.autoTimer = 1; d->options.autoTimerClock = 300;
@@ -223,7 +260,7 @@ void nativeContextIntegration() {
 }
 int main(int argc, char** argv) {
     try {
-        transactionalIntegration(); rollbackLateFailure(); nativeContextIntegration();
+        transactionalIntegration(); rollbackLateFailure(); nativeContextIntegration(); startupContextIntegration();
         corpus(argc > 1 ? std::filesystem::path(argv[1]) : std::filesystem::path{});
         std::cout << "runtime_load: explicit partial pipeline, capability gates, identity/RNG ownership and rollback passed\n";
         return 0;

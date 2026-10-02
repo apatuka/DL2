@@ -96,7 +96,9 @@ def main():
     assert normalized["territories"] == prepared["territories"] and normalized["buildings"] == prepared["buildings"]
     assert normalized["rng"]["seed_source"] == "options.gameId" and normalized["rng"]["operations"] == 0
     assert normalized["rng"]["rtl_low"] == normalized["rng"]["secondary"] and normalized["rng"]["rtl_high"] == 0
-    assert "ai_initialization" in normalized["missing"] and not normalized["ai_executable"]
+    assert "ai_turn" in normalized["playability_missing"] and not normalized["ai_executable"]
+    assert "ai_execution" not in normalized["missing"], "LoadGame does not execute an AI turn"
+    assert normalized["ai_initialization_complete"] and "native_presentation" in normalized["missing"]
     assert normalized["ai_data_initialized"] and normalized["visibility_rebuilt"]
     assert normalized["building_intelligence_rebuilt"] and normalized["contact_discovery_skipped_on_load"]
     assert not {"visibility", "contacts", "building_intelligence"} & set(normalized["missing"])
@@ -104,6 +106,55 @@ def main():
     assert seeded == run("normalize-load-seeded", tutorial, 123) and seeded["events_rebuilt"]
     assert seeded["rng"] == normalized["rng"], "pre-event draws cannot leak past final gameplay reseed"
     assert not run("normalize-load-seeded", tutorial, "bad", success=False).stdout
+    session = run("normalize-session", tutorial, 123)
+    assert session == run("normalize-session", tutorial, 123)
+    assert all(session[k] for k in ("startup_rebuilt", "world_presentation_rebuilt", "timer_planned", "ai_initialization_complete"))
+    assert session["missing"] == ["native_presentation"] and not session["can_play"]
+    assert session["headless_load_complete"] and session["shrine_notices_delivered"]
+    assert session["rng"] == normalized["rng"] and session["turn_after"] == prepared["turn"]
+    for seed in ("bad", "2147483648", "-2147483649", ""):
+        assert not run("normalize-session", tutorial, seed, success=False).stdout
+    unit = run("create-unit", tutorial, 14, 0, 1)
+    assert unit == run("create-unit", tutorial, 14, 0, 1)
+    assert unit["army_count"] == prepared["armies"] + 1 and unit["created_ids"] == [unit["primary_id"]]
+    assert unit["counter_after"] == unit["counter_before"] + 1 and not unit["manufacturing_order"]
+    assert unit["stage"] == "entities_edited_in_memory" and not unit["complete_turn"]
+    # The actual tutorial has one ChCh't colonizer10243 in territory14.
+    for command, refunds in (("delete-unit", 0), ("disband-unit", 1)):
+        removed = run(command, tutorial, 10243)
+        assert removed == run(command, tutorial, 10243)
+        assert removed["removed_ids"] == [10243] and removed["army_count"] == prepared["armies"] - 1
+        assert removed["refund_count"] == refunds and removed["turn"] == prepared["turn"]
+        for bad_id in (0, -1, 65536, "bad"):
+            assert not run(command, tutorial, bad_id, success=False).stdout
+    for args in ((0, 0, 1), (14, -1, 1), (14, 7, 1), (14, 0, 0), (14, 0, 39), (14, 0, "bad")):
+        assert not run("create-unit", tutorial, *args, success=False).stdout
+    for command, args, credits in (("delete-building", (10241,), 0), ("demolish-building", (10241, 0), 25)):
+        removed = run(command, tutorial, *args)
+        assert removed == run(command, tutorial, *args)
+        assert removed["building_count"] == prepared["buildings"] - 1 and removed["building_id"] == 10241
+        assert removed["refund_credits"] == credits and removed["turn"] == prepared["turn"]
+        assert removed["roads_target_was_sentinel"] == (command == "demolish-building")
+    assert not run("delete-building", tutorial, 0, success=False).stdout
+    assert not run("demolish-building", tutorial, 10241, 7, success=False).stdout
+    assert not run("demolish-building", tutorial, 10244, 0, success=False).stdout  # Shrine campaign effects not fabricated.
+    order = run("start-building", tutorial, 14, 1, 35, 1)
+    assert order == run("start-building", tutorial, 14, 1, 35, 1)
+    assert order["accepted"] and order["paid_construction_order"] and not order["complete_turn"]
+    assert order["work_remaining"] == 10 and order["credits_before"] == 500 and order["credits_after"] == 450
+    assert order["paid"][0] == 50 and order["paid"][3] == 10 and sum(order["paid"]) == 60
+    assert order["local_labor_balanced"] and order["site_roads_rebuilt"] and order["logged_events"] == 1
+    assert order["rng_operations"] == 1 and order["building_count"] == prepared["buildings"] + 1
+    denied = run("start-building", tutorial, 14, 1, 14, 1)
+    assert not denied["accepted"] and not denied["payment_evaluated"] and denied["building_count"] == prepared["buildings"]
+    assert denied["counter_after"] == denied["counter_before"] + 1 and denied["rng_operations"] == 0
+    for args in ((0, 1, 35, 1), (14, 48, 35, 1), (14, 1, 35, "bad")):
+        assert not run("start-building", tutorial, *args, success=False).stdout
+    site = run("find-site", tutorial, 14, 1, 1)
+    assert site == run("find-site", tutorial, 14, 1, 1) and site["read_only"] and site["found"]
+    assert not site["applies_construction"] and site["rng_operations"] == 0
+    assert run("placement", tutorial, 14, 1, site["site"])["placement_allowed"]
+    assert not run("find-site", tutorial, 0, 1, 1, success=False).stdout
     # Territory14 is human-owned; territory1's minister-managed buildings are
     # deliberately outside this completed-building initializer's safe domain.
     created = run("create-building", tutorial, 14, 1, 35)
@@ -135,7 +186,11 @@ def main():
         rejected = subprocess.run([str(binary), "placement", str(tutorial), "1", "1", "0", str(partial)],
                                   capture_output=True, text=True)
         assert rejected.returncode == 2 and not partial.exists(), "placement cannot accept a save destination"
-        for command, args in (("create-building", (1, 1, 35)), ("normalize-load-seeded", (123,))):
+        for command, args in (("create-building", (1, 1, 35)), ("normalize-load-seeded", (123,)),
+                              ("normalize-session", (123,)), ("create-unit", (14, 0, 1)),
+                              ("delete-unit", (10243,)), ("disband-unit", (10243,)),
+                              ("delete-building", (10241,)), ("demolish-building", (10241, 0)),
+                              ("start-building", (14, 1, 35, 1)), ("find-site", (14, 1, 1))):
             rejected = subprocess.run([str(binary), command, str(tutorial), *map(str, args), str(partial)],
                                       capture_output=True, text=True)
             assert rejected.returncode == 2 and not partial.exists(), "new experiments cannot accept a save destination"

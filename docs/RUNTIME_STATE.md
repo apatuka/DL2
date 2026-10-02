@@ -232,12 +232,15 @@ parciales. El resultado de las ejecuciones integradas se registra en
 
 Existe un perfil parcial offline para 35..0x120, opciones/campañas, inteligencia
 y reseed final de RNG. Las conversiones antiguas y los reinicios de datos IA
-ya están portados; faltan ejecución IA, rama visual de mundo cambiado y parte
-de los transitorios/contextos de carga (ver `LOAD_NORMALIZATION.md`). La preparación archival
+ya están portados, junto con mundo cambiado, reinicios y avisos de santuarios.
+Con contexto completo se distingue carga headless de activación/UI y del turno
+IA aún pendiente (ver `LOAD_NORMALIZATION.md`). La preparación archival
 conserva los datos; no afirma que cada palabra histórica sea
 semánticamente correcta para una nueva simulación. Tampoco incorpora todavía
-creación/destrucción completas ni el resto de fases. Ya dispone de creación
-terminada limitada, backend estructural e identidades estables; no son
+el resto de fases. Ya dispone de creación especial, unidades/transporte/cascadas,
+demolición no-santuario y comienzo pagado de construcción con eventos/logística,
+además de reacciones IA con continuación explícita y rechazo de rebobinado.
+Las operaciones aisladas e identidades estables no son
 una reproducción del layout ni del orden físico de los pools Borland.
 
 La secuencia económica observada en `FUN_0046c7d4` es impuestos, producción 1,

@@ -147,7 +147,7 @@ gráfica `DAT_004d553c`); `u8 overlay; u8; i16 pathCost` (temporal, 0x7FFF).
 | 0x014 | i16 | `turnsLeft` | 0 = terminado |
 | 0x018 | i32[5] | `labor` | "Labor Assigned %d/%d" |
 | 0x02C | u8[5] | `task` | `BuildingTask` por ranura |
-| 0x03E | i32[11] | `cost` | materiales pendientes |
+| 0x03E | i32[11] | `cost` | dinero/materiales ya entregados; `004720f4` acumula, demolición devuelve la mitad |
 | 0x06A | i32[4][11] | `taskData` | |
 | 0x11A | ptr | `prev` | → ID global al guardar |
 | 0x11E | ptr | `next` | → ID global al guardar |

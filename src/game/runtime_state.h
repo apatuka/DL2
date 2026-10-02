@@ -17,6 +17,11 @@
 #include "game/load_session.h"
 #include "game/load_intelligence.h"
 #include "game/entity_creation.h"
+#include "game/entity_lifecycle.h"
+#include "game/load_startup.h"
+#include "game/load_world_presentation.h"
+#include "game/load_shrine_events.h"
+#include "game/ai_session.h"
 
 namespace dl2::runtime {
 template<class Tag> struct Handle {
@@ -98,7 +103,7 @@ struct EntityEditReport {
 enum class LoadScope { Partial, Complete };
 enum class MissingLoadCapability {
     AiInitialization, Visibility, Contacts, BuildingIntelligence,
-    NativeEventLog, TransientSessionState, ChangedWorldScan
+    NativeEventLog, TransientSessionState, ChangedWorldScan, AiExecution, NativePresentation, ShrineEventDelivery
 };
 struct LoadReport {
     simulation::LoadCoreReport core;
@@ -107,12 +112,16 @@ struct LoadReport {
     simulation::LaborBalancePlan labor;
     simulation::RngSnapshot rng;
     bool complete = false;
+    bool headlessComplete = false; // NativePresentation may remain; NOT Active/playable.
+    bool shrineNoticesDelivered = false;
+    uint32_t shrineRandomDraws = 0;
     bool eventsRebuilt = false, timerPlanned = false;
-    uint32_t loadedEvents = 0, eventRandomDraws = 0;
+    bool startupRebuilt = false, aiInitialized = false, worldPresentationRebuilt = false;
+    uint32_t loadedEvents = 0, eventRandomDraws = 0, evictedEvents = 0;
     std::vector<MissingLoadCapability> missing{
-        MissingLoadCapability::AiInitialization,
+        MissingLoadCapability::NativePresentation,
         MissingLoadCapability::NativeEventLog, MissingLoadCapability::TransientSessionState,
-        MissingLoadCapability::ChangedWorldScan};
+        MissingLoadCapability::ChangedWorldScan, MissingLoadCapability::ShrineEventDelivery};
     bool operator==(const LoadReport&) const = default;
 };
 const char* missingLoadCapabilityName(MissingLoadCapability capability);
@@ -121,6 +130,15 @@ struct LoadContext {
     // Omit only for a partial load. A nonempty native event log requires its
     // actual pre-event RNG/city context, not an invented seed from the SAV.
     std::optional<simulation::EventLoadContext> events;
+    // Full pre-load RNG context is an alternative to pre-event context, not a
+    // second independent seed. Its three reset draws precede event selection.
+    std::optional<simulation::LoadStartupContext> startup;
+    std::array<int32_t, kMaxPlayers> citiesBeforeLoad{};
+    std::optional<WorldParams> previousWorld;
+    int32_t previousShadingSlope = 0;
+    // Prior queue/masks survive native LoadGame. Its RNG is replaced by the
+    // actual post-event/world sequence before shrine-event dispatch.
+    std::optional<simulation::AiReactionContext> previousAi;
     std::optional<uint32_t> clockMs;
     simulation::LoadTimerState previousTimer;
 };
@@ -159,13 +177,43 @@ public:
                        const LoadContext& context = {});
     simulation::RngSnapshot sessionRng() const { return rng_.snapshot(); }
     const simulation::LoadCoreReport* loadCore() const { return core_ ? &*core_ : nullptr; }
+    const simulation::LoadDerivedReport* loadDerived() const { return derived_ ? &*derived_ : nullptr; }
+    const simulation::LoadShrineEventsReport* loadShrineEvents() const { return shrineEvents_ ? &*shrineEvents_ : nullptr; }
     const simulation::LoadedEventLog* loadedEvents() const { return events_ ? &*events_ : nullptr; }
     const simulation::LoadTimerReport* loadTimer() const { return timer_ ? &*timer_ : nullptr; }
+    const simulation::LoadStartupReport* loadStartup() const { return startup_.get(); }
+    const simulation::LoadWorldPresentationReport* worldPresentation() const { return world_ ? &*world_ : nullptr; }
+    const simulation::AiSession* aiSession() const { return ai_ ? &*ai_ : nullptr; }
+    const simulation::AiReactionContext* aiReactionContext() const { return aiReaction_ ? &*aiReaction_ : nullptr; }
+    const simulation::ResourceCollectionState* resourceCollection() const { return collection_ ? &*collection_ : nullptr; }
+    // Explicit isolated AI reactions, not RunAITurns. First call requires the
+    // real external transient context; subsequent calls must match its owned
+    // continuation (queue, masks, RNG). No hidden rewind or empty-queue reset.
+    bool reactDiplomacy(const simulation::AiDiplomacyRequest& request,
+                        const simulation::AiReactionContext& context,
+                        simulation::AiReactionReport& report, save::Error& error);
+    bool reactAiEvent(const simulation::AiEventRequest& request,
+                      const simulation::AiReactionContext& context,
+                      simulation::AiReactionReport& report, save::Error& error);
     // Completed-building initializer with real local labor/footprint/roads.
     // Not a paid construction order; shares the explicit nonplayable edit stage.
     bool createCompletedBuilding(const simulation::BuildingCreationRequest& request,
                                  BuildingHandle& created, simulation::BuildingCreationReport& report,
                                  save::Error& error);
+    // Full paid start, not work completion/production or a resumable turn.
+    // evaluated denial still consumes its original ID/scratch/partial payment;
+    // created is then null. API failures keep every output unchanged.
+    bool startConstruction(const simulation::BuildingCreationRequest& request,
+                           const simulation::ConstructionOrderContext& context,
+                           BuildingHandle& created, simulation::ConstructionOrderReport& report,
+                           save::Error& error);
+    bool createArmy(const simulation::ArmyCreationRequest& request,
+                    const simulation::ArmyCreationContext& context, ArmyHandle& created,
+                    simulation::ArmyLifecycleReport& report, save::Error& error);
+    bool removeArmy(ArmyHandle handle, simulation::ArmyRemovalKind kind, bool detachTaskForces,
+                    simulation::ArmyLifecycleReport& report, save::Error& error);
+    bool removeBuilding(BuildingHandle handle, simulation::BuildingRemovalKind kind, int refundPlayer,
+                        simulation::BuildingLifecycleReport& report, save::Error& error);
     // Structural storage operations, NOT construction, manufacturing, demolition
     // or combat orders. Callers supply complete payloads and explicit file IDs;
     // only list references and the building's anchor-site reference are derived.
@@ -215,8 +263,15 @@ private:
     Graph graph_;
     simulation::SessionRng rng_;
     std::optional<simulation::LoadCoreReport> core_;
+    std::optional<simulation::LoadDerivedReport> derived_;
+    std::optional<simulation::LoadShrineEventsReport> shrineEvents_;
     std::optional<simulation::LoadedEventLog> events_;
     std::optional<simulation::LoadTimerReport> timer_;
+    std::unique_ptr<simulation::LoadStartupReport> startup_;
+    std::optional<simulation::LoadWorldPresentationReport> world_;
+    std::optional<simulation::AiSession> ai_;
+    std::optional<simulation::AiReactionContext> aiReaction_;
+    std::optional<simulation::ResourceCollectionState> collection_;
     Stage stage_ = Stage::Empty;
 };
 // All returned pointers and Graph references are borrowed until the next

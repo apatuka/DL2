@@ -407,7 +407,7 @@ struct Building {
     uint8_t  unk_31[4];          // 0x031
     uint8_t  unk_35;
     uint8_t  unk_36[8];          // 0x036
-    int32_t  cost[11];           // 0x03e materiales pendientes de pagar (FUN_0044f110/FUN_004720f4, memset 0x2c)
+    int32_t  cost[11];           // 0x03e dinero/materiales YA entregados (004720f4 acumula; Demolish reembolsa la mitad)
     int32_t  taskData[4][11];    // 0x06a por tarea 1..4 x Material (memset 0xb0: 0x6a..0x11a)
     Ptr32<Building> prev;        // 0x11a anterior en la lista de activos (FUN_0044cabc); save: ID
     Ptr32<Building> next;        // 0x11e siguiente en la lista (save: ID; load: FindBuildingByGlobalID)

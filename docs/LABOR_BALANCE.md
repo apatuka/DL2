@@ -117,7 +117,8 @@ Los resultados ejecutados se registran en [RECOVERY.md](RECOVERY.md). Una prueba
 del corpus confirma el comportamiento sobre esas muestras, no todas las
 combinaciones de una partida futura ni paridad completa con el original.
 
-Siguiente dependencia: creación/destrucción segura de unidades y edificios,
-construcciones/mejoras, fabricación, contexto RNG y logística necesarios para
-los dos pases de producción. También siguen pendientes otras normalizaciones de
-carga —visibilidad, campañas e IA— y las órdenes manuales de trabajo/interfaz.
+Las rutas propietarias posteriores ya incorporan ciclo de vida, comienzo pagado
+de obra, logística, RNG, visibilidad y normalización de campaña/IA. El helper
+`prepareStartedBuildingLabor` refresca tareas y aplica la urgencia de construcción
+humana sin fingir progreso de obra. Siguen pendientes mejoras/finalización,
+fabricación, los dos pases de producción, IA completa y órdenes manuales/interfaz.

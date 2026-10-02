@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <bit>
+#include <cstring>
 #include <memory>
 #include <new>
 #include <stdexcept>
@@ -424,28 +425,48 @@ bool planLaborBalance(const save::Document& source, LaborBalancePlan& destinatio
     return false;
 }
 
-bool prepareCreatedBuildingLabor(const save::Document& source, uint32_t buildingId,
-                                 save::Document& destination, save::Error& error) try {
+bool balanceTerritoryLabor(const save::Document& source, uint32_t territory,
+                           save::Document& destination, save::Error& error) try {
+    if (!save::validate(source, error)) return false;
+    if (source.header.isMap || territory == 0 || territory > source.territories.size())
+        return fail(error, "local balance requires a valid saved-game territory");
+    auto candidate = std::make_unique<save::Document>(source);
+    Work work{*candidate, {}};
+    if (!work.validate(error)) return false;
+    TerritoryLaborBalance ignored;
+    if (!work.balance(size_t(territory - 1), ignored, error)) return false;
+    destination = std::move(*candidate); error = {};
+    return true;
+} catch (const std::bad_alloc&) {
+    error = {save::ErrorCode::Limit, 0, "Local labor allocation failed"}; return false;
+} catch (const std::length_error&) {
+    error = {save::ErrorCode::Limit, 0, "Local labor exceeds container limits"}; return false;
+}
+
+namespace {
+bool prepareFreshBuildingLabor(const save::Document& source, uint32_t buildingId,
+                               bool finishedOnly, bool redistribute,
+                               save::Document& destination, save::Error& error) try {
     if (!save::validate(source, error)) return false;
     if (source.header.isMap) return fail(error, "creation requires a saved game");
     const auto* fresh = source.buildingById(buildingId);
     if (!fresh || fresh->type == 0 || fresh->type >= data::kNumBuildingTypes ||
-        fresh->turnsLeft != 0 || fresh->flags != 6 || fresh->minister != 0 ||
-        fresh->type == 38 || fresh->type == 39 || data::kBuildingTypes[fresh->type].category == 11 ||
+        (finishedOnly && fresh->turnsLeft != 0) || fresh->flags != 6 || fresh->minister != 0 ||
         fresh->category != data::kBuildingTypes[fresh->type].category)
-        return fail(error, "creation helper requires a fresh ordinary finished building");
+        return fail(error, "creation helper requires a fresh finished building");
     for (int slot = 0; slot < 5; ++slot)
         if (fresh->labor[slot] || fresh->task[slot])
             return fail(error, "creation helper requires zero initial tasks/labor");
     const size_t territory = size_t(fresh->territory - 1);
     const int owner = source.territories[territory].data.owner;
-    if (owner < 0 || owner >= kMaxPlayers)
-        return fail(error, "creation helper requires an owned territory");
+    if (owner < -1 || owner >= kMaxPlayers)
+        return fail(error, "creation helper requires a valid territory owner");
     auto candidate = std::make_unique<save::Document>(source);
     Work work{*candidate, {}};
     if (!work.validate(error)) return false;
     auto& building = *work.at(territory, size_t(fresh->site));
-    if (!work.refresh(building, candidate->players[size_t(owner)], error)) return false;
+    if (owner >= 0 && !work.refresh(building, candidate->players[size_t(owner)], error)) return false;
+    if (!redistribute) { destination = std::move(*candidate); error = {}; return true; }
     TerritoryLaborBalance ignored;
     if (!work.balance(territory, ignored, error)) return false;
 
@@ -460,10 +481,6 @@ bool prepareCreatedBuildingLabor(const save::Document& source, uint32_t building
     int targetSlot = -1;
     for (int slot = 0; slot < 5; ++slot)
         if (building.task[slot] != 0 && building.task[slot] != 21) { targetSlot = slot; break; }
-    // Finished ordinary table rows never select construction. Do not fake the
-    // assistant/TaskUrgency dependency if that premise changes in the future.
-    if (targetSlot >= 0 && building.task[targetSlot] == 2)
-        return fail(error, "creation cannot execute the construction urgency branch");
     // orig: MoveHousingLabor 0044c79c. Failed moves do NOT end this loop.
     for (int32_t attempt = 0; targetSlot >= 0 && attempt < requested; ++attempt) {
         if (work.transferSteps == Work::kMaxTransferSteps) {
@@ -479,6 +496,32 @@ bool prepareCreatedBuildingLabor(const save::Document& source, uint32_t building
                 building.labor[housing] = subtract(building.labor[housing], 1);
             }
         } else if (total < maximum) {
+            if (building.task[targetSlot] == 2) {
+                // orig: MoveHousingLabor -> TaskUrgency004484fc -> scalar
+                // TaskOutput0044eeb4, construction task2 only. No energy/yield
+                // branch while work!=0; capacity4, canonical slot0 rate100.
+                const int32_t labor = building.labor[targetSlot];
+                if (owner < 0 || building.turnsLeft == 0 || maximum != 4 || labor < 0)
+                    return fail(error, "construction urgency has an unsafe original production-table index");
+                const int race = candidate->players[size_t(owner)].race;
+                const int racialWord = 2 * kMaxPlayers + race;
+                if (racialWord < 0 || racialWord >= int(sizeof(RaceStats) / sizeof(int16_t)))
+                    return fail(error, "construction urgency race indexes outside saved racial block");
+                int16_t modifier;
+                std::memcpy(&modifier,reinterpret_cast<const uint8_t*>(&candidate->raceStats)+size_t(racialWord)*2,2);
+                int32_t output = multiply(data::kLaborProductionTable[4][size_t(std::min(labor,10))],100);
+                output = multiply(multiply(output,modifier),data::kBuildingTypes[building.type].taskRate[targetSlot]) / 100000;
+                if (building.category == 11) {
+                    output = multiply(output,2);
+                    if (work.knows(33,candidate->players[size_t(owner)].index)) output = multiply(output,2);
+                }
+                output = add(output,9) / 10;
+                if (candidate->options.fastProduction) output = multiply(output,2);
+                if (labor != 0) output = std::max(output,1);
+                int32_t urgency = subtract(building.turnsLeft,output);
+                if (urgency > 0) urgency = subtract(10000,urgency);
+                if (urgency <= 0) continue;
+            }
             for (size_t site = 0; site < kNumSites; ++site) if (auto* b = work.at(territory, site)) {
                 const int housing = findTask(*b, 20);
                 if (housing >= 0 && b->labor[housing] != 0) {
@@ -498,6 +541,16 @@ bool prepareCreatedBuildingLabor(const save::Document& source, uint32_t building
 } catch (const std::length_error&) {
     error = {save::ErrorCode::Limit, 0, "Creation labor exceeds container limits"};
     return false;
+}
+} // namespace
+
+bool prepareCreatedBuildingLabor(const save::Document& source, uint32_t buildingId,
+                                 save::Document& destination, save::Error& error) {
+    return prepareFreshBuildingLabor(source,buildingId,true,true,destination,error);
+}
+bool prepareStartedBuildingLabor(const save::Document& source, uint32_t buildingId,
+                                 bool redistribute, save::Document& destination, save::Error& error) {
+    return prepareFreshBuildingLabor(source,buildingId,false,redistribute,destination,error);
 }
 
 } // namespace dl2::simulation

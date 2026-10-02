@@ -1,5 +1,6 @@
 // Execution-state laboratory. Isolated experiments are not completed game turns.
 #include "game/runtime_state.h"
+#include "game/construction_site.h"
 #include "game/production_plan.h"
 #include "game/entity_rules.h"
 #include "game/save_files.h"
@@ -77,9 +78,9 @@ void energy(const runtime::State& state, const simulation::EnergyPlan& plan, int
     }
     std::cout << "]}\n";
 }
-template<class T, size_t N> void numbers(const std::array<T, N>& values) {
+template<class Range> void numbers(const Range& values) {
     std::cout << "[";
-    for (size_t i = 0; i < N; ++i) std::cout << (i ? "," : "") << int64_t(values[i]);
+    for (size_t i = 0; i < values.size(); ++i) std::cout << (i ? "," : "") << int64_t(values[i]);
     std::cout << "]";
 }
 void laborSnapshot(const simulation::BuildingLaborState& state) {
@@ -154,6 +155,13 @@ void load(const runtime::State& state, const runtime::LoadReport& report, int be
               << ",\"legacy_jobs_discarded\":" << report.core.discardedLegacyJobs
               << ",\"ai_data_initialized\":" << report.core.session.initialized
               << ",\"ai_executable\":" << report.core.session.aiExecutable
+              << ",\"ai_initialization_complete\":" << report.aiInitialized
+              << ",\"startup_rebuilt\":" << report.startupRebuilt
+              << ",\"world_presentation_rebuilt\":" << report.worldPresentationRebuilt
+              << ",\"timer_planned\":" << report.timerPlanned
+              << ",\"headless_load_complete\":" << report.headlessComplete
+              << ",\"shrine_notices_delivered\":" << report.shrineNoticesDelivered
+              << ",\"shrine_random_draws\":" << report.shrineRandomDraws
               << ",\"campaign_goal_mask\":" << report.core.campaignGoalMask
               << ",\"campaign_progress\":";
     numbers(report.core.campaignProgress);
@@ -166,23 +174,61 @@ void load(const runtime::State& state, const runtime::LoadReport& report, int be
               << ",\"contact_discovery_skipped_on_load\":" << report.intelligence.contactDiscoverySkippedOnLoad
               << ",\"events_rebuilt\":" << report.eventsRebuilt << ",\"loaded_events\":" << report.loadedEvents
               << ",\"event_random_draws\":" << report.eventRandomDraws
+              << ",\"evicted_events\":" << report.evictedEvents
               << ",\"rng\":{\"seed_source\":\"options.gameId\",\"rtl_low\":" << report.rng.rtlLow
               << ",\"rtl_high\":" << report.rng.rtlHigh << ",\"secondary\":" << report.rng.secondary
               << ",\"operations\":" << report.rng.counters.operations << "},\"missing\":[";
     for (size_t i = 0; i < report.missing.size(); ++i)
         std::cout << (i ? "," : "") << '"' << runtime::missingLoadCapabilityName(report.missing[i]) << '"';
-    std::cout << "]}\n";
+    std::cout << "],\"playability_missing\":[\"ai_turn\",\"complete_turn\",\"native_presentation\"]}\n";
 }
 void createdBuilding(const runtime::State& state, const simulation::BuildingCreationReport& report) {
-    std::cout << "{\"stage\":\"entities_edited_in_memory\",\"complete_turn\":false,\"paid_construction_order\":false,"
+    std::cout << std::boolalpha << "{\"stage\":\"entities_edited_in_memory\",\"complete_turn\":false,\"paid_construction_order\":false,"
                  "\"finished_building\":true,\"building_id\":" << report.buildingId
               << ",\"territory\":" << report.territory << ",\"building_type\":" << report.buildingType
               << ",\"site\":" << report.site << ",\"counter_before\":" << report.counterBefore
               << ",\"counter_after\":" << report.counterAfter << ",\"building_count\":" << state.document()->buildings.size()
-              << ",\"local_labor_balanced\":true,\"site_roads_rebuilt\":true,\"turn\":" << state.document()->options.turn
+              << ",\"local_labor_balanced\":" << report.localLaborBalanced << ",\"site_roads_rebuilt\":" << report.siteRoadsRebuilt
+              << ",\"companion_id\":" << report.companionBuildingId << ",\"companion_attempted\":" << report.companionAttempted
+              << ",\"companion_allocation_failed\":" << report.companionAllocationFailed << ",\"turn\":" << state.document()->options.turn
               << ",\"footprint\":[";
     for (size_t i = 0; i < report.footprint.size(); ++i) std::cout << (i ? "," : "") << int(report.footprint[i]);
     std::cout << "]}\n";
+}
+void buildingLifecycle(const runtime::State& state, const simulation::BuildingLifecycleReport& report) {
+    std::cout << std::boolalpha << "{\"stage\":\"entities_edited_in_memory\",\"complete_turn\":false,\"building_id\":"
+              << report.primaryId << ",\"building_count\":" << state.document()->buildings.size()
+              << ",\"territory\":" << report.territory << ",\"refund_player\":" << report.refundPlayer
+              << ",\"refund_credits\":" << report.credits << ",\"refund_materials\":";
+    numbers(report.materials);
+    std::cout << ",\"local_labor_balanced\":" << report.localLaborBalanced
+              << ",\"roads_target_was_sentinel\":" << report.originalRoadsTargetWasSentinel
+              << ",\"deferred_build_jobs\":" << report.deferredBuildJobs << ",\"turn\":" << state.document()->options.turn << "}\n";
+}
+void constructionOrder(const runtime::State& state, const simulation::ConstructionOrderReport& report) {
+    const auto* building = state.document()->buildingById(report.attemptedId);
+    std::cout << std::boolalpha << "{\"stage\":\"entities_edited_in_memory\",\"complete_turn\":false,\"paid_construction_order\":true,"
+                 "\"accepted\":" << report.accepted << ",\"denial\":" << int(report.denial)
+              << ",\"attempted_id\":" << report.attemptedId << ",\"building_count\":" << state.document()->buildings.size()
+              << ",\"counter_before\":" << report.counterBefore << ",\"counter_after\":" << report.counterAfter
+              << ",\"payment_evaluated\":" << report.paymentEvaluated << ",\"failure_mask\":" << report.payment.failureMask
+              << ",\"credits_before\":" << report.payment.creditsBefore << ",\"credits_after\":" << report.payment.creditsAfter
+              << ",\"work_remaining\":" << (building ? building->turnsLeft : 0) << ",\"paid\":";
+    numbers(report.payment.paid);
+    std::cout << ",\"local_labor_balanced\":" << report.localLaborBalanced << ",\"site_roads_rebuilt\":" << report.siteRoadsRebuilt
+              << ",\"events_dispatched\":" << report.events.size() << ",\"logged_events\":" << report.logAfter.entries.size()
+              << ",\"rng_operations\":" << report.rngAfter.counters.operations << ",\"turn\":" << state.document()->options.turn << "}\n";
+}
+void armyLifecycle(const runtime::State& state, const simulation::ArmyLifecycleReport& report) {
+    std::cout << std::boolalpha << "{\"stage\":\"entities_edited_in_memory\",\"complete_turn\":false,\"manufacturing_order\":false,"
+        "\"primary_id\":" << report.primaryId << ",\"created_ids\":";
+    numbers(report.createdIds); std::cout << ",\"removed_ids\":"; numbers(report.removedIds);
+    std::cout << ",\"army_count\":" << state.document()->armies.size()
+              << ",\"counter_before\":" << report.counterBefore << ",\"counter_after\":" << report.counterAfter
+              << ",\"carrier_id\":" << report.carrierId << ",\"paired_missile_id\":" << report.pairedMissileId
+              << ",\"paired_missile_attempted\":" << report.pairedMissileAttempted
+              << ",\"refund_count\":" << report.refunds.size() << ",\"deferred_maintain_jobs\":" << report.deferredMaintainJobs
+              << ",\"turn\":" << state.document()->options.turn << "}\n";
 }
 int usage() {
     std::cout << "Execution preparation / economic laboratory. NOT a complete turn.\n"
@@ -201,9 +247,19 @@ int usage() {
                  "  dl2sim normalize-load-archive <HDX/HDD-base> <entry>\n"
                  "  dl2sim normalize-load-seeded <save> <seed-int32>\n"
                  "    Explicit pre-event RNG seed, zero prior city counts; NOT replay of an unknown previous session.\n"
+                 "  dl2sim normalize-session <save> <seed-int32>\n"
+                 "    Explicit cold context: pre-reset seed, zero prior world/cities/shading, clock0. Still not playable.\n"
                  "  dl2sim create-building <save> <territory> <building-type> <site>\n"
                  "  dl2sim create-building-archive <HDX/HDD-base> <entry> <territory> <building-type> <site>\n"
                  "    Finished-building initializer with local effects; NOT paid construction or SAV export.\n"
+                 "  dl2sim create-unit <save> <territory> <owner> <unit-type>\n"
+                 "  dl2sim delete-building <save> <building-id>\n"
+                 "  dl2sim demolish-building <save> <building-id> <refund-player>\n"
+                 "  dl2sim start-building <save> <territory> <building-type> <site> <seed-int32>\n"
+                 "  dl2sim find-site <save> <territory> <building-type> <seed-int32>\n"
+                 "  dl2sim delete-unit <save> <unit-id>\n"
+                 "  dl2sim disband-unit <save> <unit-id>\n"
+                 "    Lifecycle with task-force detachment/cascades; NOT manufacturing, combat or SAV export.\n"
                  "  dl2sim activate <save>  (complete load explicitly unavailable)\n"
                  "  dl2sim placement <save> <territory> <building-type> <site>\n"
                  "  dl2sim placement-archive <HDX/HDD-base> <entry> <territory> <building-type> <site>\n"
@@ -226,7 +282,11 @@ int main(int argc, char** argv) {
         if (!((argc == 3 && (command == "prepare" || command == "taxes" || command == "turn" ||
                             command == "economy" || command == "energy" || command == "labor" ||
                             command == "normalize-load" || command == "activate")) ||
-              (argc == 4 && ((!isPlacement && !isCreation && archive) || command == "roundtrip" || command == "normalize-load-seeded")) ||
+              (argc == 4 && ((!isPlacement && !isCreation && archive) || command == "roundtrip" || command == "normalize-load-seeded" ||
+                             command == "normalize-session" || command == "delete-unit" || command == "disband-unit" || command == "delete-building")) ||
+              (argc == 5 && command == "demolish-building") ||
+              (argc == 7 && command == "start-building") ||
+              (argc == 6 && (command == "create-unit" || command == "find-site")) ||
               ((isPlacement || isCreation) && argc == (archive ? 7 : 6)))) return usage();
         auto document = std::make_unique<save::Document>();
         save::Error error;
@@ -235,17 +295,65 @@ int main(int argc, char** argv) {
         runtime::State state;
         require(state.prepare(*document, error), error);
         if (command == "turn") { require(state.advanceTurn(error), error); return 1; }
-        if (command == "normalize-load" || command == "normalize-load-archive" || command == "normalize-load-seeded" || command == "activate") {
+        if (command == "normalize-load" || command == "normalize-load-archive" || command == "normalize-load-seeded" ||
+            command == "normalize-session" || command == "activate") {
             runtime::LoadReport report;
             runtime::LoadContext context;
-            if (command == "normalize-load-seeded") {
+            if (command == "normalize-load-seeded" || command == "normalize-session") {
                 simulation::SessionRng rng;
                 require(rng.initialize(uint32_t(integer(argv[3])), error), error);
-                context.events.emplace(); context.events->rngBeforeEvents = rng.snapshot();
+                if (command == "normalize-session") {
+                    context.startup = simulation::LoadStartupContext{rng.snapshot()};
+                    context.previousWorld = WorldParams{}; context.clockMs = 0;
+                    context.previousAi.emplace(); // Explicit cold laboratory context, not historical recovery.
+                } else { context.events.emplace(); context.events->rngBeforeEvents = rng.snapshot(); }
             }
             require(state.normalizeLoad({}, report, error,
                 command == "activate" ? runtime::LoadScope::Complete : runtime::LoadScope::Partial, context), error);
             load(state, report, document->options.turn);
+        } else if (command == "find-site") {
+            const int territory = integer(argv[3]);
+            if (territory <= 0) throw std::runtime_error("Territory index must be positive");
+            simulation::SessionRng rng; simulation::ConstructionSiteReport report;
+            require(rng.initialize(uint32_t(integer(argv[5])), error), error);
+            require(simulation::findConstructionSite(*document,uint32_t(territory),integer(argv[4]),rng.snapshot(),report,error),error);
+            std::cout << std::boolalpha << "{\"read_only\":true,\"applies_construction\":false,\"complete_turn\":false,\"found\":"
+                      << report.found << ",\"site\":" << report.site << ",\"rng_operations\":" << report.rngAfter.counters.operations << "}\n";
+        } else if (command == "start-building") {
+            const int territory = integer(argv[3]);
+            if (territory <= 0) throw std::runtime_error("Territory index must be positive");
+            simulation::ConstructionOrderContext context;
+            simulation::SessionRng rng;
+            require(rng.initialize(uint32_t(integer(argv[6])), error), error);
+            context.events.rngBeforeEvents = rng.snapshot(); // Explicit cold log context.
+            require(simulation::rebuildLoadedEvents(*document, context.events, context.log, error), error);
+            context.events.rngBeforeEvents = context.log.rngAfterEvents;
+            context.ai.rng = context.events.rngBeforeEvents;
+            context.payment.selectedTerritory = uint32_t(territory);
+            simulation::ConstructionOrderReport report; runtime::BuildingHandle handle;
+            require(state.startConstruction({uint32_t(territory),integer(argv[4]),integer(argv[5])}, context, handle, report, error), error);
+            constructionOrder(state, report);
+        } else if (command == "create-unit") {
+            const int territory = integer(argv[3]);
+            if (territory <= 0) throw std::runtime_error("Territory index must be positive");
+            simulation::ArmyLifecycleReport report; runtime::ArmyHandle handle;
+            require(state.createArmy({uint32_t(territory), integer(argv[4]), integer(argv[5])}, {}, handle, report, error), error);
+            armyLifecycle(state, report);
+        } else if (command == "delete-unit" || command == "disband-unit") {
+            const int id = integer(argv[3]);
+            if (id <= 0) throw std::runtime_error("Unit ID must be positive");
+            simulation::ArmyLifecycleReport report;
+            require(state.removeArmy(state.armyById(uint32_t(id)), command == "delete-unit" ? simulation::ArmyRemovalKind::DeleteUnit :
+                simulation::ArmyRemovalKind::DisbandUnit, true, report, error), error);
+            armyLifecycle(state, report);
+        } else if (command == "delete-building" || command == "demolish-building") {
+            const int id = integer(argv[3]);
+            if (id <= 0) throw std::runtime_error("Building ID must be positive");
+            simulation::BuildingLifecycleReport report;
+            const bool demolition = command == "demolish-building";
+            require(state.removeBuilding(state.buildingById(uint32_t(id)), demolition ? simulation::BuildingRemovalKind::DemolishBuilding :
+                simulation::BuildingRemovalKind::DeleteBuilding, demolition ? integer(argv[4]) : -1, report, error), error);
+            buildingLifecycle(state, report);
         } else if (isCreation) {
             const int offset = archive ? 4 : 3;
             const int territory = integer(argv[offset]);

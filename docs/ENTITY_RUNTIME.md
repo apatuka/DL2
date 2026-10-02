@@ -1,7 +1,7 @@
 # Entidades propietarias y consultas de emplazamiento
 
-Este bloque prepara la gestión dinámica que necesitarán construcción y
-fabricación. **No habilita todavía esas órdenes de juego.** Separa el almacenamiento
+Este bloque implementa gestión dinámica y comienzo de construcción en operaciones
+propietarias aisladas. **No habilita un turno completo ni botones jugables.** Separa el almacenamiento
 estructural en `runtime::State`, la consulta pura de casillas en
 `simulation::checkBuildingPlacement` y la creación local de edificios terminados
 en `simulation::createCompletedBuilding`. Esta última ya inicializa registros,
@@ -74,9 +74,10 @@ Estas operaciones pueden encadenarse desde `Prepared` o `EntitiesEdited`. Todo
 turno completo. No hay guardado de laboratorio presentado como partida jugable,
 ni conexión de estas operaciones a botones del inspector.
 
-La restricción es importante: `DeleteUnit` incluye cascadas de carga y efectos
-IA, `DisbandUnit` puede devolver población/materiales, y construir incluye pago,
-empleo, eventos y caminos. El backend estructural no sustituye esas funciones.
+El backend estructural no sustituye las funciones de gameplay. Las APIs nuevas
+de ciclo de vida sí aplican cascadas/refunds. DeleteUnit no llama por sí mismo a
+la IA: desprender taskforces es un paso explícito del llamador, y ciertos trabajos
+se limpian más tarde por su scheduler original.
 
 ## Huella y comprobación de casillas
 
@@ -125,7 +126,7 @@ Ejemplos de consulta sin escritura:
 El JSON distingue `placement_allowed` de `complete_build_permission:false`, y
 señala `read_only:true` y `applies_construction:false`. No admite destino SAV.
 
-## Creación local de edificios terminados (EST-04c, corte parcial)
+## Creación local de edificios terminados
 
 `src/game/entity_creation.h/.cpp` porta el corte de `CreateBuilding` (`0044dcf4`),
 distinto de `StartConstruction` (`0044db50`). La API propietaria es:
@@ -145,13 +146,15 @@ callbacks ni archivos. El documento candidato no equivale a una partida activada
 
 ### Dominio admitido y restricciones deliberadas
 
-- Partida guardada válida, no mapa reducido; territorio terrestre con propietario
-  entre 0 y 6; tipo ordinario de tamaño uno o dos; ancla explícita entre 0 y 35.
+- Partida válida, no mapa reducido; tierra/mar, tamaños uno/dos/cinco, plataformas,
+  SeaHab y santuarios. Sin propietario se admiten tipos no raciales; el acceso
+  racial original con owner−1 se rechaza. Ancla explícita entre0 y35.
 - Huella completa libre y consulta `CheckConstructionSite` aceptada. Es una
   restricción de seguridad explícita: el `CreateBuilding` original con casilla
   explícita no vuelve a ejecutar esa comprobación. No se amplía su aceptación
-  sobre plataformas libres ni se reparan casillas ocupadas.
-- Sin plataforma, SeaHab ni santuarios; sin modo editor ni selección automática
+  con escrituras inseguras ni se reparan casillas ocupadas. Sí se admiten los
+  sockets libres de plataforma según sus reglas originales.
+- Sin modo editor ni selección automática
   de casilla. No se consume azar para resolver `site=-1`.
 - Lista global de edificios coherente y capacidad para mantener un nodo libre:
   como máximo 1199 activos después de insertar. El nuevo registro va al final
@@ -169,14 +172,17 @@ La tecnología sí interviene donde el original la usa para tareas y mejoras.
 
 ### IDs e inicialización
 
-`NextGlobalId` (`00474cfc`) incrementa una vez el contador de 32 bits, conservando
+`NextGlobalId` (`00474cfc`) incrementa el contador de 32 bits, conservando
 su wrap, y toma sus 16 bits bajos como ID. El corte nuevo reproduce ese cálculo,
 pero rechaza cero o colisión con cualquier edificio **o unidad** existente.
 No busca otro ID ni salta valores ocupados. Ante cualquier rechazo se revierte
 también el contador: esta atomicidad es deliberada, no una afirmación de que los
-wrappers originales deshacían todos los intentos fallidos.
+wrappers originales deshacían todos los intentos fallidos. Plataforma38 reserva
+primero el ID de SeaHab39, luego el suyo, pero inserta plataforma→SeaHab: el informe
+`createdIds` conserva ese orden. Si sólo queda un slot, conserva plataforma sola,
+ambos IDs consumidos y `companionAllocationFailed`, como el original.
 
-`InitBuilding` (`0044d890`) aporta tipo/categoría de tabla, flags activo/construido
+`InitBuilding` (`0044d890`) aporta tipo/categoría de tabla, flags activo/recursos acopiados
 (`6`), obra restante cero, raza para los tipos raciales y valores iniciales nulos.
 El centro urbano cuenta los centros del mismo propietario, incluido el nuevo,
 y conserva el estrechamiento con signo a byte de `cantidad-1` para `hubLevel`.
@@ -297,10 +303,86 @@ en la colocación de tamaño dos: `0044d7b4` modifica bytes de carretera
 Ese módulo sigue fuera de compilación; las consultas y creación propietarias
 nuevas no lo invocan.
 
-El corte nuevo añade `InitBuilding`/`CreateBuilding` local, `NextGlobalId`,
-`RedistributeLabor` y caminos de sitios, pero quedan pago/importaciones y eventos
-de `StartConstruction`, progreso/finalización de obra y fabricación con límites,
-transporte y trabajos IA. También siguen pendientes las ramas especiales de
-creación y las bajas completas, demolición, devolución de recursos y cascadas.
-EST-04/EST-04c, CON-02 y las órdenes de construcción/fabricación siguen parcialmente
-pendientes en [SINGLE_PLAYER_CHECKLIST.md](SINGLE_PLAYER_CHECKLIST.md).
+Quedan progreso/finalización de obra, fabricación por colas/turno, demolición de
+santuarios con efectos de campaña y su integración completa. No presentar las
+operaciones aisladas siguientes como un turno ni una partida exportable.
+
+## Ciclo de vida de unidades y edificios
+
+`entity_lifecycle` y `State::createArmy/removeArmy/removeBuilding` ejecutan listas,
+capacidad, inicialización y bajas reales; no sólo el backend estructural anterior.
+
+- CanCreateUnit: base de misiles, terreno, límites por grupo y transporte. Creación
+  con ID/nombre, carga de tres slots y pareja cruiser35/missile36. Si el misil
+  falla por capacidad/apilado, el cruiser solo y el ID intentado quedan como en
+  el original, expuestos en el informe; errores de integridad revierten todo.
+- DeleteUnit: desprende carga, cascadas recursivas, pareja y listas propias/ajenas.
+  DisbandUnit añade mitad de costes y100 colonos para tipos25/31, con balance
+  local. La carga destruida no recibe refunds adicionales. Remover taskforces
+  es una opción explícita previa, no un callback ficticio del destructor.
+- Los jobs13 de ministros se conservan para dispatch posterior. El helper
+  `pruneInvalidMaintainUnitJobs` aplica sólo la rama terminal real; no simula
+  las tareas activas ni acepta ID0, que el pool original puede confundir con libre.
+- DeleteBuilding libera huella/restaura sockets y enlaza vecinos. Borrar una
+  plataforma no borra automáticamente sus edificios. Demolish no-santuario
+  devuelve la mitad del coste pagado o canónico, conserva SAR/narrowing y balancea
+  labor. Tras FreeBuilding, el original consulta el territorio ya puesto a0:
+  por ello no se inventa una reconstrucción de caminos en el territorio demolido.
+- Demolish de santuario rechaza los efectos aún ausentes de campaña/cola pendiente.
+  DeleteBuilding sin demolición sí puede retirarlo sin inventar esa secuencia.
+
+Las identidades de supervivientes se conservan incluso al eliminar en cascada y
+en orden distinto al vector físico. Handles retirados/ajenos/caducados fallan.
+Las bajas no producen batallas, recompensas ni eventos externos a sus hojas.
+
+## Costes, importación y comienzo de obra
+
+`construction_payment` implementa004722e0/00471e58/004720f4 y la importación00472974:
+cotización, reserva, selección ordenada de proveedores, conectividad, modos de
+transporte, pactos, tecnología, tarifas raciales, sustitución de metales y registro
+de250 transferencias. Los IDs/fees de proveedor tienen almacenamiento propietario;
+no se ejecutan punteros históricos. El territorio seleccionado se aporta porque
+el diagnóstico original consulta esa selección y no siempre el destino.
+
+Una cotización denegada puede cambiar scratch; un cobro posterior puede fallar
+tras descontar dinero/materiales. `failureMask`, `paid` y el estado resultante
+exponen esas consecuencias originales. `true` significa evaluado, no aprobado;
+un fallo de API sí conserva todas las salidas. La tarifa0 sigue limitada por
+créditos disponibles y el bucle original de metales puede consumir un metal caro
+en lugar del barato: ambas rarezas están conservadas y probadas.
+
+`startConstruction` conecta coste/pago/importación, registro canónico de eventos60
+y64 o su dispatch IA real, InitBuilding, huella, labor de construcción urgente,
+caminos y selección de territorio de puerto. Los callbacks IA de60/64 son defaults
+RET verificados, no implementaciones ausentes reemplazadas por éxito.
+`Building.cost` contiene importes **ya entregados**, no material pendiente.
+Flags6 en una obra significan activo/recursos acopiados: `turnsLeft` conserva el
+trabajo por realizar. Iniciar plataforma no crea inmediatamente su SeaHab.
+
+El wrapper offline consume ID antes de denegar sitio/pool/pago. El informe
+`accepted=false` conserva ese incremento y efectos de cobro auténticos, sin
+entidad/handle nuevo. Errores de dominio, referencias o efectos no implementados
+revierten toda la operación. State conserva log, cola/máscaras IA, RNG y colección;
+las órdenes siguientes deben usar esa continuación exacta, sin rebobinarla.
+
+`findConstructionSite` reproduce el orden36, primer sitio sin recursos o último
+con recursos. Santuario47 marítimo sin otro santuario elige esquina con un Long31
+etiquetado; no usa Rand15 ni inventa semilla. Es una consulta independiente:
+StartConstruction original no interpreta site−1, su wrapper de autoselección sí.
+
+CLI de laboratorio, sólo memoria y originales de sólo lectura:
+
+```powershell
+.\build-verified\src\dl2sim.exe create-unit "C:\GOG Games\Deadlock 2\TUTORIAL.SAV" 14 0 1
+.\build-verified\src\dl2sim.exe disband-unit "C:\GOG Games\Deadlock 2\TUTORIAL.SAV" 10243
+.\build-verified\src\dl2sim.exe demolish-building "C:\GOG Games\Deadlock 2\TUTORIAL.SAV" 10241 0
+.\build-verified\src\dl2sim.exe start-building "C:\GOG Games\Deadlock 2\TUTORIAL.SAV" 14 1 35 1
+.\build-verified\src\dl2sim.exe find-site "C:\GOG Games\Deadlock 2\TUTORIAL.SAV" 14 1 1
+```
+
+`start-building` recibe una semilla explícita para el replay de log del experimento,
+seguido por la orden, y contexto frío de ciudades/cola/máscaras/proveedores. No
+recupera transitorios ausentes del SAV. Ningún comando admite destino de guardado.
+Pruebas nuevas: `entity_lifecycle`, `construction_payment`, `construction_order`,
+`construction_site`, más ampliaciones de creación/State/CLI. Resultados integrados
+en [RECOVERY.md](RECOVERY.md).

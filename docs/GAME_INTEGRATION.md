@@ -218,8 +218,11 @@ La continuación EST-01b/02b/04c/05b/07b porta migraciones 35..37, metadatos de
 reinicio IA/ministros, detección/visibilidad/inteligencia de carga, replay de
 eventos con retratos y RNG en orden y planificación de timer con contexto
 explícito. La rama load=1 no ejecuta descubrimientos de contactos. También
-integra creación terminada ordinaria con huella, labor y caminos locales;
-no habilita órdenes pagadas, bajas, IA ejecutable ni generación de mundo cambiado.
+integra creación terminada ordinaria con huella, labor y caminos locales.
+La continuación sobre `e92af09` incorpora inicio pagado de obra, cobro/importación,
+bajas/transporte, edificios especiales, mundo cambiado y reacciones diplomáticas/IA
+propietarias. También entrega los avisos de santuarios de carga a eventos/IA reales.
+No habilita producción, combate ni turno IA completos, presentación o SAV jugable.
 Estas rutas propietarias sustituyen hojas verificadas; las tablas de bloqueos
 anteriores siguen describiendo el cargador global excluido, no su reemplazo parcial.
 

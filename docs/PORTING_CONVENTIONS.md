@@ -15,8 +15,8 @@ Estas reglas permiten que varios módulos se porten en paralelo y encajen sin fr
   pueden ser inexactos: confirmar offsets y lectores originales antes de usarlos.
 - `docs/LABOR_BALANCE.md`: normalización explícita de tareas/trabajadores, prioridades,
   resultados negativos originales y dominios rechazados; no es activación completa.
-- `docs/ENTITY_RUNTIME.md`: identidades estables, edición estructural, consultas
-  de emplazamiento y creación terminada limitada; no son órdenes pagadas ni bajas.
+- `docs/ENTITY_RUNTIME.md`: identidades estables, backend estructural, ciclo de
+  vida, emplazamiento y comienzo pagado de obra. No es fabricación ni turno completo.
 - `docs/LOAD_NORMALIZATION.md`: perfil offline, datos derivados, orden de carga parcial,
   RNG de sesión, contexto de eventos/timer, migraciones y tablas canónicas;
   `LoadNormalized` nunca significa carga jugable.

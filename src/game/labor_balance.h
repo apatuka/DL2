@@ -57,10 +57,26 @@ bool planLaborBalance(const save::Document& document, LaborBalancePlan& destinat
 // ONLY its territory, then applies RedistributeLabor(T,-1,newBuilding), including
 // MoveHousingLabor. No task refresh elsewhere, stock clamp or roads. The fresh
 // record's zero labor makes refreshing just after placement equivalent to the
-// InitBuilding refresh before placement (shrines/platforms are excluded).
+// InitBuilding refresh before placement: footprint writes preserve the low
+// terrain byte used by shrine tasks. Unowned regions skip task refresh exactly
+// as InitBuilding does; callers must exclude unowned racial initialization.
 // Source/destination may alias; failures preserve destination. Not a general
 // labor-command API and not StartConstruction's assistant/urgency branch.
 bool prepareCreatedBuildingLabor(const save::Document& source, uint32_t buildingId,
                                  save::Document& destination, save::Error& error);
+
+// InitBuilding task setup plus the optional HUMAN StartConstruction local labor
+// redistribution. Fresh flags6/zero tasks/labor, work may be nonzero. Preserves
+// task2 urgency004484fc/TaskOutput0044eeb4, including stopping once current labor
+// can finish the work. AI callers set redistribute=false: tasks only, no balance.
+bool prepareStartedBuildingLabor(const save::Document& source, uint32_t buildingId,
+                                 bool redistribute, save::Document& destination,
+                                 save::Error& error);
+
+// Exact BalanceLabor(0044bea8) on one territory, for lifecycle caller effects
+// such as DisbandUnit returning colonizer population. No task refresh, stock
+// clamp, roads or implicit ID changes. Transactional, including source==dest.
+bool balanceTerritoryLabor(const save::Document& source, uint32_t territory,
+                           save::Document& destination, save::Error& error);
 
 } // namespace dl2::simulation

@@ -1,6 +1,7 @@
 // Independent load-time event/timer oracles derived from original functions.
 // Does not assert that a whole game has been activated or a turn executed.
 #include "game/load_session.h"
+#include "game/load_startup.h"
 #include "game/event_portraits.h"
 #include "game/data_tables.h"
 #include "game/save_files.h"
@@ -168,7 +169,13 @@ void eventBoundariesAndRollback() {
     add(*d,1,std::vector<uint8_t>(1021,'c'));
     replay(*d,input,result); require(result.poolBytes==3070,"strict pool boundary should admit3070 bytes including terminators");
     d->events[2].text.push_back('c'); ++d->events[2].record.textLen;
-    rejectReplay(*d,input); // Two preceding portraits consumed candidate RNG before failure.
+    replay(*d,input,result);
+    require(result.poolBytes==2047 && result.evictedEvents==1 && result.entries.size()==2 &&
+        result.entries[0].text.front()=='b' && result.entries[1].text.front()=='c' &&
+        result.entries[1].player==0 && result.entries[1].param==0 && result.randomDraws.size()==3,
+        "pool eviction must preserve file-index payload displacement and consume each portrait once");
+    // Priority30 sorts first and cannot be evicted by incoming priority20.
+    d->events[0].record.type=6; rejectReplay(*d,input);
     d=fixture(); add(*d,1,{'v'}); add(*d,0,{'a',0,'b'}); rejectReplay(*d,input);
     // Lookup0042278c reads a 157th row in adjacent "No Building" text. Its
     // accidental id0x646c would use category28265/portrait28488 as table indices.
@@ -198,6 +205,83 @@ void eventBoundariesAndRollback() {
     require(result.entries.size()==1 && result.entries[0].portraitResource.empty() && !result.rngAfterEvents.initialized,
             "no-portrait event should not require a race table or RNG seed");
     d=fixture(); d->header.isMap=1; d->mapTerritories.resize(1); rejectReplay(*d,input);
+}
+
+void evictionSortOracles() {
+    auto d=fixture();
+    // Four equal-priority entries sort [B,D,C,A] in Borland's qsort.
+    // Neither stable sorting nor oldest-first reproduces that permutation.
+    for (int i=0;i<4;++i) add(*d,1,std::vector<uint8_t>(700,uint8_t('A'+i)),10+i,20+i);
+    add(*d,1,std::vector<uint8_t>(400,'E'),14,24);
+    LoadedEventLog result; replay(*d,context(),result);
+    require(result.evictedEvents==1 && result.poolBytes==2504 && result.entries.size()==4,
+        "four-entry eviction pool accounting differs");
+    require(result.entries[0].text.front()=='D' && result.entries[1].text.front()=='C' &&
+        result.entries[2].text.front()=='A' && result.entries[3].text.front()=='E',
+        "equal-priority tie order must match literal Borland qsort");
+    require(result.entries[0].player==13 && result.entries[1].player==12 &&
+        result.entries[2].player==10 && result.entries[3].player==0,
+        "eviction must move complete records and clear the tail, not repair payloads");
+    require(result.randomDraws.size()==5 && result.pageIndices[1]==std::vector<uint32_t>({0,1,2,3}),
+        "eviction cannot repeat RNG or retain stale page indices");
+    // Three equal entries sort [B,A,C].
+    d=fixture(); for (int i=0;i<3;++i) add(*d,1,std::vector<uint8_t>(900,uint8_t('A'+i)),i,0);
+    add(*d,1,std::vector<uint8_t>(1023,'D'),3,0);
+    replay(*d,context(),result);
+    require(result.evictedEvents==1 && result.entries[0].text.front()=='A' &&
+        result.entries[1].text.front()=='C' && result.entries[2].text.front()=='D',
+        "three-entry tie permutation differs");
+    // Mixed priorities exercise both partition recursion paths and repeated eviction.
+    d=fixture();
+    for (int i=0;i<49;++i) add(*d,uint16_t(i%2?1:6),std::vector<uint8_t>(60,uint8_t('A'+i%26)),i,0);
+    add(*d,6,std::vector<uint8_t>(1023,'!'),49,0);
+    replay(*d,context(),result);
+    require(result.evictedEvents==16 && result.entries.size()==34 && result.poolBytes==3037,
+        "repeated evictions have incorrect byte/count totals");
+    require(result.randomDraws.size()==24 && result.entries.back().player==0,
+        "eviction consumes no portrait RNG and file-index payload remains displaced");
+}
+
+void startupAndSaveRng() {
+    auto d=fixture(); const auto before=bytes(*d);
+    auto result=std::make_unique<LoadStartupReport>();
+    auto input=context(1).rngBeforeEvents;
+    save::Error error;
+    require(planLoadStartup(*d,{input},*result,error),"explicit startup reset failed");
+    require(result->discardedGameSeed==346 && result->discardedWorldSeed==130 &&
+        result->discardedWorldRngSeed==10982 && result->rngBeforeEvents.rtlLow==2867233980u,
+        "ResetVariables must consume its three original rand15 values in order");
+    require(result->rngBeforeEvents.secondary==1 && result->rngBeforeEvents.rtlHigh==0 &&
+        result->rngBeforeEvents.counters.operations==3 && result->rngBeforeEvents.counters.rand15==3,
+        "reset must not reseed or consume the secondary stream");
+    require(result->resetDraws[0].tag=="GameSeed" && result->resetDraws[0].ordinal==1 &&
+        result->resetDraws[2].ordinal==3 && result->gameStarted && result->redrawRequested &&
+        !result->gameAborted && !result->seaWindowOpen && result->actionLast==0x347 && result->effectLast==0x4af,
+        "owned startup state/reset flags differ from original");
+    for(const auto v:result->combatWarriors) require(v==0,"combat scratch not reset");
+    for(const auto v:result->sessionScratch) require(v==0,"session scratch not reset");
+    require(bytes(*d)==before,"startup seeds must not overwrite the loaded document");
+    auto saved=std::make_unique<LoadStartupReport>(*result);
+    require(!planLoadStartup(*d,{},*result,error) && *result==*saved,"missing startup RNG must roll back");
+    auto exhausted=input;
+    exhausted.counters.operations=exhausted.counters.rand15=UINT64_MAX-1;
+    require(!planLoadStartup(*d,{exhausted},*result,error) && *result==*saved,
+        "late reset draw failure must preserve all owned transient storage");
+    require(planLoadStartup(*d,{result->rngBeforeEvents},*result,error),"startup snapshot/output alias rejected");
+    require(result->rngBeforeEvents.counters.rand15==6,"aliased reset snapshot consumed wrong ordinal");
+    SaveRngPlan savePlan;
+    require(planOfflineSaveRng(input,savePlan,error) && savePlan.gameId==346 &&
+        savePlan.operations[0].operation==RngOperation::TaggedRange && savePlan.operations[0].bound==10000 &&
+        savePlan.operations[0].tag=="SaveGame" && savePlan.operations[1].operation==RngOperation::SeedBoth &&
+        savePlan.after.rtlLow==346 && savePlan.after.rtlHigh==0 && savePlan.after.secondary==346 &&
+        savePlan.after.counters.operations==2 && savePlan.after.counters.long31==1 && savePlan.after.counters.seedBoth==1,
+        "offline save must draw lrand%10000 then reseed both streams");
+    const auto savedPlan=savePlan;
+    require(!planOfflineSaveRng(exhausted,savePlan,error) && savePlan==savedPlan,
+        "failed save reseed must roll back after the candidate draw");
+    require(!planOfflineSaveRng({},savePlan,error) && savePlan==savedPlan,"save must never invent a missing RNG seed");
+    require(planOfflineSaveRng(savePlan.after,savePlan,error) && savePlan.operations[0].ordinal==3 &&
+        savePlan.operations[1].ordinal==4 && bytes(*d)==before,"save planning must handle output snapshot alias and stay read-only");
 }
 
 void timersAndAliasing() {
@@ -237,6 +321,70 @@ void timersAndAliasing() {
     d=fixture(); d->header.isMap=1; d->mapTerritories.resize(1);
     require(!planLoadTimer(*d,result.state,55,result,error) && error.code!=save::ErrorCode::None && result==before,
             "reduced map acquired a gameplay load timer");
+}
+
+void runtimeEvents() {
+    auto d = fixture(); const auto original = bytes(*d);
+    save::Error error; LoadedEventLog log; LocalEventReport result;
+    auto ctx = context(1);
+    require(logLocalEvent(*d, log, ctx, {64, {std::string("Housing Complex"), std::string("Eden")}, {}},
+                          log, result, error), "construction event failed");
+    cleared(error);
+    const std::string construction = "Our colonists have started construction on the Housing Complex in Eden. It should be finished after a while.";
+    require(result.stored && result.index == 0 && result.randomDraws.size() == 1 &&
+            result.randomDraws[0].value == 16838 && log.entries[0].text == std::vector<uint8_t>(construction.begin(), construction.end()) &&
+            log.entries[0].portraitResource == "HHEVENTD" && log.pageIndices[4] == std::vector<uint32_t>{0},
+            "canonical construction event text/portrait/page mismatch");
+    const auto firstPortrait = log.entries[0].portraitResource;
+    ctx.rngBeforeEvents = result.rngAfter;
+    require(logLocalEvent(*d, log, ctx, {153, {int32_t(-2147483647-1), int32_t(4)}, EventPayload{2,9}},
+                          log, result, error), "numeric event failed");
+    const std::string maintenance = "We have paid -2147483648 credits in maintenance costs for 4 troopers.";
+    require(result.randomDraws.empty() && log.entries[0].portraitResource == firstPortrait &&
+            log.entries[1].text == std::vector<uint8_t>(maintenance.begin(), maintenance.end()) &&
+            log.entries[1].player == 2 && log.entries[1].param == 9 && result.rngAfter == ctx.rngBeforeEvents,
+            "LogEventEx payload or integer formatting/no-portrait RNG mismatch");
+    require(logLocalEvent(*d, log, ctx, {58, {int32_t(1), int32_t(10)}, {}}, log, result, error), "betrayal conversion failed");
+    const std::string betrayal(log.entries.back().text.begin(), log.entries.back().text.end());
+    require(betrayal.find(data::kRaceNames[1]) != std::string::npos &&
+            betrayal.find("Technology and Military") != std::string::npos, "Event58 player/pact lookup mismatch");
+    ctx.rngBeforeEvents = result.rngAfter;
+    require(logLocalEvent(*d, log, ctx, {123, {std::string("ChCh't")}, EventPayload{0,17}}, log, result, error), "extended elimination failed");
+    require(result.randomDraws.size() == 1 && log.entries.back().portraitResource.empty(),
+            "same-race elimination override must clear portrait AFTER consuming its original random draw");
+    const auto saved = log; const auto reportSaved = result;
+    require(!logLocalEvent(*d, log, ctx, {64, {int32_t(1), std::string("x")}, {}}, log, result, error) &&
+            log == saved && result == reportSaved, "format failure published state");
+    require(!logLocalEvent(*d, log, ctx, {34, {std::string(1024, 'x')}, {}}, log, result, error) && log == saved,
+            "text buffer overflow must fail atomically");
+    auto exhausted = ctx; exhausted.rngBeforeEvents.counters.operations = UINT64_MAX;
+    exhausted.rngBeforeEvents.counters.secondary15 = UINT64_MAX;
+    require(!logLocalEvent(*d, log, exhausted, {64, {std::string("x"),std::string("y")}, {}}, log, result, error) &&
+            log == saved && result == reportSaved, "late portrait failure published pool mutation");
+    require(bytes(*d) == original, "local event logging mutated the source document");
+    // Count limit: actual original maximum50, independent of text byte pool.
+    d->events.clear(); d->options.eventCount = 0;
+    for (int i = 0; i < 50; ++i) add(*d, 0, {uint8_t('A' + i % 26)});
+    replay(*d, context(1), log); ctx = context(1);
+    require(logLocalEvent(*d, log, ctx, {0, {}, {}}, log, result, error) && result.stored &&
+            result.evictedEvents == 1 && log.entries.size() == 50 && log.entries.back().player == 0,
+            "count-limit eviction differs from native logging");
+    d->events.clear(); d->options.eventCount = 0;
+    for (int i = 0; i < 50; ++i) add(*d, 34, {uint8_t('A' + i % 26)});
+    replay(*d, context(1), log); const auto deniedBefore = log;
+    require(logLocalEvent(*d, log, ctx, {0, {}, {}}, log, result, error) && !result.stored &&
+            result.index == -1 && result.evictedEvents == 0 && result.rngAfter == ctx.rngBeforeEvents &&
+            log.entries != deniedBefore.entries, "priority denial must retain the real sort and consume no RNG");
+    // Saved payload words above active count survive LoadEventLog eviction and
+    // are reused by ordinary LogEvent (Ex replaces them after the append).
+    d->events.clear(); d->options.eventCount = 0;
+    add(*d, 0, std::vector<uint8_t>(1023,'a'), 1,11);
+    add(*d, 0, std::vector<uint8_t>(1023,'b'), 2,22);
+    add(*d, 0, std::vector<uint8_t>(1022,'c'), 3,33);
+    replay(*d, context(1), log);
+    require(log.entries.size() == 2 && log.slotPayloads[2] == EventPayload{3,33}, "inactive loader payload was lost");
+    require(logLocalEvent(*d, log, ctx, {0, {}, {}}, log, result, error) && log.entries.back().player == 3 &&
+            log.entries.back().param == 33, "ordinary LogEvent must reuse inactive payload words");
 }
 
 // Read-only PE parser adapted from test_table_contracts; no native image loading.
@@ -293,6 +441,11 @@ void portraitTables(const fs::path& directory) {
         std::cout<<"load session: optional original PE unavailable; portrait extents checked\n"; return;
     }
     OriginalPe pe(path);
+    for (int observer=0; observer<7; ++observer) for (int defeated=0; defeated<7; ++defeated) {
+        const auto pointer=pe.word(0x004cac00u+uint32_t(observer*7+defeated)*4);
+        require(data::eliminationPortrait(observer,defeated)==(pointer?pe.text(pointer):std::string{}),
+                "elimination portrait table differs from original PE");
+    }
     require((pe.word(0x004fd40a)&0xffffu)==0x646cu &&
             pe.text(0x004fd404)=="No Building","original phantom event row evidence changed");
     for (const auto category:categories) for (int race=0;race<7;++race) {
@@ -366,7 +519,8 @@ int main(int argc,char** argv) {
         const auto low=rtl::seed(),high=rtl::seedHi();
         const auto globals=std::make_unique<GameGlobals>(gg);
         const auto game=std::make_unique<GameState>(gs);
-        goldenReplay(); cityComparisonAndPages(); eventBoundariesAndRollback(); timersAndAliasing();
+        goldenReplay(); cityComparisonAndPages(); eventBoundariesAndRollback(); evictionSortOracles();
+        startupAndSaveRng(); timersAndAliasing(); runtimeEvents();
         const fs::path directory=argc>1?fs::path(argv[1]):fs::path{};
         portraitTables(directory); optionalCorpus(directory);
         require(rtl::seed()==low && rtl::seedHi()==high && std::memcmp(&gg,globals.get(),sizeof(gg))==0 &&

@@ -1,6 +1,6 @@
 # Checklist de cierre: Deadlock II individual
 
-Revisión: 2026-10-01. Base previa: `c06197a`, ampliada con EST-01b/02b/04c/05b/07b
+Revisión: 2026-10-01. Continuación sobre `e92af09`, ampliada con EST-01b/04c/05b/07b
 descrito en [LOAD_NORMALIZATION.md](LOAD_NORMALIZATION.md).
 
 ## Qué significa «100% funcionando»
@@ -39,9 +39,13 @@ funcional descubre comportamientos originales aún no identificados.
 - [x] Consultas de huella y emplazamiento originales, con motivos de rechazo y CLI de sólo lectura; no autorizan por sí solas construir.
 - [x] Carga parcial offline transaccional: perfil/opciones, migraciones 35..37, datos de reinicio IA, enlaces, continentes/caminos/santuarios, visibilidad/inteligencia, labor y RNG propietario; eventos/timer con contexto explícito. Estado no jugable.
 - [x] Creación terminada ordinaria de edificios con ID, huella, balance laboral y caminos locales; todavía no es una orden de construcción pagada.
+- [x] Reinicio de sesión/combate, mapa visual de mundo cambiado y entrega de avisos de santuarios con RNG/contextos explícitos; carga sin ventanas separada de activación jugable.
+- [x] Creación/bajas de unidades con transporte y parejas, edificios especiales y demolición no-santuario, integradas con identidades y rollback.
+- [x] Cobro/importaciones y comienzo de obra conectado a eventos, labor, caminos y puertos; la obra conserva trabajo pendiente y no produce un turno ni SAV jugable.
+- [x] Inicialización IA, reacciones diplomáticas, taskforces y determinados eventos con estado/RNG propietarios; no es el turno IA completo.
 - [x] Tablas canónicas compartidas, 43 campañas y pruebas de contratos entre cabeceras heredadas.
 
-Última verificación: **31/31 pruebas sin omisiones**, normal y AddressSanitizer.
+Última verificación: **38/38 pruebas sin omisiones**, normal y AddressSanitizer.
 Los **46 documentos** admiten normalización parcial, incluidos los **8 escenarios
 de versión 35** mediante migraciones explícitas; sus copias archivales siguen
 siendo exactas. Se verificaron 46 reconstrucciones de inteligencia, 46 creaciones
@@ -52,7 +56,7 @@ soportadas sobre copias y 455 nombres de retratos contra el PE. Resultados en
 
 - [ ] **EST-01** Completar la activación de una partida: reinicios, jugador local, opciones y perfiles de normalización originales.
   - [x] **EST-01a** Perfil offline 35..0x120: jugador/nombre explícitos, dificultad, opciones de campaña, conversión de humanos a IA y reinicios conocidos. Integrado en `normalizeLoad`, sin ejecutar IA; migraciones antiguas añadidas en EST-01b.
-  - [ ] **EST-01b — parcial.** Implementados datos de reinicio IA/ministros, migraciones 35..37, replay de eventos y plan de temporizador con contexto explícito. Faltan IA ejecutable, generación visual de mundo cambiado y transitorios/UI restantes. No existe aún una etapa `Active`.
+  - [ ] **EST-01b — parcial.** Completados reinicios propietarios, inicialización IA, replay/expulsión de eventos, mundo cambiado, avisos de santuarios y temporizador con contexto. `headlessComplete` distingue carga sin ventanas; falta entregar presentación/briefing/timer al motor para activación. LoadGame no ejecuta RunAITurns: el turno IA sigue pendiente como requisito jugable, no como efecto de carga ficticio. No existe `Active`.
 - [x] **EST-02** Reconstruir continentes, caminos, santuarios, visibilidad e inteligencia al cargar, conservando la omisión original de nuevos contactos durante carga. No incluye descubrimientos de movimiento ni presentación de niebla en UI.
   - [x] **EST-02a** Continentes, caminos de tiles, contadores de ciudades/santuarios y avisos semánticos originales, sin globales ni RNG.
   - [x] **EST-02b** Rama de inteligencia load=1: detección, visibilidad, población conocida y caché de edificios/sitios, integrada y probada. El original omite nuevos descubrimientos de contactos al cargar; su ejecución en movimiento permanece en MOV-05/08. Restricciones seguras documentadas en `LOAD_NORMALIZATION.md`.
@@ -60,15 +64,15 @@ soportadas sobre copias y 455 nombres de retratos contra el PE. Resultados en
 - [ ] **EST-04** Implementar creación/destrucción de edificios y unidades, listas libres/activas, límites y referencias estables durante la simulación.
   - [x] **EST-04a** Handles estables y rechazo de referencias retiradas, ajenas o de una preparación anterior, incluso tras reutilizar slots/IDs.
   - [x] **EST-04b** Backend estructural de inserción/retirada para registros simples explícitos, validación de listas, reserva de capacidad y rechazo de dependencias; sin efectos de gameplay ni exportación SAV.
-  - [ ] **EST-04c — parcial.** Implementados inicializador de edificios terminados 1×1/2×2, ID de partida, huella, empleos y caminos locales, más plantillas de unidad sin inserción. Faltan órdenes pagadas, fabricación completa, bajas, transporte, IA/eventos y casos especiales.
+  - [ ] **EST-04c — parcial.** Implementados edificios especiales/terminados, creación y bajas de unidades con transporte/parejas, demolición no-santuario, selección automática de sitio y comienzo pagado de obra con logística/eventos/IA/labor/caminos/puertos. Faltan fabricación por colas, progreso/finalización de obra, demolición de santuarios con campaña y su integración en órdenes/turno/UI completos.
   - [x] **EST-04d** Reconstruir enlaces de edificios y vínculos de trabajos/unidades durante la carga parcial, preservando las identidades existentes y publicando el grafo transaccionalmente.
 - [ ] **EST-05** Integrar un estado RNG de partida: semillas, orden de consumo y restauración/inicialización conforme al original.
   - [x] **EST-05a** RNG propietario de sesión con primitivas originales, orden/contadores, snapshots y reseed final offline desde `options.gameId`; no altera RNG global ni la copia archival.
-  - [ ] **EST-05b — parcial.** Conectado y verificado consumo secundario en retratos de eventos cargados, con traza y contexto previo explícito. Faltan producción, combate, IA, guardado jugable y otros consumidores. No inventar semilla previa ausente del SAV ni reseed offline por turno.
+  - [ ] **EST-05b — parcial.** Conectados reinicio, mundo cambiado, eventos cargados/nuevos, avisos de santuarios, diplomacia/reacciones IA y selección de sitio; frontera RNG de SaveGame probada como plan. Faltan consumidores de producción, combate, turno IA completo y guardado jugable. No inventar semillas del SAV ni reseed offline por turno.
 - [x] **EST-06** Unificar tablas y contratos heredados: fuente canónica `data::*`, adaptadores de economía, 43 campañas y helpers compartidos. Contrastes de tablas con el EXE y cabeceras compiladas juntas; no implica implementar las funciones de gameplay declaradas.
 - [ ] **EST-07** Conectar efectos reales entre módulos, sustituyendo los callbacks ausentes necesarios; no aceptar operaciones vacías como éxito.
   - [x] **EST-07a** Conexión directa del subconjunto de carga implementado y rechazo explícito de `Complete`; se eliminan asignaciones a fallbacks inexistentes en `turn_api.h`.
-  - [ ] **EST-07b — parcial.** Conectados efectos reales de carga/inteligencia/eventos y creación terminada → huella/labor/caminos. Faltan conexiones de órdenes, pagos, producción, movimiento, combate e IA. Los callbacks opcionales heredados excluidos no son una ruta jugable alternativa.
+  - [ ] **EST-07b — parcial.** Conectados carga→santuarios→log/IA, construcción→cobro/importación→evento→labor/caminos/puerto, bajas→transporte/taskforces/refunds y reacciones diplomáticas→actitudes/cola/RNG. Faltan producción, movimiento, combate, coordinación de turno IA y presentación jugable. Los callbacks excluidos no son una ruta alternativa.
 - [x] **EST-08** Transacciones en las rutas propietarias implementadas: errores conservan documento, grafo, identidades, RNG e informe. Separación `Prepared`/`LoadNormalized`; la normalización parcial no puede capturarse como SAV reanudable ni avanzar turno. Una futura etapa jugable requiere cerrar EST-01/02/07.
 
 Cierre: cargar una muestra deja una sesión coherente y utilizable por la lógica,
@@ -79,7 +83,7 @@ sin depender de punteros del EXE, de globales ajenos ni de reparaciones silencio
 - [ ] **ECO-01** Completar asignación/reasignación de trabajadores y su conexión a órdenes e interfaz. Reconstrucción y balance automático ya implementados en EST-03; las órdenes manuales y la integración jugable siguen pendientes.
 - [ ] **ECO-02** Integrar la recaudación ya calculada con niveles fiscales y efectos sobre la moral.
 - [ ] **ECO-03** Aplicar el primer pase de producción: recursos, créditos, cultura, investigación, clonación, entrenamiento, curación y arte con RNG.
-- [ ] **ECO-04** Registrar necesidades/reservas y realizar importaciones entre territorios, con conectividad, transportes, costes y transferencias parciales.
+- [ ] **ECO-04** Registrar necesidades/reservas y realizar importaciones entre territorios, con conectividad, transportes, costes y transferencias parciales. El colector completo ya se usa en construcción; falta encadenarlo al registro de necesidades y fases económicas del turno.
 - [ ] **ECO-05** Consumir comida para población y unidades; resolver abastecimiento, déficit, indicadores y consecuencias de hambre.
 - [ ] **ECO-06** Integrar el consumo de energía ya aislado en su lugar real del turno, con sus eventos y consecuencias.
 - [ ] **ECO-07** Aplicar mantenimiento y costes de edificios/unidades, incluida la respuesta original a fondos insuficientes.
@@ -104,7 +108,7 @@ actual no satisface este bloque.
 - [ ] **CON-02** Validar emplazamiento, huella, terreno, propiedad, tecnología y recursos antes de construir.
   - [x] **CON-02a** Consulta pura `0044d600`: huella 1×1/2×2/5×5, casillas, terreno, duplicados, mar adyacente y plataformas, con precedencia original de motivos.
   - [ ] **CON-02b** Completar propiedad, tecnología, población, fondos/materiales y logística; conectar todas las comprobaciones a la orden real.
-- [ ] **CON-03** Iniciar, avanzar y finalizar construcciones y mejoras, pagando sus costes y actualizando tareas/capacidad.
+- [ ] **CON-03** Iniciar, avanzar y finalizar construcciones y mejoras, pagando sus costes y actualizando tareas/capacidad. Inicio pagado ya implementado; progreso/finalización/mejoras pendientes.
 - [ ] **CON-04** Resolver activación/desactivación, demolición, daños y reparación según las reglas de cada edificio.
 - [ ] **CON-05** Conectar las cinco colas de fabricación: añadir, ordenar/cancelar según permita el original, progresar y producir unidades reales.
 - [ ] **CON-06** Aplicar carreteras, vías mejoradas, puertos, instalaciones marinas y demás infraestructuras especiales con sus restricciones.

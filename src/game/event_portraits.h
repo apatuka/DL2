@@ -6,4 +6,6 @@
 #include <string_view>
 namespace dl2::data {
 std::span<const std::string_view> eventPortraitNames(int race, int category);
+// orig:0045046c /49 pointers at004cac00. Empty for same race or race7/8.
+std::string_view eliminationPortrait(int observerRace, int defeatedRace);
 }

@@ -2,6 +2,19 @@
 // No executable addresses are retained or called; tests compare the source PE.
 #include "game/event_portraits.h"
 namespace dl2::data {
+std::string_view eliminationPortrait(int observerRace, int defeatedRace) {
+    static constexpr std::string_view values[7][7] = {
+        {"", "CCELIMD", "CCELIMC", "CCELIMA", "CCELIMF", "CCELIMB", "CCELIME"},
+        {"YYELIMF", "", "YYELIMB", "YYELIMA", "YYELIME", "YYELIMC", "YYELIMD"},
+        {"HHELIMD", "HHELIMB", "", "HHELIMF", "HHELIMA", "HHELIMC", "HHELIME"},
+        {"MMELIMF", "MMELIMB", "MMELIMA", "", "MMELIMC", "MMELIMD", "MMELIME"},
+        {"RRELIMD", "RRELIMA", "RRELIME", "RRELIMB", "", "RRELIMF", "RRELIMC"},
+        {"TTELIMD", "TTELIME", "TTELIMC", "TTELIMA", "TTELIMB", "", "TTELIMF"},
+        {"UUELIMF", "UUELIMC", "UUELIMD", "UUELIME", "UUELIMA", "UUELIMB", ""}
+    };
+    return observerRace >= 0 && observerRace < 7 && defeatedRace >= 0 && defeatedRace < 7
+        ? values[observerRace][defeatedRace] : std::string_view{};
+}
 namespace {
 constexpr std::string_view names[] = {
     "CCWARNA", "CCWARNB", "CCWARNC", "CCWARND", "CCWARNE", "YYWARNA", "YYWARNB", "YYWARNC",

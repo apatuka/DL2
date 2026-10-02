@@ -16,7 +16,66 @@ inspección: mapa, territorios, edificios, unidades y copias sin modificación. 
 lógica de partida está parcialmente escrita y todavía no está integrada. Cargar
 el documento no equivale a activar el estado de juego, simular un turno ni jugar.
 
-## Continuación EST-01b/02b/04c/05b/07b — 2026-10-01
+## Ampliación de los EST pendientes — 2026-10-01
+
+Sobre `e92af09`, la continuación incorpora implementación, integración propietaria
+y pruebas de las siguientes ramas reales, sin modificar la instalación original:
+
+- Reinicio de sesión/combate/victoria con sus tres Rand15, mapa cambiado con
+  Long31, paletas parciales y selección; se encadenan después de los eventos y
+  antes de la resembra final de carga. Los buffers pertenecen al State.
+- Inicialización/bindings IA y 24 fases RET8 verificados en el PE, diplomacia con
+  respuestas/actitudes/cola de 42 slots (41 útiles), reacciones de eventos y mantenimiento de
+  taskforces. Las matrices guardadas en scratchJobs no se tratan como punteros.
+- Registro canónico de eventos con qsort/expulsión, payloads inactivos originales,
+  textos tipados, retratos y RNG. Los avisos de CountShrines ahora llegan de
+  verdad a LogEventEx o IA; antes sólo existían como avisos semánticos.
+- Unidades con transporte/carga, pares cruiser/misil, límites, Delete/Disband,
+  refunds y población. Edificios especiales/plataforma/SeaHab/santuarios y
+  Delete/Demolish no-santuario, con handles estables tras cascadas.
+- Costes y cobro con reservas, proveedor propietario, rutas/tarifas, importación,
+  sustitución de metales y transferencias. StartConstruction conecta pago,
+  eventos/IA, obra pendiente, urgencia laboral, caminos y puerto.
+- Selección automática de sitios, incluida la rama marina aleatoria de santuario,
+  y plan RNG de SaveGame. No son un permiso implícito para guardar experimentos.
+
+La revisión contra assembly conservó rarezas que no deben «arreglarse»: tarifa 0
+todavía limitada por créditos, metal caro consumido por el bucle original,
+plataforma sin compañero cuando queda un solo slot, y caminos de demolición
+dirigidos al territorio 0 después de borrar el registro. Denegaciones originales
+de obra pueden consumir ID o parte del pago; se distinguen de errores de API,
+que sí revierten todo. Ninguna ausencia de gameplay se sustituye por no-op.
+
+`normalize-session`, `create-unit`, `delete-unit`, `disband-unit`,
+`delete-building`, `demolish-building`, `start-building` y `find-site` exponen
+estas rutas sin destino SAV. `headlessComplete` sólo acredita efectos de carga
+sin ventanas; LoadGame original no llama RunAITurns. Presentación y turno IA
+continúan siendo requisitos de juego, sin figurar falsamente como draws de carga.
+
+Verificación final: **38/38 pruebas sin omisiones** en `build-verified`
+(**78,47 s**) y `build-save-asan` (**196,07 s**, `/fsanitize=address`), sin
+hallazgos de AddressSanitizer. Los logs locales están en
+`Testing/Temporary/LastTest.log` de cada build. El pase previo detectó dos
+expectativas incorrectas de pruebas, corregidas contra las tablas y el recorrido
+original: madera en el índice 3 y último sitio legal de una huella 2×2 en 30.
+
+Se conservaron los 46 round-trips exactos y se probaron creación/baja de unidades
+sobre 46 documentos, mundo sin cambios sobre los 46 y cambio de mundo sobre el
+tutorial, además de consultas de costes de 47 tipos por cada documento. Ninguna
+muestra del corpus produjo avisos nuevos de santuarios; sus ramas activas se
+verificaron mediante casos sintéticos, no mediante avisos observados en el corpus.
+
+**No cierra todo EST ni habilita una partida jugable.** Siguen pendientes entrega
+UI/briefing/timer, progreso/finalización/fabricación por colas, demolición de
+santuarios con campaña, producción/movimiento/combate, turno IA completo y guardado
+de sesión jugada. El checklist conserva esas casillas abiertas. Las pruebas son
+oráculos derivados de decompilado/assembly/tablas PE y determinismo del port,
+no una comparación de partidas completas ejecutadas en el original.
+
+Contratos: [LOAD_NORMALIZATION.md](LOAD_NORMALIZATION.md),
+[ENTITY_RUNTIME.md](ENTITY_RUNTIME.md), [RUNTIME_STATE.md](RUNTIME_STATE.md).
+
+## Continuación EST-01b/02b/04c/05b/07b — 2026-10-01 (corte anterior)
 
 Sobre `c06197a`, se incorporaron cuatro módulos propietarios y sus integraciones:
 

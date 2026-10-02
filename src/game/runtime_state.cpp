@@ -3,6 +3,7 @@
 #include "game/data_tables.h"
 #include <algorithm>
 #include <atomic>
+#include <bit>
 #include <exception>
 #include <limits>
 #include <new>
@@ -266,8 +267,15 @@ State& State::operator=(State&& other) noexcept {
         rng_ = other.rng_;
         other.rng_ = {};
         core_ = std::move(other.core_); other.core_.reset();
+        derived_ = std::move(other.derived_); other.derived_.reset();
+        shrineEvents_ = std::move(other.shrineEvents_); other.shrineEvents_.reset();
         events_ = std::move(other.events_); other.events_.reset();
         timer_ = std::move(other.timer_); other.timer_.reset();
+        startup_ = std::move(other.startup_);
+        world_ = std::move(other.world_); other.world_.reset();
+        ai_ = std::move(other.ai_); other.ai_.reset();
+        aiReaction_ = std::move(other.aiReaction_); other.aiReaction_.reset();
+        collection_ = std::move(other.collection_); other.collection_.reset();
         other.graph_ = {};
         other.buildingSlots_.clear(); other.armySlots_.clear();
         other.buildingDenseSlots_.clear(); other.armyDenseSlots_.clear();
@@ -297,6 +305,11 @@ bool State::copyForEdit(State& candidate, save::Error& error) const {
     candidate.preparationIdentity_ = preparationIdentity_;
     candidate.rng_ = rng_;
     candidate.core_ = core_; candidate.events_ = events_; candidate.timer_ = timer_;
+    candidate.derived_ = derived_;
+    candidate.shrineEvents_ = shrineEvents_;
+    if (startup_) candidate.startup_ = std::make_unique<simulation::LoadStartupReport>(*startup_);
+    candidate.world_ = world_; candidate.ai_ = ai_; candidate.aiReaction_ = aiReaction_;
+    candidate.collection_ = collection_;
     return true;
 }
 
@@ -416,6 +429,9 @@ const char* missingLoadCapabilityName(MissingLoadCapability capability) {
     case MissingLoadCapability::NativeEventLog: return "native_event_log";
     case MissingLoadCapability::TransientSessionState: return "transient_session_state";
     case MissingLoadCapability::ChangedWorldScan: return "changed_world_scan";
+    case MissingLoadCapability::AiExecution: return "ai_execution";
+    case MissingLoadCapability::NativePresentation: return "native_presentation";
+    case MissingLoadCapability::ShrineEventDelivery: return "shrine_event_delivery";
     }
     return "unknown";
 }
@@ -425,26 +441,69 @@ bool State::normalizeLoad(const simulation::LoadProfile& profile, LoadReport& re
     return guarded([&] {
         if (scope != LoadScope::Partial)
             return fail(error, save::ErrorCode::InvalidState,
-                "Complete load activation unavailable: executable AI, changed-world presentation and remaining transient session dependencies are not integrated");
+                "Complete load activation unavailable: native presentation delivery and playable turn execution are not integrated; headless effects require explicit context");
         if (!document_ || stage_ != Stage::Prepared)
             return fail(error, save::ErrorCode::InvalidState, "Load normalization requires a fresh prepared snapshot");
+        if (context.startup && context.events)
+            return fail(error, save::ErrorCode::InvalidState, "Supply either pre-reset or pre-event RNG context, not both");
         State candidate;
         LoadReport result;
         if (!copyForEdit(candidate, error)) return false;
         auto& d = *candidate.document_;
         if (!simulation::normalizeLoadCore(d, profile, d, result.core, error)) return false;
+        auto eventsContext = context.events;
+        if (context.startup) {
+            candidate.startup_ = std::make_unique<simulation::LoadStartupReport>();
+            if (!simulation::planLoadStartup(d, *context.startup, *candidate.startup_, error)) return false;
+            result.startupRebuilt = true;
+            eventsContext = simulation::EventLoadContext{candidate.startup_->rngBeforeEvents, context.citiesBeforeLoad};
+        }
         // LoadEventLog precedes CountShrines: special portraits compare prior
         // session city counts, not the counts rebuilt from this document later.
-        if (context.events || d.events.empty()) {
+        if (eventsContext || d.events.empty()) {
             simulation::LoadedEventLog log;
-            if (!simulation::rebuildLoadedEvents(d, context.events.value_or(simulation::EventLoadContext{}), log, error)) return false;
+            if (!simulation::rebuildLoadedEvents(d, eventsContext.value_or(simulation::EventLoadContext{}), log, error)) return false;
             result.eventsRebuilt = true; result.loadedEvents = uint32_t(log.entries.size());
             result.eventRandomDraws = uint32_t(log.randomDraws.size());
+            result.evictedEvents = log.evictedEvents;
             std::erase(result.missing, MissingLoadCapability::NativeEventLog);
             candidate.events_ = std::move(log);
         }
-        if (!simulation::rebuildLoadDerived(d, d, result.derived, error) ||
-            !simulation::rebuildLoadIntelligence(d, context.intelligence, d, result.intelligence, error) ||
+        if (context.previousWorld) {
+            if (!candidate.events_)
+                return fail(error, save::ErrorCode::InvalidState, "Changed-world reconstruction requires the preceding event context");
+            candidate.world_.emplace();
+            simulation::LoadWorldPresentationContext worldContext{*context.previousWorld,
+                candidate.events_->rngAfterEvents, context.previousShadingSlope};
+            if (!simulation::rebuildLoadWorldPresentation(d, worldContext, d, *candidate.world_, error)) return false;
+            result.worldPresentationRebuilt = true;
+            std::erase(result.missing, MissingLoadCapability::ChangedWorldScan);
+        }
+        candidate.ai_.emplace();
+        if (!candidate.ai_->initializeAfterLoad(d, error)) return false;
+        result.aiInitialized = true;
+        if (!simulation::rebuildLoadDerived(d, d, result.derived, error)) return false;
+        const auto noticeRng = candidate.world_ ? candidate.world_->rngAfter :
+            candidate.events_ ? candidate.events_->rngAfterEvents : simulation::RngSnapshot{};
+        const bool requiresAi = std::any_of(result.derived.notices.begin(), result.derived.notices.end(), [&](const auto& notice) {
+            return notice.recipient != d.options.localPlayer &&
+                std::bit_cast<int8_t>(d.players[size_t(notice.recipient)].type) >= 3;
+        });
+        if (candidate.events_ && (!requiresAi || context.previousAi) &&
+            (noticeRng.initialized || result.derived.notices.empty())) {
+            candidate.shrineEvents_.emplace();
+            auto previousAi = context.previousAi;
+            if (previousAi) previousAi->gameAborted = false; // ResetVariables, before loaded notices.
+            if (!simulation::replayLoadShrineEvents(d, result.derived, *candidate.ai_, *candidate.events_, noticeRng,
+                previousAi, d, *candidate.shrineEvents_, error)) return false;
+            candidate.events_ = candidate.shrineEvents_->logAfter;
+            candidate.aiReaction_ = candidate.shrineEvents_->aiAfter;
+            result.shrineNoticesDelivered = true;
+            result.shrineRandomDraws = uint32_t(candidate.shrineEvents_->draws.size());
+        } else if (result.derived.notices.empty()) result.shrineNoticesDelivered = true;
+        if (result.shrineNoticesDelivered) std::erase(result.missing, MissingLoadCapability::ShrineEventDelivery);
+        candidate.derived_ = result.derived;
+        if (!simulation::rebuildLoadIntelligence(d, context.intelligence, d, result.intelligence, error) ||
             !simulation::planLaborBalance(d, result.labor, error)) return false;
         for (size_t i = 0; i < result.labor.buildings.size(); ++i) {
             auto& b = d.buildings[i];
@@ -472,15 +531,65 @@ bool State::normalizeLoad(const simulation::LoadProfile& profile, LoadReport& re
             if (!simulation::planLoadTimer(d, context.previousTimer, *context.clockMs, timer, error)) return false;
             result.timerPlanned = true; candidate.timer_ = timer;
         }
+        if (result.startupRebuilt && result.timerPlanned)
+            std::erase(result.missing, MissingLoadCapability::TransientSessionState);
         if (!candidate.rng_.initializeAfterLegacyLoad(d, error) ||
             !save::validate(d, error) || !candidate.rebuildGraph(error)) return false;
         result.rng = candidate.rng_.snapshot();
+        if (candidate.aiReaction_) candidate.aiReaction_->rng = result.rng; // Final shared reseed, after notices.
+        result.headlessComplete = std::all_of(result.missing.begin(), result.missing.end(), [](auto missing) {
+            return missing == MissingLoadCapability::NativePresentation;
+        });
         candidate.core_ = result.core;
         candidate.stage_ = Stage::LoadNormalized;
         // Everything that can allocate or reject precedes this no-throw commit.
         report = std::move(result);
         *this = std::move(candidate);
         error = {}; return true;
+    }, error);
+}
+
+bool State::reactDiplomacy(const simulation::AiDiplomacyRequest& request,
+                           const simulation::AiReactionContext& context,
+                           simulation::AiReactionReport& report, save::Error& error) {
+    return guarded([&] {
+        if ((aiReaction_ && context != *aiReaction_) ||
+            (rng_.snapshot().initialized && context.rng != rng_.snapshot()))
+            return fail(error, save::ErrorCode::InvalidState, "AI reaction context differs from the owned continuation");
+        State candidate;
+        if (!copyForEdit(candidate, error)) return false;
+        if (!candidate.ai_) {
+            candidate.ai_.emplace();
+            if (!candidate.ai_->initializeAfterLoad(*candidate.document_, error)) return false;
+        }
+        simulation::AiReactionReport result;
+        if (!candidate.ai_->reactDiplomacy(*candidate.document_, request, context, *candidate.document_, result, error) ||
+            !candidate.rng_.restore(result.contextAfter.rng, error)) return false;
+        candidate.aiReaction_ = result.contextAfter;
+        if (!finishEdit(std::move(candidate), error)) return false;
+        report = std::move(result); return true;
+    }, error);
+}
+
+bool State::reactAiEvent(const simulation::AiEventRequest& request,
+                         const simulation::AiReactionContext& context,
+                         simulation::AiReactionReport& report, save::Error& error) {
+    return guarded([&] {
+        if ((aiReaction_ && context != *aiReaction_) ||
+            (rng_.snapshot().initialized && context.rng != rng_.snapshot()))
+            return fail(error, save::ErrorCode::InvalidState, "AI reaction context differs from the owned continuation");
+        State candidate;
+        if (!copyForEdit(candidate, error)) return false;
+        if (!candidate.ai_) {
+            candidate.ai_.emplace();
+            if (!candidate.ai_->initializeAfterLoad(*candidate.document_, error)) return false;
+        }
+        simulation::AiReactionReport result;
+        if (!candidate.ai_->reactEvent(*candidate.document_, request, context, *candidate.document_, result, error) ||
+            !candidate.rng_.restore(result.contextAfter.rng, error)) return false;
+        candidate.aiReaction_ = result.contextAfter;
+        if (!finishEdit(std::move(candidate), error)) return false;
+        report = std::move(result); return true;
     }, error);
 }
 
@@ -493,13 +602,140 @@ bool State::createCompletedBuilding(const simulation::BuildingCreationRequest& r
         simulation::BuildingCreationReport result;
         auto& d = *candidate.document_;
         if (!simulation::createCompletedBuilding(d, request, d, result, error)) return false;
-        if (d.buildings.size() != buildingDenseSlots_.size() + 1 || d.buildings.back().id != result.buildingId)
-            return fail(error, save::ErrorCode::InvalidState, "Building initialization did not append exactly one entity");
-        if (!allocateSlot(candidate.buildingSlots_, candidate.buildingDenseSlots_, error)) return false;
-        const auto slot = candidate.buildingDenseSlots_.back();
-        const BuildingHandle handle{slot, candidate.buildingSlots_[slot - 1].identity};
+        const size_t original = document_->buildings.size();
+        if (d.buildings.size() != original + result.createdIds.size() || result.createdIds.empty())
+            return fail(error, save::ErrorCode::InvalidState, "Building creation report does not match appended records");
+        BuildingHandle handle;
+        for (size_t i = 0; i < result.createdIds.size(); ++i) {
+            if (d.buildings[original + i].id != result.createdIds[i])
+                return fail(error, save::ErrorCode::InvalidState, "Building allocation order differs from creation report");
+            if (!allocateSlot(candidate.buildingSlots_, candidate.buildingDenseSlots_, error)) return false;
+            const auto slot = candidate.buildingDenseSlots_.back();
+            if (result.createdIds[i] == result.buildingId) handle = {slot, candidate.buildingSlots_[slot - 1].identity};
+        }
+        if (!handle.slot) return fail(error, save::ErrorCode::InvalidState, "Building creation has no primary entity");
         if (!finishEdit(std::move(candidate), error)) return false;
         created = handle; report = std::move(result); return true;
+    }, error);
+}
+
+bool State::startConstruction(const simulation::BuildingCreationRequest& request,
+                              const simulation::ConstructionOrderContext& context,
+                              BuildingHandle& created, simulation::ConstructionOrderReport& report,
+                              save::Error& error) {
+    return guarded([&] {
+        if ((rng_.snapshot().initialized && context.events.rngBeforeEvents != rng_.snapshot()) ||
+            (aiReaction_ && context.ai != *aiReaction_) || (events_ && context.log != *events_) ||
+            (collection_ && context.payment.collection != *collection_))
+            return fail(error, save::ErrorCode::InvalidState, "Construction context differs from the owned continuation");
+        State candidate;
+        if (!copyForEdit(candidate, error)) return false;
+        auto inputs = context;
+        const auto* territory = candidate.document_->territoryByIndex(request.territory);
+        if (territory && territory->data.owner >= 0 && territory->data.owner < kMaxPlayers &&
+            territory->data.owner != candidate.document_->options.localPlayer &&
+            std::bit_cast<int8_t>(candidate.document_->players[size_t(territory->data.owner)].type) >= 3) {
+            if (!candidate.ai_) {
+                candidate.ai_.emplace();
+                if (!candidate.ai_->initializeAfterLoad(*candidate.document_, error)) return false;
+            }
+            inputs.aiSession = &*candidate.ai_;
+        } else inputs.aiSession = nullptr;
+        simulation::ConstructionOrderReport result;
+        if (!simulation::startConstruction(*candidate.document_, request, inputs, *candidate.document_, result, error)) return false;
+        const size_t original = document_->buildings.size();
+        if (candidate.document_->buildings.size() != original + result.createdIds.size() ||
+            (result.accepted != !result.createdIds.empty()))
+            return fail(error, save::ErrorCode::InvalidState, "Construction report does not match allocated buildings");
+        BuildingHandle handle;
+        for (size_t i = 0; i < result.createdIds.size(); ++i) {
+            if (candidate.document_->buildings[original + i].id != result.createdIds[i])
+                return fail(error, save::ErrorCode::InvalidState, "Construction allocation order differs from report");
+            if (!allocateSlot(candidate.buildingSlots_, candidate.buildingDenseSlots_, error)) return false;
+            const auto slot = candidate.buildingDenseSlots_.back();
+            if (result.createdIds[i] == result.attemptedId) handle = {slot, candidate.buildingSlots_[slot - 1].identity};
+        }
+        if (result.accepted && !handle)
+            return fail(error, save::ErrorCode::InvalidState, "Accepted construction has no primary entity");
+        if (!candidate.rng_.restore(result.rngAfter, error)) return false;
+        candidate.events_ = result.logAfter;
+        candidate.aiReaction_ = result.aiAfter;
+        candidate.collection_ = result.paymentEvaluated ? result.payment.collection : context.payment.collection;
+        if (!finishEdit(std::move(candidate), error)) return false;
+        created = handle; report = std::move(result); return true;
+    }, error);
+}
+
+bool State::createArmy(const simulation::ArmyCreationRequest& request,
+                       const simulation::ArmyCreationContext& context, ArmyHandle& created,
+                       simulation::ArmyLifecycleReport& report, save::Error& error) {
+    return guarded([&] {
+        State candidate;
+        if (!copyForEdit(candidate, error)) return false;
+        simulation::ArmyLifecycleReport result;
+        if (!simulation::createArmy(*candidate.document_, request, context, *candidate.document_, result, error)) return false;
+        const size_t original = document_->armies.size();
+        if (candidate.document_->armies.size() != original + result.createdIds.size() || result.createdIds.empty())
+            return fail(error, save::ErrorCode::InvalidState, "Army creation report does not match appended records");
+        ArmyHandle primary;
+        for (size_t i = 0; i < result.createdIds.size(); ++i) {
+            if (candidate.document_->armies[original + i].id != result.createdIds[i])
+                return fail(error, save::ErrorCode::InvalidState, "Army allocation order differs from lifecycle report");
+            if (!allocateSlot(candidate.armySlots_, candidate.armyDenseSlots_, error)) return false;
+            const auto slot = candidate.armyDenseSlots_.back();
+            if (result.createdIds[i] == result.primaryId) primary = {slot, candidate.armySlots_[slot - 1].identity};
+        }
+        if (!primary.slot) return fail(error, save::ErrorCode::InvalidState, "Army creation has no primary entity");
+        if (!finishEdit(std::move(candidate), error)) return false;
+        created = primary; report = std::move(result); return true;
+    }, error);
+}
+
+bool State::removeArmy(ArmyHandle handle, simulation::ArmyRemovalKind kind, bool detachTaskForces,
+                       simulation::ArmyLifecycleReport& report, save::Error& error) {
+    return guarded([&] {
+        const auto* value = army(handle);
+        if (!value) return fail(error, save::ErrorCode::InvalidState, "Army removal received a null, stale or foreign handle");
+        State candidate;
+        if (!copyForEdit(candidate, error)) return false;
+        simulation::ArmyLifecycleReport result;
+        if (!simulation::removeArmy(*candidate.document_, {value->id, kind, detachTaskForces},
+                                   *candidate.document_, result, error)) return false;
+        // Retire by original dense position, from back to front. Removal order
+        // can be recursive and unrelated to vector order; survivors keep slots.
+        size_t removed = 0;
+        for (size_t i = document_->armies.size(); i-- > 0; ) {
+            if (!candidate.document_->armyById(document_->armies[i].id)) {
+                retireSlot(candidate.armySlots_, candidate.armyDenseSlots_, uint32_t(i)); ++removed;
+            }
+        }
+        if (removed != result.removedIds.size() || candidate.document_->armies.size() + removed != document_->armies.size())
+            return fail(error, save::ErrorCode::InvalidState, "Army removal report does not match retired records");
+        if (!finishEdit(std::move(candidate), error)) return false;
+        report = std::move(result); return true;
+    }, error);
+}
+
+bool State::removeBuilding(BuildingHandle handle, simulation::BuildingRemovalKind kind, int refundPlayer,
+                           simulation::BuildingLifecycleReport& report, save::Error& error) {
+    return guarded([&] {
+        const auto* value = building(handle);
+        if (!value) return fail(error, save::ErrorCode::InvalidState, "Building removal received a null, stale or foreign handle");
+        State candidate;
+        if (!copyForEdit(candidate, error)) return false;
+        simulation::BuildingLifecycleReport result;
+        if (!simulation::removeBuilding(*candidate.document_, {value->id, kind, refundPlayer},
+                                       *candidate.document_, result, error)) return false;
+        size_t removed = 0;
+        for (size_t i = document_->buildings.size(); i-- > 0; ) {
+            if (!candidate.document_->buildingById(document_->buildings[i].id)) {
+                retireSlot(candidate.buildingSlots_, candidate.buildingDenseSlots_, uint32_t(i)); ++removed;
+            }
+        }
+        if (removed != result.removedIds.size() || candidate.document_->buildings.size() + removed != document_->buildings.size())
+            return fail(error, save::ErrorCode::InvalidState, "Building removal report does not match retired records");
+        if (!finishEdit(std::move(candidate), error)) return false;
+        report = std::move(result); return true;
     }, error);
 }
 

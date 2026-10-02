@@ -11,27 +11,37 @@ El inspector continúa leyendo el documento archivado, sin estas mutaciones.
 
 1. Perfil local y núcleo de carga: opciones de campaña, dificultad, nombres,
    tipos de jugador offline, reinicios conocidos y vínculos de objetos/trabajos.
-2. Reconstrucción propietaria del registro de eventos, si está vacío o se aporta
-   su contexto previo explícito. Nunca se adivina una semilla ausente del SAV.
-3. Continentes, contadores de ciudades/santuarios y caminos entre centros locales.
-4. Detección, visibilidad, población conocida y snapshots de edificios/sitios.
-5. Refresco de tareas, balance laboral y topes de almacén de `labor_balance`.
-6. Restricción de investigación de campaña, después del balance como en el original.
-7. Planificación del temporizador, cuando se aporta el reloj explícito.
-8. Reseed final offline del RNG propietario y reconstrucción del grafo tipado.
+2. Reinicio propietario de sesión/combate y tres Rand15 de ResetVariables, con
+   snapshot pre-reset; es alternativa al snapshot pre-eventos, no otra semilla.
+3. Registro de eventos con su contexto explícito; nunca se adivina una semilla del SAV.
+4. Mundo cambiado: alturas/colores, parches de paleta y selección, con WorldParams
+   y pendiente de sombreado anteriores; consume la continuación RNG de eventos.
+5. Inicialización ejecutable de datos/bindings IA; no ejecuta RunAITurns.
+6. Continentes, ciudades/santuarios y caminos; entrega de avisos de santuarios
+   al registro local o a reacciones IA, con su contexto transitorio explícito.
+7. Detección, visibilidad, población conocida y snapshots de edificios/sitios.
+8. Tareas, balance laboral y topes de almacén; restricción de investigación de campaña.
+9. Temporizador con reloj explícito; reseed final offline y reconstrucción del grafo.
 
 Se trabaja sobre candidatos temporales. Sólo se publican documento, grafo, RNG,
 etapa e informe después de validar todo. Un fallo tardío también conserva el
 estado anterior y los handles. El éxito mantiene las identidades de los objetos,
 pero invalida punteros prestados a documento/grafo, como una edición estructural.
-Mover la sesión transfiere también RNG, metadatos de IA, eventos y temporizador,
-y deja el origen vacío; preparar un documento nuevo elimina esas proyecciones.
+Mover la sesión transfiere RNG, IA, eventos, temporizador, buffers de reinicio,
+mapa generado, contadores derivados y avisos entregados. Deja el origen vacío;
+preparar un documento nuevo elimina esas proyecciones.
 
 La etapa resultante es `LoadNormalized`, **no `Active`**. No permite captura SAV,
 ediciones estructurales, fases económicas aisladas ni avanzar turno. La petición
 `LoadScope::Complete` falla explícitamente sin modificar nada. `complete=false`
 y la lista de capacidades ausentes forman parte del informe, no sólo del texto
 de la documentación.
+
+`headlessComplete=true` significa efectos de carga sin ventanas completados;
+puede quedar `NativePresentation`. No equivale a `complete`, `Active` ni `can_play`.
+La auditoría confirmó que **LoadGame no ejecuta un turno IA**: `AiExecution` no
+figura como efecto de carga ausente, aunque RunAITurns sigue siendo necesario
+para jugar. La CLI separa `missing` de `playability_missing`.
 
 ### Núcleo y dominio admitido
 
@@ -57,7 +67,10 @@ de sesión y metadatos de IA/ministros: personalidad, estrategia, contador 40,
 seis configuraciones y scratch cero. Distingue una inicialización para IA ya
 cargada y dos para humanos convertidos. La evidencia confirma que las seis
 hojas de reset de ministros son RET, no callbacks que se hayan omitido.
-`aiExecutable=false`: no se inventan vtables ni se ejecutan decisiones de IA.
+`aiExecutable=false` indica que no existe RunAITurns completo. `AiSession` sí
+ejecuta la inicialización final y conserva bindings tipados; sus 24 entradas de
+fase de ministros son RET8 verificados en el PE, en orden 0,5,1,4,3,2, no
+callbacks ausentes sustituidos por no-ops.
 Las palabras históricas de Player/ministros siguen siendo datos archivados inertes.
 Eventos de versiones anteriores a 0x120 se descartan explícitamente; el codec
 archival los sigue conservando. Se limpia la cola no serializada de territorios,
@@ -76,8 +89,10 @@ fija, no el de la tecnología prohibida; se conserva esa peculiaridad original.
 
 `load_derived.*` reconstruye `ComputeContinents` (`004423b4`), `CountShrines`
 (`00486964`) y caminos de **tiles** (`0047dd24`), no carreteras de sitios de
-construcción (`0047dfdc`). Sus salidas de eventos son avisos semánticos: no textos
-SAV ni efectos de UI/IA. Los contadores pertenecen al informe, no a `gs/gg`.
+construcción (`0047dfdc`). Sus avisos son semánticos; `load_shrine_events` los
+entrega a LogEventEx/IA reales antes de AfterMove. Sin contexto necesario de
+RNG/cola/máscaras, `ShrineEventDelivery` queda pendiente. Los contadores pertenecen
+al informe y a `State::loadDerived()`, no a `gs/gg`.
 
 Conserva OR de máscaras guardadas, la peculiaridad del segundo salto de
 continentes, costes de caminos de la tabla `004dcc04`, FIFO de 160 entradas y
@@ -118,24 +133,54 @@ categoría 7 no consumen. Esta última compara contadores de ciudades **previos 
 la carga**, con pactos originales, no los santuarios recién reconstruidos.
 
 `EventLoadContext` aporta snapshot **inmediatamente anterior a LoadEventLog** y
-los siete contadores previos. No es la semilla del comienzo de LoadGame: quedan
-consumos anteriores y mundo cambiado por integrar. El resultado posee trazas
+los siete contadores previos. No es la semilla del comienzo de LoadGame:
+`LoadContext.startup` permite aportar esa otra frontera y ejecutar los tres
+Rand15 originales. Aportar ambos contextos se rechaza. El resultado posee trazas
 RNG y snapshot posterior, separados de la resembra final desde gameId.
 Sin contexto y con eventos no vacíos, `NativeEventLog` continúa pendiente.
 Con contexto incorrecto se rechaza toda la transacción, no se publica media carga.
 
 Dominio de replay actual: pool total con terminadores menor que 3071 bytes;
 textos sin NUL interno; se rechaza ID 0x646c, que en el original coincide con
-una fila fantasma fuera de tabla. La expulsión del pool lleno aún no está portada.
+una fila fantasma fuera de tabla. La expulsión usa qsort Borland, incluido −1
+en empates, no std::sort. Conserva el desplazamiento peculiar del payload por
+índice de archivo y los datos en ranuras inactivas. La prioridad que impide
+desalojar se rechaza, igual que LoadEventLog.
 Estas restricciones no cambian el codec archival, que conserva los bytes.
 Versiones anteriores a 0x120 descartan eventos sin consumir RNG, como el original.
-La reconstrucción del registro no genera los futuros eventos de gameplay ni UI.
+`logLocalEvent` genera texto canónico (%s/%d), expulsa por límite50/pool, consume
+retratos una vez, convierte jugador/pacto del evento58 y aplica la pareja racial
+del123 después del draw original. Un rechazo de prioridad conserva la ordenación
+y no consume RNG. No enruta automáticamente a IA ni entrega ventanas. Argumentos
+inválidos o textos que desbordarían el buffer original fallan antes de mutar.
 
 `planLoadTimer` usa reloj y estado anterior explícitos: autoTimer reinicia;
 lastPlayerTimer sólo inicia si no corría y queda un jugador sin terminar.
 Se conserva la asimetría original: activos hasta numPlayers, terminados en los
 siete slots. `LoadContext.clockMs` integra el plan en State; no inicia un hilo
-ni finaliza automáticamente turnos. El resto de transitorios sigue pendiente.
+ni finaliza automáticamente turnos. `load_startup` posee buffers/scalars de
+reinicio, victoria, combate, flags finales y EventLog activo. No borra los arrays
+cargados después de ResetVariables ni confunde una petición UI con su entrega.
+
+### Mundo cambiado y reacciones IA
+
+`load_world_presentation` compara los 20 bytes de WorldParams. Si cambió, aplica
+SeedRtl(world.rngSeed), generación original de terreno/alturas/colores/sombreado/
+ríos/escalado con Long31, parches físicos de paleta, AND0x0000fff0 en flags y
+selección/cámara. La pendiente previa de sombreado es contexto explícito y los
+huecos de paleta no se rellenan. Sin cambio, documento/RNG/pendiente quedan iguales.
+Bitmaps y parches son datos propietarios: ventanas, sprites, aplicación de paleta,
+temporizador nativo y briefing de campaña siguen pendientes en presentación.
+
+`AiSession::reactDiplomacy` porta00404cec, respuestas, matrices de actitudes de los
+dos bloques llamados scratchJob, máscaras de cambio y cola42/41 útil. Consume el
+draw antes de descartar por cola llena/destinatario no humano. No contesta mensajes
+humanos pendientes. `reactEvent` cubre chat, gratitud, penalización y hostilidad
+sin disolución de guerras/pactos previos; negociación y esas dependencias fallan
+sin publicar documento, cola, máscaras ni RNG. No equivale a RunAITurns.
+Máscaras/cola no se reinician por LoadGame: deben aportarse. LogEventEx usa sus
+argumentos7/8, no los del formato; LogEvent ordinario aporta0,0.
+`State::reactDiplomacy/reactAiEvent` conserva la continuación y rechaza rebobinarla.
 
 ## RNG de sesión
 
@@ -148,15 +193,16 @@ Snapshots versionados permiten restaurar exactamente **nuestro** estado propio.
 
 La rama final offline de `LoadGame` (`004618e8` → `00477394`) inicializa ambos
 generadores desde **options.gameId**, con RTL high=0. No usa gameSeed/world.rngSeed
-ni restaura del SAV una secuencia interna que el formato no guarda. El escaneo
-anterior de mundo cambiado puede consumir otra secuencia y sigue pendiente.
+ni restaura del SAV una secuencia interna que el formato no guarda. Mundo cambiado
+y avisos de santuarios ya consumen la secuencia anterior a esa resembra final.
 Los contadores del RNG normalizado comienzan en cero tras el reseed final.
 
 `SaveGame` original consume `lrand()%10000`, escribe gameId y resembra antes de
-serializar. Eso corresponde a un futuro guardado jugable completo: ni el codec
+serializar. `planOfflineSaveRng` reproduce esa frontera sin permitir exportar un
+experimento. Su integración en guardado jugable sigue pendiente: ni el codec
 ni `prepare/capture` pueden introducir ese consumo al hacer una copia archival.
-El orden real de llamadas de producción, combate, IA y turnos queda pendiente
-con cada módulo; los tests de primitivas no acreditan un turno entero.
+Producción, combate y turno IA completo deben conectar sus consumidores; las
+primitivas y reacciones aisladas no acreditan un turno entero.
 
 ## Tablas y capacidades ausentes
 
@@ -171,16 +217,14 @@ Los wrappers inline incompatibles de `turn_api.h` quedan declarados para futura
 implementación real; no se reemplazan por stubs que aparenten éxito.
 Las capacidades ausentes de la carga se enumeran explícitamente:
 
-- Dependencias ejecutables de IA/ministros; los reinicios de datos ya están portados.
-- Registro de eventos cuando falta contexto previo, y dominios de expulsión aún excluidos.
-- Estado transitorio: scratch de sesión, flags de fase, selección y UI; el timer
-  ya tiene plan nativo opcional, no ejecutor de turnos.
-- Generación visual de alturas/colores y consumo intermedio de la rama de mundo
-  cambiado. No confundirla con la visibilidad territorial ya implementada.
+- Registro/reinicio/mundo/timer cuando faltan sus contextos explícitos.
+- Avisos de santuarios cuando falta RNG o cola/máscaras de IA.
+- Presentación: ventanas, sprites/paleta, timer y briefing. Generar el mapa no
+  equivale a entregarlo al motor gráfico.
 
-EST-04c ya crea edificios terminados ordinarios con ID, huella, balance laboral
-local y caminos de sitios, y dispone de plantillas de unidad. Costes, órdenes
-de construcción, transporte y bajas siguen pendientes; ver `ENTITY_RUNTIME.md`.
+EST-04c incorpora edificios especiales, unidades con transporte/parejas, bajas,
+demolición no-santuario, pagos/importaciones y comienzo de obra; ver
+`ENTITY_RUNTIME.md`. Fabricación y finalización de obra todavía no son turnos.
 La conexión de efectos de gameplay entre todos los módulos sigue en EST-07.
 
 ## Comandos y comprobación
@@ -189,13 +233,16 @@ La conexión de efectos de gameplay entre todos los módulos sigue en EST-07.
 .\build-verified\src\dl2sim.exe normalize-load "C:\GOG Games\Deadlock 2\TUTORIAL.SAV"
 .\build-verified\src\dl2sim.exe normalize-load-archive "C:\GOG Games\Deadlock 2\LEVELS" CHCHT1
 .\build-verified\src\dl2sim.exe normalize-load-seeded "C:\GOG Games\Deadlock 2\TUTORIAL.SAV" 123
+.\build-verified\src\dl2sim.exe normalize-session "C:\GOG Games\Deadlock 2\TUTORIAL.SAV" 123
 .\build-verified\src\dl2sim.exe activate "C:\GOG Games\Deadlock 2\TUTORIAL.SAV"
 ```
 
 Los comandos normalize sólo imprimen JSON con `can_play:false`, `complete_load:false`
 y capacidades pendientes. `normalize-load-seeded` define un contexto de prueba:
 semilla explícita anterior a los eventos y siete contadores previos cero; no
-afirma recuperar el contexto histórico ausente del SAV. `activate` rechaza la
+afirma recuperar el contexto histórico ausente del SAV. `normalize-session` usa
+un contexto frío explícito: semilla pre-reset y mundo anterior/ciudades/pendiente/
+reloj/máscaras/cola cero. `activate` rechaza la
 activación completa. Ninguno acepta destino SAV. Originales de sólo lectura.
 
 El corpus incluye 46 documentos; los ocho escenarios de versión 35 son `CYTH3`,

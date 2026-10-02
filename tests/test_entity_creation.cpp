@@ -97,7 +97,7 @@ Created create(const save::Document& d, int type, int site, uint32_t territory =
     require(error.code == save::ErrorCode::None && error.offset == 0 && error.message.empty(), "creation clears old errors");
     require(bytes(d) == before, "creation never mutates source, queues or unsaved tails");
     require(result.report.localLaborBalanced && result.report.siteRoadsRebuilt &&
-            result.report.buildingId == uint16_t(uint32_t(d.options.nextGlobalId) + 1u), "creation identifies local completed effects and original next ID");
+            result.report.buildingId == uint16_t(uint32_t(d.options.nextGlobalId) + (type==38?2u:1u)), "creation identifies local completed effects and original next ID");
     return result;
 }
 void rejected(const save::Document& d, BuildingCreationRequest request) {
@@ -245,11 +245,12 @@ void idsDomainsRollbackAndCapacity() {
     rejected(*source,{1,29,0}); // Cross-kind collision.
     source = fixture();
     for (const auto request : {BuildingCreationRequest{0,1,0}, {3,1,0}, {1,0,0}, {1,48,0},
-                               {1,1,-1}, {1,6,0}, {1,1,36}, {1,38,25}, {1,39,0}, {1,45,14}, {1,46,0}})
+                               {1,1,-1}, {1,6,0}, {1,1,36}, {1,38,25}, {1,39,0}})
         rejected(*source,request);
-    source->territories[0].data.owner=-1; rejected(*source,{1,29,0}); source->territories[0].data.owner=0;
-    source->territories[0].data.terrain=0; rejected(*source,{1,29,0}); source->territories[0].data.terrain=1;
-    source->territories[0].data.sites[0].terrainFlags=0x5101; rejected(*source,{1,19,0});
+    source->territories[0].data.owner=-1; rejected(*source,{1,1,0}); source->territories[0].data.owner=0;
+    source->territories[0].data.terrain=0; source->territories[0].data.sites[0].terrainFlags=0xff;
+    rejected(*source,{1,29,0}); source->territories[0].data.terrain=1;
+    source->territories[0].data.sites[0].terrainFlags=0x5201; rejected(*source,{1,19,0});
     source->territories[0].data.sites[0].terrainFlags=1;
     source->players[0].race=-1; rejected(*source,{1,1,0}); source->players[0].race=2;
     source->header.isMap=1; source->mapTerritories.resize(source->territories.size());
@@ -274,6 +275,67 @@ void idsDomainsRollbackAndCapacity() {
     auto maximum=create(*source,29,35,35);
     require(maximum.document->buildings.size()==1199, "1198 to1199 allocation preserves original reserved pool slot");
     rejected(*maximum.document,{35,29,34});
+}
+
+void specialBuildings() {
+    auto source=fixture();
+    source->territories[0].data.terrain=0;
+    for (auto& site : source->territories[0].data.sites) site.terrainFlags=0xff;
+    auto platform=create(*source,38,25);
+    const auto& report=platform.report;
+    const auto& d=*platform.document;
+    const auto& t=d.territories[0].data;
+    require(report.buildingId==1002 && report.companionBuildingId==1001 && report.counterAfter==1002 &&
+            report.createdIds==std::vector<uint32_t>({1002,1001}) && report.companionAttempted && !report.companionAllocationFailed,
+            "platform reserves Hab ID first but appends platform before Hab");
+    require(d.buildings[0].id==1002 && d.buildings[0].next.raw==1001 && d.buildings[1].prev.raw==1002 &&
+            d.buildings[1].type==39 && d.buildings[1].race==2 && d.buildings[1].site==15 && d.buildings[1].task[1]==20 &&
+            d.buildings[1].task[2]==14 && d.buildings[1].task[3]==7 && d.buildings[1].labor[1]==5,
+            "SeaHab defaults, local housing labor and global links");
+    require(t.sites[25].building.raw==1002 && t.sites[25].terrainFlags==0xff &&
+            t.sites[3].terrainFlags==0x31ff && t.sites[13].terrainFlags==0x11ff &&
+            t.sites[15].terrainFlags==0x32ff && t.sites[17].terrainFlags==0x41ff &&
+            t.sites[27].terrainFlags==0x21ff && t.sites[1].terrainFlags==0x60ff,
+            "exact sparse platform marks and used SeaHab socket, no anchor occupancy flag");
+    for (const auto& cell:t.sites) require(cell.unk_05[11]==0 && path(cell)==0x1234,"sea roads clear bytes without path search");
+    auto socket=create(d,19,3);
+    require(socket.document->territories[0].data.sites[3].terrainFlags==0x32ff &&
+            socket.report.createdIds==std::vector<uint32_t>{1003},"free platform socket replacement preserves low terrain");
+    rejected(*socket.document,{1,19,3});
+    source->options.nextGlobalId=65534; rejected(*source,{1,38,25}); // companion65535, primary0.
+    source->options.nextGlobalId=65535; rejected(*source,{1,38,25}); // companion0, primary1.
+    source->options.nextGlobalId=1000; source->territories[0].data.owner=-1; rejected(*source,{1,38,25});
+
+    source=fixture();
+    auto native=create(*source,45,14);
+    require(native.document->buildings[0].task[1]==7 && native.document->buildings[0].task[2]==5 &&
+            !(native.document->territories[0].data.flags&0x10),"normal-mode native shrine tasks do not invent editor shrine flag");
+    rejected(*native.document,{1,46,0});
+    auto hidden=create(*source,46,0);
+    require(hidden.document->buildings[0].task[1]==15 && hidden.document->buildings[0].race==0,
+            "hidden shrine low terrain1 overrides task index to4 -> energy15");
+    source->territories[0].data.terrain=0; source->territories[0].data.sites[0].terrainFlags=0xff;
+    auto seaShrine=create(*source,47,0);
+    require(seaShrine.document->buildings[0].task[1]==8 && !(seaShrine.document->territories[0].data.flags&0x10),
+            "sea shrine index(territory1+site0)%6 selects task8 without editor mutation");
+    source->territories[0].data.owner=-1;
+    auto unownedShrine=create(*source,47,0);
+    for (uint8_t task:unownedShrine.document->buildings[0].task) require(task==0,"unowned shrine skips GetBuildingTasks");
+    source=fixture(); source->territories[0].data.owner=-1;
+    auto unowned=create(*source,29,0);
+    require(unowned.document->buildings[0].race==0,"unowned nonracial initialization is valid");
+    source->territories[0].data.owner=0; source->territories[0].data.terrain=0;
+    auto seaOrdinary=create(*source,29,0);
+    require(seaOrdinary.document->buildings[0].type==29,"explicit site query can permit nonmarine type on available sea terrain");
+
+    source=fixture(35); source->options.nextGlobalId=2000;
+    for (int n=0;n<1198;++n) addBuilding(*source,29,n%36,n/36+1);
+    source->territories[34].data.terrain=0;
+    auto bare=create(*source,38,25,35);
+    require(bare.document->buildings.size()==1199 && bare.report.createdIds==std::vector<uint32_t>{2002} &&
+            bare.report.companionAttempted && bare.report.companionAllocationFailed && bare.report.companionBuildingId==0 &&
+            bare.document->options.nextGlobalId==2002 && bare.document->territories[34].data.sites[15].terrainFlags==0x5101,
+            "one remaining slot yields explicit original platform-only result, both IDs consumed");
 }
 
 void armyTemplatesAndPurity() {
@@ -421,7 +483,7 @@ void corpus(const std::filesystem::path& directory) {
 int main(int argc,char** argv) {
     try {
         housingInitializationAndLocality(); footprintsLaborAndRoadOracles(); tasksCityCentersAndSignedEdges();
-        idsDomainsRollbackAndCapacity(); armyTemplatesAndPurity(); runtimeIntegration();
+        idsDomainsRollbackAndCapacity(); specialBuildings(); armyTemplatesAndPurity(); runtimeIntegration();
         corpus(argc>1?std::filesystem::path(argv[1]):std::filesystem::path{});
         std::cout<<"entity_creation: initialization, IDs, local labor, footprints/site roads, templates and transactional purity passed\n";
         return 0;

@@ -28,6 +28,13 @@ set(GAME_SOURCES
     entity_creation.cpp
     event_portraits.cpp
     load_session.cpp
+    load_startup.cpp
+    ai_session.cpp
+    entity_lifecycle.cpp
+    load_world_presentation.cpp
+    construction_payment.cpp
+    load_shrine_events.cpp
+    construction_site.cpp
     # END MODULE SOURCES
 )
 

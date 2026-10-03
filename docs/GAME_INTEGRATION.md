@@ -1,5 +1,20 @@
 # Integración de la infraestructura de juego — 2026-09-27
 
+## EST-04c: santuarios y bajas individuales — continuación 2026-10-02
+
+Sobre `5f6c8f3`, `entity_lifecycle` añade demolición de santuarios con contexto
+vivo de objetivo12 y cola tipada de diez entradas. `entity_orders` integra en
+State/CLI las órdenes individuales confirmadas: desbandar unidades y demoler
+edificios con redirección SeaHab, cascada de plataforma y flags marinos reales.
+La continuación no se descarta entre órdenes/fase económica y no puede rebobinarse.
+
+`shrine_consequences` porta por separado eventos80/81, moral y puntuación con
+reacciones IA reales. No se conecta saltando combate00457624; su cola tampoco
+se drena artificialmente. EST-04c conserva pendientes explícitos: referencias
+taskforce diferidas/limpieza original, ramas IA de pactos/disolución, coordinación
+de turno y controles gráficos/colectivos. No hay activación ni SAV jugable.
+Contratos: [ENTITY_RUNTIME.md](ENTITY_RUNTIME.md).
+
 ## Órdenes económicas locales — continuación 2026-10-02
 
 Sobre `85a29fc`, `colony_labor_orders`, `building_orders`, `population_orders`

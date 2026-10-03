@@ -16,6 +16,46 @@ inspección: mapa, territorios, edificios, unidades y copias sin modificación. 
 lógica de partida está parcialmente escrita y todavía no está integrada. Cargar
 el documento no equivale a activar el estado de juego, simular un turno ni jugar.
 
+## EST-04c: santuarios y órdenes de bajas — continuación 2026-10-02
+
+Continuación sobre `5f6c8f3`, centrada en el parcial señalado por el usuario.
+`entity_lifecycle` ahora permite demolición de santuarios con flags/estados vivos
+de campaña y cola tipada; `entity_orders` añade las órdenes individuales confirmadas
+de desbandar y demoler, con cascada SeaHab/plataforma y reconstrucción marina.
+State/CLI incorporan las órdenes, los handles y la continuación antirrebobinado.
+La fase económica y las órdenes de investigación rechazan flags de campaña que
+contradigan el contexto de santuarios ya ligado a State.
+
+`shrine_consequences` porta la penalización diferida0044b9e4→0044b924: siete
+llamadas de eventos80/81 en orden, log/reacciones IA reales, moral firmada−20
+con mínimo0 y wrap de `nukesUsed`. No drena la cola (el original tampoco), no
+inventa el sentinel0 ni procesa esta hoja antes de su predecesor de combate.
+Errores tardíos, ruptura de pactos/disolución IA aún ausentes o estados inseguros
+revierten toda la operación. No se añadió flush al State/CLI ni guardado parcial.
+
+Tres nuevos ejecutables de pruebas cubren campaña viva vs bytes SAV, capacidad
+de cola10, aliases, refunds, flags, autoridad, cascadas y fallos tardíos;
+continuidad de State/move/prepare/economía, retiro de handles, orden de eventos/RNG,
+límites firmados y aislamiento de globales. CLI verifica tres nuevos comandos,
+rechazo de destinos de guardado e integridad del tutorial original.
+Son oráculos del decompilado/assembly, no una partida comparada en el ejecutable.
+
+La revisión cruzada confirmó por qué EST-04c **sigue parcial**: faltan referencias
+taskforce diferidas y limpieza0040aebc en los momentos originales, ramas IA
+adicionales, órdenes colectivas y coordinación de combate/turno/UI. Mantenimiento
+no llama detach; activarlo anticipadamente sería una alteración de reglas.
+La entrada del checklist ahora desglosa esos pendientes, sin ocultarlos bajo
+una marca de completado. Contratos y CLI en [ENTITY_RUNTIME.md](ENTITY_RUNTIME.md).
+
+Verificación final: **60/60 sin omisiones** en `build-verified` (**89,52 s**) y
+**60/60** en `build-save-asan` (**245,62 s**), sin hallazgos de AddressSanitizer.
+Build normal sin advertencias de código; ASAN conserva sólo D9025 de `/W3`→`/W4`.
+Los resultados finales incluyen la regresión de flags de campaña cruzados.
+Se corrigieron antes del relanzamiento un warning de cast constante en una
+prueba y una comparación de informe sin operador de igualdad; no fueron errores
+de simulación ni se contaron builds fallidos como verificaciones aprobadas.
+Registros: `build-*/Testing/Temporary/LastTest.log`; `git diff --check` limpio.
+
 ## Órdenes económicas locales — continuación 2026-10-02
 
 Continuación sobre `85a29fc`. Se añadieron cuatro módulos propietarios y su

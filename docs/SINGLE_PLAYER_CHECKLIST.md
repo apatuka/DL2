@@ -1,7 +1,8 @@
 # Checklist de cierre: Deadlock II individual
 
-Revisión: 2026-10-02. Continuación sobre `85a29fc`, ampliada con órdenes
-económicas locales en [ECONOMY_LAB.md](ECONOMY_LAB.md).
+Revisión: 2026-10-02. Continuación sobre `5f6c8f3`, centrada en EST-04c:
+demolición de santuarios, órdenes individuales y consecuencias diferidas en
+[ENTITY_RUNTIME.md](ENTITY_RUNTIME.md).
 
 ## Qué significa «100% funcionando»
 
@@ -47,10 +48,11 @@ funcional descubre comportamientos originales aún no identificados.
 - [x] Tramo económico transaccional desde reinicios hasta financiación de obras: impuestos, dos pases con obras/colas intercaladas, necesidades/importaciones, comida, energía y mantenimiento. `EconomyPrefixApplied` no es fase completa ni turno jugable.
 - [x] Continuación económica hasta crecimiento, moral, investigación, disturbios/deserciones y balance final, en una única transacción. `EconomyPhaseApplied` no es turno jugable ni exportable; dominios pendientes documentados en ECO-07/09/11.
 - [x] Órdenes locales headless de trabajadores, actividad/bloqueos de edificios, traslado de población y selección/cola de investigación, integradas en State/CLI antes de la fase económica. Sin controles gráficos ni SAV reanudable; contexto vivo de investigación/plagas explícito.
+- [x] Demolición de santuarios con campaña/cola propietarias y órdenes individuales de bajas, con cascada de plataforma y flags marinos. Penalizaciones diferidas implementadas como hoja aislada, aún sin ejecutor de turno posterior al combate.
 - [x] Inicialización IA, reacciones diplomáticas, taskforces y determinados eventos con estado/RNG propietarios; no es el turno IA completo.
 - [x] Tablas canónicas compartidas, 43 campañas y pruebas de contratos entre cabeceras heredadas.
 
-Última verificación: **57/57 pruebas sin omisiones**, normal y AddressSanitizer.
+Última verificación: **60/60 pruebas sin omisiones**, normal y AddressSanitizer.
 Los **46 documentos** admiten normalización parcial, incluidos los **8 escenarios
 de versión 35** mediante migraciones explícitas; sus copias archivales siguen
 siendo exactas. Se verificaron 46 reconstrucciones de inteligencia, 46 creaciones
@@ -69,7 +71,12 @@ soportadas sobre copias y 455 nombres de retratos contra el PE. Resultados en
 - [ ] **EST-04** Implementar creación/destrucción de edificios y unidades, listas libres/activas, límites y referencias estables durante la simulación.
   - [x] **EST-04a** Handles estables y rechazo de referencias retiradas, ajenas o de una preparación anterior, incluso tras reutilizar slots/IDs.
   - [x] **EST-04b** Backend estructural de inserción/retirada para registros simples explícitos, validación de listas, reserva de capacidad y rechazo de dependencias; sin efectos de gameplay ni exportación SAV.
-  - [ ] **EST-04c — parcial.** Implementados edificios especiales, creación/bajas con transporte/parejas, demolición no-santuario, selección de sitio, comienzo pagado de obra, progreso/finalización/mejoras y fabricación por colas con eventos/logística/labor, conectados a la secuencia económica hasta balance final. Faltan demolición de santuarios con campaña y coordinación en órdenes, turno y UI completos; las bajas que dejarían referencias taskforce vivas se rechazan con rollback.
+  - [ ] **EST-04c — parcial.** Implementados edificios especiales, creación/bajas con transporte/parejas, selección de sitio, obra pagada, progreso/finalización/mejoras y fabricación por colas, conectados a la secuencia económica. Desglose de lo recién resuelto y lo que impide cerrar:
+    - [x] Demolición de santuarios con objetivo12/cola pendiente explícitos, refunds, labor, identidad y continuidad en State; sin inferir estados vivos desde bytes SAV.
+    - [x] Órdenes individuales confirmadas de desbandar/demoler en State/CLI; redirección SeaHab, cascada de plataforma y reconstrucción real de flags marinos, con autoridad y rollback.
+    - [x] Hoja aislada de penalizaciones diferidas: eventos80/81, moral, puntuación y reacciones IA implementadas dentro del dominio soportado. Conserva la cola como el original; no equivale a ejecución programada en un turno.
+    - [ ] Bajas con referencias taskforce diferidas y limpieza0040aebc en sus puntos originales; no sustituirlas por desprendimiento anticipado.
+    - [ ] Integrar consecuencias después del combate, cerrar ramas IA de ruptura de pactos/disolución, órdenes colectivas y controles gráficos en el turno completo. Sigue sin SAV jugable.
   - [x] **EST-04d** Reconstruir enlaces de edificios y vínculos de trabajos/unidades durante la carga parcial, preservando las identidades existentes y publicando el grafo transaccionalmente.
 - [ ] **EST-05** Integrar un estado RNG de partida: semillas, orden de consumo y restauración/inicialización conforme al original.
   - [x] **EST-05a** RNG propietario de sesión con primitivas originales, orden/contadores, snapshots y reseed final offline desde `options.gameId`; no altera RNG global ni la copia archival.

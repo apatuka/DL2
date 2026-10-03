@@ -18,6 +18,7 @@
 #include "game/load_intelligence.h"
 #include "game/entity_creation.h"
 #include "game/entity_lifecycle.h"
+#include "game/entity_orders.h"
 #include "game/load_startup.h"
 #include "game/load_world_presentation.h"
 #include "game/load_shrine_events.h"
@@ -198,6 +199,7 @@ public:
     const simulation::AiSession* aiSession() const { return ai_ ? &*ai_ : nullptr; }
     const simulation::AiReactionContext* aiReactionContext() const { return aiReaction_ ? &*aiReaction_ : nullptr; }
     const simulation::ResourceCollectionState* resourceCollection() const { return collection_ ? &*collection_ : nullptr; }
+    const simulation::BuildingRemovalContext* buildingRemovalContext() const { return buildingRemoval_ ? &*buildingRemoval_ : nullptr; }
     const std::array<int32_t, kMaxPlayers>* eventCities() const { return eventCities_ ? &*eventCities_ : nullptr; }
     const simulation::PopulationEventBindings* populationEvents() const { return populationEvents_ ? &*populationEvents_ : nullptr; }
     // Explicit local-human economic orders. Prepared/EntitiesEdited only; real
@@ -266,7 +268,19 @@ public:
                     simulation::ArmyLifecycleReport& report, save::Error& error);
     bool removeArmy(ArmyHandle handle, simulation::ArmyRemovalKind kind, bool detachTaskForces,
                     simulation::ArmyLifecycleReport& report, save::Error& error);
+    // Confirmed local-human commands; no dialogs, battle or invented detach.
+    bool orderDisbandUnit(int actor, ArmyHandle handle,
+                         simulation::ArmyLifecycleReport& report, save::Error& error);
+    bool orderDemolishBuilding(int actor, BuildingHandle handle,
+                              const simulation::BuildingRemovalContext& context,
+                              simulation::DemolishBuildingOrderReport& report, save::Error& error);
     bool removeBuilding(BuildingHandle handle, simulation::BuildingRemovalKind kind, int refundPlayer,
+                        simulation::BuildingLifecycleReport& report, save::Error& error);
+    // Explicit live campaign progress and pending shrine penalties. Retained
+    // across edits/economy; later callers must continue exactly this context.
+    // Does not process the deferred penalties ahead of their turn predecessor.
+    bool removeBuilding(BuildingHandle handle, simulation::BuildingRemovalKind kind, int refundPlayer,
+                        const simulation::BuildingRemovalContext& context,
                         simulation::BuildingLifecycleReport& report, save::Error& error);
     // Structural storage operations, NOT construction, manufacturing, demolition
     // or combat orders. Callers supply complete payloads and explicit file IDs;
@@ -314,6 +328,9 @@ private:
     bool rebuildGraph(save::Error& error);
     bool copyForEdit(State& candidate, save::Error& error) const;
     bool finishEdit(State&& candidate, save::Error& error, bool queueNodesReplaced = false);
+    bool applyBuildingRemoval(BuildingHandle handle, simulation::BuildingRemovalKind kind, int refundPlayer,
+        const simulation::BuildingRemovalContext* context,
+        simulation::BuildingLifecycleReport& report, save::Error& error);
     template<class Request> bool applyManufacturing(const Request& request,
         const simulation::UnitManufacturingContext& context,
         simulation::UnitManufacturingReport& report, save::Error& error);
@@ -336,6 +353,7 @@ private:
     std::optional<simulation::ResourceCollectionState> collection_;
     std::optional<std::array<int32_t, kMaxPlayers>> eventCities_;
     std::optional<simulation::PopulationEventBindings> populationEvents_;
+    std::optional<simulation::BuildingRemovalContext> buildingRemoval_;
     Stage stage_ = Stage::Empty;
 };
 // All returned pointers and Graph references are borrowed until the next

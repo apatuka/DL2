@@ -8,11 +8,13 @@ decompiladas y módulos compilados miden cosas distintas de una partida jugable.
 El [checklist de cierre individual](SINGLE_PLAYER_CHECKLIST.md) desglosa los
 pendientes funcionales y sus criterios de aceptación, excluyendo multijugador.
 
-Último avance: órdenes locales de trabajadores, actividad/bloqueos de edificios,
-traslado de población y selección/cola de investigación conectadas a State/CLI.
-Sus resultados alimentan la fase económica completa en memoria. Faltan su
-interfaz, activación y composición con el resto del turno; detalles y límites
-en [ECONOMY_LAB.md](ECONOMY_LAB.md). No cambian la definición de «jugable».
+Último avance, enfocado en EST-04c: demolición de santuarios con objetivo12 y
+cola propietaria, órdenes locales individuales de bajas, cascada de plataforma
+y flags marinos conectados a State/CLI. La hoja de consecuencias diferidas usa
+eventos/IA/moral/puntuación reales, pero no salta la fase de combate que debe
+precederla. Siguen referencias taskforce diferidas, coordinación del turno e
+interfaz; [ENTITY_RUNTIME.md](ENTITY_RUNTIME.md) detalla los límites. Las órdenes
+económicas del lote anterior siguen descritas en [ECONOMY_LAB.md](ECONOMY_LAB.md).
 
 ## 0. Base reproducible y recuperación
 

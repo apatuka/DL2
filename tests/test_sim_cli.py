@@ -188,7 +188,30 @@ def main():
         assert removed["roads_target_was_sentinel"] == (command == "demolish-building")
     assert not run("delete-building", tutorial, 0, success=False).stdout
     assert not run("demolish-building", tutorial, 10241, 7, success=False).stdout
-    assert not run("demolish-building", tutorial, 10244, 0, success=False).stdout  # Shrine campaign effects not fabricated.
+    assert not run("demolish-building", tutorial, 10244, 0, success=False).stdout  # Requires explicit live context.
+    shrine = run("demolish-building-context", tutorial, 10244, 0, 0, 0, 0, 0)
+    assert shrine == run("demolish-building-context", tutorial, 10244, 0, 0, 0, 0, 0)
+    assert shrine["shrine_flag_cleared"] and shrine["shrine_penalty_queued"] and not shrine["campaign_protected"]
+    assert shrine["explicit_campaign_context"] and shrine["pending_shrine_count"] == 1
+    assert shrine["building_count"] == prepared["buildings"] - 1 and shrine["refund_credits"] > 0
+    assert not shrine["deferred_penalties_applied"] and not shrine["complete_turn"] and not shrine["can_save"]
+    assert shrine["turn"] == prepared["turn"]
+    local_disband = run("order-disband-unit", tutorial, 10243)
+    assert local_disband == run("order-disband-unit", tutorial, 10243)
+    assert local_disband["headless_local_order"] and local_disband["removed_ids"] == [10243]
+    assert local_disband["refund_count"] == 1 and not local_disband["can_save"]
+    local_demolition = run("order-demolish-building", tutorial, 10241, 0, 0, 0, 0)
+    assert local_demolition == run("order-demolish-building", tutorial, 10241, 0, 0, 0, 0)
+    assert local_demolition["headless_local_order"] and local_demolition["removed_ids"] == [10241]
+    assert local_demolition["sea_flags_rebuilt"] and not local_demolition["platform_redirected"]
+    assert not local_demolition["complete_turn"] and not local_demolition["can_save"]
+    assert local_demolition["turn"] == prepared["turn"] and not local_demolition["pending_shrine_count"]
+    assert not run("order-demolish-building", tutorial, 10244, 0, 0, 0, 0, success=False).stdout
+    assert not run("order-disband-unit", tutorial, 0, success=False).stdout
+    assert not run("order-demolish-building", tutorial, 10241, 0, 0, 0, "bad", success=False).stdout
+    for args in ((0, 0, 0, 0, 0, 0), (10244, 7, 0, 0, 0, 0), (10244, 0, "bad", 0, 0, 0),
+                 (10244, 0, 4096, 0, 0, 0), (10244, 0, 0, 0, 0, "2147483648")):
+        assert not run("demolish-building-context", tutorial, *args, success=False).stdout
     order = run("start-building", tutorial, 14, 1, 35, 1)
     assert order == run("start-building", tutorial, 14, 1, 35, 1)
     assert order["accepted"] and order["paid_construction_order"] and not order["complete_turn"]
@@ -286,6 +309,8 @@ def main():
                               ("normalize-session", (123,)), ("create-unit", (14, 0, 1)),
                               ("delete-unit", (10243,)), ("disband-unit", (10243,)),
                               ("delete-building", (10241,)), ("demolish-building", (10241, 0)),
+                              ("demolish-building-context", (10244, 0, 0, 0, 0, 0)),
+                              ("order-disband-unit", (10243,)), ("order-demolish-building", (10241, 0, 0, 0, 0)),
                               ("start-building", (14, 1, 35, 1)), ("find-site", (14, 1, 1)),
                               ("queue-unit", (14, 1, 1)), ("dequeue-unit", (14, 1, 0)),
                               ("produce-units", (14, 1, 30, 1)), ("progress-buildings", (14, 1)),

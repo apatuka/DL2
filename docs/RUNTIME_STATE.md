@@ -150,6 +150,21 @@ edificio terminado ordinario, asigna ID de partida y aplica huella, labor local
 y caminos de sitios. No es iniciar una construcción pagada; no fabrica unidades
 ni resuelve bajas. Los casos especiales no implementados fallan transaccionalmente.
 
+`orderDisbandUnit(actor, handle, ...)` y `orderDemolishBuilding(actor, handle,
+context, ...)` añaden las órdenes individuales confirmadas del jugador local.
+La segunda coordina la cascada de plataforma y los flags marinos; la primera
+no inventa desprendimiento de taskforces. Ambas validan autoridad e identidades,
+retiran sólo handles de bajas y mantienen los de supervivientes. La sobrecarga
+`removeBuilding(..., BuildingRemovalContext, ...)` soporta además la hoja de
+demolición de santuarios sin convertirla en permiso local.
+
+`buildingRemovalContext()` conserva flags/progreso vivos y la cola tipada de
+penalizaciones pendientes entre órdenes, economía y movimientos de State. Un
+contexto antiguo falla; `prepare` comienza una vida nueva sin esa continuación.
+No existe aquí un flush anticipado: las consecuencias requieren el punto del
+turno posterior al combate, aún no integrado. Contratos y API aislada en
+[ENTITY_RUNTIME.md](ENTITY_RUNTIME.md).
+
 `capture` sólo acepta `Prepared`: copia el documento conservado, valida el
 resultado y reemplaza su destino al finalizar. Tras aplicar cualquier experimento falla
 explícitamente; una partida con sólo una fase económica aplicada no puede
@@ -270,7 +285,7 @@ IA aún pendiente (ver `LOAD_NORMALIZATION.md`). La preparación archival
 conserva los datos; no afirma que cada palabra histórica sea
 semánticamente correcta para una nueva simulación. Tampoco incorpora todavía
 el resto de fases. Ya dispone de creación especial, unidades/transporte/cascadas,
-demolición no-santuario y comienzo pagado de construcción con eventos/logística,
+demolición con contexto de santuarios y comienzo pagado de construcción con eventos/logística,
 además de reacciones IA con continuación explícita y rechazo de rebobinado.
 `progressBuildingWork` añade trabajo/finalización/reparación y mejoras a partir
 de la labor asignada. `queueUnit`, `dequeueUnit` y `produceUnits` añaden colas,

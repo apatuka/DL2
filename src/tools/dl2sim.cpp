@@ -259,14 +259,20 @@ void createdBuilding(const runtime::State& state, const simulation::BuildingCrea
     std::cout << "]}\n";
 }
 void buildingLifecycle(const runtime::State& state, const simulation::BuildingLifecycleReport& report) {
-    std::cout << std::boolalpha << "{\"stage\":\"entities_edited_in_memory\",\"complete_turn\":false,\"building_id\":"
+    std::cout << std::boolalpha << "{\"stage\":\"entities_edited_in_memory\",\"complete_turn\":false,\"can_save\":false,\"building_id\":"
               << report.primaryId << ",\"building_count\":" << state.document()->buildings.size()
               << ",\"territory\":" << report.territory << ",\"refund_player\":" << report.refundPlayer
               << ",\"refund_credits\":" << report.credits << ",\"refund_materials\":";
     numbers(report.materials);
     std::cout << ",\"local_labor_balanced\":" << report.localLaborBalanced
               << ",\"roads_target_was_sentinel\":" << report.originalRoadsTargetWasSentinel
-              << ",\"deferred_build_jobs\":" << report.deferredBuildJobs << ",\"turn\":" << state.document()->options.turn << "}\n";
+              << ",\"deferred_build_jobs\":" << report.deferredBuildJobs
+              << ",\"shrine_flag_cleared\":" << report.shrineFlagCleared
+              << ",\"shrine_penalty_queued\":" << report.shrinePenaltyQueued
+              << ",\"campaign_protected\":" << report.campaignProtected
+              << ",\"explicit_campaign_context\":" << report.contextAfter.has_value()
+              << ",\"pending_shrine_count\":" << (report.contextAfter ? report.contextAfter->pendingShrines.entries.size() : 0)
+              << ",\"deferred_penalties_applied\":false,\"turn\":" << state.document()->options.turn << "}\n";
 }
 void constructionOrder(const runtime::State& state, const simulation::ConstructionOrderReport& report) {
     const auto* building = state.document()->buildingById(report.attemptedId);
@@ -282,8 +288,8 @@ void constructionOrder(const runtime::State& state, const simulation::Constructi
               << ",\"events_dispatched\":" << report.events.size() << ",\"logged_events\":" << report.logAfter.entries.size()
               << ",\"rng_operations\":" << report.rngAfter.counters.operations << ",\"turn\":" << state.document()->options.turn << "}\n";
 }
-void armyLifecycle(const runtime::State& state, const simulation::ArmyLifecycleReport& report) {
-    std::cout << std::boolalpha << "{\"stage\":\"entities_edited_in_memory\",\"complete_turn\":false,\"manufacturing_order\":false,"
+void armyLifecycle(const runtime::State& state, const simulation::ArmyLifecycleReport& report, bool localOrder=false) {
+    std::cout << std::boolalpha << "{\"stage\":\"entities_edited_in_memory\",\"complete_turn\":false,\"can_save\":false,\"manufacturing_order\":false,"
         "\"primary_id\":" << report.primaryId << ",\"created_ids\":";
     numbers(report.createdIds); std::cout << ",\"removed_ids\":"; numbers(report.removedIds);
     std::cout << ",\"army_count\":" << state.document()->armies.size()
@@ -291,7 +297,18 @@ void armyLifecycle(const runtime::State& state, const simulation::ArmyLifecycleR
               << ",\"carrier_id\":" << report.carrierId << ",\"paired_missile_id\":" << report.pairedMissileId
               << ",\"paired_missile_attempted\":" << report.pairedMissileAttempted
               << ",\"refund_count\":" << report.refunds.size() << ",\"deferred_maintain_jobs\":" << report.deferredMaintainJobs
-              << ",\"turn\":" << state.document()->options.turn << "}\n";
+              << ",\"headless_local_order\":" << localOrder << ",\"turn\":" << state.document()->options.turn << "}\n";
+}
+void demolitionOrder(const runtime::State& state, const simulation::DemolishBuildingOrderReport& report) {
+    std::cout << std::boolalpha << "{\"stage\":\"entities_edited_in_memory\",\"complete_turn\":false,\"can_save\":false,"
+        "\"headless_local_order\":true,\"cold_pending_queue\":true,\"requested_id\":" << report.requestedId
+        << ",\"primary_id\":" << report.primaryId << ",\"territory\":" << report.territory
+        << ",\"platform_redirected\":" << report.platformRedirected << ",\"sea_flags_rebuilt\":" << report.seaFlagsRebuilt
+        << ",\"removed_ids\":";
+    numbers(report.removedIds);
+    std::cout << ",\"building_count\":" << state.document()->buildings.size()
+        << ",\"pending_shrine_count\":" << report.contextAfter.pendingShrines.entries.size()
+        << ",\"deferred_penalties_applied\":false,\"turn\":" << state.document()->options.turn << "}\n";
 }
 simulation::ConstructionOrderContext coldOrderContext(const save::Document& document, uint32_t territory,
                                                        int seed, save::Error& error) {
@@ -411,6 +428,9 @@ int usage() {
                  "  dl2sim create-unit <save> <territory> <owner> <unit-type>\n"
                  "  dl2sim delete-building <save> <building-id>\n"
                  "  dl2sim demolish-building <save> <building-id> <refund-player>\n"
+                 "  dl2sim demolish-building-context <save> <building-id> <refund-player> <campaign-flags> <goal0> <goal1> <goal2>\n"
+                 "  dl2sim order-demolish-building <save> <building-id> <campaign-flags> <goal0> <goal1> <goal2>\n"
+                 "  dl2sim order-disband-unit <save> <unit-id>\n"
                  "  dl2sim start-building <save> <territory> <building-type> <site> <seed-int32>\n"
                  "  dl2sim find-site <save> <territory> <building-type> <seed-int32>\n"
                  "  dl2sim progress-buildings <save> <territory> <seed-int32>\n"
@@ -461,11 +481,11 @@ int main(int argc, char** argv) {
                             command == "economy" || command == "energy" || command == "labor" ||
                             command == "normalize-load" || command == "activate")) ||
               (argc == 4 && ((!isPlacement && !isCreation && archive) || command == "roundtrip" || command == "normalize-load-seeded" ||
-                             command == "normalize-session" || command == "production-prefix" || command == "production-phase" || command == "delete-unit" || command == "disband-unit" || command == "delete-building" || command == "reset-labor" || command == "building-toggle")) ||
+                             command == "normalize-session" || command == "production-prefix" || command == "production-phase" || command == "delete-unit" || command == "disband-unit" || command == "order-disband-unit" || command == "delete-building" || command == "reset-labor" || command == "building-toggle")) ||
               (argc == 5 && (command == "demolish-building" || command == "progress-buildings" || command == "building-lock" || command == "research-clear")) ||
               (argc == 7 && (command == "start-building" || command == "produce-units")) ||
               (argc == 6 && (command == "create-unit" || command == "find-site" || command == "queue-unit" || command == "dequeue-unit" || command == "move-labor" || command == "research-select" || command == "research-toggle")) ||
-              (argc == 8 && command == "transfer-labor") || (argc == 9 && command == "move-population") ||
+              (argc == 8 && (command == "transfer-labor" || command == "order-demolish-building")) || (argc == 9 && (command == "move-population" || command == "demolish-building-context")) ||
               ((isPlacement || isCreation) && argc == (archive ? 7 : 6)))) return usage();
         auto document = std::make_unique<save::Document>();
         save::Error error;
@@ -592,6 +612,21 @@ int main(int argc, char** argv) {
             simulation::ArmyLifecycleReport report; runtime::ArmyHandle handle;
             require(state.createArmy({uint32_t(territory), integer(argv[4]), integer(argv[5])}, {}, handle, report, error), error);
             armyLifecycle(state, report);
+        } else if (command == "order-demolish-building") {
+            const int id=integer(argv[3]);
+            if (id<=0) throw std::runtime_error("Building ID must be positive");
+            simulation::BuildingRemovalContext context;
+            context.campaignFlags=uint32_t(integer(argv[4]));
+            for (size_t slot=0;slot<3;++slot) context.campaignProgress[slot]=integer(argv[5+slot]);
+            simulation::DemolishBuildingOrderReport report;
+            require(state.orderDemolishBuilding(document->options.localPlayer,state.buildingById(uint32_t(id)),context,report,error),error);
+            demolitionOrder(state,report);
+        } else if (command == "order-disband-unit") {
+            const int id=integer(argv[3]);
+            if (id<=0) throw std::runtime_error("Unit ID must be positive");
+            simulation::ArmyLifecycleReport report;
+            require(state.orderDisbandUnit(document->options.localPlayer,state.armyById(uint32_t(id)),report,error),error);
+            armyLifecycle(state,report,true);
         } else if (command == "delete-unit" || command == "disband-unit") {
             const int id = integer(argv[3]);
             if (id <= 0) throw std::runtime_error("Unit ID must be positive");
@@ -599,13 +634,22 @@ int main(int argc, char** argv) {
             require(state.removeArmy(state.armyById(uint32_t(id)), command == "delete-unit" ? simulation::ArmyRemovalKind::DeleteUnit :
                 simulation::ArmyRemovalKind::DisbandUnit, true, report, error), error);
             armyLifecycle(state, report);
-        } else if (command == "delete-building" || command == "demolish-building") {
+        } else if (command == "delete-building" || command == "demolish-building" || command == "demolish-building-context") {
             const int id = integer(argv[3]);
             if (id <= 0) throw std::runtime_error("Building ID must be positive");
             simulation::BuildingLifecycleReport report;
-            const bool demolition = command == "demolish-building";
-            require(state.removeBuilding(state.buildingById(uint32_t(id)), demolition ? simulation::BuildingRemovalKind::DemolishBuilding :
-                simulation::BuildingRemovalKind::DeleteBuilding, demolition ? integer(argv[4]) : -1, report, error), error);
+            if (command == "demolish-building-context") {
+                simulation::BuildingRemovalContext context;
+                context.campaignFlags = uint32_t(integer(argv[5]));
+                for (size_t slot=0; slot<3; ++slot) context.campaignProgress[slot]=integer(argv[6+slot]);
+                // Explicit cold laboratory queue, NOT recovered pending actions.
+                require(state.removeBuilding(state.buildingById(uint32_t(id)), simulation::BuildingRemovalKind::DemolishBuilding,
+                    integer(argv[4]), context, report, error), error);
+            } else {
+                const bool demolition = command == "demolish-building";
+                require(state.removeBuilding(state.buildingById(uint32_t(id)), demolition ? simulation::BuildingRemovalKind::DemolishBuilding :
+                    simulation::BuildingRemovalKind::DeleteBuilding, demolition ? integer(argv[4]) : -1, report, error), error);
+            }
             buildingLifecycle(state, report);
         } else if (isCreation) {
             const int offset = archive ? 4 : 3;

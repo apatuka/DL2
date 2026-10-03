@@ -100,6 +100,12 @@ Estas reglas permiten que varios módulos se porten en paralelo y encajen sin fr
   investigación compara con DAT00559db0, no currentResearch. Las nuevas plagas
   usan bindings tipados fuera del documento; nunca convertir sus destinos en
   direcciones históricas ni ampliar los25 registros guardados a costa de Spies.
+- Demolish0044cefc sólo encola la penalización de santuario.0044b9e4 la procesa
+  después de combate00457624 y NO drena la cola; no aplicar el castigo durante
+  la orden ni conectarlo saltando combate. Conservar el slot de Player en la
+  cola y resolver su índice actual al procesar. El objetivo12 lee estado vivo
+  int32, no los bytes truncados de GameOptions. Mantenimiento no desprende
+  taskforces: modelar referencias diferidas y limpieza0040aebc, no eager detach.
 
 - Registrar cada ejecutable `tests/test_<modulo>.cpp` en `tests/CMakeLists.txt`, enlazar el target
   correspondiente y añadir `add_test`. Las comprobaciones deben seguir activas en Release/NDEBUG;

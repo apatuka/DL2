@@ -3,6 +3,7 @@
 #include "game/save_document.h"
 #include <array>
 #include <cstdint>
+#include <optional>
 #include <vector>
 
 namespace dl2::simulation {
@@ -81,6 +82,25 @@ struct BuildingRemovalRequest {
     // territory owner. Ignored by DeleteBuilding, required 0..6 by Demolish.
     int refundPlayer = -1;
 };
+//0044b8f8 stores ten pairs of Player*/Territory* in0059f104..0059f153.
+// Own typed references instead. Flush0044b9e4 reads the player's CURRENT signed
+// Player.index; therefore retain its physical slot, not an index snapshot.
+inline constexpr size_t kPendingShrineCapacity=10;
+struct PendingShrineEntry {
+    int playerSlot=-1;
+    uint32_t territory=0;
+    bool operator==(const PendingShrineEntry&) const = default;
+};
+struct PendingShrineState {
+    std::vector<PendingShrineEntry> entries; // Ordered, duplicates are meaningful.
+    bool operator==(const PendingShrineState&) const = default;
+};
+struct BuildingRemovalContext {
+    uint32_t campaignFlags=0; // Live DAT0059f100, NOT inferred from campaign number.
+    std::array<int32_t,3> campaignProgress{}; // Live mutable goal states, NOT SAV bytes.
+    PendingShrineState pendingShrines;
+    bool operator==(const BuildingRemovalContext&) const = default;
+};
 struct BuildingLifecycleReport {
     uint32_t primaryId = 0, territory = 0;
     int site = -1;
@@ -94,16 +114,30 @@ struct BuildingLifecycleReport {
     // road rebuild is fabricated; the unpersisted sentinel has no Document row.
     bool originalRoadsTargetWasSentinel = false;
     uint32_t deferredBuildJobs = 0;
+    bool shrineFlagCleared=false, shrinePenaltyQueued=false, campaignProtected=false;
+    // Present only with the explicit-context overload, even for non-shrines.
+    std::optional<BuildingRemovalContext> contextAfter;
     bool operator==(const BuildingLifecycleReport&) const = default;
 };
 // 0044cd50/0044cc40: free footprint or restore platform socket, unlink record.
 // Deleting a platform does NOT cascade to its SeaHab/other socket buildings.
 // Demolish additionally refunds paid/canonical half costs and balances local
-// labor. Shrine DEMOLISH requires an unported campaign/pending queue and fails;
+// labor. Shrine DEMOLISH requires explicit live context and this overload fails;
 // bare DeleteBuilding can remove a shrine and deliberately leaves T.flags alone.
 // Location-based minister3 jobs are preserved, counted for deferred dispatch.
 bool removeBuilding(const save::Document& source, const BuildingRemovalRequest& request,
                     save::Document& destination, BuildingLifecycleReport& report, save::Error& error);
+// Non-editor0044cefc shrine branch: clear T.flags bit0x10 BEFORE refund/delete;
+// query00450320 using live flag12 and the FIRST canonical goal12's live state;
+// append Player-slot/Territory to pending queue unless that state is nonzero.
+// Missing goal12 with flag12 set or queue overflow would use unsafe native
+// storage and is an explicit atomic error. Existing pending references must be
+// valid; no inferred/normalized campaign progress. Goal query does NOT evaluate
+// victory or modify progress. Penalties/events80/81/AI are deferred0044b9e4,
+// NOT executed here; queue is neither cleared nor deduplicated by demolition.
+bool removeBuilding(const save::Document& source, const BuildingRemovalRequest& request,
+                    const BuildingRemovalContext& context, save::Document& destination,
+                    BuildingLifecycleReport& report, save::Error& error);
 // All mutations are candidate-copy transactions (source/destination may alias).
 // Failure preserves document and report; success clears error. No globals, RNG,
 // native callback/pointer activation or I/O. Intended for EntitiesEdited only.

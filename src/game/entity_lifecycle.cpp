@@ -350,8 +350,32 @@ bool removeArmy(const save::Document& source, const ArmyRemovalRequest& request,
 } catch (const std::bad_alloc&) { error={save::ErrorCode::Limit,0,"Unit removal allocation failed"}; return false; }
   catch (const std::length_error&) { error={save::ErrorCode::Limit,0,"Unit removal exceeds limits"}; return false; }
 
-bool removeBuilding(const save::Document& source, const BuildingRemovalRequest& request,
-                    save::Document& destination, BuildingLifecycleReport& report, save::Error& error) try {
+namespace {
+bool removalContextValid(const save::Document& source,const BuildingRemovalContext& context,save::Error& error) {
+    if (context.pendingShrines.entries.size()>kPendingShrineCapacity) {
+        error={save::ErrorCode::Limit,0,"Pending shrine queue exceeds original ten-entry storage"}; return false;
+    }
+    for (const auto& entry:context.pendingShrines.entries)
+        if (entry.playerSlot<0 || entry.playerSlot>=kMaxPlayers || !source.territoryByIndex(entry.territory))
+            return fail(error,"pending shrine queue contains an invalid player slot or territory");
+    return true;
+}
+// orig:00450320 ->0044fe1c/0044febc/0044fdf0. A flag alone is not completion.
+bool shrineCampaignProtected(const save::Document& source,const BuildingRemovalContext& context,
+                             bool& protectedByCampaign,save::Error& error) {
+    protectedByCampaign=false;
+    if (!(context.campaignFlags&(1u<<12))) return true;
+    const int campaign=source.options.campaign;
+    if (campaign<0 || campaign>=data::kNumCampaigns) return fail(error,"shrine campaign query indexes outside canonical table0..42");
+    for (size_t slot=0;slot<3;++slot) if (data::kCampaigns[campaign].goals[slot].type==12) {
+        protectedByCampaign=context.campaignProgress[slot]!=0; return true;
+    }
+    // Original FindCampaignGoal returns3, then reads outside this campaign row.
+    return fail(error,"live campaign flag12 has no corresponding goal12 (original out-of-row state read)");
+}
+bool removeBuildingImpl(const save::Document& source, const BuildingRemovalRequest& request,
+                    const BuildingRemovalContext* context, save::Document& destination,
+                    BuildingLifecycleReport& report, save::Error& error) try {
     if (!sourceValid(source,error)) return false;
     const auto* found = source.buildingById(request.buildingId);
     if (!found || found->type == 0 || found->type >= data::kNumBuildingTypes)
@@ -361,8 +385,16 @@ bool removeBuilding(const save::Document& source, const BuildingRemovalRequest& 
     const bool demolish = request.kind == BuildingRemovalKind::DemolishBuilding;
     if (demolish && (request.refundPlayer < 0 || request.refundPlayer >= kMaxPlayers))
         return fail(error,"demolition requires the explicit refund player slot0..6");
-    if (demolish && found->category == 11)
-        return fail(error,"shrine demolition requires campaign-goal evaluation and the pending shrine queue");
+    if (context && !removalContextValid(source,*context,error)) return false;
+    const bool shrine=demolish && found->category==11;
+    bool protectedByCampaign=false;
+    if (shrine) {
+        if (!context) return fail(error,"shrine demolition requires explicit live campaign and pending shrine context");
+        if (!shrineCampaignProtected(source,*context,protectedByCampaign,error)) return false;
+        if (!protectedByCampaign && context->pendingShrines.entries.size()==kPendingShrineCapacity) {
+            error={save::ErrorCode::Limit,0,"Shrine demolition would overflow original ten-entry pending queue"}; return false;
+        }
+    }
     // Alloc/FreeBuilding operate on one reciprocal global active list. Dense
     // archival order need not be list order, and disconnected lists are refused.
     const Building* head = nullptr;
@@ -393,8 +425,19 @@ bool removeBuilding(const save::Document& source, const BuildingRemovalRequest& 
     BuildingLifecycleReport result;
     result.primaryId = value.id; result.territory = uint32_t(value.territory); result.site = value.site;
     result.removedIds.push_back(value.id);
+    if (context) result.contextAfter=*context;
     auto& t = candidate->territories[size_t(value.territory - 1)].data;
     if (demolish) {
+        if (shrine) {
+            //0044cefc clears this even for a campaign-protected shrine. The
+            // queued identity is the supplied Player*, not the territory owner.
+            t.flags&=~uint32_t(0x10); result.shrineFlagCleared=true;
+            result.campaignProtected=protectedByCampaign;
+            if (!protectedByCampaign) {
+                result.contextAfter->pendingShrines.entries.push_back({request.refundPlayer,uint32_t(value.territory)});
+                result.shrinePenaltyQueued=true;
+            }
+        }
         // orig: 0044cefc, costs 0044de9c/0044df30. Uncovered buildings refund
         // paid/accrued B.cost, not canonical requirements or remaining work.
         std::array<int32_t,11> costs{};
@@ -450,4 +493,14 @@ bool removeBuilding(const save::Document& source, const BuildingRemovalRequest& 
     destination = std::move(*candidate); report = std::move(result); error = {}; return true;
 } catch (const std::bad_alloc&) { error={save::ErrorCode::Limit,0,"Building removal allocation failed"}; return false; }
   catch (const std::length_error&) { error={save::ErrorCode::Limit,0,"Building removal exceeds limits"}; return false; }
+} // namespace
+bool removeBuilding(const save::Document& source,const BuildingRemovalRequest& request,
+                    save::Document& destination,BuildingLifecycleReport& report,save::Error& error) {
+    return removeBuildingImpl(source,request,nullptr,destination,report,error);
+}
+bool removeBuilding(const save::Document& source,const BuildingRemovalRequest& request,
+                    const BuildingRemovalContext& context,save::Document& destination,
+                    BuildingLifecycleReport& report,save::Error& error) {
+    return removeBuildingImpl(source,request,&context,destination,report,error);
+}
 } // namespace dl2::simulation

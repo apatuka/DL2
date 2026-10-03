@@ -319,9 +319,9 @@ en la colocación de tamaño dos: `0044d7b4` modifica bytes de carretera
 Ese módulo sigue fuera de compilación; las consultas y creación propietarias
 nuevas no lo invocan.
 
-Quedan coordinación de las fases completas de producción/turno, órdenes de UI,
-demolición de santuarios con efectos de campaña y su integración completa. No presentar las
-operaciones aisladas siguientes como un turno ni una partida exportable.
+Quedan coordinación de turno/combate, órdenes de UI y ejecución programada de
+las consecuencias diferidas. La demolición de santuarios con contexto vivo ya
+está implementada abajo. No presentar estas operaciones como una partida exportable.
 
 ## Ciclo de vida de unidades y edificios
 
@@ -344,12 +344,91 @@ capacidad, inicialización y bajas reales; no sólo el backend estructural anter
   devuelve la mitad del coste pagado o canónico, conserva SAR/narrowing y balancea
   labor. Tras FreeBuilding, el original consulta el territorio ya puesto a0:
   por ello no se inventa una reconstrucción de caminos en el territorio demolido.
-- Demolish de santuario rechaza los efectos aún ausentes de campaña/cola pendiente.
-  DeleteBuilding sin demolición sí puede retirarlo sin inventar esa secuencia.
+- Demolish de santuario exige la sobrecarga con contexto vivo de campaña/cola
+  pendiente. DeleteBuilding sin demolición sigue retirándolo sin esos efectos.
 
 Las identidades de supervivientes se conservan incluso al eliminar en cascada y
 en orden distinto al vector físico. Handles retirados/ajenos/caducados fallan.
 Las bajas no producen batallas, recompensas ni eventos externos a sus hojas.
+
+## Demolición de santuarios y órdenes individuales
+
+`BuildingRemovalContext` aporta `campaignFlags`, tres estados **int32 vivos** de
+objetivos y `PendingShrineState`. No se deducen del número de campaña ni de los
+tres bytes archivados. `removeBuilding(..., context, ...)` reproduce0044cefc:
+limpia el bit0x10 del territorio, consulta00450320 (flag12 y estado no nulo del
+primer objetivo12 canónico) y encola salvo que ese objetivo ya esté cumplido.
+La consulta no evalúa victoria ni modifica objetivos. Refund, baja, labor y
+rareza del destino de caminos siguen la secuencia anterior.
+
+La cola conserva pares **slot físico de jugador/territorio**, en orden y sin
+deduplicar; no guarda direcciones nativas. Tiene diez entradas, según el área
+0059f104..0059f153 reiniciada por0046da14/0046e730. El undécimo encolado, referencias
+inválidas o flag12 sin objetivo12 causan rollback de toda la operación. La firma
+sin contexto sigue rechazando santuarios. `BuildingLifecycleReport::contextAfter`
+contiene la continuación; `State::buildingRemovalContext()` la retiene entre
+órdenes, movimientos de State y fase económica, y rechaza rebobinarla. Una nueva
+preparación la elimina. Los handles de las entidades supervivientes no cambian.
+Una vez ligado ese contexto, investigación y fase económica deben usar el mismo
+mask vivo de campaña; un mask distinto falla antes de aplicar cambios.
+
+`entity_orders` añade dos órdenes individuales **ya confirmadas**, sin diálogos:
+
+- `orderDisbandUnit`:00419924→00475854, exige unidad del actor local humano.
+  No exige territorio propio ni añade desprendimiento taskforce: el llamador
+  original no lo hace. Los casos que dejarían referencias vivas siguen fallando.
+- `orderDemolishBuilding`:0045b094→00475a60. SeaHab39 redirige a la primera
+  plataforma por categoría20; plataforma38 retira los ocupantes de sockets
+  −22,−8,−12,+2,−10 y luego la propia plataforma. Cada retirada conserva sus
+  refunds y balance; un fallo tardío revierte **toda** la orden. Después ejecuta
+  realmente0046f0e0(0), incluso en tierra: reconstruye seis bytes marinos por
+  territorio usando edificios43/44, adyacencias y unidades, sin RNG.
+
+Ambas aplican la política de comando actor local/type1/índice coincidente.
+Demolición requiere visibilidad4 original y añade propiedad local como política
+defensiva explícita frente a visibilidad obsoleta. El refund utiliza al dueño,
+no un jugador elegido por el llamador. No implementan Alt/multiselección ni el
+botón separado «demoler todo». `State` y CLI las integran en `EntitiesEdited`.
+
+Los flags marinos usan **cualquier** palabra `relations` no nula cuando hay
+alianzas, no un bit específico de pacto. El vecino neutral owner−1 lee los cuatro
+bytes de Player+0x276 (dentro del último ministro), conforme0044134c. Adyacencias
+que leen territorio0 o filas no representadas se rechazan sin fabricar su estado.
+
+### Consecuencias diferidas, aún sin programador de turno
+
+`processPendingShrineConsequences` porta0044b9e4→0044b924 como operación aislada.
+Resuelve el `Player.index` **actual** del slot encolado, emite80 a ese índice y81
+a los otros seis slots, conserva payload/orden y ejecuta log/reacciones IA reales.
+Luego aplica moral−20 con mínimo0 a sus territorios y aumenta `scores.nukesUsed`
+con wrap de byte. Comparte una continuación explícita de log/IA/RNG/ciudades;
+un fallo de formato o una rama IA aún ausente revierte todas las consecuencias.
+
+El original no drena la cola en0044b9e4: `pendingAfter` queda idéntica. Repetir
+manualmente la hoja repite los castigos; no hay un «consumido» ficticio. El
+sentinel0 no pertenece al documento y no se inventan efectos sobre él.
+**No se conecta automáticamente después de la economía**: WinMain intercala
+combate00457624 antes de esta llamada. Falta ese programador; tampoco se expone
+una ruta State/CLI para saltárselo y exportar un turno parcial.
+
+La auditoría de bajas confirma otro pendiente: mantenimiento0046b3dc no desprende
+taskforces antes de DisbandUnit. El original conserva referencias al slot retirado
+hasta `0040aebc`, llamado por IA/guardado; comprueba ID/owner y limpia sólo entonces.
+Hacen falta referencias diferidas propietarias y esa limpieza en sus puntos reales.
+Activar `detachTaskForces` automáticamente en mantenimiento alteraría la semántica.
+
+Ejemplos CLI (sólo memoria, sin destino SAV):
+
+```powershell
+.\build-verified\src\dl2sim.exe order-disband-unit "C:\GOG Games\Deadlock 2\TUTORIAL.SAV" 10243
+.\build-verified\src\dl2sim.exe order-demolish-building "C:\GOG Games\Deadlock 2\TUTORIAL.SAV" 10241 0 0 0 0
+.\build-verified\src\dl2sim.exe demolish-building-context "C:\GOG Games\Deadlock 2\TUTORIAL.SAV" 10244 0 0 0 0 0
+```
+
+Los cuatro últimos argumentos son flags y tres estados vivos de objetivo, todos
+explícitos; la cola inicial de estos experimentos es vacía. El tercer comando
+es la hoja de laboratorio con jugador de refund explícito, **no** permiso local
+para demoler edificios ajenos. Ninguno aplica todavía el castigo diferido.
 
 ## Costes, importación y comienzo de obra
 

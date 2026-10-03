@@ -97,7 +97,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools/build.ps1 -BuildDir bu
 ```
 
 El hito de serialización pasó 8/8, el del inspector 15/15 y el de preparación/fiscalidad 18/18.
-La suite actual, incluidas las órdenes locales y la fase económica hasta balance final, pasa **57/57 sin omisiones**, tanto
+La suite actual, incluidas las órdenes locales, santuarios y la fase económica hasta balance final, pasa **60/60 sin omisiones**, tanto
 en `build-verified` como con AddressSanitizer en `build-save-asan`. Incluye 46
 capturas exactas, entidades/emplazamientos y experimentos económicos, además de
 RNG propietario, tablas compartidas y carga parcial: 46 documentos normalizados,
@@ -109,6 +109,10 @@ sobre cuatro partidas originales de sólo lectura y estados sintéticos de orden
 abastecimiento, financiación, bajas, continuaciones y rollback tardío.
 Las órdenes económicas añaden cinco suites para labor, población, investigación,
 actividad/locks e integración de decisiones→fase, además de cobertura CLI sin exportación.
+EST-04c añade tres suites de demolición de santuarios, bajas individuales y
+penalizaciones diferidas, incluyendo cascadas de plataforma, flags marinos,
+campaña viva y continuidad propietaria. Sigue parcial por coordinación del turno,
+referencias IA diferidas y controles gráficos; véase `docs/ENTITY_RUNTIME.md`.
 No acredita carga jugable ni turno completo. Alcance y evidencia en `docs/RECOVERY.md`.
 El script armoniza la codificación de consola para que Ninja detecte las cabeceras con MSVC
 localizado. Si una caché antigua muestra cientos de líneas `Nota: inclusión del archivo`,

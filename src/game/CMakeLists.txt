@@ -31,6 +31,8 @@ set(GAME_SOURCES
     load_startup.cpp
     ai_session.cpp
     entity_lifecycle.cpp
+    entity_orders.cpp
+    shrine_consequences.cpp
     load_world_presentation.cpp
     construction_payment.cpp
     load_shrine_events.cpp

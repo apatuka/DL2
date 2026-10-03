@@ -281,6 +281,7 @@ State& State::operator=(State&& other) noexcept {
         collection_ = std::move(other.collection_); other.collection_.reset();
         eventCities_ = std::move(other.eventCities_); other.eventCities_.reset();
         populationEvents_ = std::move(other.populationEvents_); other.populationEvents_.reset();
+        buildingRemoval_ = std::move(other.buildingRemoval_); other.buildingRemoval_.reset();
         other.graph_ = {};
         other.buildingSlots_.clear(); other.armySlots_.clear();
         other.buildingDenseSlots_.clear(); other.armyDenseSlots_.clear();
@@ -318,6 +319,7 @@ bool State::copyForEdit(State& candidate, save::Error& error) const {
     candidate.collection_ = collection_;
     candidate.eventCities_ = eventCities_;
     candidate.populationEvents_ = populationEvents_;
+    candidate.buildingRemoval_ = buildingRemoval_;
     return true;
 }
 
@@ -833,6 +835,8 @@ bool State::movePopulation(int actor,const simulation::PopulationMoveRequest& re
 bool State::orderResearch(const simulation::ResearchOrderRequest& request,const simulation::ResearchOrderContext& context,
     simulation::ResearchOrderReport& report,save::Error& error) {
     return applyEconomicOrder(request.actor,0,[&](State& c,auto& r,bool& changed,save::Error& e) {
+        if(c.buildingRemoval_ && c.buildingRemoval_->campaignFlags!=context.campaignFlags)
+            return fail(e,save::ErrorCode::InvalidState,"Research campaign flags differ from the owned shrine continuation");
         if(!simulation::applyResearchOrder(*c.document_,request,context,*c.document_,r,e)) return false;
         changed=r.accepted;
         // localList has no Graph handles. Do not retire production queue nodes
@@ -850,6 +854,10 @@ bool State::queueUnit(const simulation::QueueUnitRequest& request,
 template<class Context, class Report>
 bool State::applyEconomic(const Context& context, Report& report, save::Error& error) {
     return guarded([&] {
+        if constexpr (std::is_same_v<Report, simulation::EconomicPhaseReport>) {
+            if (buildingRemoval_ && buildingRemoval_->campaignFlags != context.campaignFlags)
+                return fail(error, save::ErrorCode::InvalidState, "Economic campaign flags differ from the owned shrine continuation");
+        }
         const auto& effects = context.effects;
         if ((rng_.snapshot().initialized && effects.events.rngBeforeEvents != rng_.snapshot()) ||
             (aiReaction_ && effects.ai != *aiReaction_) || (events_ && effects.log != *events_) ||
@@ -1005,16 +1013,84 @@ bool State::removeArmy(ArmyHandle handle, simulation::ArmyRemovalKind kind, bool
     }, error);
 }
 
+bool State::orderDisbandUnit(int actor, ArmyHandle handle,
+                            simulation::ArmyLifecycleReport& report, save::Error& error) {
+    return guarded([&] {
+        const auto* value = army(handle);
+        if (!value) return fail(error, save::ErrorCode::InvalidState, "Disband order received a null, stale or foreign handle");
+        State candidate;
+        if (!copyForEdit(candidate, error)) return false;
+        simulation::ArmyLifecycleReport result;
+        if (!simulation::orderDisbandUnit(*candidate.document_, {actor, value->id},
+                                         *candidate.document_, result, error)) return false;
+        size_t removed = 0;
+        for (size_t i = document_->armies.size(); i-- > 0; ) {
+            if (!candidate.document_->armyById(document_->armies[i].id)) {
+                retireSlot(candidate.armySlots_, candidate.armyDenseSlots_, uint32_t(i)); ++removed;
+            }
+        }
+        if (removed != result.removedIds.size() || candidate.document_->armies.size() + removed != document_->armies.size())
+            return fail(error, save::ErrorCode::InvalidState, "Disband order report differs from retired records");
+        if (!finishEdit(std::move(candidate), error)) return false;
+        report = std::move(result); return true;
+    }, error);
+}
+bool State::orderDemolishBuilding(int actor, BuildingHandle handle,
+                                 const simulation::BuildingRemovalContext& context,
+                                 simulation::DemolishBuildingOrderReport& report, save::Error& error) {
+    return guarded([&] {
+        const auto* value = building(handle);
+        if (!value) return fail(error, save::ErrorCode::InvalidState, "Demolition order received a null, stale or foreign handle");
+        State candidate;
+        if (!copyForEdit(candidate, error)) return false;
+        if (candidate.buildingRemoval_ && context != *candidate.buildingRemoval_)
+            return fail(error, save::ErrorCode::InvalidState, "Demolition order requires the owned campaign/pending-shrine continuation");
+        simulation::DemolishBuildingOrderReport result;
+        if (!simulation::orderDemolishBuilding(*candidate.document_, {actor, value->id}, context,
+                                               *candidate.document_, result, error)) return false;
+        candidate.buildingRemoval_ = result.contextAfter;
+        size_t removed = 0;
+        for (size_t i = document_->buildings.size(); i-- > 0; ) {
+            if (!candidate.document_->buildingById(document_->buildings[i].id)) {
+                retireSlot(candidate.buildingSlots_, candidate.buildingDenseSlots_, uint32_t(i)); ++removed;
+            }
+        }
+        if (removed != result.removedIds.size() || candidate.document_->buildings.size() + removed != document_->buildings.size())
+            return fail(error, save::ErrorCode::InvalidState, "Demolition order report differs from retired records");
+        if (!finishEdit(std::move(candidate), error)) return false;
+        report = std::move(result); return true;
+    }, error);
+}
+
 bool State::removeBuilding(BuildingHandle handle, simulation::BuildingRemovalKind kind, int refundPlayer,
                            simulation::BuildingLifecycleReport& report, save::Error& error) {
+    return applyBuildingRemoval(handle, kind, refundPlayer, nullptr, report, error);
+}
+bool State::removeBuilding(BuildingHandle handle, simulation::BuildingRemovalKind kind, int refundPlayer,
+                           const simulation::BuildingRemovalContext& context,
+                           simulation::BuildingLifecycleReport& report, save::Error& error) {
+    return applyBuildingRemoval(handle, kind, refundPlayer, &context, report, error);
+}
+bool State::applyBuildingRemoval(BuildingHandle handle, simulation::BuildingRemovalKind kind, int refundPlayer,
+                                const simulation::BuildingRemovalContext* context,
+                                simulation::BuildingLifecycleReport& report, save::Error& error) {
     return guarded([&] {
         const auto* value = building(handle);
         if (!value) return fail(error, save::ErrorCode::InvalidState, "Building removal received a null, stale or foreign handle");
         State candidate;
         if (!copyForEdit(candidate, error)) return false;
+        if (context && candidate.buildingRemoval_ && *context != *candidate.buildingRemoval_)
+            return fail(error, save::ErrorCode::InvalidState, "Building removal requires the owned campaign/pending-shrine continuation");
         simulation::BuildingLifecycleReport result;
-        if (!simulation::removeBuilding(*candidate.document_, {value->id, kind, refundPlayer},
-                                       *candidate.document_, result, error)) return false;
+        const simulation::BuildingRemovalRequest request{value->id, kind, refundPlayer};
+        if (context) {
+            if (!simulation::removeBuilding(*candidate.document_, request, *context,
+                                           *candidate.document_, result, error)) return false;
+            if (!result.contextAfter)
+                return fail(error, save::ErrorCode::InvalidState, "Building removal lost its explicit shrine context");
+            candidate.buildingRemoval_ = *result.contextAfter;
+        } else if (!simulation::removeBuilding(*candidate.document_, request,
+                                              *candidate.document_, result, error)) return false;
         size_t removed = 0;
         for (size_t i = document_->buildings.size(); i-- > 0; ) {
             if (!candidate.document_->buildingById(document_->buildings[i].id)) {

@@ -27,6 +27,74 @@ colas, tareas ni eventos. **Sumar sus outputs no implementa producción**: los
 outputs de tareas tienen significados distintos, y aplicarlos exige construcción,
 logística, creación de unidades, investigación, eventos y otras reglas.
 
+## Órdenes económicas locales — 2026-10-02
+
+`State::transferLabor`, `moveLabor`, `resetLabor`, `controlBuilding`,
+`movePopulation` y `orderResearch` operan desde `Prepared`/`EntitiesEdited`.
+Exigen actor local humano (`type1`, `Player.index` igual al slot); las órdenes
+territoriales también exigen propiedad. Es una frontera deliberada del comando,
+no una condición atribuida a todos los setters internos del original.
+Sus resultados alimentan `runEconomicPhase`; no abren ventanas ni habilitan
+turno completo, guardado reanudable o edición tras una fase terminal.
+
+- Labor: transferencia explícita entre ranuras0..4, movimiento automático de
+  un trabajador y reinicio a vivienda, con las prioridades, empates, locks y
+  efectos parciales originales. No se confunden ranuras con IDs de tareas.
+  Se comparte `adjustBuildingLabor` con el traslado de población.
+- Edificios: cuerpo headless de activación0041d2bc y bloqueo0041d834, setters
+  0044c3fc/0044c44c y balance real. Desactivar borra locks y solicita trasladar
+  la labor a vivienda, luego hace narrowing firmado16. Una vivienda puede
+  transferir a su propia ranura: éxito no significa necesariamente trabajador
+  retirado. No se ejecutan el cierre de ventana ni sus efectos independientes.
+- Población:0046ae9c/00476448, coste y moral con wrap/narrowing originales,
+  capacidad/vivienda, ajuste laboral y balances. Se conservan importes negativos
+  del dominio nativo. El caso de edificio fuente ausente devuelve falso DESPUÉS
+  de pago/población/plaga; esos efectos se publican, no se descartan como rechazo.
+- Investigación: borrador deduplicado004839e4, toggle0043cc5c, clear0043cb7c,
+  poda00483b84 y commit0043cbf8/00483a10. `Select` es una comodidad explícita
+  que reemplaza el borrador por una tecnología permitida contra cola vacía;
+  un clic rechazado no confirma el borrador. El commit compara con el valor
+  vivo **`DAT00559db0` proporcionado por el llamador**, no con currentResearch.
+  La máscara viva de campaña también es explícita. Compartir reglas de cola
+  con `research_phase` evita predicados incompatibles.
+
+Las hojas de investigación internas incluyen el setter de byte0048424c, el
+selector00483cbc y autoResearchLocal0046f804. El selector por defecto conserva
+la primera tecnología disponible aunque sea conocida/prohibida; sólo el fallback
+47 aplica los filtros originales. AutoResearch sigue su guard exacto y no es
+planificación IA0040cea4. Estas hojas no añaden progreso, eventos ni RNG.
+
+La plaga0047ca98 usa un array nativo de50, pero el documento posee25 registros;
+si se llenan, se rechaza atómicamente antes de invadir el bloque Spies. Una nueva
+plaga conserva los campos originales salvo `event+04`, neutralizado a0: su destino
+vive en `PopulationEventBindings`. Los punteros históricos ya guardados permanecen
+opacos. State conserva este sidecar y exige igualdad en la continuación; no se
+presenta como codificación SAV equivalente ni como ejecución de la plaga.
+
+Errores de API revierten documento, informe, handles y metadatos. Rechazos
+ordinarios sin cambios mantienen el estado anterior; una orden aceptada o un
+retorno falso con efectos pasa a `EntitiesEdited`. Las colas de investigación
+no invalidan los handles de nodos de producción. Índices inseguros, divisiones
+que atrapan, búsquedas sin progreso y bucles de más de un millón de operaciones
+se rechazan explícitamente, sin inventar resultados.
+
+Ejemplos sobre TUTORIAL.SAV, cada uno desde una preparación nueva en memoria:
+
+```powershell
+build-verified/src/dl2sim transfer-labor "C:/GOG Games/Deadlock 2/TUTORIAL.SAV" 14 10242 1 10241 1
+build-verified/src/dl2sim reset-labor "C:/GOG Games/Deadlock 2/TUTORIAL.SAV" 14
+build-verified/src/dl2sim building-toggle "C:/GOG Games/Deadlock 2/TUTORIAL.SAV" 10242
+build-verified/src/dl2sim building-lock "C:/GOG Games/Deadlock 2/TUTORIAL.SAV" 10242 1
+build-verified/src/dl2sim research-clear "C:/GOG Games/Deadlock 2/TUTORIAL.SAV" 0 -1
+```
+
+`research-select/research-toggle` añaden tecnología1..47 antes de flags/comparación.
+`move-labor` recibe territorio, edificio origen y destino. `move-population`
+recibe origen, destino, cantidad, modo, sitio fuente y ranura (`-1` como sentinel).
+El CLI declara bindings fríos de plaga, no recupera direcciones de una sesión
+histórica y publica `can_save:false`/`complete_turn:false`. Los controles y
+órdenes aún no están conectados a la interfaz gráfica del inspector.
+
 ## Producción consultiva
 
 Las fuentes principales son `FUN_0044eb4c` (TaskOutputs), `FUN_0044eeb4`

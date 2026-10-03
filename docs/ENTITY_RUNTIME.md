@@ -9,6 +9,13 @@ trabajadores, huellas y caminos, pero no es una orden pagada de construcción.
 
 ## Identidad y vida de las referencias
 
+Las órdenes locales económicas (`transferLabor`/`moveLabor`/`resetLabor`,
+`controlBuilding`, `movePopulation`, `orderResearch`) preservan las identidades
+de entidades y los nodos de colas de producción. La lista local de investigación
+no posee esos handles: reemplazarla no retira nodos de fabricación. Sus cambios
+son transaccionales y se encadenan antes de `runEconomicPhase`; el sidecar de
+destinos de plaga sobrevive a esas operaciones. Véase [ECONOMY_LAB.md](ECONOMY_LAB.md).
+
 La secuencia económica ahora también alcanza crecimiento/moral/investigación,
 disturbios y balance final (`State::runEconomicPhase`). Usa la misma reconciliación
 de altas/bajas que el prefijo: sobreviven identidades existentes y una unidad

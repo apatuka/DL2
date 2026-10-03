@@ -16,6 +16,20 @@ Esto no equivale a activar completamente `LoadGame` ni a ejecutar un turno.
 No hay incremento ficticio del contador de turno ni éxito silencioso para las
 fases aún ausentes. El inspector gráfico sigue siendo de sólo lectura.
 
+Las órdenes locales de labor, actividad/locks de edificios, población e
+investigación ya pueden encadenarse antes de la fase económica. Se aplican con
+actor/propietario explícitos y transacción. Los rechazos sin efectos mantienen
+`Prepared`; los efectos reales, incluso con retorno nativo falso, se conservan
+en `EntitiesEdited`. Las órdenes aceptadas también entran en esa etapa aunque
+el resultado sea idéntico. No retiran handles de entidades ni confunden la cola
+de investigación con las colas de producción.
+
+`populationEvents()` expone bindings propietarios de plagas nuevas. Sobreviven
+a otras órdenes, fase económica y movimiento de State; una nueva preparación
+los descarta. La siguiente orden de población debe aportar la misma continuación.
+Los punteros históricos no se reinterpretan y este estado no es exportable.
+Contrato y comandos en [ECONOMY_LAB.md](ECONOMY_LAB.md).
+
 Los lotes EST añaden `normalizeLoad`: núcleo offline con migraciones antiguas y
 metadatos de IA, continentes/caminos/santuarios, visibilidad/inteligencia, balance
 laboral y RNG propietario. Eventos y timer admiten contexto previo explícito;

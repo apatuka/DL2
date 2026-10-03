@@ -93,6 +93,14 @@ Estas reglas permiten que varios módulos se porten en paralelo y encajen sin fr
 
 ## Tests
 
+- Separar el resultado nativo de una orden de su éxito de API. MoveLabor y
+  MovePopulation pueden devolver falso después de mutar; publicar esos efectos
+  documentados. Sólo un error de dominio/implementación revierte la transacción.
+- Los contextos vivos no se deducen por similitud de campos: el commit de
+  investigación compara con DAT00559db0, no currentResearch. Las nuevas plagas
+  usan bindings tipados fuera del documento; nunca convertir sus destinos en
+  direcciones históricas ni ampliar los25 registros guardados a costa de Spies.
+
 - Registrar cada ejecutable `tests/test_<modulo>.cpp` en `tests/CMakeLists.txt`, enlazar el target
   correspondiente y añadir `add_test`. Las comprobaciones deben seguir activas en Release/NDEBUG;
   no depender de `assert` para los criterios de aceptación.
@@ -128,3 +136,7 @@ Coordinar un único build por directorio cuando haya agentes trabajando en paral
 No configurar/compilar simultáneamente sobre la misma caché. Si se acuerda un target
 individual, usar `cmake --build build --target <target>` desde una terminal que ya tenga
 el entorno MSVC; el script prepara su propio proceso, no modifica la terminal padre.
+Para AddressSanitizer ejecutar también las pruebas con `tools/build.ps1 -Test`:
+el runtime `clang_rt.asan_dynamic-x86_64.dll` necesita el PATH de Visual Studio.
+Invocar CTest fuera de ese entorno puede bloquear el cargador antes de la primera
+prueba, sin salida ni consumo de CPU; no confundirlo con un fallo de simulación.

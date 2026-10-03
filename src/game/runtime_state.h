@@ -26,6 +26,10 @@
 #include "game/unit_manufacturing.h"
 #include "game/economic_prefix.h"
 #include "game/economic_phase.h"
+#include "game/colony_labor_orders.h"
+#include "game/population_orders.h"
+#include "game/research_orders.h"
+#include "game/building_orders.h"
 
 namespace dl2::runtime {
 template<class Tag> struct Handle {
@@ -195,6 +199,22 @@ public:
     const simulation::AiReactionContext* aiReactionContext() const { return aiReaction_ ? &*aiReaction_ : nullptr; }
     const simulation::ResourceCollectionState* resourceCollection() const { return collection_ ? &*collection_ : nullptr; }
     const std::array<int32_t, kMaxPlayers>* eventCities() const { return eventCities_ ? &*eventCities_ : nullptr; }
+    const simulation::PopulationEventBindings* populationEvents() const { return populationEvents_ ? &*populationEvents_ : nullptr; }
+    // Explicit local-human economic orders. Prepared/EntitiesEdited only; real
+    // changes enter EntitiesEdited and may feed runEconomicPhase. Ordinary
+    // unchanged denials keep the previous stage; native-false partial effects
+    // (where documented by the original) DO commit and are exposed in reports.
+    // No event RNG draw, UI activation, full turn or resumable export.
+    bool transferLabor(int actor,const simulation::LaborTransferRequest&,
+        simulation::ColonyLaborOrderReport&,save::Error&);
+    bool moveLabor(int actor,const simulation::LaborMoveRequest&,
+        simulation::ColonyLaborOrderReport&,save::Error&);
+    bool resetLabor(int actor,uint32_t territory,simulation::ColonyLaborOrderReport&,save::Error&);
+    bool controlBuilding(const simulation::BuildingControlRequest&,simulation::BuildingControlReport&,save::Error&);
+    bool movePopulation(int actor,const simulation::PopulationMoveRequest&,
+        const simulation::PopulationMoveContext&,simulation::PopulationMoveReport&,save::Error&);
+    bool orderResearch(const simulation::ResearchOrderRequest&,const simulation::ResearchOrderContext&,
+        simulation::ResearchOrderReport&,save::Error&);
     // Explicit isolated AI reactions, not RunAITurns. First call requires the
     // real external transient context; subsequent calls must match its owned
     // continuation (queue, masks, RNG). No hidden rewind or empty-queue reset.
@@ -299,6 +319,8 @@ private:
         simulation::UnitManufacturingReport& report, save::Error& error);
     template<class Context, class Report> bool applyEconomic(const Context& context,
         Report& report, save::Error& error);
+    template<class Report,class Operation> bool applyEconomicOrder(int actor,uint32_t territory,
+        Operation operation,Report& report,save::Error& error);
     std::unique_ptr<save::Document> document_;
     Graph graph_;
     simulation::SessionRng rng_;
@@ -313,6 +335,7 @@ private:
     std::optional<simulation::AiReactionContext> aiReaction_;
     std::optional<simulation::ResourceCollectionState> collection_;
     std::optional<std::array<int32_t, kMaxPlayers>> eventCities_;
+    std::optional<simulation::PopulationEventBindings> populationEvents_;
     Stage stage_ = Stage::Empty;
 };
 // All returned pointers and Graph references are borrowed until the next

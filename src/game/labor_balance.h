@@ -96,4 +96,30 @@ bool distributeBuildingLabor(const save::Document& source, uint32_t buildingId, 
 bool moveBuildingLaborToHousing(const save::Document& source, uint32_t buildingId, int slot,
                                 save::Document& destination, bool& moved, save::Error& error);
 
+//0044bddc. Native false is an evaluated outcome, NOT an API error: prior slot
+// removals or the positive-delta energy activation may already have happened.
+// Zero delta returns native false. Source==destination is supported; API errors
+// preserve both destination and nativeResult. Selectors use live tasks/queues.
+bool adjustBuildingLabor(const save::Document& source, uint32_t buildingId, int32_t delta,
+                         save::Document& destination, bool& nativeResult, save::Error& error);
+
+enum class LaborMoveDenial {
+    None, SourceEmpty, DestinationFull, SourceLockedOrEmpty,
+    DestinationLockedOrTaskless, SourceAdjustmentFailed, DestinationAdjustmentFailed
+};
+struct LaborMoveResult {
+    bool accepted = false;
+    LaborMoveDenial denial = LaborMoveDenial::None;
+    bool operator==(const LaborMoveResult&) const = default;
+};
+// Low-level leaves. No ownership authorization, task refresh, balance, UI or RNG.
+// References/slots must be safe; capacity uses MaxLabor, NOT ActiveMaxLabor.
+bool transferBuildingLabor(const save::Document&, uint32_t from, int fromSlot,
+                           uint32_t to, int toSlot, save::Document&,
+                           LaborMoveResult&, save::Error&); //0044c320
+bool moveOneBuildingLabor(const save::Document&, uint32_t from, uint32_t to,
+                          save::Document&, LaborMoveResult&, save::Error&); //0044c2c0
+bool resetTerritoryLabor(const save::Document&, uint32_t territory,
+                         save::Document&, save::Error&); //0044bacc, then BalanceLabor
+
 } // namespace dl2::simulation

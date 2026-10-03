@@ -280,6 +280,7 @@ State& State::operator=(State&& other) noexcept {
         aiReaction_ = std::move(other.aiReaction_); other.aiReaction_.reset();
         collection_ = std::move(other.collection_); other.collection_.reset();
         eventCities_ = std::move(other.eventCities_); other.eventCities_.reset();
+        populationEvents_ = std::move(other.populationEvents_); other.populationEvents_.reset();
         other.graph_ = {};
         other.buildingSlots_.clear(); other.armySlots_.clear();
         other.buildingDenseSlots_.clear(); other.armyDenseSlots_.clear();
@@ -316,6 +317,7 @@ bool State::copyForEdit(State& candidate, save::Error& error) const {
     candidate.world_ = world_; candidate.ai_ = ai_; candidate.aiReaction_ = aiReaction_;
     candidate.collection_ = collection_;
     candidate.eventCities_ = eventCities_;
+    candidate.populationEvents_ = populationEvents_;
     return true;
 }
 
@@ -771,6 +773,72 @@ template<class Request> bool State::applyManufacturing(const Request& request,
         if (!finishEdit(std::move(candidate), error, result.queueStructureChanged)) return false;
         report = std::move(result); return true;
     }, error);
+}
+
+template<class Report,class Operation>
+bool State::applyEconomicOrder(int actor,uint32_t territory,Operation operation,Report& report,save::Error& error) {
+    return guarded([&] {
+        State candidate;
+        if(!copyForEdit(candidate,error)) return false;
+        const auto& d=*candidate.document_;
+        if(actor<0 || actor>=kMaxPlayers || actor!=d.options.localPlayer ||
+           d.players[size_t(actor)].type!=1 || d.players[size_t(actor)].index!=actor)
+            return fail(error,save::ErrorCode::InvalidState,"Economic order requires the matching local human actor");
+        if(territory && (!d.territoryByIndex(territory) || d.territories[territory-1].data.owner!=actor))
+            return fail(error,save::ErrorCode::InvalidState,"Economic order requires a colony owned by its local actor");
+        Report result; bool changed=false;
+        if(!operation(candidate,result,changed,error)) return false;
+        if(changed && !finishEdit(std::move(candidate),error)) return false;
+        report=std::move(result); error={}; return true;
+    },error);
+}
+bool State::transferLabor(int actor,const simulation::LaborTransferRequest& request,
+    simulation::ColonyLaborOrderReport& report,save::Error& error) {
+    return applyEconomicOrder(actor,request.territory,[&](State& c,auto& r,bool& changed,save::Error& e) {
+        if(!simulation::transferColonyLabor(*c.document_,request,*c.document_,r,e)) return false;
+        changed=r.accepted || !r.buildings.empty() || r.moraleBefore!=r.moraleAfter; return true;
+    },report,error);
+}
+bool State::moveLabor(int actor,const simulation::LaborMoveRequest& request,
+    simulation::ColonyLaborOrderReport& report,save::Error& error) {
+    return applyEconomicOrder(actor,request.territory,[&](State& c,auto& r,bool& changed,save::Error& e) {
+        if(!simulation::moveColonyLabor(*c.document_,request,*c.document_,r,e)) return false;
+        changed=r.accepted || !r.buildings.empty() || r.moraleBefore!=r.moraleAfter; return true;
+    },report,error);
+}
+bool State::resetLabor(int actor,uint32_t territory,simulation::ColonyLaborOrderReport& report,save::Error& error) {
+    return applyEconomicOrder(actor,territory,[&](State& c,auto& r,bool& changed,save::Error& e) {
+        if(!simulation::resetColonyLabor(*c.document_,territory,*c.document_,r,e)) return false;
+        changed=r.accepted || !r.buildings.empty() || r.moraleBefore!=r.moraleAfter; return true;
+    },report,error);
+}
+bool State::controlBuilding(const simulation::BuildingControlRequest& request,
+    simulation::BuildingControlReport& report,save::Error& error) {
+    return applyEconomicOrder(request.actor,0,[&](State& c,auto& r,bool& changed,save::Error& e) {
+        if(!simulation::applyBuildingControl(*c.document_,request,*c.document_,r,e)) return false;
+        changed=r.accepted; return true;
+    },report,error);
+}
+bool State::movePopulation(int actor,const simulation::PopulationMoveRequest& request,
+    const simulation::PopulationMoveContext& context,simulation::PopulationMoveReport& report,save::Error& error) {
+    return applyEconomicOrder(actor,request.from,[&](State& c,auto& r,bool& changed,save::Error& e) {
+        if(c.populationEvents_ && *c.populationEvents_!=context.bindings)
+            return fail(e,save::ErrorCode::InvalidState,"Population event bindings differ from the owned continuation");
+        if(!simulation::commandMovePopulation(*c.document_,actor,request,context,*c.document_,r,e)) return false;
+        changed=r.nativeResult || r.before!=r.after || r.scheduledPlague.has_value() || r.adjustedLabor || !r.balancedTerritories.empty();
+        if(changed) c.populationEvents_=r.bindingsAfter;
+        return true;
+    },report,error);
+}
+bool State::orderResearch(const simulation::ResearchOrderRequest& request,const simulation::ResearchOrderContext& context,
+    simulation::ResearchOrderReport& report,save::Error& error) {
+    return applyEconomicOrder(request.actor,0,[&](State& c,auto& r,bool& changed,save::Error& e) {
+        if(!simulation::applyResearchOrder(*c.document_,request,context,*c.document_,r,e)) return false;
+        changed=r.accepted;
+        // localList has no Graph handles. Do not retire production queue nodes
+        // just because the research dialog replaces its own logical list.
+        return true;
+    },report,error);
 }
 
 bool State::queueUnit(const simulation::QueueUnitRequest& request,

@@ -89,6 +89,67 @@ void laborSnapshot(const simulation::BuildingLaborState& state) {
     std::cout << "{\"flags\":" << state.flags << ",\"tasks\":";
     numbers(state.tasks); std::cout << ",\"labor\":"; numbers(state.labor); std::cout << "}";
 }
+void orderHeader(const runtime::State& state) {
+    std::cout << std::boolalpha << "{\"stage\":\""
+              << (state.stage()==runtime::Stage::Prepared ? "prepared" : "entities_edited_in_memory")
+              << "\",\"complete_turn\":false,\"can_save\":false,\"headless_order\":true,\"turn\":"
+              << state.document()->options.turn;
+}
+void laborChanges(const std::vector<simulation::BuildingLaborChange>& changes) {
+    std::cout << ",\"buildings\":[";
+    for(size_t i=0;i<changes.size();++i) {
+        const auto& b=changes[i];
+        std::cout << (i ? "," : "") << "{\"id\":" << b.buildingId << ",\"territory\":" << b.territory
+                  << ",\"before\":";
+        laborSnapshot(b.before); std::cout << ",\"after\":"; laborSnapshot(b.after); std::cout << "}";
+    }
+    std::cout << "]";
+}
+void laborOrder(const runtime::State& state,const simulation::ColonyLaborOrderReport& r) {
+    orderHeader(state);
+    std::cout << ",\"accepted\":" << r.accepted << ",\"denial_code\":" << int(r.denial)
+              << ",\"territory\":" << r.territory << ",\"morale_before\":" << int(r.moraleBefore)
+              << ",\"morale_after\":" << int(r.moraleAfter);
+    laborChanges(r.buildings); std::cout << "}\n";
+}
+void buildingOrder(const runtime::State& state,const simulation::BuildingControlReport& r) {
+    orderHeader(state);
+    std::cout << ",\"accepted\":" << r.accepted << ",\"denial\":\"" << simulation::buildingControlDenialName(r.denial)
+              << "\",\"building\":" << r.building << ",\"flags_before\":" << r.flagsBefore
+              << ",\"flags_after\":" << r.flagsAfter << ",\"housing_attempts\":" << r.housingAttempts
+              << ",\"housing_transfers\":" << r.housingTransfers;
+    laborChanges(r.buildings); std::cout << "}\n";
+}
+void populationSnapshot(const simulation::PopulationMoveState& s) {
+    std::cout << "{\"credits\":" << s.credits << ",\"from_population\":" << s.fromPopulation
+              << ",\"to_population\":" << s.toPopulation << ",\"from_morale\":" << int(s.fromMorale)
+              << ",\"to_morale\":" << int(s.toMorale) << "}";
+}
+void populationOrder(const runtime::State& state,const simulation::PopulationMoveReport& r) {
+    orderHeader(state);
+    std::cout << ",\"native_result\":" << r.nativeResult << ",\"denial_code\":" << int(r.denial)
+              << ",\"cold_plague_bindings\":true,\"fee\":" << r.fee << ",\"capacity\":" << r.capacity
+              << ",\"before\":";
+    populationSnapshot(r.before); std::cout << ",\"after\":"; populationSnapshot(r.after);
+    std::cout << ",\"plague_attempted\":" << r.plagueAttempted << ",\"scheduled_plague\":";
+    if(r.scheduledPlague) std::cout << "{\"slot\":" << r.scheduledPlague->slot << ",\"territory\":"
+                                  << r.scheduledPlague->territory << ",\"turns\":" << r.scheduledPlague->turns << "}";
+    else std::cout << "null";
+    std::cout << ",\"balanced_territories\":"; numbers(r.balancedTerritories); std::cout << "}\n";
+}
+void researchOrder(const runtime::State& state,const simulation::ResearchOrderReport& r,
+                   const simulation::ResearchOrderContext& context) {
+    orderHeader(state);
+    std::cout << ",\"accepted\":" << r.accepted << ",\"denial_code\":" << int(r.denial)
+              << ",\"campaign_flags\":" << context.campaignFlags << ",\"commit_comparison\":" << context.commitComparison
+              << ",\"research_before\":" << r.researchBefore << ",\"research_after\":" << r.researchAfter
+              << ",\"candidate_research\":" << r.candidateResearch << ",\"setter_invoked\":" << r.setterInvoked
+              << ",\"queue_structure_changed\":" << r.queueStructureChanged << ",\"used_default\":" << r.usedDefault
+              << ",\"queue_before\":";
+    numbers(r.queueBefore); std::cout << ",\"queue_after\":"; numbers(r.queueAfter);
+    std::cout << ",\"duplicates_discarded\":"; numbers(r.duplicatesDiscarded);
+    std::cout << ",\"removed\":"; numbers(r.removed); std::cout << "}\n";
+}
 void labor(const runtime::State& state, const simulation::LaborBalancePlan& plan, int before) {
     std::cout << "{\"stage\":\"labor_balanced_in_memory\",\"isolated\":true,"
                  "\"complete_turn\":false,\"complete_load\":false,\"applies_production\":false,\"turn_before\":"
@@ -363,6 +424,17 @@ int usage() {
                  "    Full economic sequence through growth/morale/research/unrest/final balance; NOT a whole turn.\n"
                  "    Explicit cold context, including campaign flags0; undefined native branches fail atomically.\n"
                  "    Work is an explicit laboratory input, not an executed economic turn.\n"
+                 "  dl2sim transfer-labor <save> <territory> <from-id> <from-slot> <to-id> <to-slot>\n"
+                 "  dl2sim move-labor <save> <territory> <from-id> <to-id>\n"
+                 "  dl2sim reset-labor <save> <territory>\n"
+                 "  dl2sim building-toggle <save> <building-id>\n"
+                 "  dl2sim building-lock <save> <building-id> <slot0..4>\n"
+                 "  dl2sim move-population <save> <from> <to> <amount-int32> <mode-int32> <site|-1> <slot|-1>\n"
+                 "    Local-human commands, cold plague bindings; old native addresses stay opaque.\n"
+                 "  dl2sim research-select <save> <tech1..47> <flags-int32> <commit-comparison-int32>\n"
+                 "  dl2sim research-toggle <save> <tech1..47> <flags-int32> <commit-comparison-int32>\n"
+                 "  dl2sim research-clear <save> <flags-int32> <commit-comparison-int32>\n"
+                 "    Explicit live campaign flags and DAT00559db0 comparison; neither is inferred from the SAV.\n"
                  "  dl2sim delete-unit <save> <unit-id>\n"
                  "  dl2sim disband-unit <save> <unit-id>\n"
                  "    Lifecycle with task-force detachment/cascades; NOT manufacturing, combat or SAV export.\n"
@@ -389,10 +461,11 @@ int main(int argc, char** argv) {
                             command == "economy" || command == "energy" || command == "labor" ||
                             command == "normalize-load" || command == "activate")) ||
               (argc == 4 && ((!isPlacement && !isCreation && archive) || command == "roundtrip" || command == "normalize-load-seeded" ||
-                             command == "normalize-session" || command == "production-prefix" || command == "production-phase" || command == "delete-unit" || command == "disband-unit" || command == "delete-building")) ||
-              (argc == 5 && (command == "demolish-building" || command == "progress-buildings")) ||
+                             command == "normalize-session" || command == "production-prefix" || command == "production-phase" || command == "delete-unit" || command == "disband-unit" || command == "delete-building" || command == "reset-labor" || command == "building-toggle")) ||
+              (argc == 5 && (command == "demolish-building" || command == "progress-buildings" || command == "building-lock" || command == "research-clear")) ||
               (argc == 7 && (command == "start-building" || command == "produce-units")) ||
-              (argc == 6 && (command == "create-unit" || command == "find-site" || command == "queue-unit" || command == "dequeue-unit")) ||
+              (argc == 6 && (command == "create-unit" || command == "find-site" || command == "queue-unit" || command == "dequeue-unit" || command == "move-labor" || command == "research-select" || command == "research-toggle")) ||
+              (argc == 8 && command == "transfer-labor") || (argc == 9 && command == "move-population") ||
               ((isPlacement || isCreation) && argc == (archive ? 7 : 6)))) return usage();
         auto document = std::make_unique<save::Document>();
         save::Error error;
@@ -401,7 +474,45 @@ int main(int argc, char** argv) {
         runtime::State state;
         require(state.prepare(*document, error), error);
         if (command == "turn") { require(state.advanceTurn(error), error); return 1; }
-        if (command == "normalize-load" || command == "normalize-load-archive" || command == "normalize-load-seeded" ||
+        if(command=="transfer-labor" || command=="move-labor" || command=="reset-labor") {
+            const int territory=integer(argv[3]);
+            if(territory<=0) throw std::runtime_error("Territory index must be positive");
+            simulation::ColonyLaborOrderReport report;
+            const int actor=document->options.localPlayer;
+            if(command=="reset-labor") require(state.resetLabor(actor,uint32_t(territory),report,error),error);
+            else {
+                const int from=integer(argv[4]),to=integer(argv[command=="transfer-labor" ? 6 : 5]);
+                if(from<=0 || to<=0) throw std::runtime_error("Building IDs must be positive");
+                if(command=="transfer-labor") require(state.transferLabor(actor,
+                    {uint32_t(territory),uint32_t(from),uint32_t(to),integer(argv[5]),integer(argv[7])},report,error),error);
+                else require(state.moveLabor(actor,{uint32_t(territory),uint32_t(from),uint32_t(to)},report,error),error);
+            }
+            laborOrder(state,report);
+        } else if(command=="building-toggle" || command=="building-lock") {
+            const int id=integer(argv[3]);
+            if(id<=0) throw std::runtime_error("Building ID must be positive");
+            simulation::BuildingControlReport report;
+            require(state.controlBuilding({document->options.localPlayer,uint32_t(id),
+                command=="building-toggle" ? simulation::BuildingControl::ToggleActive : simulation::BuildingControl::ToggleTaskLock,
+                command=="building-lock" ? integer(argv[4]) : 0},report,error),error);
+            buildingOrder(state,report);
+        } else if(command=="move-population") {
+            const int from=integer(argv[3]),to=integer(argv[4]),site=integer(argv[7]),slot=integer(argv[8]);
+            if(from<=0 || to<=0 || site < -1 || site>=kNumSites || slot < -1 || slot>=5)
+                throw std::runtime_error("Population order requires positive territories, site -1..35 and slot -1..4");
+            simulation::PopulationMoveReport report;
+            require(state.movePopulation(document->options.localPlayer,
+                {uint32_t(from),uint32_t(to),integer(argv[5]),integer(argv[6]),int16_t(site),int16_t(slot)}, {},report,error),error);
+            populationOrder(state,report);
+        } else if(command=="research-select" || command=="research-toggle" || command=="research-clear") {
+            const bool clear=command=="research-clear";
+            const simulation::ResearchOrderContext context{uint32_t(integer(argv[clear ? 3 : 4])),integer(argv[clear ? 4 : 5])};
+            simulation::ResearchOrderReport report;
+            require(state.orderResearch({document->options.localPlayer,
+                clear ? simulation::ResearchOrderKind::ClearQueue : (command=="research-select" ? simulation::ResearchOrderKind::Select : simulation::ResearchOrderKind::ToggleQueue),
+                clear ? 0 : integer(argv[3])},context,report,error),error);
+            researchOrder(state,report,context);
+        } else if (command == "normalize-load" || command == "normalize-load-archive" || command == "normalize-load-seeded" ||
             command == "normalize-session" || command == "activate") {
             runtime::LoadReport report;
             runtime::LoadContext context;

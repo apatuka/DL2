@@ -16,7 +16,64 @@ inspección: mapa, territorios, edificios, unidades y copias sin modificación. 
 lógica de partida está parcialmente escrita y todavía no está integrada. Cargar
 el documento no equivale a activar el estado de juego, simular un turno ni jugar.
 
-## Fase económica hasta balance final — continuación 2026-10-02
+## Órdenes económicas locales — continuación 2026-10-02
+
+Continuación sobre `85a29fc`. Se añadieron cuatro módulos propietarios y su
+integración en State/CLI: `colony_labor_orders`, `building_orders`,
+`population_orders`, `research_orders`. Ya permiten asignar/reasignar/resetear
+trabajadores, activar/desactivar y bloquear tareas, trasladar población y
+elegir/editar la cola tecnológica antes de ejecutar la fase económica existente.
+No se añadió interfaz ni se habilitó una partida jugable.
+
+Contratos importantes:
+
+- Actor local humano con índice consistente, propiedad de las colonias y estado
+  `Prepared`/`EntitiesEdited`. Un rechazo sin efectos no cambia la etapa; una
+  orden aceptada o retorno falso con efectos conserva lo ejecutado en memoria.
+- Labor comparte las hojas originales de ajuste/prioridad, respeta slots0..4,
+  locks y la bandera de actividad. Activación/bloqueo incluye balance; no es el
+  cierre de ventana de edificio ni una simulación de UI.
+- Población conserva coste, moral, narrowing, vivienda y labor; incluye el
+  fallo original por edificio fuente ausente DESPUÉS de modificar población.
+  La programación de plaga neutraliza sólo el puntero nuevo y conserva un
+  destino tipado en State. El pool de25 lleno falla antes de tocar Spies;
+  no se afirma compatibilidad de serialización ni ejecución del evento.
+- Investigación reproduce apertura/deduplicación, toggle/limpieza/poda/commit.
+  `Select` es una política de comodidad explícita. Flags vivos de campaña y
+  `DAT00559db0` son contexto del llamador; este último NO se reemplaza por
+  currentResearch. Hojas de setter/default/autoselección implementadas aparte;
+  no sustituyen planificación ministerial IA0040cea4.
+- Los handles existentes sobreviven y la lista de investigación no invalida
+  nodos de fabricación. El sidecar de plagas continúa entre órdenes/fase/movimientos
+  de State, rechaza contexto obsoleto y se limpia en una nueva preparación.
+
+Se añadieron cinco ejecutables de prueba y casos CLI: valores negativos/extremos,
+permisos, empates, locks, prioridades distintas entre traslado explícito y
+automático, falsas denegaciones con mutación, pool lleno, fallo tardío, alias y
+aislamiento de globales/RNG; secuencia completa órdenes→economía y conservación
+de referencias. Corpus adicional de población (cuatro partidas) e investigación
+(46 documentos) de sólo lectura. Son oráculos derivados de las funciones/assembly,
+no una comparación observada ejecutando el original.
+
+ECO-01/09, CON-04 y SIS-01 avanzan en backend; conservan sus pendientes de
+interfaz/turno y dominios explícitos. No se cierran EST parciales artificialmente.
+Siguen movimiento, combate, turno IA, presentación/campañas/eventos y guardado
+jugable. Véase [ECONOMY_LAB.md](ECONOMY_LAB.md) para API y comandos.
+
+Verificación final: **57/57 sin omisiones** en `build-verified` (**83,43 s**) y
+**57/57** en `build-save-asan` (**238,07 s**), sin hallazgos de AddressSanitizer.
+Build normal sin advertencias de código; ASAN conserva sólo D9025 de `/W3`→`/W4`.
+Los tests CLI confirman prioridades automáticas distintas de la ranura explícita,
+rechazo de destinos SAV e igualdad SHA-256 del tutorial original. `git diff --check`
+limpio. Resultados en `build-*/Testing/Temporary/LastTest.log`.
+
+Nota de entorno: el primer CTest ASAN directo no llegó al cuerpo de la primera
+prueba porque faltaba su DLL en PATH. Se detuvieron sólo esos procesos propios
+y se relanzó `tools/build.ps1 -BuildDir build-save-asan -Test`, que importa el
+entorno de Visual Studio. El resultado57/57 anterior corresponde al relanzamiento
+completo, no a la ejecución interrumpida.
+
+## Fase económica hasta balance final — corte anterior 2026-10-02
 
 Continuación sobre `1f45bfd`. `economic_phase.*` conecta los quince pasos
 propietarios de `0046c7d4`: el prefijo existente más crecimiento, moral,

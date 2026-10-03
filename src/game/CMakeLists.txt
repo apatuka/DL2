@@ -48,6 +48,10 @@ set(GAME_SOURCES
     research_phase.cpp
     colony_unrest.cpp
     economic_phase.cpp
+    colony_labor_orders.cpp
+    population_orders.cpp
+    research_orders.cpp
+    building_orders.cpp
     # END MODULE SOURCES
 )
 

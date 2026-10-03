@@ -1,6 +1,17 @@
 # Integración de la infraestructura de juego — 2026-09-27
 
-## Fase económica conectada — continuación 2026-10-02
+## Órdenes económicas locales — continuación 2026-10-02
+
+Sobre `85a29fc`, `colony_labor_orders`, `building_orders`, `population_orders`
+y `research_orders` conectan decisiones locales al estado propietario y CLI:
+reasignación/reinicio laboral, actividad/locks, traslado de población y borrador
+de investigación. Se pueden aplicar antes de la fase económica ya integrada.
+Conservan permisos, retornos nativos con efectos parciales, handles y continuidad
+de plagas. Investigación exige flags/comparación vivos explícitos. No ejecutan
+planificación IA, eventos de plaga ni interfaz. `Active`, `advanceTurn` y SAV
+reanudable siguen pendientes; contrato en [ECONOMY_LAB.md](ECONOMY_LAB.md).
+
+## Fase económica conectada — corte anterior 2026-10-02
 
 Sobre `1f45bfd`, `economic_phase.*` añade al tramo existente crecimiento,
 moral, investigación, disturbios/deserciones y balance final. CLI:

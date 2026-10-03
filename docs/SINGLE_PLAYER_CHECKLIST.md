@@ -1,7 +1,7 @@
 # Checklist de cierre: Deadlock II individual
 
-Revisión: 2026-10-02. Continuación sobre `1f45bfd`, ampliada con crecimiento,
-moral, investigación, disturbios y balance final en [ECONOMY_LAB.md](ECONOMY_LAB.md).
+Revisión: 2026-10-02. Continuación sobre `85a29fc`, ampliada con órdenes
+económicas locales en [ECONOMY_LAB.md](ECONOMY_LAB.md).
 
 ## Qué significa «100% funcionando»
 
@@ -46,10 +46,11 @@ funcional descubre comportamientos originales aún no identificados.
 - [x] Cinco colas propietarias: añadir/cancelar, cobro incremental, trabajo, creación de unidades, repetición y avisos. Integradas en State/CLI; reciben presupuestos reales de fábricas dentro del tramo económico conectado.
 - [x] Tramo económico transaccional desde reinicios hasta financiación de obras: impuestos, dos pases con obras/colas intercaladas, necesidades/importaciones, comida, energía y mantenimiento. `EconomyPrefixApplied` no es fase completa ni turno jugable.
 - [x] Continuación económica hasta crecimiento, moral, investigación, disturbios/deserciones y balance final, en una única transacción. `EconomyPhaseApplied` no es turno jugable ni exportable; dominios pendientes documentados en ECO-07/09/11.
+- [x] Órdenes locales headless de trabajadores, actividad/bloqueos de edificios, traslado de población y selección/cola de investigación, integradas en State/CLI antes de la fase económica. Sin controles gráficos ni SAV reanudable; contexto vivo de investigación/plagas explícito.
 - [x] Inicialización IA, reacciones diplomáticas, taskforces y determinados eventos con estado/RNG propietarios; no es el turno IA completo.
 - [x] Tablas canónicas compartidas, 43 campañas y pruebas de contratos entre cabeceras heredadas.
 
-Última verificación: **52/52 pruebas sin omisiones**, normal y AddressSanitizer.
+Última verificación: **57/57 pruebas sin omisiones**, normal y AddressSanitizer.
 Los **46 documentos** admiten normalización parcial, incluidos los **8 escenarios
 de versión 35** mediante migraciones explícitas; sus copias archivales siguen
 siendo exactas. Se verificaron 46 reconstrucciones de inteligencia, 46 creaciones
@@ -84,7 +85,7 @@ sin depender de punteros del EXE, de globales ajenos ni de reparaciones silencio
 
 ## 2. Economía, población y logística — parcial, bloqueante
 
-- [ ] **ECO-01** Completar asignación/reasignación de trabajadores y su conexión a órdenes e interfaz. Reconstrucción y balance automático ya implementados en EST-03; las órdenes manuales y la integración jugable siguen pendientes.
+- [ ] **ECO-01 — parcial.** Transferencia por ranuras, movimiento automático de un trabajador y reinicio a vivienda implementados como órdenes locales en State/CLI, encadenables con la fase económica. Faltan interfaz y conexión a la partida jugable; los dominios nativos inseguros se rechazan explícitamente.
 - [x] **ECO-02** Recaudación integrada con niveles fiscales globales/locales y su efecto original sobre la moral posterior, dentro de la misma fase económica transaccional.
 - [x] **ECO-03** Primer pase aplicado en orden original: recursos, créditos, cultura, investigación acumulada, clonación, entrenamiento, curación y arte con RNG. Obras/tareas intercaladas y colas antes de ganancias; resolución de investigación conectada en su fase posterior, no turno completo.
 - [x] **ECO-04** Necesidades/reservas e importaciones conectadas tras producción1, con conectividad, transportes, costes, transferencias parciales y eventos reales. Proveedores, reinicios y orden por material/rondas comprobados.
@@ -92,7 +93,7 @@ sin depender de punteros del EXE, de globales ajenos ni de reparaciones silencio
 - [x] **ECO-06** Consumo energético conectado después de comida y antes de mantenimiento/refinamiento: stock, porcentaje y eventos51 reales. El porcentaje resultante alimenta producción2; los efectos posteriores de moral se cierran en ECO-10.
 - [ ] **ECO-07 — parcial.** Mantenimiento y financiación de obras integrados: costes cuadráticos, déficit, avisos, selección/desbandado, cascadas/refunds y pagos pendientes. Falta cerrar el dominio de desbandado que dejaría referencias vivas de task forces; hoy se rechaza transaccionalmente sin desvinculación inventada.
 - [x] **ECO-08** Segundo pase aplicado después de mantenimiento, con imports hierro/endurium antes de ambas conversiones, pagos, signed16 y efectos originales aun con producción cero; no duplica los ingresos del primer pase.
-- [ ] **ECO-09 — parcial.** Crecimiento, capacidades física/vivienda, hambre, raza/campaña y restricciones laborales conectados, incluida deserción entre territorios. Faltan órdenes manuales de traslado de población y cerrar el dominio de deserción hacia local.
+- [ ] **ECO-09 — parcial.** Crecimiento, capacidades física/vivienda, hambre, raza/campaña, restricciones laborales y deserción conectados. Traslado manual implementado con coste, moral, labor y programación propietaria de plaga; faltan interfaz, ejecución completa de eventos y cerrar el dominio de deserción hacia local. Pool de plagas agotado rechaza sin invadir Spies.
 - [x] **ECO-10** Moral original completa: diez componentes, total bruto y valor aplicado, impuestos/ocupación/hambre/hacinamiento/clonación/guarnición/cultura/arte/hospitales. Energía afecta outputs previos; no se añade un componente inexistente. Integrada antes de investigación/disturbios.
 - [ ] **ECO-11 — parcial.** Disturbios, daño de edificios, población emigrada y robo/adquisición tecnológica conectados; balance posterior actualiza trabajo. Falta resolver explícitamente el bug nativo de formatos87/86 para deserciones hacia local (ahora rechazo atómico).0046c49c no cambia dueños: los cambios de control pertenecen a otras rutas aún pendientes, no se inventan aquí.
 - [ ] **ECO-12** Conectar el asistente de colonia y los informes económicos a las reglas reales de producción/logística.
@@ -115,8 +116,8 @@ actual no satisface este bloque.
 - [ ] **CON-03** Iniciar, avanzar y finalizar construcciones y mejoras, pagando sus costes y actualizando tareas/capacidad.
   - [x] **CON-03a** Inicio pagado con importaciones, eventos, labor y caminos.
   - [x] **CON-03b** Ramas originales de progreso/finalización/mejora a partir del trabajo asignado, tareas/labor, relocalización, eventos y conteos, integradas en State/CLI y probadas.
-  - [ ] **CON-03c — parcial.** ProcessBuildingCosts y financiación pendiente conectados después de ambos pases. Faltan órdenes de mejora/activación, UI y guardado intermedio jugable.
-- [ ] **CON-04** Resolver activación/desactivación, demolición, daños y reparación según las reglas de cada edificio. La rama de trabajo/reparación ya está implementada; no sustituye la aplicación de daños, órdenes ni demolición de santuarios.
+  - [ ] **CON-03c — parcial.** ProcessBuildingCosts y financiación pendiente conectados después de ambos pases; activación disponible como orden local. Faltan órdenes específicas de mejora, UI y guardado intermedio jugable.
+- [ ] **CON-04 — parcial.** Activación/desactivación y locks de tareas implementados en State/CLI con transferencia a vivienda y balance, además del trabajo/reparación ya conectado. Faltan controles gráficos, cierre de ventanas con sus efectos, daños de combate y demolición de santuarios.
 - [ ] **CON-05** Conectar las cinco colas de fabricación: añadir, ordenar/cancelar según permita el original, progresar y producir unidades reales.
   - [x] **CON-05a** QueueUnit/DequeueUnit propietarios con costes, imports, población de colonizadores y devoluciones originales.
   - [x] **CON-05b** ProduceUnits con financiación incremental, trabajo signed16, unidades reales, puerto, límites, repetición, eventos/IA/RNG y referencias de cola seguras.
@@ -157,7 +158,7 @@ las clases y acciones disponibles tienen una ruta funcional.
 
 ## 6. Investigación, diplomacia, comercio y espionaje — pendiente
 
-- [ ] **SIS-01 — parcial.** Progreso desde producción real, prerrequisitos/campaña, descubrimiento, pactos, excedentes, cola local y autoselección conectados al ciclo económico. Faltan órdenes/pantalla jugables de selección y cierre de su integración con el turno completo.
+- [ ] **SIS-01 — parcial.** Progreso, prerrequisitos/campaña, descubrimiento, pactos, excedentes y cola local conectados al ciclo económico. Selección/toggle/limpieza de cola implementados en State/CLI con contexto vivo explícito; hojas originales de setter/default/autoselección probadas. Faltan pantalla jugable, planificación IA e integración con el turno completo.
 - [ ] **SIS-02** Aplicar efectos tecnológicos y raciales a todos los sistemas, incluidas restricciones de campaña.
 - [ ] **SIS-03** Implementar relaciones, propuestas, aceptación/rechazo, pactos, ruptura y vencimiento, con efectos sobre acceso y hostilidad.
 - [ ] **SIS-04** Ejecutar comercio, intercambios y transferencias permitidos por el original, con pagos, límites, entrega y notificaciones.
@@ -303,8 +304,9 @@ explícitas y compatibles con el alcance acordado.
 1. Cerrar gestión de entidades y los perfiles de carga restantes. El refresco
    de tareas, balance de trabajadores y topes de almacén ya tienen implementación
    explícita verificada; aún no deben confundirse con activar toda la partida.
-2. Completar construcción, fabricación, logística y la secuencia económica.
-3. Integrar órdenes, movimiento, combate, investigación, eventos y turnos IA
+2. Cerrar dominios pendientes de construcción, fabricación y economía; su
+   secuencia principal y órdenes económicas locales ya están conectadas.
+3. Integrar órdenes restantes, movimiento, combate, investigación, eventos y turnos IA
    hasta obtener una partida cargada jugable. Construir su interfaz mínima en
    paralelo con cada sistema, no dejar toda la UI para el final.
 4. Cerrar el ciclo completo: nueva partida, victoria/derrota, guardado/reanudación,

@@ -1,4 +1,5 @@
 #include "game/research_phase.h"
+#include "game/research_rules.h"
 #include "game/data_tables.h"
 #include <algorithm>
 #include <array>
@@ -58,6 +59,52 @@ bool pact(const save::Document& d,int a,int b) {
     if (!d.options.allowAlliances || a<0 || b<0 || a>=d.options.numPlayers || b>=d.options.numPlayers) return false;
     return (d.players[size_t(a)].relations[size_t(b)]&0x18u)!=0;
 }
+template<class Range,class Value>
+bool queueAllowedRaw(const save::Document& d,int player,const Range& queue,Value value,
+                     int tech,uint32_t flags,bool& result,save::Error& e) {
+    if (!techValid(tech,e)) return false;
+    if (has(d.techs[size_t(tech)].availableMask,player)) { result=true; return true; }
+    result=false; bool campaign=true;
+    //00457a58(3) and00457ac0(3) BOTH return10 in original PE.
+    if (has(d.techs[size_t(tech)].knownMask,player) || std::bit_cast<int16_t>(data::kTechs[tech].level)>=10 || tech==47) return true;
+    if (!allowed(d,flags,d.players[size_t(player)].race,tech,campaign,e)) return false;
+    if (!campaign) return true;
+    uint32_t bonus;
+    if (!bonusMask(d,bonus,e)) return false;
+    int missing=0,present=0; const auto required=prerequisites(tech);
+    for (int dependency:required) if (dependency && !has(d.techs[size_t(dependency)].knownMask,player)) ++missing;
+    // Native queue matching intentionally includes zero prerequisites and
+    // duplicate entries; this is not a normalized dependency set.
+    for (const auto& node:queue) for (int dependency:required) if (uint32_t(dependency)==value(node)) {
+        if (bonus&(1u<<player)) { result=true; return true; }
+        ++present;
+    }
+    result=present==missing; return true;
+}
+bool pruneQueueRaw(const save::Document& d,int player,uint32_t flags,
+                   std::vector<uint32_t>& values,std::vector<uint32_t>& removed,save::Error& e) {
+    std::vector<std::pair<size_t,uint32_t>> queue;
+    for (size_t i=0;i<values.size();++i) queue.emplace_back(i,values[i]);
+    //00483b84 preserves node identity while removing FIRST matching value,
+    // not necessarily the currently visited duplicate node.
+    size_t current=queue.empty()?SIZE_MAX:queue.front().first;
+    while (current!=SIZE_MAX) {
+        const auto at=std::find_if(queue.begin(),queue.end(),[&](auto node){return node.first==current;});
+        if (at==queue.end()) return fail(e,"Research queue cursor lost its owned node");
+        const size_t following=at+1==queue.end()?SIZE_MAX:(at+1)->first;
+        const uint32_t value=at->second;
+        if (value>=kNumTechs) return fail(e,"Research queue entry indexes outside canonical technology table");
+        bool permitted;
+        if (!queueAllowedRaw(d,player,queue,[](auto node){return node.second;},int(value),flags,permitted,e)) return false;
+        if (!permitted) {
+            const auto first=std::find_if(queue.begin(),queue.end(),[&](auto node){return node.second==value;});
+            removed.push_back(value); queue.erase(first);
+        }
+        current=following;
+    }
+    values.clear(); for (const auto& node:queue) values.push_back(node.second);
+    return true;
+}
 struct Work {
     save::Document& d; const ConstructionOrderContext& context; ResearchReport& r; save::Error& e;
     bool emit(int recipient,uint16_t type,int tech=0,int extra=0) {
@@ -78,53 +125,16 @@ struct Work {
         }
         r.aiAfter.rng=r.rngAfter; r.events.push_back(std::move(event)); return true;
     }
-    bool queueAllowed(int player,const std::vector<std::pair<size_t,uint32_t>>& queue,int tech,bool& result) {
-        if (!techValid(tech,e)) return false;
-        if (has(d.techs[size_t(tech)].availableMask,player)) { result=true; return true; }
-        result=false; bool campaign=true;
-        //00457a58(3) and00457ac0(3) BOTH return10 in original PE.
-        if (has(d.techs[size_t(tech)].knownMask,player) || std::bit_cast<int16_t>(data::kTechs[tech].level)>=10 || tech==47) return true;
-        if (!allowed(d,context.researchCampaignFlags,d.players[size_t(player)].race,tech,campaign,e)) return false;
-        if (!campaign) return true;
-        uint32_t bonus;
-        if (!bonusMask(d,bonus,e)) return false;
-        int missing=0,present=0; const auto required=prerequisites(tech);
-        for (int dependency:required) if (dependency && !has(d.techs[size_t(dependency)].knownMask,player)) ++missing;
-        // Native queue matching intentionally includes zero prerequisites and
-        // duplicate entries; this is not a normalized dependency set.
-        for (const auto& node:queue) for (int dependency:required) if (uint32_t(dependency)==node.second) {
-            if (bonus&(1u<<player)) { result=true; return true; }
-            ++present;
-        }
-        result=present==missing; return true;
-    }
     bool localQueue(int tech,TechnologyAcquisition& change) {
-        std::vector<std::pair<size_t,uint32_t>> queue;
-        for (size_t i=0;i<d.localList.size();++i) queue.emplace_back(i,d.localList[i]);
-        const auto eraseFirst=[&](uint32_t value) {
-            const auto at=std::find_if(queue.begin(),queue.end(),[&](auto node){return node.second==value;});
-            if (at!=queue.end()) { change.removedFromLocalQueue.push_back(value); queue.erase(at); }
-        };
-        eraseFirst(uint32_t(tech));
-        // Preserve node identity while the original removes FIRST matching
-        // technology, which is not necessarily the current duplicate node.
-        size_t current=queue.empty()?SIZE_MAX:queue.front().first;
-        while (current!=SIZE_MAX) {
-            const auto at=std::find_if(queue.begin(),queue.end(),[&](auto node){return node.first==current;});
-            if (at==queue.end()) return fail(e,"Research queue cursor lost its owned node");
-            const size_t following=at+1==queue.end()?SIZE_MAX:(at+1)->first;
-            const uint32_t value=at->second;
-            if (value>=kNumTechs) return fail(e,"Research queue entry indexes outside canonical technology table");
-            bool permitted;
-            if (!queueAllowed(d.options.localPlayer,queue,int(value),permitted)) return false;
-            if (!permitted) eraseFirst(value);
-            current=following;
-        }
-        d.localList.clear(); for (const auto& node:queue) d.localList.push_back(node.second);
+        auto queue=d.localList;
+        const auto first=std::find(queue.begin(),queue.end(),uint32_t(tech));
+        if (first!=queue.end()) { change.removedFromLocalQueue.push_back(uint32_t(tech)); queue.erase(first); }
+        if (!pruneQueueRaw(d,d.options.localPlayer,context.researchCampaignFlags,queue,change.removedFromLocalQueue,e)) return false;
+        d.localList=queue;
         if (queue.empty()) {
             //00483bd4 DOES NOT clear currentResearch when the queue is empty.
             if (!emit(d.options.localPlayer,57)) return false;
-        } else d.players[size_t(d.options.localPlayer)].currentResearch=int8_t(queue.front().second); //0048424c offline.
+        } else d.players[size_t(d.options.localPlayer)].currentResearch=int8_t(queue.front()); //0048424c offline.
         return true;
     }
     bool acquire(int player,int tech) {
@@ -216,6 +226,41 @@ template<class Operation> bool guarded(Operation&& operation,save::Error& e) {
     return false;
 }
 } // namespace
+
+namespace research_detail {
+bool campaignAllowed(const save::Document& source,uint32_t flags,int race,int technology,
+                     bool& result,save::Error& error) {
+    return guarded([&] {
+        if (!valid(source,error) || !techValid(technology,error)) return false;
+        bool answer;
+        if (!allowed(source,flags,race,technology,answer,error)) return false;
+        result=answer; error={}; return true;
+    },error);
+}
+bool canQueue(const save::Document& source,int player,std::span<const uint32_t> queue,
+              int technology,uint32_t flags,bool& result,save::Error& error) {
+    return guarded([&] {
+        if (!valid(source,error) || !playerValid(player,error)) return false;
+        if (queue.size()>save::kMaxListNodes) { error={save::ErrorCode::Limit,0,"Research queue exceeds owned4096-node limit"}; return false; }
+        bool answer;
+        if (!queueAllowedRaw(source,player,queue,[](uint32_t value){return value;},technology,flags,answer,error)) return false;
+        result=answer; error={}; return true;
+    },error);
+}
+bool pruneQueue(const save::Document& source,int player,uint32_t flags,
+                std::vector<uint32_t>& queue,std::vector<uint32_t>& removed,save::Error& error) {
+    return guarded([&] {
+        if (!valid(source,error) || !playerValid(player,error)) return false;
+        if (&queue==&removed) return fail(error,"Research queue and removal report must be distinct outputs");
+        if (&queue==&source.localList || &removed==&source.localList)
+            return fail(error,"Research pruning output must not alias the read-only source queue");
+        if (queue.size()>save::kMaxListNodes) { error={save::ErrorCode::Limit,0,"Research queue exceeds owned4096-node limit"}; return false; }
+        auto candidate=queue, discarded=removed;
+        if (!pruneQueueRaw(source,player,flags,candidate,discarded,error)) return false;
+        queue=std::move(candidate); removed=std::move(discarded); error={}; return true;
+    },error);
+}
+} // namespace research_detail
 
 bool chooseStealableTechnology(const save::Document& source,int thief,int victim,const RngSnapshot& rng,
     StealableTechnologyReport& report,save::Error& error) {

@@ -26,6 +26,10 @@ permite guardar ni presentar ese tramo como turno completo.
 disturbios/deserciones y balance laboral final, con rollback de la secuencia
 entera. Sigue siendo un experimento económico, no un turno jugable; rechaza
 dominios nativos inseguros (incluido un error de formato de deserción local).
+Las órdenes locales de trabajadores, actividad/locks de edificios, traslado de
+población e investigación ya están integradas en State/CLI y pueden alimentar
+esa fase económica. Conservan permisos, efectos parciales nativos y continuidad
+propietaria de plagas; no habilitan controles gráficos ni guardado reanudable.
 `normalize-load` integra un subconjunto explícito de carga offline y RNG por sesión;
 incluye migraciones, reinicio IA, visibilidad, inteligencia y avisos de santuarios.
 `normalize-session` incorpora reinicio, mapa cambiado y temporizador con un contexto frío explícito.
@@ -93,7 +97,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools/build.ps1 -BuildDir bu
 ```
 
 El hito de serialización pasó 8/8, el del inspector 15/15 y el de preparación/fiscalidad 18/18.
-La suite actual, incluida la fase económica hasta balance final, pasa **52/52 sin omisiones**, tanto
+La suite actual, incluidas las órdenes locales y la fase económica hasta balance final, pasa **57/57 sin omisiones**, tanto
 en `build-verified` como con AddressSanitizer en `build-save-asan`. Incluye 46
 capturas exactas, entidades/emplazamientos y experimentos económicos, además de
 RNG propietario, tablas compartidas y carga parcial: 46 documentos normalizados,
@@ -103,6 +107,8 @@ transporte y bajas, cobro/importaciones, comienzo/progreso/finalización de obra
 mejoras y fabricación/repetición por colas. El tramo económico conectado se verifica
 sobre cuatro partidas originales de sólo lectura y estados sintéticos de orden,
 abastecimiento, financiación, bajas, continuaciones y rollback tardío.
+Las órdenes económicas añaden cinco suites para labor, población, investigación,
+actividad/locks e integración de decisiones→fase, además de cobertura CLI sin exportación.
 No acredita carga jugable ni turno completo. Alcance y evidencia en `docs/RECOVERY.md`.
 El script armoniza la codificación de consola para que Ninja detecte las cabeceras con MSVC
 localizado. Si una caché antigua muestra cientos de líneas `Nota: inclusión del archivo`,
@@ -199,6 +205,19 @@ energía de la instantánea guardada, sin ejecutar producción o importaciones a
 Es un experimento independiente de impuestos, no la continuación de un turno.
 Los comandos correspondientes `economy-archive` y `energy-archive` aceptan base
 HDX/HDD y entrada. Detalles y límites: [ECONOMY_LAB.md](docs/ECONOMY_LAB.md).
+
+Órdenes locales de ejemplo, cada ejecución desde una preparación nueva:
+
+```powershell
+.\build-verified\src\dl2sim.exe transfer-labor "C:\GOG Games\Deadlock 2\TUTORIAL.SAV" 14 10242 1 10241 1
+.\build-verified\src\dl2sim.exe building-lock "C:\GOG Games\Deadlock 2\TUTORIAL.SAV" 10242 1
+.\build-verified\src\dl2sim.exe research-clear "C:\GOG Games\Deadlock 2\TUTORIAL.SAV" 0 -1
+```
+
+También hay `move-labor`, `reset-labor`, `building-toggle`, `move-population`,
+`research-select` y `research-toggle`; argumentos en `dl2sim --help`.
+Investigación exige máscara de campaña y comparación de commit explícitas;
+el CLI no las deduce del SAV. No escribe las decisiones en el archivo original.
 
 Para reconstruir tareas, balancear trabajadores y aplicar el tope de almacenes
 en memoria, sin producir ni completar la carga jugable:

@@ -70,6 +70,57 @@ def main():
         assert after[1:] == [min(value, 10000) for value in before[1:]]
         assert territory["assigned_labor"] + territory["unassigned_labor"] == territory["labor_pool"]
     assert economy == run("economy", tutorial), "normalization must not modify the archived input"
+    # Local economic commands evaluate a fresh archival snapshot, never export it.
+    worker = run("transfer-labor", tutorial, 14, 10242, 1, 10241, 1)
+    assert worker == run("transfer-labor", tutorial, 14, 10242, 1, 10241, 1)
+    assert worker["accepted"] and worker["stage"] == "entities_edited_in_memory"
+    changes = {b["id"]: b for b in worker["buildings"]}
+    assert changes[10242]["after"]["labor"][1] == 3 and changes[10241]["after"]["labor"][1] == 1
+    automatic = run("move-labor", tutorial, 14, 10242, 10241)
+    assert automatic["accepted"] and automatic == run("move-labor", tutorial, 14, 10242, 10241)
+    automatic_changes = {b["id"]: b for b in automatic["buildings"]}
+    # Automatic priority chooses upgrade21 in slot0, not explicit housing20 in slot1.
+    assert automatic_changes[10241]["after"]["labor"] == [1, 0, 0, 0, 0]
+    assert automatic_changes[10242]["after"]["labor"][1] == 3
+    reset = run("reset-labor", tutorial, 14)
+    assert reset["accepted"] and reset["buildings"]
+    denied_worker = run("transfer-labor", tutorial, 14, 10241, 1, 10242, 1)
+    assert not denied_worker["accepted"] and denied_worker["stage"] == "prepared" and not denied_worker["buildings"]
+    toggle = run("building-toggle", tutorial, 10242)
+    assert toggle == run("building-toggle", tutorial, 10242) and toggle["accepted"]
+    assert toggle["flags_before"] & 4 and not toggle["flags_after"] & 4 and toggle["housing_attempts"] == 4
+    lock = run("building-lock", tutorial, 10242, 1)
+    assert lock["accepted"] and lock["flags_after"] & 0x200
+    denied_lock = run("building-lock", tutorial, 10242, 0)
+    assert not denied_lock["accepted"] and denied_lock["denial"] == "empty_task" and denied_lock["stage"] == "prepared"
+    population = run("move-population", tutorial, 14, 14, 100, 0, -1, -1)
+    assert not population["native_result"] and population["before"] == population["after"]
+    assert population["cold_plague_bindings"] and population["stage"] == "prepared"
+    clear = run("research-clear", tutorial, 0, -1)
+    assert clear == run("research-clear", tutorial, 0, -1) and clear["accepted"]
+    assert clear["used_default"] and clear["setter_invoked"] and clear["queue_after"] == []
+    choice = clear["candidate_research"]
+    assert 1 <= choice <= 47
+    selected = run("research-select", tutorial, choice, 0, -1)
+    assert selected["accepted"] and selected["queue_after"] == [choice] and selected["research_after"] == choice
+    queued_research = run("research-toggle", tutorial, choice, 0, -1)
+    assert queued_research["accepted"]
+    suppressed = run("research-clear", tutorial, 0, choice)
+    assert suppressed["accepted"] and not suppressed["setter_invoked"]
+    assert suppressed["research_after"] == suppressed["research_before"], "comparison is explicit live context, not currentResearch"
+    for result in (worker, automatic, reset, denied_worker, toggle, lock, denied_lock, population, clear, selected, queued_research, suppressed):
+        assert result["headless_order"] and not result["complete_turn"] and not result["can_save"]
+        assert result["turn"] == prepared["turn"]
+    for command, args in (("transfer-labor", (14, 10242, 5, 10241, 1)),
+                          ("transfer-labor", (14, 10242, 1, -1, 1)),
+                          ("move-labor", (14, 0, 10241)), ("reset-labor", (0,)),
+                          ("building-toggle", (65536,)), ("building-lock", (10242, -1)),
+                          ("move-population", (14, 14, 100, 0, 65535, -1)),
+                          ("move-population", (14, 14, "2147483648", 0, -1, -1)),
+                          ("research-select", (0, 0, -1)), ("research-toggle", (48, 0, -1)),
+                          ("research-clear", (0, "bad"))):
+        assert not run(command, tutorial, *args, success=False).stdout
+    assert economy == run("economy", tutorial), "local orders must not modify the original file"
     placement = run("placement", tutorial, 1, 1, 0)
     assert placement == run("placement", tutorial, 1, 1, 0), "placement queries must be deterministic"
     assert placement["read_only"] and placement["stage"] == "prepared"
@@ -238,7 +289,11 @@ def main():
                               ("start-building", (14, 1, 35, 1)), ("find-site", (14, 1, 1)),
                               ("queue-unit", (14, 1, 1)), ("dequeue-unit", (14, 1, 0)),
                               ("produce-units", (14, 1, 30, 1)), ("progress-buildings", (14, 1)),
-                              ("production-prefix", (1,)), ("production-phase", (1,))):
+                              ("production-prefix", (1,)), ("production-phase", (1,)),
+                              ("transfer-labor", (14, 10242, 1, 10241, 1)), ("move-labor", (14, 10242, 10241)),
+                              ("reset-labor", (14,)), ("building-toggle", (10242,)), ("building-lock", (10242, 1)),
+                              ("move-population", (14, 14, 100, 0, -1, -1)),
+                              ("research-select", (1, 0, -1)), ("research-toggle", (1, 0, -1)), ("research-clear", (0, -1))):
             rejected = subprocess.run([str(binary), command, str(tutorial), *map(str, args), str(partial)],
                                       capture_output=True, text=True)
             assert rejected.returncode == 2 and not partial.exists(), "new experiments cannot accept a save destination"

@@ -8,6 +8,12 @@ decompiladas y módulos compilados miden cosas distintas de una partida jugable.
 El [checklist de cierre individual](SINGLE_PLAYER_CHECKLIST.md) desglosa los
 pendientes funcionales y sus criterios de aceptación, excluyendo multijugador.
 
+Último avance: órdenes locales de trabajadores, actividad/bloqueos de edificios,
+traslado de población y selección/cola de investigación conectadas a State/CLI.
+Sus resultados alimentan la fase económica completa en memoria. Faltan su
+interfaz, activación y composición con el resto del turno; detalles y límites
+en [ECONOMY_LAB.md](ECONOMY_LAB.md). No cambian la definición de «jugable».
+
 ## 0. Base reproducible y recuperación
 
 Completado durante esta recuperación:

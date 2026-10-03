@@ -1,5 +1,6 @@
 #include "game/labor_balance.h"
 #include "game/data_tables.h"
+#include "game/production_plan.h"
 
 #include <algorithm>
 #include <bit>
@@ -164,6 +165,119 @@ struct Work {
             return true;
         }
         return false;
+    }
+
+    // orig: FUN_0044bc68. Strict comparison keeps the first physical slot on
+    // ties. Construction/upgrade/housing and an EMPTY manufacturing queue have
+    // score999, regardless of their present labor; ordinary slots use labor.
+    int addSlot(const Building& b) const {
+        const bool queue=hasQueue(b); int choice=-1; int32_t best=1000;
+        for (int s=0;s<5;++s) if (b.task[s] && !locked(b,s)) {
+            const auto task=b.task[s]; int32_t score=999;
+            if (task!=21 && task!=2 && task!=20 && (task!=11 || queue)) score=b.labor[s];
+            if (score<best) { best=score; choice=s; }
+        }
+        return choice;
+    }
+
+    // orig: IsBuildTaskDifferent0044bb60. Only queried by the removal selector
+    // for construction/upgrade; scalar outputs retain wrapped arithmetic.
+    bool buildTaskDifferent(const Building& b,int s,bool& value,save::Error& error) const {
+        int32_t first,second;
+        if (!buildingTaskOutput(document,b.id,s,b.labor[s],first,error) ||
+            !buildingTaskOutput(document,b.id,s,subtract(b.labor[s],1),second,error)) return false;
+        int32_t remaining=b.turnsLeft;
+        if (b.task[s]!=2) {
+            const int32_t cost=canUpgrade(b)?multiply(subtract(signed16(data::kBuildingTypes[b.type+1].buildLabor),
+                signed16(data::kBuildingTypes[b.type].buildLabor)),3):-1;
+            remaining=subtract(cost,b.unk_16);
+        }
+        const auto turns=[&](int32_t output,int32_t& result) {
+            result=0; if (!output) return true;
+            const int32_t numerator=subtract(add(remaining,output),1);
+            if (numerator==INT32_MIN && output==-1) return fail(error,"labor selection signed division would trap");
+            result=numerator/output; return true;
+        };
+        int32_t a,bTurns; if (!turns(first,a) || !turns(second,bTurns)) return false;
+        value=a!=bTurns; return true;
+    }
+
+    // orig: FUN_0044bd0c. A NONEMPTY queue gives task11 immediate-removal
+    // priority, unlike the addition selector. Zero-valued preferred slots still
+    // enter the score comparison with score0; never silently skip them.
+    bool removeSlot(const Building& b,int& choice,save::Error& error) const {
+        const bool queue=hasQueue(b); choice=-1; int32_t best=-1000;
+        for (int s=0;s<5;++s) if (b.task[s] && !locked(b,s)) {
+            const auto task=b.task[s]; int32_t score=0;
+            bool preferred=task==20 || (task==11 && queue);
+            if (!preferred && (task==21 || task==2)) {
+                bool different; if (!buildTaskDifferent(b,s,different,error)) return false;
+                preferred=!different;
+            }
+            if (preferred) { if (b.labor[s]!=0) { choice=s; return true; } }
+            else score=b.labor[s];
+            if (score>best) { best=score; choice=s; }
+        }
+        return true;
+    }
+
+    // orig: FUN_0044bddc. A false native result may leave actual effects.
+    bool adjust(Building& b,int32_t delta,bool& native,save::Error& error) {
+        const int32_t before=totalLabor(b); native=false;
+        if (delta>0) {
+            const int s=addSlot(b);
+            if (s>=0) { b.labor[s]=add(b.labor[s],delta); native=true; }
+        } else if (delta<0) {
+            int32_t remaining=subtract(0,delta);
+            while (remaining!=0) {
+                if (transferSteps==kMaxTransferSteps) {
+                    error={save::ErrorCode::Limit,0,"AdjustLabor exceeds 1000000 removal attempts"}; return false;
+                }
+                ++transferSteps;
+                int s; if (!removeSlot(b,s,error)) return false;
+                if (s<0) return true; // Native failure preserves preceding removals.
+                const int32_t amount=std::min(remaining,b.labor[s]);
+                if (!amount) {
+                    error={save::ErrorCode::Limit,0,"AdjustLabor original loop has no progress (selected empty slot)"}; return false;
+                }
+                b.labor[s]=subtract(b.labor[s],amount);
+                remaining=subtract(remaining,amount);
+            }
+            native=true;
+        }
+        if (delta>0 && before==0 && (data::kBuildingTypes[b.type].energyUse&255u)) b.flags|=4;
+        return true;
+    }
+
+    // orig: FUN_0044c2c0, including a possible failed destination addition
+    // AFTER a successful removal. Do not turn native false into rollback.
+    bool moveOne(Building& from,Building& to,LaborMoveResult& result,save::Error& error) {
+        bool removable=false,assignable=false;
+        for (int s=0;s<5;++s) {
+            removable|=from.labor[s]!=0 && !locked(from,s);
+            assignable|=to.task[s]!=0 && !locked(to,s);
+        }
+        if (!removable) { result.denial=LaborMoveDenial::SourceLockedOrEmpty; return true; }
+        if (!assignable) { result.denial=LaborMoveDenial::DestinationLockedOrTaskless; return true; }
+        if (totalLabor(to)>=maxLabor(to)) { result.denial=LaborMoveDenial::DestinationFull; return true; }
+        bool removed,added;
+        if (!adjust(from,-1,removed,error)) return false;
+        if (!removed) { result.denial=LaborMoveDenial::SourceAdjustmentFailed; return true; }
+        if (!adjust(to,1,added,error)) return false;
+        if (!added) { result.denial=LaborMoveDenial::DestinationAdjustmentFailed; return true; }
+        result.accepted=true; return true;
+    }
+
+    // orig: FUN_0044bacc. Assembly0044bb36..3b saves the selected amount in
+    // EAX before subtracting pool, even when the decompiler aliases its pointer.
+    bool reset(size_t territory,save::Error& error) {
+        int32_t pool=laborPool(document.territories[territory].data).first;
+        for (size_t site=0;site<kNumSites;++site) if (auto* b=at(territory,site)) {
+            std::fill_n(b->labor,5,0);
+            const int s=findTask(*b,20);
+            if (s>=0) { const int32_t amount=std::min(pool,maxLabor(*b)); pool=subtract(pool,amount); b->labor[s]=amount; }
+        }
+        TerritoryLaborBalance ignored; return balance(territory,ignored,error);
     }
 
     // orig: MoveLaborToHousingNoNet 0044c368. The first site with spare capacity
@@ -610,5 +724,50 @@ bool moveBuildingLaborToHousing(const save::Document& source, uint32_t id, int s
     if (!laborLeaf(source,id,destination,error,[&](Work& work,Building& b,save::Document&,save::Error&){value=work.moveToHousing(b,slot); return true;})) return false;
     moved=value; return true;
 }
+
+bool adjustBuildingLabor(const save::Document& source,uint32_t id,int32_t delta,
+                         save::Document& destination,bool& nativeResult,save::Error& error) {
+    bool result=false;
+    if (!laborLeaf(source,id,destination,error,[&](Work& work,Building& b,save::Document&,save::Error& e){
+        return work.adjust(b,delta,result,e);
+    })) return false;
+    nativeResult=result; return true;
+}
+
+bool transferBuildingLabor(const save::Document& source,uint32_t from,int fromSlot,uint32_t to,int toSlot,
+                           save::Document& destination,LaborMoveResult& report,save::Error& error) {
+    if (fromSlot<0 || fromSlot>=5 || toSlot<0 || toSlot>=5 || !source.buildingById(to))
+        return fail(error,"transfer requires existing buildings and slots0..4");
+    LaborMoveResult result;
+    if (!laborLeaf(source,from,destination,error,[&](Work& work,Building& b,save::Document& d,save::Error&){
+        const auto* target=d.buildingById(to);
+        auto& other=*work.at(size_t(target->territory-1),size_t(target->site));
+        result.accepted=work.transfer(b,fromSlot,other,toSlot);
+        if (!result.accepted) result.denial=b.labor[fromSlot]==0?LaborMoveDenial::SourceEmpty:LaborMoveDenial::DestinationFull;
+        return true;
+    })) return false;
+    report=result; return true;
+}
+
+bool moveOneBuildingLabor(const save::Document& source,uint32_t from,uint32_t to,
+                          save::Document& destination,LaborMoveResult& report,save::Error& error) {
+    if (!source.buildingById(to)) return fail(error,"automatic transfer requires an existing destination");
+    LaborMoveResult result;
+    if (!laborLeaf(source,from,destination,error,[&](Work& work,Building& b,save::Document& d,save::Error& e){
+        const auto* target=d.buildingById(to);
+        return work.moveOne(b,*work.at(size_t(target->territory-1),size_t(target->site)),result,e);
+    })) return false;
+    report=result; return true;
+}
+
+bool resetTerritoryLabor(const save::Document& source,uint32_t territory,
+                         save::Document& destination,save::Error& error) try {
+    if (!save::validate(source,error)) return false;
+    if (source.header.isMap || !source.territoryByIndex(territory)) return fail(error,"reset requires a saved-game territory");
+    auto candidate=std::make_unique<save::Document>(source); Work work{*candidate,{}};
+    if (!work.validate(error) || !work.reset(size_t(territory-1),error)) return false;
+    destination=std::move(*candidate); error={}; return true;
+} catch (const std::bad_alloc&) { error={save::ErrorCode::Limit,0,"Reset labor allocation failed"}; return false; }
+  catch (const std::length_error&) { error={save::ErrorCode::Limit,0,"Reset labor exceeds container limits"}; return false; }
 
 } // namespace dl2::simulation

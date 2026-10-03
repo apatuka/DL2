@@ -134,9 +134,13 @@ struct TaskForceEditReport {
 };
 // Offline host semantics of 0040adf4/0040b0c0/0040b074. Mutates only the
 // explicit document, transactionally even when recursive cargo removal fails.
-// Job.armyIds are authoritative resolved references; touched historical
-// Job.armies words become zero, never pointers/handles. Remove follows the
-// owner's Army.job and FIRST match, recursing only for unit TYPE12; job0 stops.
+// With ArmyPool metadata, membership/free tests use physical-cell bindings,
+// NOT expected Job.armyIds: retired cells remain nonnull and reused cells can
+// resolve another ID. Without metadata, validated archival IDs supply the
+// initial loaded resolution. This helper never initializes or cleans the pool.
+// Touched bindings/IDs are changed together; touched historical Job.armies
+// words become zero, never pointers/handles. Remove follows the owner's
+// Army.job and FIRST pointer match, recursing only for unit TYPE12; job0 stops.
 // Add returns explicit AlreadyPresent/Full without changing the source, exactly
 // like the original early returns. Adding into a free slot first removes the
 // previous task force, then stores the new owner-local 1-based Army.job.

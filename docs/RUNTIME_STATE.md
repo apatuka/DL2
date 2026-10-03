@@ -299,8 +299,14 @@ reemplazar nodos se retiran todos sus handles posicionales, incluso si los bytes
 resultantes son idénticos. Los handles de las colas, territorios, edificios y
 unidades supervivientes siguen siendo válidos. Una operación fallida no cambia
 ninguna identidad; una edición ajena a colas no las invalida.
-Las operaciones aisladas e identidades estables no son
-una reproducción del layout ni del orden físico de los pools Borland.
+Las identidades públicas no reproducen los punteros Borland. La continuación
+`Document.armyPool` conserva por separado el orden de asignación/liberación y
+las referencias a celdas necesarias para taskforces. `Graph.jobs.armies` muestra
+el ocupante actual de la celda; `pointerPresent` distingue referencia nula de
+celda retirada y `poolSlots` conserva su identidad física propietaria.
+`pruneTaskForceArmies` / `pruneAllTaskForceArmies` son ediciones explícitas, no
+callbacks de baja ni turnos. Un handle retirado no revive al reutilizar la celda.
+Detalles y restricciones de codificación en [ENTITY_RUNTIME.md](ENTITY_RUNTIME.md).
 
 La secuencia económica observada en `FUN_0046c7d4` es impuestos, producción 1,
 registro de necesidades, importación de déficits, comida, energía, mantenimiento,

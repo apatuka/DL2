@@ -1,4 +1,5 @@
 #include "game/runtime_state.h"
+#include "game/army_pool.h"
 #include "game/data_tables.h"
 #include "game/save_files.h"
 #include <algorithm>
@@ -117,10 +118,9 @@ void createdThenDisbanded() {
           !state.armyById(r->createdIds[0]) && state.building(housing) && state.queue(queue),
           "unit created and disbanded in same transaction has no dangling registry slot");
 }
-void rollbackAfterUpkeep() {
+void deferredAfterUpkeep() {
     auto d = fixture();
-    // A task force attached to the newly chosen old army fails during upkeep,
-    // AFTER taxes, production, food and energy have all succeeded privately.
+    // Native upkeep retires the army without detaching its taskforce reference.
     d->territories[0].queues[0].clear(); Army a{}; a.id = 20; a.type = 1; a.unitClass = 1; a.owner = 0;
     a.dest.raw = a.territory.raw = a.origin.raw = 1; a.job = 1; std::memcpy(a.name, "Guard", 6);
     d->armies.push_back(a); d->territories[0].data.armies.raw = 20;
@@ -128,12 +128,25 @@ void rollbackAfterUpkeep() {
     runtime::State state; save::Error e; ok(state.prepare(*d, e), e); const auto army = state.armyById(20);
     const auto before = bytes(*state.document()); const auto rng = state.sessionRng();
     auto r = std::make_unique<EconomicPrefixReport>(); r->createdIds = {987}; r->completed = {EconomicStep::BuildingCosts};
-    check(!state.runEconomicProductionPrefix(context(), *r, e) && !e.message.empty(), "unsafe task force disband rejects instead of inventing detach");
+    auto bad = context(); bad.effects.events.rngBeforeEvents.format = 99;
+    check(!state.runEconomicProductionPrefix(bad, *r, e) && !e.message.empty(), "malformed initial RNG rejects before publishing any phase");
     check(bytes(*state.document()) == before && state.stage() == runtime::Stage::Prepared && state.army(army) &&
           state.sessionRng() == rng && !state.loadedEvents() && r->createdIds == std::vector<uint32_t>{987} &&
-          r->completed == std::vector<EconomicStep>{EconomicStep::BuildingCosts}, "late failure rolls back every earlier step, report and handles");
-    auto bad = context(); bad.effects.events.rngBeforeEvents.format = 99;
-    check(!state.runEconomicProductionPrefix(bad, *r, e) && bytes(*state.document()) == before, "malformed initial RNG fails atomically");
+          r->completed == std::vector<EconomicStep>{EconomicStep::BuildingCosts}, "failed prefix preserves every report/context/handle");
+    ok(state.runEconomicProductionPrefix(context(), *r, e), e);
+    check(r->completed == order && r->retiredIds == std::vector<uint32_t>{20} && !state.army(army) &&
+          state.document()->jobs[0][0].armyIds[0] == 20 && !state.graph().jobs[0][0].armies[0] &&
+          state.graph().jobs[0][0].pointerPresent[0] && state.graph().jobs[0][0].poolSlots[0] != 0 &&
+          state.stage() == runtime::Stage::EconomyPrefixApplied && bytes(*d) == before,
+          "prefix completes through upkeep, retires public handle and retains deferred physical job binding");
+    ok(save::validate(*state.document(), e), e);
+    std::vector<uint8_t> denied{6,7};
+    check(!save::encode(*state.document(), denied, e) && denied == std::vector<uint8_t>({6,7}),
+          "completed prefix with freed job target cannot be encoded as a SAV");
+    TaskForcePruneReport prune; prune.cleared.resize(1); const auto priorPrune = prune;
+    check(!state.pruneTaskForceArmies(0, 0, prune, e) && prune == priorPrune &&
+          state.document()->jobs[0][0].armyIds[0] == 20 && !state.army(army),
+          "terminal economic experiment does not permit an out-of-order cleanup");
 }
 void originalSaves(const std::filesystem::path& data) {
     int count = 0;
@@ -151,7 +164,7 @@ void originalSaves(const std::filesystem::path& data) {
 }
 }
 int main(int argc, char** argv) {
-    try { connectedSequenceAndHandles(); createdThenDisbanded(); rollbackAfterUpkeep();
+    try { connectedSequenceAndHandles(); createdThenDisbanded(); deferredAfterUpkeep();
         if (argc > 1) originalSaves(argv[1]); std::cout << "economic_prefix: PASS\n"; return 0;
     } catch (const std::exception& e) { std::cerr << e.what() << '\n'; return 1; }
 }

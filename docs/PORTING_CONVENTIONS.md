@@ -106,6 +106,11 @@ Estas reglas permiten que varios módulos se porten en paralelo y encajen sin fr
   cola y resolver su índice actual al procesar. El objetivo12 lee estado vivo
   int32, no los bytes truncados de GameOptions. Mantenimiento no desprende
   taskforces: modelar referencias diferidas y limpieza0040aebc, no eager detach.
+  `Document.armyPool` conserva slots físicos propietarios, independientes de los
+  handles por vida. Inicializar antes de insertar/borrar unidades, registrar cada
+  alta/baja y mantener `jobSlots` al editar bindings. Una referencia retirada no
+  es nula; comparar ocupantes del slot, no volver a resolver el ID esperado.
+  El codec rechaza bindings no representables y no ejecuta limpieza automática.
 
 - Registrar cada ejecutable `tests/test_<modulo>.cpp` en `tests/CMakeLists.txt`, enlazar el target
   correspondiente y añadir `add_test`. Las comprobaciones deben seguir activas en Release/NDEBUG;

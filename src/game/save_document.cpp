@@ -1,6 +1,7 @@
 // Lossless physical SAV/CPN codec. Unlike the historical LoadGame port, this
 // module never activates the game, fixes up pointer words, or changes globals.
 #include "game/save_document.h"
+#include "game/army_pool.h"
 
 #include <bit>
 #include <cstring>
@@ -306,6 +307,7 @@ bool encode(const Document& document, std::vector<uint8_t>& destination, Error& 
     Writer writer(error);
     try {
         if (!headerSupported(document.header, error) || !validate(document, error) ||
+            !simulation::validateArchivalArmyBindings(document, error) ||
             !writer.write(document.header, "SaveHeader")) return false;
         if (document.header.isMap == 1) {
             if (!writer.write(document.world, "WorldParams") ||

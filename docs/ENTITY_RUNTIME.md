@@ -376,7 +376,8 @@ mask vivo de campaña; un mask distinto falla antes de aplicar cambios.
 
 - `orderDisbandUnit`:00419924→00475854, exige unidad del actor local humano.
   No exige territorio propio ni añade desprendimiento taskforce: el llamador
-  original no lo hace. Los casos que dejarían referencias vivas siguen fallando.
+  original no lo hace. Las referencias militares quedan ligadas al slot retirado
+  mediante la continuación propietaria descrita abajo.
 - `orderDemolishBuilding`:0045b094→00475a60. SeaHab39 redirige a la primera
   plataforma por categoría20; plataforma38 retira los ocupantes de sockets
   −22,−8,−12,+2,−10 y luego la propia plataforma. Cada retirada conserva sus
@@ -411,11 +412,49 @@ sentinel0 no pertenece al documento y no se inventan efectos sobre él.
 combate00457624 antes de esta llamada. Falta ese programador; tampoco se expone
 una ruta State/CLI para saltárselo y exportar un turno parcial.
 
-La auditoría de bajas confirma otro pendiente: mantenimiento0046b3dc no desprende
-taskforces antes de DisbandUnit. El original conserva referencias al slot retirado
-hasta `0040aebc`, llamado por IA/guardado; comprueba ID/owner y limpia sólo entonces.
-Hacen falta referencias diferidas propietarias y esa limpieza en sus puntos reales.
-Activar `detachTaskForces` automáticamente en mantenimiento alteraría la semántica.
+### Referencias militares diferidas — CX-01, 2026-10-03
+
+Mantenimiento0046b3dc no desprende taskforces antes de DisbandUnit. Ahora las
+bajas conservan sus IDs esperados y referencias propietarias al **slot del pool**,
+no a la vida de una entidad. `Document.armyPool` es una continuación opcional
+tipada y no serializada: 560 celdas, lista libre y referencias de los 7×50 jobs.
+Los campos `Job.armies` del archivo siguen siendo palabras inertes.
+
+La primera alta/baja reconstruye el pool desde el orden del documento; después
+se conserva por copia, sin volver a resolver los jobs por ID. El orden inicial
+libre es descendente y una baja inserta al frente: la siguiente alta reutiliza
+primero el último slot liberado, con la reserva nativa de una celda. Bajas de
+carga/parejas conservan su orden postorder. Un pool de 560 unidades activas sin
+cabeza libre se puede inspeccionar, pero su baja se rechaza: el original
+escribiría a través de una cabeza nula. No se inventa una reparación.
+
+`pruneTaskForceArmies`, `prunePlayerTaskForceArmies` y
+`pruneAllTaskForceArmies` implementan0040aebc y sus recorridos explícitos.
+Sólo una referencia **no nula** compara el ID16 y propietario firmado actuales
+del slot con el ID/owner esperados. Una celda retirada expone ID0/owner0;
+si fue reutilizada, se observa su ocupante nuevo. Mismo ID y owner sobreviven
+aunque la vida sea otra. Una referencia nula con ID no cero no se limpia.
+No se consulta generación, tipo ni `Army.job`, ni se pone éste a cero al limpiar.
+
+Las operaciones de añadir/quitar miembros comparan slots, no IDs esperados,
+y no consideran una celda retirada como una ranura de job vacía. Las órdenes,
+mantenimiento y el resto de la fase económica preservan esta continuación.
+El consumo de comida y los detectores tipo14 recorren el orden físico de las
+celdas, no el orden denso del vector tras una reutilización; así conservan
+prioridad de alimento y flags/distancias del último emisor respectivamente.
+`Graph.jobs` expone ocupante vivo, `pointerPresent` y `poolSlots`; el handle
+público de la unidad eliminada **sigue inválido**, incluso tras reutilizar ID/slot.
+
+La validación sólo admite referencias diferidas con metadatos íntegros y una
+biyeción comprobada entre celdas vivas y unidades. La lectura de SAV sin ese
+contexto sigue rechazando IDs inexistentes. `encode` rechaza bindings retirados,
+reutilizados con otro ID o nulos con ID no cero: nunca limpia para poder guardar.
+Normalizar de nuevo la carga tampoco puede descartar esas referencias pendientes.
+
+State permite la limpieza como edición explícita y transaccional. **No** se
+ejecuta automáticamente al dar de baja ni al finalizar economía. Falta conectar
+los puntos originales de IA/reclutamiento/guardado dentro del turno completo;
+esta hoja no habilita `advanceTurn` ni captura de estados experimentales.
 
 Ejemplos CLI (sólo memoria, sin destino SAV):
 

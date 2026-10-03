@@ -1,5 +1,6 @@
 // Independent original-function oracles, not an observed native-game replay.
 #include "game/entity_orders.h"
+#include "game/army_pool.h"
 #include "game/entity_creation.h"
 #include "game/runtime_state.h"
 #include "game/data_tables.h"
@@ -132,8 +133,15 @@ void disbandAuthorizationAndDependencies() {
     require(!orderDisbandUnit(*d,{0,foreign},*destination,report,error) && report==old,"cannot disband another owner's unit");
     d=fixture(); const auto jobUnit=army(*d); d->armies[0].job=1; d->jobs[0][0].armyIds[0]=uint16_t(jobUnit);
     const auto jobBytes=bytes(*d);
-    require(!orderDisbandUnit(*d,{0,jobUnit},*destination,report,error) && report==old && bytes(*d)==jobBytes,
-            "UI command does not invent RemoveArmyFromTaskForce before native disband");
+    checked(orderDisbandUnit(*d,{0,jobUnit},*destination,report,error),error);
+    require(report.removedIds==std::vector<uint32_t>{jobUnit} && destination->armies.empty() &&
+            destination->jobs[0][0].armyIds[0]==jobUnit && destination->armyPool->jobSlots[0][0][0]!=0 &&
+            !taskForceTarget(*destination,0,0,0) && bytes(*d)==jobBytes,
+            "UI disband succeeds and leaves the taskforce bound to the freed cell for explicit cleanup");
+    checked(save::validate(*destination,error),error);
+    std::vector<uint8_t> denied{9,8};
+    require(!save::encode(*destination,denied,error) && denied==std::vector<uint8_t>({9,8}),
+            "UI disband cannot export deferred dangling bindings as file IDs");
     d->armies[0].job=0; d->jobs[0][0].armyIds[0]=0;
     d->ministerJobs[0][0].type=13; d->ministerJobs[0][0].param[0]=int32_t(jobUnit);
     checked(orderDisbandUnit(*d,{0,jobUnit},*destination,report,error),error);

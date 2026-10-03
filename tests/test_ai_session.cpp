@@ -1,5 +1,6 @@
 // Original-data oracles for AInit/minister RET dispatch and task-force helpers.
 #include "game/ai_session.h"
+#include "game/army_pool.h"
 #include "game/data_tables.h"
 #include "game/save_files.h"
 #include "game/globals.h"
@@ -13,6 +14,7 @@
 #include <fstream>
 #include <iostream>
 #include <memory>
+#include <optional>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -211,6 +213,133 @@ void additions() {
     const auto foreign = bytes(*d);
     require(!addArmyToTaskForce(*d,1,0,101,report,error) && bytes(*d) == foreign && report == keep,
             "foreign army was added to incompatible owner-local task force");
+}
+
+// Pending physical bindings are intentionally not encodable. For transaction
+// checks retain their complete metadata and Job bytes separately, while the
+// remaining archival fields use the existing strict codec as a byte witness.
+struct TaskForceWitness {
+    std::vector<uint8_t> archive, jobs;
+    std::optional<save::ArmyPoolState> pool;
+    bool operator==(const TaskForceWitness&) const = default;
+};
+TaskForceWitness taskForceWitness(const Document& d) {
+    auto projected = std::make_unique<Document>(d);
+    TaskForceWitness result; result.pool = d.armyPool;
+    result.jobs.resize(sizeof(d.jobs));
+    std::memcpy(result.jobs.data(), &d.jobs, sizeof(d.jobs));
+    projected->armyPool.reset();
+    for (auto& player : projected->jobs) for (auto& job : player)
+        std::fill(std::begin(job.armyIds), std::end(job.armyIds), uint16_t(0));
+    result.archive = bytes(*projected); return result;
+}
+uint32_t reuseArmyCell(Document& d, uint16_t oldId, uint16_t newId) {
+    save::Error error;
+    const auto old = std::find_if(d.armies.begin(), d.armies.end(),
+                                  [oldId](const Army& a) { return a.id == oldId; });
+    require(old != d.armies.end(), "pool reuse fixture lacks original army");
+    Army replacement = *old;
+    const uint32_t cell = armyPoolSlot(d, oldId);
+    require(cell && retireArmyPoolSlot(d, oldId, error), "pool reuse fixture retirement failed");
+    d.armies.erase(old); replacement.id = newId; d.armies.push_back(replacement);
+    require(allocateArmyPoolSlot(d, newId, error) && armyPoolSlot(d, newId) == cell,
+            "native free-list head did not reuse the just-retired physical cell");
+    require(save::validate(d, error), "reused-cell fixture failed strict owned validation");
+    return cell;
+}
+void pooledTaskForces() {
+    save::Error error; TaskForceEditReport report;
+    {
+        auto d = fixture(); bind(*d,1,0,2,0);
+        d->jobs[1][0].armyIds[5] = 101; d->jobs[1][0].armies[5].raw = 0xfeed0005;
+        require(ensureArmyPool(*d,error), "pooled Remove setup failed");
+        const auto cell = reuseArmyCell(*d,101,900);
+        require(d->jobs[1][0].armyIds[2] == 101 &&
+                taskForceTarget(*d,1,0,2) == d->armyById(900),
+                "reused fixture accidentally followed expected ID instead of cell");
+        auto expected = std::make_unique<Document>(*d);
+        expected->jobs[1][0].armyIds[2] = 0; expected->jobs[1][0].armies[2].raw = 0;
+        expected->armyPool->jobSlots[1][0][2] = 0; expected->armies.back().job = 0;
+        error = {save::ErrorCode::Io,123,"old"};
+        require(removeArmyFromTaskForce(*d,900,report,error) && report.outcome == TaskForceOutcome::Removed &&
+                report.slot == 2 && report.detachedArmyIds == std::vector<uint32_t>{900} &&
+                taskForceWitness(*d) == taskForceWitness(*expected) && error.code == save::ErrorCode::None,
+                "pooled Remove did not clear the first pointer match transactionally");
+        require(d->armyPool->jobSlots[1][0][5] == cell && d->jobs[1][0].armyIds[5] == 101 &&
+                d->jobs[1][0].armies[5].raw == 0xfeed0005,
+                "pooled Remove eagerly cleaned a duplicate deferred binding");
+        std::vector<uint8_t> out{9,8,7}; const auto before = out;
+        require(!save::encode(*d,out,error) && out == before,
+                "a retained mismatched binding was silently exported");
+    }
+    {
+        auto d = fixture(); bind(*d,1,0,7,0);
+        require(ensureArmyPool(*d,error), "pooled AlreadyPresent setup failed");
+        reuseArmyCell(*d,101,900);
+        d->armies.back().job = -2; d->jobs[1][0].owner = -1;
+        const auto before = taskForceWitness(*d); const auto* pointer = d->armies.data();
+        const auto* poolPointer = d->armyPool->liveIds.data();
+        require(addArmyToTaskForce(*d,1,0,900,report,error) &&
+                report.outcome == TaskForceOutcome::AlreadyPresent && report.slot == 7 &&
+                report.detachedArmyIds.empty() && taskForceWitness(*d) == before &&
+                d->armies.data() == pointer && d->armyPool->liveIds.data() == poolPointer,
+                "reused-pointer AlreadyPresent read stale ID/owner or replaced no-op storage");
+    }
+    {
+        auto d = fixture(); require(ensureArmyPool(*d,error), "null binding fixture setup failed");
+        //0040ab54 does not see the saved ID101 here: its pointer is NULL.
+        d->jobs[1][0].armyIds[0] = 101; d->jobs[1][0].armies[0].raw = 0xabcdef01;
+        require(addArmyToTaskForce(*d,1,0,101,report,error) && report.outcome == TaskForceOutcome::Added &&
+                report.slot == 0 && report.detachedArmyIds.empty() && d->armies[0].job == 1 &&
+                d->jobs[1][0].armyIds[0] == 101 && d->jobs[1][0].armies[0].raw == 0 &&
+                d->armyPool->jobSlots[1][0][0] == armyPoolSlot(*d,101),
+                "null pointer with nonzero expected ID was not the first free insertion slot");
+    }
+    {
+        auto d = fixture(); bind(*d,1,1,4,0);
+        require(ensureArmyPool(*d,error), "cleared-cell Full fixture setup failed");
+        // All pointers are nonnull cleared cells, despite every expected ID0.
+        // Native0040b0c0 therefore returns Full BEFORE ownership validation.
+        for (size_t k = 0; k < 16; ++k)
+            d->armyPool->jobSlots[1][0][k] = uint32_t(kMaxArmies - k);
+        d->jobs[1][0].owner = -1;
+        const auto before = taskForceWitness(*d); const auto* pointer = d->armies.data();
+        require(addArmyToTaskForce(*d,1,0,101,report,error) && report.outcome == TaskForceOutcome::Full &&
+                report.slot == -1 && report.detachedArmyIds.empty() && taskForceWitness(*d) == before &&
+                d->armies.data() == pointer && d->armies[0].job == 2,
+                "nonnull cleared cells were reused as free task-force members");
+        d->jobs[1][0].owner = 1; d->armyPool->jobSlots[1][0][9] = 0;
+        d->jobs[1][0].armyIds[9] = 55555; // NULL with unresolved saved ID is still free.
+        require(addArmyToTaskForce(*d,1,0,101,report,error) && report.outcome == TaskForceOutcome::Added &&
+                report.slot == 9 && report.detachedArmyIds == std::vector<uint32_t>{101} &&
+                d->armyPool->jobSlots[1][1][4] == 0 && d->jobs[1][1].armyIds[4] == 0 &&
+                d->armyPool->jobSlots[1][0][9] == armyPoolSlot(*d,101) && d->jobs[1][0].armyIds[9] == 101,
+                "pooled Add lost remove-first/first-null semantics or synchronized the wrong binding");
+    }
+    {
+        auto d = fixture(); d->armies[0].type = 12; d->armies[0].cargo[0].raw = 102;
+        bind(*d,1,0,0,0); bind(*d,1,1,3,1);
+        require(ensureArmyPool(*d,error), "pooled recursive rollback setup failed");
+        // Saved IDs look correct, but the cargo's typed binding is NULL. Root
+        // removal succeeds on the candidate before this later error occurs.
+        d->armyPool->jobSlots[1][1][3] = 0;
+        const auto before = taskForceWitness(*d); report = sentinel(); const auto keep = report;
+        const auto* pointer = d->armies.data();
+        require(!removeArmyFromTaskForce(*d,101,report,error) && report == keep &&
+                taskForceWitness(*d) == before && d->armies.data() == pointer,
+                "late missing cargo pointer did not roll back IDs, bindings and report");
+        d->armyPool->jobSlots[1][1][3] = armyPoolSlot(*d,102);
+        require(removeArmyFromTaskForce(*d,101,report,error) &&
+                report.detachedArmyIds == std::vector<uint32_t>{101,102} &&
+                d->armyPool->jobSlots[1][0][0] == 0 && d->armyPool->jobSlots[1][1][3] == 0 &&
+                d->jobs[1][0].armyIds[0] == 0 && d->jobs[1][1].armyIds[3] == 0 &&
+                d->armies[0].job == 0 && d->armies[1].job == 0,
+                "type12 recursive Remove did not synchronize every touched pool binding");
+        // Absence of a sidecar still means strict archival ID resolution.
+        d = fixture(); d->jobs[1][0].armyIds[0] = 55555; report = keep;
+        require(!addArmyToTaskForce(*d,1,0,101,report,error) && report == keep && !d->armyPool,
+                "task-force Add silently installed metadata to admit an archival orphan");
+    }
 }
 
 void scoutQueries() {
@@ -603,7 +732,7 @@ int main(int argc, char** argv) {
         rtl::srand(0xf1234567u); (void)rtl::lrand(); gg.rng2Seed = 0xabcd0123;
         const auto low = rtl::seed(), high = rtl::seedHi();
         const auto globals = std::make_unique<GameGlobals>(gg); const auto game = std::make_unique<GameState>(gs);
-        initializationAndDispatch(); removals(); additions(); scoutQueries(); maintainJobs();
+        initializationAndDispatch(); removals(); additions(); pooledTaskForces(); scoutQueries(); maintainJobs();
         diplomacyReactions(); eventReactions(); runtimeReactions();
         const fs::path directory = argc > 1 ? fs::path(argv[1]) : fs::path{};
         canonicalPe(directory); optionalCorpus(directory);

@@ -16,6 +16,56 @@ inspección: mapa, territorios, edificios, unidades y copias sin modificación. 
 lógica de partida está parcialmente escrita y todavía no está integrada. Cargar
 el documento no equivale a activar el estado de juego, simular un turno ni jugar.
 
+## CX-01: referencias militares diferidas — continuación 2026-10-03
+
+Continuación sobre `fe956f4`, mientras Claude desarrolla CL-01 en su worktree
+separado. Codex conserva la integración del núcleo y el tablero
+[CLAUDE_TASKS.MD](CLAUDE_TASKS.MD); no se han integrado cambios de esa rama.
+
+`army_pool` representa 560 celdas físicas propietarias, lista libre nativa LIFO
+y bindings de jobs independientes de los handles públicos por vida. Las bajas
+ya no rechazan por dejar un ID de taskforce: conservan el ID esperado y la celda
+hasta la limpieza explícita0040aebc. Reutilizar una celda cambia el ocupante
+observado, pero no revive el handle de la unidad anterior. Las hojas de limpieza
+por job/jugador/todos mantienen la comparación original ID16/owner firmado,
+incluidas referencias nulas con ID no cero y reutilización con mismo ID/owner.
+
+Creación, transporte, bajas, órdenes, mantenimiento y fase económica completa
+conservan la continuación. Add/Remove de taskforces comparan celdas, no los IDs
+esperados. Comida y detectores tipo14 recorren el pool físico tras reutilización;
+se conservan prioridad de abastecimiento y scratch final del último detector.
+El backend estructural sigue rechazando dependencias, incluso si sólo quedan
+en un binding diferido a una celda reutilizada con ID distinto.
+
+El codec no escribe metadatos de simulación ni limpia jobs para poder guardar.
+Archivos sin sidecar siguen sujetos a referencias estrictas; bindings no
+representables se rechazan al codificar, preparar o reiniciar carga. Capture y
+advanceTurn siguen bloqueados para experimentos. La futura integración SaveGame
+debe proyectar registros en orden físico y ejecutar sus predecesores reales.
+
+Nueva suite `army_pool`, ampliaciones de IA/lifecycle/órdenes/economía e
+inteligencia/comida: límites/reserva, bajas/reutilización, corrupción de
+metadatos, alias, rollback tardío tras una baja, fabricación posterior aislada,
+handles obsoletos, 15 pasos económicos y aislamiento de globales/RNG. Son
+oráculos derivados del decompilado/assembly, no replay observado del original.
+El pool nativo sin ninguna celda libre es un dominio de baja inseguro rechazado,
+no una normalización inventada. EST-04c aún requiere programación de limpieza,
+IA, combate, controles y guardado del turno; ECO-07 ya no tiene el rechazo por
+referencias militares diferidas.
+
+Verificación final de CX-01: **61/61 sin omisiones** en `build-verified`
+(**113,40 s**) y **61/61 sin omisiones** con AddressSanitizer en
+`build-save-asan` (**293,31 s**), sin hallazgos. Comandos:
+`powershell -NoProfile -ExecutionPolicy Bypass -File tools/build.ps1 -BuildDir build-verified -Test`
+y el mismo con `-BuildDir build-save-asan`. Cache ASAN comprobada con
+`/fsanitize=address`; ejecución mediante el script para conservar su runtime.
+Ambos directorios terminan sin recompilación pendiente (`ninja: no work to do`).
+Normal sin avisos de código finales; ASAN conserva D9025 de `/W3`→`/W4`.
+Se corrigió previamente un warning de narrowing en una fixture. Enlaces locales
+de documentación verificados y `git diff --check` limpio. Logs en
+`build-verified/Testing/Temporary/LastTest.log` y
+`build-save-asan/Testing/Temporary/LastTest.log`.
+
 ## EST-04c: santuarios y órdenes de bajas — continuación 2026-10-02
 
 Continuación sobre `5f6c8f3`, centrada en el parcial señalado por el usuario.

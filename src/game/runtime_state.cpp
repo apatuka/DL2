@@ -143,7 +143,18 @@ bool buildGraph(const save::Document& d, Graph& graph,
         for (size_t j = 0; j < kJobsPerPlayer; ++j) {
             const auto& job = d.jobs[p][j]; auto& resolved = graph.jobs[p][j];
             if (job.destination.raw) resolved.destination = {job.destination.raw, preparationIdentity};
-            for (size_t n = 0; n < 16; ++n) resolved.armies[n] = aRef(job.armyIds[n]);
+            for (size_t n = 0; n < 16; ++n) {
+                if (d.armyPool) {
+                    const auto slot = d.armyPool->jobSlots[p][j][n];
+                    resolved.poolSlots[n] = slot;
+                    resolved.pointerPresent[n] = slot != 0;
+                    const auto* occupant = simulation::taskForceTarget(d, int(p), int(j), int(n));
+                    resolved.armies[n] = occupant ? aRef(occupant->id) : ArmyHandle{};
+                } else {
+                    resolved.pointerPresent[n] = job.armyIds[n] != 0;
+                    resolved.armies[n] = aRef(job.armyIds[n]);
+                }
+            }
         }
     }
     return true;
@@ -347,7 +358,7 @@ bool State::finishEdit(State&& candidate, save::Error& error, bool queueNodesRep
 
 bool State::prepare(const save::Document& source, save::Error& error) {
     return guarded([&] {
-        if (!save::validate(source, error)) return false;
+        if (!save::validate(source, error) || !simulation::validateArchivalArmyBindings(source, error)) return false;
         if (source.header.isMap)
             return fail(error, save::ErrorCode::InvalidState, "Execution preparation requires a saved game, not a map");
         State candidate;
@@ -372,7 +383,7 @@ bool State::capture(save::Document& destination, save::Error& error) const {
             return fail(error, save::ErrorCode::InvalidState,
                         "Only a prepared snapshot can be saved; an incomplete turn is not resumable");
         save::Document candidate = *document_;
-        if (!save::validate(candidate, error)) return false;
+        if (!save::validate(candidate, error) || !simulation::validateArchivalArmyBindings(candidate, error)) return false;
         destination = std::move(candidate);
         error = {}; return true;
     }, error);
@@ -1013,6 +1024,30 @@ bool State::removeArmy(ArmyHandle handle, simulation::ArmyRemovalKind kind, bool
     }, error);
 }
 
+bool State::pruneTaskForceArmies(int player, int jobIndex,
+                               simulation::TaskForcePruneReport& report, save::Error& error) {
+    return guarded([&] {
+        State candidate;
+        if (!copyForEdit(candidate, error)) return false;
+        simulation::TaskForcePruneReport result;
+        if (!simulation::pruneTaskForceArmies(*candidate.document_, player, jobIndex,
+                                             *candidate.document_, result, error)) return false;
+        if (!finishEdit(std::move(candidate), error)) return false;
+        report = std::move(result); return true;
+    }, error);
+}
+
+bool State::pruneAllTaskForceArmies(simulation::TaskForcePruneReport& report, save::Error& error) {
+    return guarded([&] {
+        State candidate;
+        if (!copyForEdit(candidate, error)) return false;
+        simulation::TaskForcePruneReport result;
+        if (!simulation::pruneAllTaskForceArmies(*candidate.document_, *candidate.document_, result, error)) return false;
+        if (!finishEdit(std::move(candidate), error)) return false;
+        report = std::move(result); return true;
+    }, error);
+}
+
 bool State::orderDisbandUnit(int actor, ArmyHandle handle,
                             simulation::ArmyLifecycleReport& report, save::Error& error) {
     return guarded([&] {
@@ -1192,6 +1227,7 @@ bool State::insertArmy(const Army& record, ArmyHandle& created,
         auto& d = *candidate.document_;
         auto& t = d.territories[territory - 1].data;
         auto& head = own ? t.armies : t.foreignArmies;
+        if (!simulation::ensureArmyPool(d, error)) return false;
         // Allocation 0044577c / initialization 00445d30 prepend to the selected
         // owning/foreign head; full creation's other effects remain unsupported.
         value.next.raw = head.raw;
@@ -1199,6 +1235,7 @@ bool State::insertArmy(const Army& record, ArmyHandle& created,
         head.raw = value.id;
         const auto count = uint32_t(d.armies.size());
         d.armies.push_back(value);
+        if (!simulation::allocateArmyPoolSlot(d, value.id, error)) return false;
         if (!allocateSlot(candidate.armySlots_, candidate.armyDenseSlots_, error)) return false;
         const auto slot = candidate.armyDenseSlots_.back();
         const ArmyHandle result{slot, candidate.armySlots_[slot - 1].identity};
@@ -1222,6 +1259,12 @@ bool State::retireArmy(ArmyHandle handle, EntityEditReport& report, save::Error&
         for (const auto& jobs : document_->jobs) for (const auto& job : jobs) for (const auto id : job.armyIds)
             if (id == value.id)
                 return fail(error, save::ErrorCode::InvalidState, "Structural army retirement is referenced by a task force");
+        if (document_->armyPool) {
+            const auto physical = simulation::armyPoolSlot(*document_, value.id);
+            for (const auto& jobs : document_->armyPool->jobSlots) for (const auto& members : jobs)
+                if (physical && std::find(members.begin(), members.end(), physical) != members.end())
+                    return fail(error, save::ErrorCode::InvalidState, "Structural army retirement has an incoming deferred pool-cell reference");
+        }
         // DebugJobsDialog 00405d54 case 13: MAINTAIN_UNIT +0x1c is the global ID.
         for (const auto& list : document_->ministerJobs) for (const auto& job : list)
             if (job.type == 13 && job.param[0] == value.id)
@@ -1240,6 +1283,7 @@ bool State::retireArmy(ArmyHandle handle, EntityEditReport& report, save::Error&
         if (value.prev.raw) mutableArmy(d, value.prev.raw)->next.raw = value.next.raw;
         if (value.next.raw) mutableArmy(d, value.next.raw)->prev.raw = value.prev.raw;
         if (head.raw == value.id) head.raw = value.next.raw;
+        if (!simulation::ensureArmyPool(d, error) || !simulation::retireArmyPoolSlot(d, value.id, error)) return false;
         d.armies.erase(d.armies.begin() + index);
         retireSlot(candidate.armySlots_, candidate.armyDenseSlots_, index);
         const EntityEditReport outcome{EntityKind::Army, EntityEditOperation::Retired,

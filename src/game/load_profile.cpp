@@ -1,4 +1,5 @@
 #include "game/load_profile.h"
+#include "game/army_pool.h"
 #include "game/data_tables.h"
 #include <algorithm>
 #include <cstring>
@@ -110,6 +111,9 @@ bool normalizeLoadCore(const save::Document& source, const LoadProfile& profile,
                        save::Document& destination, LoadCoreReport& report, save::Error& error) {
     try {
         if (!save::validate(source, error)) return false;
+        // LoadJobs reconstructs pointers from file IDs. It is not a way to
+        // discard or rebind a running session's deferred pool-cell references.
+        if (!validateArchivalArmyBindings(source, error)) return false;
         if (source.header.isMap)
             return fail(error, save::ErrorCode::InvalidState, "Load profile requires a saved game, not a reduced map");
         if (profile.localPlayer < -1 || profile.localPlayer >= kMaxPlayers ||
@@ -117,6 +121,7 @@ bool normalizeLoadCore(const save::Document& source, const LoadProfile& profile,
             return fail(error, save::ErrorCode::InvalidState, "Load profile has an invalid local player slot or name");
         auto next = std::make_unique<save::Document>(source);
         auto& d = *next;
+        d.armyPool.reset(); // A fresh load reconstructs the physical pool in file order.
         LoadCoreReport result;
         result.version = d.header.version;
         result.localPlayer = profile.localPlayer < 0 ? d.options.localPlayer : profile.localPlayer;

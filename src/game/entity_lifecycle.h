@@ -48,8 +48,9 @@ struct ArmyRemovalRequest {
     uint32_t armyId = 0;
     ArmyRemovalKind kind = ArmyRemovalKind::DeleteUnit;
     // Explicit caller step, NOT an invented effect inside DeleteUnit. Applies
-    // RemoveArmyFromTaskForce to each unit in the impending cascade. False
-    // requires no live task-force IDs would remain dangling after deletion.
+    // RemoveArmyFromTaskForce to each unit in the impending cascade. Otherwise
+    // task forces retain their IDs and typed pool-cell bindings until0040aebc;
+    // deletion never silently performs that later cleanup.
     bool detachTaskForces = false;
 };
 

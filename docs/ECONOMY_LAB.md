@@ -326,8 +326,9 @@ explícita y reconstrucción del log guardado; no recupera transitorios ausentes
 - `economic_upkeep.*` agrupa unidades canónicas y calcula el mantenimiento
   cuadrático original, no una suma de la columna upkeep. Procesa los siete
   jugadores, avisa de déficit y desbanda por precio/experiencia/ID, con bajas en
-  cascada y devoluciones. Una referencia viva de task force que quedaría inválida
-  provoca rechazo transaccional; no se inventa una desvinculación.
+  cascada y devoluciones. Conserva referencias taskforce al slot retirado mediante
+  `Document.armyPool`, también si producción posterior reutiliza la celda;
+  no se inventa desvinculación ni limpieza anticipada.
 - `building_costs.*` financia obras pendientes en orden unsigned16 de ID, con
   escala guardada para City Center, cobros parciales y eventos60. No vuelve a
   cobrar dinero base ni comprobar tecnología. Al completar el pago activa bit2
@@ -389,8 +390,9 @@ Límite descubierto: `0046c5dc` envía evento87 con un entero donde el formato d
 PE espera `%s`; `0046c60c` envía86 con la forma inversa. Assembly y tabla binaria
 confirman un bug del original. Una deserción **hacia el jugador local** se rechaza
 atómicamente, sin intercambiar IDs ni fabricar texto. Hacia IA se conserva el
-dispatch nativo, que no formatea esos argumentos. También permanecen los dominios
-rechazados de hojas anteriores (p.ej. baja que dejaría task force colgante).
+dispatch nativo, que no formatea esos argumentos. También permanecen los demás
+dominios inseguros documentados de las hojas anteriores. Las bajas con taskforces
+ya tienen referencias diferidas propietarias; no son ese rechazo pendiente.
 
 `EconomyPhaseApplied` es terminal: mantiene handles supervivientes, retira las
 colas/unidades realmente consumidas y posee log/IA/RNG/logística/ciudades finales.

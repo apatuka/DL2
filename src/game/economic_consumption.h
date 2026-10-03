@@ -21,7 +21,7 @@ struct UnitFoodChange {
 };
 struct FoodConsumptionReport {
     std::vector<TerritoryFoodChange> territories;
-    std::vector<UnitFoodChange> armies; // Owned physical order, not ID-sorted.
+    std::vector<UnitFoodChange> armies; // Pool-cell order if present, otherwise file order; never ID-sorted.
     std::array<uint8_t, kMaxPlayers> flagsBefore{}, flagsAfter{};
     LoadedEventLog logAfter;
     AiReactionContext aiAfter;
@@ -37,8 +37,11 @@ struct EnergyConsumptionReport {
     RngSnapshot rngAfter;
     std::vector<ConstructionOrderEvent> events;
 };
-//0046b9e8: civilians first, then active armies in physical allocation order,
-// first friendly stock / free supply search for eligible missions or aircraft /
+//0046b9e8: civilians first, then active armies in physical pool order:
+// ArmyPool.liveIds cell1..560 when present, otherwise initial file order.
+// Retired cells are skipped; reused cells expose their CURRENT occupant, not
+// a task force's expected ID or the dense vector's append position.
+// Units use friendly stock / free supply search for eligible missions or aircraft /
 // CollectMaterial fallback. Starvation flags and actual events50/60/2 retain
 // native order. A null current territory is a reported diagnostic skip, matching
 // the original DebugMessage branch. No army damage/disband or population growth.

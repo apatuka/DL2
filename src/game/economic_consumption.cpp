@@ -93,11 +93,21 @@ bool consumeFood(const save::Document& source, const ConstructionOrderContext& c
         for (size_t p = 0; p < kMaxPlayers; ++p) {
             r.flagsBefore[p] = d.players[p].foodFlags; d.players[p].foodFlags &= uint8_t(0xfd);
         }
-        // No food callback creates/deletes armies. Preserve physical document
-        // order, the owned allocator representation, rather than sorting by ID.
-        const size_t count = d.armies.size();
-        for (size_t i = 0; i < count; ++i) {
-            const Army a = d.armies[i];
+        // orig:0046b9e8 visits00645370+i*0x5c for i=0..559. File order is
+        // physical order immediately after load, but not after cell reuse:
+        // dense records append while the allocator can reuse an earlier cell.
+        // Snapshot IDs, not borrowed records: collectors/events can replace d.
+        // No callback in this phase creates or removes an army.
+        std::vector<uint16_t> armyOrder; armyOrder.reserve(d.armies.size());
+        if (d.armyPool) {
+            for (const auto id : d.armyPool->liveIds) if (id) armyOrder.push_back(id);
+        } else {
+            for (const auto& a : d.armies) armyOrder.push_back(a.id);
+        }
+        for (const auto id : armyOrder) {
+            const auto* current = d.armyById(id);
+            if (!current) return fail(error, "ConsumeFood physical army binding lost its current occupant");
+            const Army a = *current;
             if (!a.type) continue;
             if (a.owner < 0 || a.owner >= kMaxPlayers || a.type >= data::kNumUnitTypes)
                 return fail(error, "ConsumeFood army owner/type outside canonical bounds");

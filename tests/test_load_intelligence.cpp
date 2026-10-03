@@ -1,11 +1,13 @@
 // Small independent oracles transcribed from 00447090 / 00446440(mode3) /
 // 0046e730(load=1) / 0046e064. Not observed original-game execution results.
 #include "game/load_intelligence.h"
+#include "game/army_pool.h"
 #include "game/data_tables.h"
 #include "game/save_files.h"
 #include "game/globals.h"
 #include "game/rtl_compat.h"
 #include "formats/hdx_archive.h"
+#include <algorithm>
 #include <array>
 #include <cstring>
 #include <filesystem>
@@ -218,6 +220,59 @@ void detectionOracles() {
             "without sources thresholds reset12 but flags/distance are not blanket-cleared");
 }
 
+void reusedDetectorOrder() {
+    auto d = fixture(6);
+    for (uint32_t i = 1; i < 6; ++i) adjacent(*d,i,i+1);
+    d->territories[0].data.owner = d->territories[5].data.owner = 0;
+    unit(*d,1,0,14); unit(*d,6,0,14);
+    save::Error error;
+    require(simulation::ensureArmyPool(*d,error), "detector pool initialization failed");
+    require(simulation::armyPoolSlot(*d,700) == 1 && simulation::armyPoolSlot(*d,701) == 2,
+            "detector fixture initial physical cells differ");
+    Army replacement = d->armies.front(); replacement.id = 900;
+    require(simulation::retireArmyPoolSlot(*d,700,error), "detector pool retirement failed");
+    d->territories[0].data.armies.raw = 0; d->armies.erase(d->armies.begin());
+    d->armies.push_back(replacement); d->territories[0].data.armies.raw = 900;
+    require(simulation::allocateArmyPoolSlot(*d,900,error) && simulation::armyPoolSlot(*d,900) == 1 &&
+            d->armies[0].id == 701 && d->armies[1].id == 900,
+            "detector reused cell must precede its dense append position");
+    const auto pool = d->armyPool; const auto before = snapshot(*d);
+    const auto seedLow = rtl::seed(), seedHigh = rtl::seedHi(); const auto secondary = gg.rng2Seed;
+    LoadIntelligenceReport report; auto result = rebuild(*d,report);
+    constexpr std::array<int16_t,6> fromLastPhysical{1000,4,3,2,1,0};
+    require(report.detectorSources == 2 && result->armyPool == pool && d->armyPool == pool && snapshot(*d) == before,
+            "detector pass mutated allocator metadata, source or source count");
+    for (size_t i = 0; i < 6; ++i) {
+        const auto& t = result->territories[i].data;
+        require(distance(*result,i+1) == fromLastPhysical[i] && bool(t.flags & 0x2000) == (i != 0) &&
+                t.unk_6d[0] == 9,
+                "last PHYSICAL detector must own scratch/flags while thresholds retain both endpoints");
+    }
+    // No sidecar means loaded file order, so the very same dense records have
+    // the opposite last detector. This contrast catches an accidental fallback.
+    auto archival = std::make_unique<save::Document>(*d); archival->armyPool.reset();
+    LoadIntelligenceReport denseReport; auto dense = rebuild(*archival,denseReport);
+    require(distance(*dense,1) == 0 && distance(*dense,6) == 1000 &&
+            (dense->territories[0].data.flags & 0x2000) && !(dense->territories[5].data.flags & 0x2000) &&
+            denseReport == report,
+            "archival detector fallback did not preserve explicit file order");
+    // Put the archival records in physical order as an independent control;
+    // compare every persistent field AND unsaved territory tail after restoring
+    // its dense record order for the byte witness (not inside production code).
+    std::reverse(archival->armies.begin(),archival->armies.end());
+    auto expected = rebuild(*archival,denseReport);
+    std::reverse(expected->armies.begin(),expected->armies.end());
+    require(snapshot(*expected) == snapshot(*result) && denseReport == report,
+            "physical detection changed unrelated fields or omitted scratch compared with ordered control");
+    auto alias = std::make_unique<save::Document>(*d); LoadIntelligenceReport aliasReport;
+    require(simulation::rebuildLoadIntelligence(*alias,{},*alias,aliasReport,error) && aliasReport == report &&
+            snapshot(*alias) == snapshot(*result) && alias->armyPool == pool,
+            "physical detector source/destination alias did not preserve pool and complete output");
+    require(rtl::seed() == seedLow && rtl::seedHi() == seedHigh && gg.rng2Seed == secondary &&
+            result->events.size() == d->events.size() && result->options.turn == d->options.turn,
+            "physical detector ordering drew RNG, emitted an event or advanced time");
+}
+
 void visibilityOracles() {
     auto d = fixture(3); adjacent(*d, 1, 2); adjacent(*d, 2, 3);
     d->territories[2].data.owner = 0;
@@ -391,7 +446,7 @@ void corpus(const std::filesystem::path& directory) {
 } // namespace
 int main(int argc, char** argv) {
     try {
-        snapshotsAndPopulation(); detectionOracles(); visibilityOracles(); failuresAndIsolation();
+        snapshotsAndPopulation(); detectionOracles(); reusedDetectorOrder(); visibilityOracles(); failuresAndIsolation();
         corpus(argc > 1 ? std::filesystem::path(argv[1]) : std::filesystem::path{});
         std::cout << "load_intelligence: snapshot/detection/visibility oracles, load contact skip, rollback and isolation passed\n";
         return 0;

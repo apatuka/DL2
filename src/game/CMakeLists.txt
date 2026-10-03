@@ -30,6 +30,7 @@ set(GAME_SOURCES
     load_session.cpp
     load_startup.cpp
     ai_session.cpp
+    army_pool.cpp
     entity_lifecycle.cpp
     entity_orders.cpp
     shrine_consequences.cpp

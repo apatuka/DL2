@@ -7,14 +7,18 @@ decompiladas y módulos compilados miden cosas distintas de una partida jugable.
 
 El [checklist de cierre individual](SINGLE_PLAYER_CHECKLIST.md) desglosa los
 pendientes funcionales y sus criterios de aceptación, excluyendo multijugador.
+La [cola de tareas para Claude](CLAUDE_TASKS.MD) separa los paquetes delegables
+del núcleo reservado a Codex y establece contratos, pruebas y entregas para
+trabajar en paralelo sin editar simultáneamente los mismos módulos.
 
-Último avance, enfocado en EST-04c: demolición de santuarios con objetivo12 y
-cola propietaria, órdenes locales individuales de bajas, cascada de plataforma
-y flags marinos conectados a State/CLI. La hoja de consecuencias diferidas usa
-eventos/IA/moral/puntuación reales, pero no salta la fase de combate que debe
-precederla. Siguen referencias taskforce diferidas, coordinación del turno e
-interfaz; [ENTITY_RUNTIME.md](ENTITY_RUNTIME.md) detalla los límites. Las órdenes
-económicas del lote anterior siguen descritas en [ECONOMY_LAB.md](ECONOMY_LAB.md).
+Último avance, enfocado en EST-04c/CX-01: referencias militares diferidas con
+pool propietario, reutilización de celdas y limpieza explícita0040aebc. El
+mantenimiento ya puede desbandar unidades vinculadas sin desprenderlas antes
+de tiempo; economía/State preservan esa continuación. Comida y detectores
+respetan el orden físico tras reutilización. Siguen la programación original
+de limpieza, ramas IA, consecuencias posteriores al combate y turno/interfaz.
+[ENTITY_RUNTIME.md](ENTITY_RUNTIME.md) detalla los límites; la secuencia
+económica está descrita en [ECONOMY_LAB.md](ECONOMY_LAB.md).
 
 ## 0. Base reproducible y recuperación
 

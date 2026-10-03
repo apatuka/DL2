@@ -26,6 +26,9 @@ permite guardar ni presentar ese tramo como turno completo.
 disturbios/deserciones y balance laboral final, con rollback de la secuencia
 entera. Sigue siendo un experimento económico, no un turno jugable; rechaza
 dominios nativos inseguros (incluido un error de formato de deserción local).
+Las bajas ya conservan referencias militares diferidas y el orden de reutilización
+del pool; mantenimiento puede desbandar unidades asignadas sin desprenderlas
+anticipadamente. Su limpieza es explícita, todavía no un turno IA/guardado jugable.
 Las órdenes locales de trabajadores, actividad/locks de edificios, traslado de
 población e investigación ya están integradas en State/CLI y pueden alimentar
 esa fase económica. Conservan permisos, efectos parciales nativos y continuidad
@@ -39,6 +42,7 @@ La demostración previa del motor y del panel SMenu `D000` se conserva mediante 
 
 - [Recuperación de la sesión de Claude](docs/RECOVERY.md): entregables, evidencias y archivos recuperables.
 - [Plan por hitos verificables](docs/ROADMAP.md): orden de continuación y criterios de cierre.
+- [Tareas para Claude](docs/CLAUDE_TASKS.MD): paquetes delegados, responsables, pruebas y protocolo de integración con Codex.
 - [Checklist completo de juego individual](docs/SINGLE_PLAYER_CHECKLIST.md): pendientes para el cierre funcional sin multijugador.
 - [Integración de la lógica](docs/GAME_INTEGRATION.md): código existente que aún no puede enlazarse.
 - [API del motor](docs/ENGINE_API.md): recursos, dibujo y SMenu.
@@ -97,7 +101,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools/build.ps1 -BuildDir bu
 ```
 
 El hito de serialización pasó 8/8, el del inspector 15/15 y el de preparación/fiscalidad 18/18.
-La suite actual, incluidas las órdenes locales, santuarios y la fase económica hasta balance final, pasa **60/60 sin omisiones**, tanto
+La suite actual, incluidas las referencias militares diferidas, órdenes locales, santuarios y fase económica hasta balance final, pasa **61/61 sin omisiones**, tanto
 en `build-verified` como con AddressSanitizer en `build-save-asan`. Incluye 46
 capturas exactas, entidades/emplazamientos y experimentos económicos, además de
 RNG propietario, tablas compartidas y carga parcial: 46 documentos normalizados,

@@ -1,7 +1,9 @@
 #include "game/economic_consumption.h"
+#include "game/army_pool.h"
 #include "game/data_tables.h"
 #include "game/globals.h"
 #include "game/rtl_compat.h"
+#include <algorithm>
 #include <cstring>
 #include <iostream>
 #include <memory>
@@ -75,6 +77,51 @@ void civilianAndPhysicalOrder() {
     check((out->players[0].foodFlags & 6) == 6, "second army starvation requests later upkeep disband");
     for (const auto& ev : same.events) check(ev.type != 2, "repeat starvation suppresses first-warning2");
 }
+void reusedPhysicalOrder() {
+    auto d = fixture(); addArmy(*d,50); addArmy(*d,10); addArmy(*d,30);
+    save::Error e; ok(ensureArmyPool(*d,e),e);
+    check(armyPoolSlot(*d,50) == 1 && armyPoolSlot(*d,10) == 2 && armyPoolSlot(*d,30) == 3,
+          "initial file order must occupy physical cells1..3");
+    ok(retireArmyPoolSlot(*d,50,e),e);
+    // Fixture removal preserves the reciprocal territory list30->10. Pool
+    // retirement is deliberately before dense erasure, like DeleteArmy.
+    d->armies[1].next.raw = 0; d->armies.erase(d->armies.begin());
+    addArmy(*d,900); ok(allocateArmyPoolSlot(*d,900,e),e);
+    check(armyPoolSlot(*d,900) == 1 && d->armies[0].id == 10 && d->armies[2].id == 900,
+          "reuse fixture must separate physical order from dense append order");
+    // Ten food for civilians, then ONE unit ration. The new unit in cell1
+    // eats first, while IDs10/30 in cells2/3 starve. No sorting/list traversal.
+    d->territories[0].data.materials[1] = 11;
+    const auto c = context(); const auto before = bytes(*d); const auto poolBefore = d->armyPool;
+    auto out = fixture(); FoodConsumptionReport r;
+    ok(consumeFood(*d,c,*out,r,e),e);
+    check(bytes(*d) == before && d->armyPool == poolBefore && out->armyPool == poolBefore,
+          "food modified source or allocator/binding metadata");
+    check(r.armies.size() == 3 && r.armies[0].army == 900 && r.armies[1].army == 10 && r.armies[2].army == 30 &&
+          r.armies[0].source == UnitFoodSource::LocalStock && r.armies[1].source == UnitFoodSource::Starved &&
+          r.armies[2].source == UnitFoodSource::Starved && out->territories[0].data.materials[1] == 0,
+          "scarce food did not prioritize the reused low physical cell");
+    check(out->armies[0].id == 10 && out->armies[1].id == 30 && out->armies[2].id == 900,
+          "physical traversal must not reorder dense records");
+    // Independent archival control has the SAME physical order in its dense
+    // load records. Its complete report proves no event/logistics/RNG drift.
+    auto control = std::make_unique<save::Document>(*d); control->armyPool.reset();
+    std::rotate(control->armies.begin(),control->armies.end()-1,control->armies.end());
+    auto expected = fixture(); FoodConsumptionReport reference;
+    ok(consumeFood(*control,c,*expected,reference,e),e);
+    check(r == reference && out->players[0].foodFlags == expected->players[0].foodFlags &&
+          out->options.turn == 29 && out->armies.size() == 3,
+          "pool traversal changed effects, RNG, flags or army lifetimes beyond ordering");
+    auto alias = std::make_unique<save::Document>(*d); FoodConsumptionReport aliased;
+    ok(consumeFood(*alias,c,*alias,aliased,e),e);
+    check(aliased == r && bytes(*alias) == bytes(*out) && alias->armyPool == poolBefore,
+          "physical consumption alias lost allocator metadata or effects");
+    auto bad = std::make_unique<save::Document>(*d); bad->armyPool->liveIds[1] = 55555;
+    const auto invalidPool = bad->armyPool; const auto outputBefore = bytes(*out); const auto reportBefore = r;
+    check(!consumeFood(*bad,c,*out,r,e) && e.code == save::ErrorCode::InvalidState &&
+          bad->armyPool == invalidPool && bytes(*out) == outputBefore && out->armyPool == poolBefore && r == reportBefore,
+          "invalid physical occupant did not reject without changing output/context/allocator");
+}
 void hungerAndNarrowing() {
     auto d = fixture(); auto out = fixture(); auto c = context(); save::Error e; FoodConsumptionReport r;
     d->territories[0].data.materials[1] = 3;
@@ -140,7 +187,7 @@ void aiAndGlobalIsolation() {
 }
 }
 int main() {
-    try { civilianAndPhysicalOrder(); hungerAndNarrowing(); freeSupplierAndMission(); energyAndAtomicity(); aiAndGlobalIsolation();
+    try { civilianAndPhysicalOrder(); reusedPhysicalOrder(); hungerAndNarrowing(); freeSupplierAndMission(); energyAndAtomicity(); aiAndGlobalIsolation();
         std::cout << "economic_consumption: PASS\n"; return 0;
     } catch (const std::exception& e) { std::cerr << e.what() << '\n'; return 1; }
 }

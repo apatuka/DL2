@@ -1,4 +1,5 @@
 #include "game/ai_session.h"
+#include "game/army_pool.h"
 #include "game/data_tables.h"
 #include <algorithm>
 #include <bit>
@@ -53,8 +54,35 @@ Army* findArmy(save::Document& d, uint32_t id) {
                                   [id](const Army& a) { return a.id == id; });
     return found == d.armies.end() ? nullptr : &*found;
 }
-// orig: RemoveArmyFromTaskForce0040adf4. The original pointer array is exactly
-// the loaded resolution of armyIds; archival Job.armies words are NOT pointers.
+// orig:0040ab54 and RemoveArmyFromTaskForce0040adf4 compare Army POINTERS,
+// not the separately saved IDs. Once physical pool metadata exists, an old
+// binding observes that cell's current occupant even after retirement/reuse.
+// Without metadata, validated archival IDs are the initial loaded resolution.
+int taskForceMember(const save::Document& d, size_t player, size_t job, uint16_t id) {
+    if (d.armyPool) {
+        const uint32_t physical = armyPoolSlot(d, id);
+        if (!physical) return -1;
+        const auto& slots = d.armyPool->jobSlots[player][job];
+        const auto found = std::find(slots.begin(), slots.end(), physical);
+        return found == slots.end() ? -1 : int(found - slots.begin());
+    }
+    const auto& ids = d.jobs[player][job].armyIds;
+    const auto found = std::find(std::begin(ids), std::end(ids), id);
+    return found == std::end(ids) ? -1 : int(found - std::begin(ids));
+}
+// orig:0040b0c0 tests the pointer array for NULL. A cleared physical cell is
+// still nonnull; conversely a null binding is free even with a stale saved ID.
+int freeTaskForceMember(const save::Document& d, size_t player, size_t job) {
+    if (d.armyPool) {
+        const auto& slots = d.armyPool->jobSlots[player][job];
+        const auto found = std::find(slots.begin(), slots.end(), uint32_t(0));
+        return found == slots.end() ? -1 : int(found - slots.begin());
+    }
+    const auto& ids = d.jobs[player][job].armyIds;
+    const auto found = std::find(std::begin(ids), std::end(ids), uint16_t(0));
+    return found == std::end(ids) ? -1 : int(found - std::begin(ids));
+}
+// orig: RemoveArmyFromTaskForce0040adf4. Archival Job.armies words are inert.
 // Each successful recursion sets Army.job=0 before visiting cargo, so cycles
 // terminate. The original missing-match DebugMessage is an explicit error here.
 bool detach(save::Document& d, Army& army, TaskForceEditReport& report,
@@ -64,12 +92,15 @@ bool detach(save::Document& d, Army& army, TaskForceEditReport& report,
         return fail(error, "Task force cargo recursion exceeds the owned army count", save::ErrorCode::Limit);
     if (army.owner < 0 || army.owner >= kMaxPlayers || army.job < 1 || army.job > kJobsPerPlayer)
         return fail(error, "Task force owner or one-based Army.job is outside its array");
-    auto& job = d.jobs[size_t(army.owner)][size_t(army.job - 1)];
-    const auto found = std::find(std::begin(job.armyIds), std::end(job.armyIds), army.id);
-    if (found == std::end(job.armyIds))
-        return fail(error, "Army.job has no matching army ID in its owner-local task force");
-    const size_t slot = size_t(found - std::begin(job.armyIds));
-    *found = 0; job.armies[slot].raw = 0; army.job = 0;
+    const size_t player = size_t(army.owner), jobIndex = size_t(army.job - 1);
+    auto& job = d.jobs[player][jobIndex];
+    const int member = taskForceMember(d, player, jobIndex, army.id);
+    if (member < 0)
+        return fail(error, "Army.job has no matching army binding in its owner-local task force");
+    const size_t slot = size_t(member);
+    job.armyIds[slot] = 0; job.armies[slot].raw = 0;
+    if (d.armyPool) d.armyPool->jobSlots[player][jobIndex][slot] = 0;
+    army.job = 0;
     report.detachedArmyIds.push_back(army.id);
     // TYPE 12 only, NOT every carrier class. Empty slots1/2 fall back to slot0;
     // this apparent redundancy exists in the original and is kept verbatim.
@@ -183,9 +214,7 @@ bool removeArmyFromTaskForce(save::Document& d, uint32_t armyId,
         if (!army->job) return true;
         result.jobIndex = int(army->job) - 1;
         if (army->owner >= 0 && army->owner < kMaxPlayers && army->job >= 1 && army->job <= kJobsPerPlayer) {
-            const auto& ids = next.jobs[size_t(army->owner)][size_t(army->job - 1)].armyIds;
-            const auto match = std::find(std::begin(ids), std::end(ids), army->id);
-            if (match != std::end(ids)) result.slot = int(match - std::begin(ids));
+            result.slot = taskForceMember(next, size_t(army->owner), size_t(army->job - 1), army->id);
         }
         if (!detach(next, *army, result, error)) return false;
         result.outcome = TaskForceOutcome::Removed; return true;
@@ -201,20 +230,22 @@ bool addArmyToTaskForce(save::Document& d, int player, int jobIndex, uint32_t ar
         if (!army) return fail(error, "Task force insertion army ID is unresolved");
         auto& job = next.jobs[size_t(player)][size_t(jobIndex)];
         result.armyId = armyId; result.player = player; result.jobIndex = jobIndex;
-        const auto present = std::find(std::begin(job.armyIds), std::end(job.armyIds), army->id);
-        if (present != std::end(job.armyIds)) {
-            result.slot = int(present - std::begin(job.armyIds)); result.outcome = TaskForceOutcome::AlreadyPresent; return true;
+        const int present = taskForceMember(next, size_t(player), size_t(jobIndex), army->id);
+        if (present >= 0) {
+            result.slot = present; result.outcome = TaskForceOutcome::AlreadyPresent; return true;
         }
-        const auto free = std::find(std::begin(job.armyIds), std::end(job.armyIds), uint16_t(0));
-        if (free == std::end(job.armyIds)) { result.outcome = TaskForceOutcome::Full; return true; }
+        const int free = freeTaskForceMember(next, size_t(player), size_t(jobIndex));
+        if (free < 0) { result.outcome = TaskForceOutcome::Full; return true; }
         // Explicit safe domain: original address subtraction uses Job.owner;
         // Remove subsequently selects Army.owner. Different owners would create
         // a binding that cannot be maintained safely in an owner-local array.
         if (job.owner != player || army->owner != player)
             return fail(error, "Task force insertion requires matching job, army and target owners");
-        result.slot = int(free - std::begin(job.armyIds));
+        result.slot = free;
         if (!detach(next, *army, result, error)) return false;
         job.armyIds[result.slot] = army->id; job.armies[result.slot].raw = 0;
+        if (next.armyPool)
+            next.armyPool->jobSlots[size_t(player)][size_t(jobIndex)][size_t(result.slot)] = armyPoolSlot(next, army->id);
         army->job = int16_t(jobIndex + 1); result.outcome = TaskForceOutcome::Added; return true;
     });
 }

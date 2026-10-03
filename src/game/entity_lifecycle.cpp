@@ -1,5 +1,6 @@
 #include "game/entity_lifecycle.h"
 #include "game/ai_session.h"
+#include "game/army_pool.h"
 #include "game/data_tables.h"
 #include "game/entity_rules.h"
 #include "game/supplemental_tables.h"
@@ -176,7 +177,9 @@ bool createOne(save::Document& d, const ArmyCreationRequest& request, const Army
     auto& head = t.owner == request.owner ? t.armies : t.foreignArmies;
     value.next.raw = head.raw;
     if (auto* oldHead = army(d,head.raw)) oldHead->prev.raw = newId;
-    head.raw = newId; d.armies.push_back(value); report.createdIds.push_back(newId); id = newId;
+    head.raw = newId; d.armies.push_back(value);
+    if (!allocateArmyPoolSlot(d, newId, error)) return false;
+    report.createdIds.push_back(newId); id = newId;
     if (t.terrain == 0 && data::kUnitTypes[request.unitType].domain == data::kDomainLand)
         if (!attach(d,newId,context,report,error)) return false;
     if (request.unitType == 35) {
@@ -214,13 +217,6 @@ bool cascade(const save::Document& d, uint32_t id, std::unordered_set<uint32_t>&
     }
     active.erase(id); order.push_back(id); return true;
 }
-bool taskForceReferences(const save::Document& d, const std::unordered_set<uint32_t>& removed, save::Error& error) {
-    for (const auto& jobs : d.jobs) for (const auto& job : jobs) for (uint32_t id : job.armyIds)
-        if (removed.contains(id)) return fail(error, "deletion would leave a task-force ID; request explicit caller detachment or repair inconsistent membership");
-    for (uint32_t id : removed) if (d.armyById(id)->job != 0)
-        return fail(error, "deletion requires explicit caller detachment of Army.job");
-    return true;
-}
 // orig: 00445a74,00445fd4,00445800. Postorder is the original cascade order.
 bool eraseOne(save::Document& d, uint32_t id, save::Error& error) {
     const Army value = *d.armyById(id);
@@ -237,6 +233,9 @@ bool eraseOne(save::Document& d, uint32_t id, save::Error& error) {
     else if (t.foreignArmies.raw == id) t.foreignArmies.raw = value.next.raw;
     const auto found = std::find_if(d.armies.begin(),d.armies.end(),[&](const auto& a){return a.id==id;});
     if (found == d.armies.end()) return fail(error,"deletion lost its live army record");
+    // DeleteArmy clears the pool cell and pushes it onto the free-list head.
+    // Job pointers remain bound to that cell, even through its next allocation.
+    if (!retireArmyPoolSlot(d, id, error)) return false;
     d.armies.erase(found); return true;
 }
 // orig: 0046b074/0046b0e4. No Active flag or construction-tech gate.
@@ -308,6 +307,7 @@ bool createArmy(const save::Document& source, const ArmyCreationRequest& request
     if (allowed.reason != ArmyCreationReason::Allowed || !allowed.poolAvailable)
         return fail(error,"creation denied by CanCreateUnit or the reserved pool slot");
     auto candidate = std::make_unique<save::Document>(source);
+    if (!ensureArmyPool(*candidate, error)) return false;
     ArmyLifecycleReport result; result.territory = request.territory; result.counterBefore = source.options.nextGlobalId;
     ArmyCreationReason denial;
     if (!createOne(*candidate,request,context,result.primaryId,denial,result,error)) return false;
@@ -329,6 +329,7 @@ bool removeArmy(const save::Document& source, const ArmyRemovalRequest& request,
     std::vector<uint32_t> order;
     if (!cascade(source,request.armyId,active,removed,order,error)) return false;
     auto candidate = std::make_unique<save::Document>(source);
+    if (!ensureArmyPool(*candidate, error)) return false;
     ArmyLifecycleReport result;
     result.primaryId = request.armyId; result.territory = root->dest.raw;
     result.counterBefore = result.counterAfter = source.options.nextGlobalId;
@@ -337,7 +338,6 @@ bool removeArmy(const save::Document& source, const ArmyRemovalRequest& request,
         TaskForceEditReport ignored;
         for (uint32_t id : order) if (!removeArmyFromTaskForce(*candidate,id,ignored,error)) return false;
     }
-    if (!taskForceReferences(*candidate,removed,error)) return false;
     if (request.kind == ArmyRemovalKind::DisbandUnit && !disbandRefund(*candidate,request.armyId,result,error)) return false;
     for (uint32_t id : order) {
         if (!eraseOne(*candidate,id,error)) return false;

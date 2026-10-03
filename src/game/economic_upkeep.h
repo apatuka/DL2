@@ -38,8 +38,8 @@ struct EconomicUpkeepReport {
 // Selects highest CANONICAL unit price, then lowest signed experience, then
 // first ascending ID. One primary per player; cargo/paired casualties may add
 // removals. Actual refunds/population/labor/list/cargo effects are executed.
-// No invented task-force detachment: original caller has none. If deleting
-// would leave live task-force references, the whole transaction fails safely.
+// No invented task-force detachment: original caller has none. Deleted armies
+// leave typed pool-cell bindings and unchanged job IDs for later0040aebc cleanup.
 // Deferred MaintainUnit minister13 records remain, as in the original core.
 // Uses explicit live event/AI/RNG context. Payment part of context is unused;
 // this function does not reset logistics, consume food, fabricate a turn, or

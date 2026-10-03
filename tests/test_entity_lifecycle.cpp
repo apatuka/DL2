@@ -1,5 +1,6 @@
 // Derived original-function oracles, not an assertion of a live game replay.
 #include "game/entity_lifecycle.h"
+#include "game/army_pool.h"
 #include "game/entity_creation.h"
 #include "game/ai_session.h"
 #include "game/data_tables.h"
@@ -178,7 +179,21 @@ void jobsAndDeferredMinisters() {
     require(passenger.doc->armyById(1001)->job==1 && passenger.doc->jobs[0][0].armyIds[1]==1001 &&
             passenger.doc->jobs[0][0].armies[1].raw==0 && passenger.doc->armyById(host)->cargo[0].raw==1001,
             "cargo compatible with transport taskforce is removed/added using authoritative file IDs");
-    rejectRemove(*passenger.doc,{host,ArmyRemovalKind::DeleteUnit,false});
+    const auto hostSlot=armyPoolSlot(*passenger.doc,host), passengerSlot=armyPoolSlot(*passenger.doc,1001);
+    auto deferred=remove(*passenger.doc,host,ArmyRemovalKind::DeleteUnit,false);
+    require(deferred.doc->armies.empty() && deferred.report.removedIds==std::vector<uint32_t>({1001,host}) &&
+            deferred.doc->jobs[0][0].armyIds[0]==host && deferred.doc->jobs[0][0].armyIds[1]==1001 &&
+            deferred.doc->armyPool->jobSlots[0][0][0]==hostSlot && deferred.doc->armyPool->jobSlots[0][0][1]==passengerSlot &&
+            !taskForceTarget(*deferred.doc,0,0,0) && !taskForceTarget(*deferred.doc,0,0,1),
+            "native carrier cascade leaves both taskforce IDs bound to their cleared physical cells");
+    save::Error deferredError; require(save::validate(*deferred.doc,deferredError),"deferred cascade is valid simulation state");
+    std::vector<uint8_t> refused{4,2};
+    require(!save::encode(*deferred.doc,refused,deferredError) && refused==std::vector<uint8_t>({4,2}),
+            "deferred taskforce references cannot silently become a SAV");
+    TaskForcePruneReport pruned;
+    require(pruneTaskForceArmies(*deferred.doc,0,0,*deferred.doc,pruned,deferredError) && pruned.cleared.size()==2 &&
+            !deferred.doc->jobs[0][0].armyIds[0] && !deferred.doc->jobs[0][0].armyIds[1],
+            "explicit native cleanup clears cascade references in member order");
     auto detached=remove(*passenger.doc,host,ArmyRemovalKind::DeleteUnit,true);
     require(detached.doc->armies.empty() && !detached.doc->jobs[0][0].armyIds[0] && !detached.doc->jobs[0][0].armyIds[1],
             "explicit caller taskforce cleanup precedes cascade and clears affected IDs/cache words");

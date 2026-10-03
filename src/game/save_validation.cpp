@@ -1,6 +1,7 @@
 // Validation of the owning file document, never of the live gs/gg state.
 // orig: FUN_00460258 .. FUN_00461078; see SAVEFORMAT.md and savparse.deep_check.
 #include "game/save_document.h"
+#include "game/army_pool.h"
 
 #include <cstring>
 #include <string>
@@ -87,6 +88,8 @@ bool validate(const Document& d, Error& error) {
         return fail(error, ErrorCode::Limit, 0, "Trailing bytes exceed the file size limit");
 
     if (isMap) {
+        if (d.armyPool)
+            return fail(error, ErrorCode::InvalidState, 0, "Reduced maps cannot own an army simulation pool");
         const size_t mapOffset = sizeof(SaveHeader) + sizeof(WorldParams);
         if (d.mapTerritories.size() != nTerritories)
             return fail(error, ErrorCode::InvalidState, mapOffset, "Map territory count differs from WorldParams");
@@ -272,6 +275,7 @@ bool validate(const Document& d, Error& error) {
             if (id != 0 && !armyIds.contains(id))
                 return fail(error, ErrorCode::InvalidState, base + offsetof(Army, cargo), item("Armies", i, "cargo or list ID does not exist"));
     }
+    if (!simulation::validateArmyPool(d, error)) return false;
     for (size_t p = 0; p < d.jobs.size(); ++p) {
         for (size_t j = 0; j < d.jobs[p].size(); ++j) {
             const auto& job = d.jobs[p][j];
@@ -279,7 +283,7 @@ bool validate(const Document& d, Error& error) {
             if (job.destination.raw > nTerritories)
                 return fail(error, ErrorCode::InvalidState, base + offsetof(Job, destination), item("Jobs", p * kJobsPerPlayer + j, "destination is out of range"));
             for (size_t k = 0; k < 16; ++k)
-                if (job.armyIds[k] != 0 && !armyIds.contains(job.armyIds[k]))
+                if (!d.armyPool && job.armyIds[k] != 0 && !armyIds.contains(job.armyIds[k]))
                     return fail(error, ErrorCode::InvalidState, base + offsetof(Job, armyIds) + k * sizeof(uint16_t), item("Jobs", p * kJobsPerPlayer + j, "army ID does not exist"));
             // job.armies, scratch jobs, Player AI functions and all ignored words
             // are retained exactly. They are not executable/runtime pointers.

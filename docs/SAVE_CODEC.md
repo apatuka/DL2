@@ -5,7 +5,7 @@
 `src/game/save_document.h` define `dl2::save::Document`: una representación con
 propiedad de sus datos para inspeccionar, modificar y serializar `.SAV`, `.CPN`
 y los escenarios extraídos de `LEVELS.HDX/HDD`. Es independiente de `gs`, `gg`,
-los pools de ejecución, el RNG, la interfaz y los callbacks del juego.
+los pools globales heredados, el RNG, la interfaz y los callbacks del juego.
 
 La API conserva el formato físico de generación **4**, versiones **35..288**
 (`0x23..0x120`). Rechaza generaciones S/T/U/V y versiones fuera del intervalo;
@@ -22,6 +22,21 @@ palabras históricas inertes. **No son punteros nativos ni handles de `dl2::ptr`
 Las listas de ministros incluyen su cabecera; las colas conservan los registros
 de `0x30` bytes que realmente se guardan. Los tiles se almacenan de manera densa,
 por filas de `width` elementos, no con el stride de 40 del estado de ejecución.
+
+Desde CX-01, `Document` puede acompañarse de `armyPool`, una continuación
+propietaria opcional de simulación, **no** un bloque nuevo del formato. `decode`
+siempre deja esa continuación ausente y sigue rechazando IDs de job inexistentes.
+Con metadatos explícitos, `validate` comprueba celdas, lista libre y bindings y
+admite referencias diferidas de taskforces. `encode` añade una guardia estricta:
+los bindings deben poder reconstruirse por los IDs de archivo; no acepta una
+celda retirada/reutilizada con otro ID ni referencia nula con ID no cero.
+No ejecuta la limpieza de IA para conseguir un guardado.
+
+El codec conserva el orden del vector de registros suministrado, no ordena la
+simulación por su pool ni convierte fases parciales en partidas reanudables.
+La futura integración de SaveGame deberá ejecutar sus predecesores, limpieza
+original y proyección de unidades en orden físico antes de usar el codec.
+`State::capture` sigue bloqueado después de ediciones/fases experimentales.
 
 ## API
 

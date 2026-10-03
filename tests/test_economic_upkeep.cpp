@@ -1,5 +1,7 @@
 // Independent0046b818/0046b4d0/0046b3dc oracles, not an original-binary replay.
 #include "game/economic_upkeep.h"
+#include "game/army_pool.h"
+#include "game/unit_manufacturing.h"
 #include "game/data_tables.h"
 #include "game/globals.h"
 #include "game/rtl_compat.h"
@@ -144,10 +146,21 @@ void cascadesAndContexts() {
     require(!processEconomicUpkeep(*d,context(),*output,report,e) && bytes(*d)==before && bytes(*output)==prior && report==old,
             "missing AI rolls back entire upkeep pass");
     d=fixture(); addArmy(*d,1,1); d->players[0].foodFlags=4; d->armies[0].job=1; d->jobs[0][0].armyIds[0]=1;
-    const auto linked=bytes(*d);
-    require(!processEconomicUpkeep(*d,context(),*d,report,e) && bytes(*d)==linked && report==old && e.message.find("task-force")!=std::string::npos,
-            "late core deletion refuses task-force dangling refs; no invented detach, in-place rollback");
-    d->armies[0].job=0; d->jobs[0][0].armyIds[0]=0;
+    const auto linked=bytes(*d); auto linkedSource=std::make_unique<save::Document>(*d);
+    EconomicUpkeepReport linkedReport;
+    ok(processEconomicUpkeep(*d,context(),*d,linkedReport,e),e);
+    require(linkedReport.retiredIds==std::vector<uint32_t>{1} && d->armies.empty() && d->jobs[0][0].armyIds[0]==1 &&
+            d->armyPool->jobSlots[0][0][0]!=0 && !taskForceTarget(*d,0,0,0) && bytes(*linkedSource)==linked,
+            "upkeep disbands linked unit with retained ID/cell, without eager taskforce detach");
+    ok(save::validate(*d,e),e);
+    auto linkedSeparate=fixture(); EconomicUpkeepReport linkedAgain;
+    ok(processEconomicUpkeep(*linkedSource,context(),*linkedSeparate,linkedAgain,e),e);
+    require(linkedAgain==linkedReport && linkedSeparate->armyPool==d->armyPool &&
+            std::memcmp(&linkedSeparate->jobs,&d->jobs,sizeof(d->jobs))==0,
+            "aliased upkeep retains exactly the same deferred bindings and report as separate output");
+    std::vector<uint8_t> denied{3,4};
+    require(!save::encode(*d,denied,e) && denied==std::vector<uint8_t>({3,4}),"upkeep deferred binding blocks archival encoding");
+    d=std::move(linkedSource); d->armies[0].job=0; d->jobs[0][0].armyIds[0]=0;
     d->ministerJobs[0].resize(2); d->ministerJobs[0][0].next.raw=1;
     d->ministerJobs[0][1].type=13; d->ministerJobs[0][1].param[0]=1;
     auto deferred=process(*d);
@@ -159,6 +172,36 @@ void cascadesAndContexts() {
     d=fixture(); d->players[6].race=127;
     require(!processEconomicUpkeep(*d,context(),*output,report,e) && bytes(*output)==prior && report==old,
             "inactive player unsafe racial address still fails, because original reads all seven");
+}
+void deferredContinuationAndLateRollback() {
+    auto d=fixture(); addArmy(*d,7,1).job=1; d->jobs[0][0].armyIds[0]=7; d->players[0].foodFlags=4;
+    QueueRecord q{}; q.unitType=1; q.count=1; q.data[0]=35; d->territories[0].queues[0].push_back(q);
+    auto c=context(); const auto before=bytes(*d); const auto log=c.log; const auto ai=c.ai; const auto rng=c.events.rngBeforeEvents;
+    auto destination=fixture(); const auto destBefore=bytes(*destination);
+    EconomicUpkeepReport report; report.retiredIds={999}; const auto prior=report; save::Error e;
+    d->players[6].race=127; const auto badBefore=bytes(*d);
+    require(!processEconomicUpkeep(*d,c,*destination,report,e) && e.message.find("racial multiplier")!=std::string::npos &&
+            bytes(*d)==badBefore && bytes(*destination)==destBefore && report==prior && !d->armyPool && !destination->armyPool &&
+            c.log==log && c.ai==ai && c.events.rngBeforeEvents==rng,
+            "player6 failure AFTER player0 disband rolls back private pool, deferred refs, events, RNG and outputs");
+    require(!processEconomicUpkeep(*d,c,*d,report,e) && bytes(*d)==badBefore && !d->armyPool && report==prior,
+            "late upkeep failure also rolls back when destination aliases source");
+    d->players[6].race=2; require(bytes(*d)==before,"restored fixture matches original input");
+    ok(processEconomicUpkeep(*d,c,*destination,report,e),e);
+    require(report.retiredIds==std::vector<uint32_t>{7},"successful control reaches same linked retirement before later continuation");
+    const auto freed=destination->armyPool->jobSlots[0][0][0];
+    UnitManufacturingContext manufacture; manufacture.effects=c;
+    manufacture.effects.log=report.logAfter; manufacture.effects.ai=report.aiAfter; manufacture.effects.events.rngBeforeEvents=report.rngAfter;
+    UnitManufacturingReport built;
+    // This is explicit isolated ProduceUnits AFTER upkeep, not the refinement
+    // pass: native case11 only supplies manufacturing output in pass1.
+    ok(produceUnits(*destination,{1,1,1},manufacture,*destination,built,e),e);
+    require(built.createdIds==std::vector<uint32_t>{1001} && armyPoolSlot(*destination,1001)==freed &&
+            destination->armyPool->jobSlots[0][0][0]==freed && destination->jobs[0][0].armyIds[0]==7 &&
+            taskForceTarget(*destination,0,0,0) && taskForceTarget(*destination,0,0,0)->id==1001 && bytes(*d)==before,
+            "upkeep and later isolated manufacturing preserve metadata across copies and reuse the exact freed cell");
+    std::vector<uint8_t> denied{5,6};
+    require(!save::encode(*destination,denied,e) && denied==std::vector<uint8_t>({5,6}),"reused different-ID binding remains nonarchivable until cleanup");
 }
 void corpus(const fs::path& directory) {
     if (directory.empty() || !fs::is_regular_file(directory/"TUTORIAL.SAV")) return;
@@ -193,7 +236,7 @@ int main(int argc,char** argv) {
         rtl::srand(0x12345678); (void)rtl::lrand(); gg.rng2Seed=0xabcdef01;
         const auto low=rtl::seed(),high=rtl::seedHi(); const auto globals=std::make_unique<GameGlobals>(gg);
         const auto game=std::make_unique<GameState>(gs);
-        costs(); shortagesAndSelection(); cascadesAndContexts(); corpus(argc>1?fs::path(argv[1]):fs::path{});
+        costs(); shortagesAndSelection(); cascadesAndContexts(); deferredContinuationAndLateRollback(); corpus(argc>1?fs::path(argv[1]):fs::path{});
         require(rtl::seed()==low && rtl::seedHi()==high && std::memcmp(globals.get(),&gg,sizeof(gg))==0 &&
                 std::memcmp(game.get(),&gs,sizeof(gs))==0,"upkeep modified global state/RNG");
         std::cout<<"economic upkeep tests passed\n"; return 0;

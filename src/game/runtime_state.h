@@ -23,6 +23,7 @@
 #include "game/load_world_presentation.h"
 #include "game/load_shrine_events.h"
 #include "game/ai_session.h"
+#include "game/army_pool.h"
 #include "game/building_progress.h"
 #include "game/unit_manufacturing.h"
 #include "game/economic_prefix.h"
@@ -87,7 +88,12 @@ struct MinisterNode {
 };
 struct JobLinks {
     TerritoryHandle destination;
-    std::array<ArmyHandle, 16> armies{}; // From armyIds, never Job::armies raw words.
+    // Current pool-cell occupants, NOT a fresh lookup of saved armyIds after
+    // deletion/reuse. A retired cell has pointerPresent=true and a null handle.
+    // Handles themselves retain the usual independent lifetime protection.
+    std::array<ArmyHandle, 16> armies{};
+    std::array<bool, 16> pointerPresent{};
+    std::array<uint32_t, 16> poolSlots{}; // 1-based when the owned pool is present.
 };
 struct Graph {
     std::vector<BuildingLinks> buildings;
@@ -268,6 +274,11 @@ public:
                     simulation::ArmyLifecycleReport& report, save::Error& error);
     bool removeArmy(ArmyHandle handle, simulation::ArmyRemovalKind kind, bool detachTaskForces,
                     simulation::ArmyLifecycleReport& report, save::Error& error);
+    // Explicit0040aebc / ordered all-job cleanup, not a DeleteUnit callback,
+    // AI turn or save operation. Like other isolated edits, blocks capture.
+    bool pruneTaskForceArmies(int player, int jobIndex,
+                              simulation::TaskForcePruneReport& report, save::Error& error);
+    bool pruneAllTaskForceArmies(simulation::TaskForcePruneReport& report, save::Error& error);
     // Confirmed local-human commands; no dialogs, battle or invented detach.
     bool orderDisbandUnit(int actor, ArmyHandle handle,
                          simulation::ArmyLifecycleReport& report, save::Error& error);

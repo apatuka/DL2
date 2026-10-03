@@ -1,4 +1,5 @@
 #include "game/runtime_state.h"
+#include "game/army_pool.h"
 #include "game/data_tables.h"
 #include "game/save_files.h"
 #include <algorithm>
@@ -112,6 +113,23 @@ void campaignSkipAndDisband() {
     check(r->prefix.createdIds==r->prefix.retiredIds && r->prefix.createdIds.size()==1 && state.document()->armies.empty(),
           "created then disbanded army has no phantom slot in completed economic phase");
 }
+void deferredTaskForceDisband() {
+    auto d=fixture(); d->territories[0].queues[0].clear(); d->players[0].foodFlags=4;
+    Army a{}; a.id=20; a.type=1; a.unitClass=1; a.owner=0; a.health=100; a.job=1;
+    a.dest.raw=a.territory.raw=a.origin.raw=1; std::memcpy(a.name,"Guard",6);
+    d->armies.push_back(a); d->territories[0].data.armies.raw=20; d->jobs[0][0].armyIds[0]=20;
+    const auto original=bytes(*d); runtime::State state; save::Error e; ok(state.prepare(*d,e),e);
+    const auto old=state.armyById(20); auto r=std::make_unique<EconomicPhaseReport>();
+    ok(state.runEconomicPhase(context(),*r,e),e);
+    check(r->completed==order && r->prefix.retiredIds==std::vector<uint32_t>{20} && !state.army(old) &&
+          state.document()->jobs[0][0].armyIds[0]==20 && state.graph().jobs[0][0].pointerPresent[0] &&
+          state.graph().jobs[0][0].poolSlots[0]!=0 && !state.graph().jobs[0][0].armies[0] && bytes(*d)==original,
+          "all15 steps preserve native deferred job target after upkeep retirement and invalidate public handle");
+    ok(save::validate(*state.document(),e),e);
+    std::vector<uint8_t> denied{1,9};
+    check(!save::encode(*state.document(),denied,e) && denied==std::vector<uint8_t>({1,9}),
+          "economic phase with retained freed-cell binding cannot be archived");
+}
 void liveResearchCampaignFlag() {
     auto d=fixture(); d->options.campaign=6; d->players[0].currentResearch=46;
     d->localList.clear(); d->techs[46].progress[0]=uint16_t(data::kTechs[46].cost-1);
@@ -141,7 +159,7 @@ void corpus(const std::filesystem::path& path) {
 }
 }
 int main(int argc,char** argv) {
-    try { connected(); lateRollback(); campaignSkipAndDisband(); liveResearchCampaignFlag(); if(argc>1) corpus(argv[1]);
+    try { connected(); lateRollback(); campaignSkipAndDisband(); deferredTaskForceDisband(); liveResearchCampaignFlag(); if(argc>1) corpus(argv[1]);
         std::cout<<"economic_phase: PASS\n"; return 0;
     } catch(const std::exception& e) { std::cerr<<e.what()<<'\n'; return 1; }
 }

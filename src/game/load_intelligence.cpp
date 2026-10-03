@@ -146,8 +146,21 @@ bool detection(Work& work, LoadIntelligenceReport& report, save::Error& error) {
                 if (!detector(work, index, t.owner, report, error)) return false;
         }
     }
-    for (const auto& a : work.document.armies)
-        if (a.type == 14 && !detector(work, army::current(a), a.owner, report, error)) return false;
+    //00447090 advances00645370..00651cb0 by0x5c: physical cells, NOT
+    // dense append order after an allocation reuses a lower cell. Thresholds
+    // accumulate minima, but flags/distances retain the LAST detector source.
+    const auto detectArmy = [&](const Army& a) {
+        return a.type != 14 || detector(work, army::current(a), a.owner, report, error);
+    };
+    if (work.document.armyPool) {
+        for (const auto id : work.document.armyPool->liveIds) if (id) {
+            const auto* a = work.document.armyById(id);
+            if (!a) return fail(error, "Load intelligence physical cell has no current army occupant");
+            if (!detectArmy(*a)) return false;
+        }
+    } else {
+        for (const auto& a : work.document.armies) if (!detectArmy(a)) return false;
+    }
     return true;
 }
 

@@ -6,6 +6,7 @@
 #include <array>
 #include <cstddef>
 #include <cstdint>
+#include <optional>
 #include <span>
 #include <string>
 #include <vector>
@@ -35,6 +36,17 @@ struct TerritoryRecord {
     std::array<std::vector<QueueRecord>, 5> queues; // Only first 0x30 bytes per record.
 };
 
+// Optional owned simulation metadata, NEVER a SAV block or a native pointer.
+// A task force retains a physical pool-cell reference after DeleteArmy and
+// observes that SAME cell if AllocArmy reuses it. Public runtime handles still
+// have separate lifetime identities. Cells are 1-based; zero means null.
+struct ArmyPoolState {
+    std::vector<uint16_t> liveIds; // kMaxArmies cells; zero is a cleared/free cell.
+    std::vector<uint32_t> freeSlots; // Native free-list order, back() is the head.
+    std::array<std::array<std::array<uint32_t, 16>, kJobsPerPlayer>, kMaxPlayers> jobSlots{};
+    bool operator==(const ArmyPoolState&) const = default;
+};
+
 struct Document {
     SaveHeader header{};
     GameOptions options{};
@@ -60,6 +72,7 @@ struct Document {
     std::array<BlackMarketState, kMaxPlayers> blackMarket{};
     std::vector<MapTerritory> mapTerritories; // Used only when header.isMap==1.
     std::vector<uint8_t> trailing; // Original loader ignores these; lossless codec keeps them.
+    std::optional<ArmyPoolState> armyPool; // Simulation continuation, not encoded.
 
     const Building* buildingById(uint32_t id) const;
     const Army* armyById(uint32_t id) const;
@@ -72,7 +85,10 @@ struct Document {
 // Failure leaves the destination unchanged. Error resets on success.
 bool decode(std::span<const uint8_t> bytes, Document& destination, Error& error);
 bool encode(const Document& document, std::vector<uint8_t>& destination, Error& error);
-// Checks structure, counts and known persistent references; preserves opaque words.
+// Checks structure/counts and known references. Without armyPool all saved job
+// IDs must resolve. With it, rigorously validates the pool and permits deferred
+// job bindings to cleared/reused cells. encode additionally requires bindings
+// representable by file IDs; it never silently cleans a job or drops a binding.
 bool validate(const Document& document, Error& error);
 
 } // namespace dl2::save

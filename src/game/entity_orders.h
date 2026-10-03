@@ -26,8 +26,8 @@ struct DemolishBuildingOrderReport {
 // is not the keyboard/Alt multi-selection traversal or a simulated dialog.
 // Native root-unit ownership gate is retained; current territory need NOT be
 // actor-owned. Cargo casualties keep the native cascade/no-extra-refund rules.
-// No task-force detach: the UI caller does not perform it. The lifecycle's
-// explicit dangling-job safety rejection remains, with full rollback.
+// No task-force detach: the UI caller does not perform it. The lifecycle keeps
+// typed deferred pool-cell references; only explicit0040aebc cleanup clears them.
 // Both commands additionally enforce actor==localPlayer, Player.type==1 and
 // Player.index==actor as an explicit offline COMMAND policy, not new native
 // leaf rules. Authority denial is an Error, not a successful empty operation.

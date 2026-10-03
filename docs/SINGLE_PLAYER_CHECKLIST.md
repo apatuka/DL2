@@ -1,7 +1,7 @@
 # Checklist de cierre: Deadlock II individual
 
-Revisión: 2026-10-02. Continuación sobre `5f6c8f3`, centrada en EST-04c:
-demolición de santuarios, órdenes individuales y consecuencias diferidas en
+Revisión: 2026-10-03. Continuación sobre `fe956f4`, centrada en EST-04c:
+referencias militares diferidas, reutilización de slots y limpieza explícita en
 [ENTITY_RUNTIME.md](ENTITY_RUNTIME.md).
 
 ## Qué significa «100% funcionando»
@@ -75,7 +75,8 @@ soportadas sobre copias y 455 nombres de retratos contra el PE. Resultados en
     - [x] Demolición de santuarios con objetivo12/cola pendiente explícitos, refunds, labor, identidad y continuidad en State; sin inferir estados vivos desde bytes SAV.
     - [x] Órdenes individuales confirmadas de desbandar/demoler en State/CLI; redirección SeaHab, cascada de plataforma y reconstrucción real de flags marinos, con autoridad y rollback.
     - [x] Hoja aislada de penalizaciones diferidas: eventos80/81, moral, puntuación y reacciones IA implementadas dentro del dominio soportado. Conserva la cola como el original; no equivale a ejecución programada en un turno.
-    - [ ] Bajas con referencias taskforce diferidas y limpieza0040aebc en sus puntos originales; no sustituirlas por desprendimiento anticipado.
+    - [x] Bajas con referencias taskforce diferidas propietarias, reutilización nativa de slots y limpieza explícita0040aebc; conectadas con mantenimiento/fase económica y State, sin desprendimiento anticipado ni resurrección de handles.
+    - [ ] Programar la limpieza en los puntos originales de IA/reclutamiento/guardado del turno completo; las hojas explícitas no sustituyen esa secuencia.
     - [ ] Integrar consecuencias después del combate, cerrar ramas IA de ruptura de pactos/disolución, órdenes colectivas y controles gráficos en el turno completo. Sigue sin SAV jugable.
   - [x] **EST-04d** Reconstruir enlaces de edificios y vínculos de trabajos/unidades durante la carga parcial, preservando las identidades existentes y publicando el grafo transaccionalmente.
 - [ ] **EST-05** Integrar un estado RNG de partida: semillas, orden de consumo y restauración/inicialización conforme al original.
@@ -98,7 +99,7 @@ sin depender de punteros del EXE, de globales ajenos ni de reparaciones silencio
 - [x] **ECO-04** Necesidades/reservas e importaciones conectadas tras producción1, con conectividad, transportes, costes, transferencias parciales y eventos reales. Proveedores, reinicios y orden por material/rondas comprobados.
 - [x] **ECO-05** ConsumeFood para civiles/unidades, abastecimiento, avisos e indicadores conectado; efectos posteriores enlazados a mantenimiento, crecimiento y moral en la misma secuencia económica.
 - [x] **ECO-06** Consumo energético conectado después de comida y antes de mantenimiento/refinamiento: stock, porcentaje y eventos51 reales. El porcentaje resultante alimenta producción2; los efectos posteriores de moral se cierran en ECO-10.
-- [ ] **ECO-07 — parcial.** Mantenimiento y financiación de obras integrados: costes cuadráticos, déficit, avisos, selección/desbandado, cascadas/refunds y pagos pendientes. Falta cerrar el dominio de desbandado que dejaría referencias vivas de task forces; hoy se rechaza transaccionalmente sin desvinculación inventada.
+- [x] **ECO-07** Mantenimiento y financiación de obras integrados: costes cuadráticos, déficit, avisos, selección/desbandado, cascadas/refunds y pagos pendientes. Las bajas conservan referencias taskforce al slot retirado/reutilizado durante la fase económica; limpieza posterior explícita, sin desvinculación inventada. La programación del turno/guardado sigue en EST-04c/TUR.
 - [x] **ECO-08** Segundo pase aplicado después de mantenimiento, con imports hierro/endurium antes de ambas conversiones, pagos, signed16 y efectos originales aun con producción cero; no duplica los ingresos del primer pase.
 - [ ] **ECO-09 — parcial.** Crecimiento, capacidades física/vivienda, hambre, raza/campaña, restricciones laborales y deserción conectados. Traslado manual implementado con coste, moral, labor y programación propietaria de plaga; faltan interfaz, ejecución completa de eventos y cerrar el dominio de deserción hacia local. Pool de plagas agotado rechaza sin invadir Spies.
 - [x] **ECO-10** Moral original completa: diez componentes, total bruto y valor aplicado, impuestos/ocupación/hambre/hacinamiento/clonación/guarnición/cultura/arte/hospitales. Energía afecta outputs previos; no se añade un componente inexistente. Integrada antes de investigación/disturbios.

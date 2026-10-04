@@ -1,4 +1,5 @@
 #include "game/ai_session.h"
+#include "game/ai_taskforce_dissolution.h"
 #include "game/army_pool.h"
 #include "game/data_tables.h"
 #include <algorithm>
@@ -442,6 +443,26 @@ struct ReactionWork {
         if (choice != 2 && !change(request.player,request.other,delta[choice])) return false;
         return chat(request.player,request.other,choice+31);
     }
+    // orig:004033d0 ->00403350. Clear the bit, emit the end-war message, then
+    // visit ALL50 live targetPlayer words (including zeroed/free records).
+    bool endWars(int p) {
+        for (int other = 0; other < kMaxPlayers && d.aiWarMask[size_t(p)] != 0; ++other) {
+            const uint32_t bit = uint32_t(1) << uint32_t(other);
+            if (!(d.aiWarMask[size_t(p)] & bit)) continue;
+            AiWarEnd ended; ended.player = p; ended.other = other;
+            ended.maskBefore = d.aiWarMask[size_t(p)];
+            d.aiWarMask[size_t(p)] &= ~bit; ended.maskAfter = d.aiWarMask[size_t(p)];
+            enqueue({p,bit,-1,1,{}});
+            for (int j = 0; j < kJobsPerPlayer; ++j) {
+                if (d.jobs[size_t(p)][size_t(j)].targetPlayer != other) continue;
+                TaskForceDissolutionReport dissolution;
+                if (!dissolveTaskForce(d,p,j,d,dissolution,error)) return false;
+                ended.dissolvedJobs.push_back(j);
+            }
+            result.warsEnded.push_back(std::move(ended));
+        }
+        return true;
+    }
     bool hostility(const AiEventRequest& request) {
         const int p = request.player, other = request.extra1;
         if (other < 0) return true;
@@ -456,12 +477,11 @@ struct ReactionWork {
             //00403408 can decline without its gameplay leaves.
             if ((d.options.playerSkill[p] == 4 && signedType(d.players[size_t(other)]) >= 3) ||
                 attitude(d.scratchJob1,p,other) >= 8) return chat(p,other,31);
-            if (d.aiWarMask[size_t(p)] != 0)
-                return fail(error, "AI hostility requires unported00403350/0040beb4 task-force dissolution");
+            if (!endWars(p)) return false;
             if (d.players[size_t(p)].relations[other] != 0)
                 return fail(error, "AI hostility requires unported004071b0 pact-break dispatch");
-            // No old war/taskforce and no pact: these two helpers genuinely
-            // do no work, then00403408 sets the new bit and draws once.
+            //004071b0 is genuinely empty only without a pact. Unsupported
+            // pact effects roll back prior dissolution/messages in reaction().
             d.aiWarMask[size_t(p)] |= bit;
             uint32_t chance; if (!draw(chance,"AiNewWarMessage00403408")) return false;
             if (!(chance & 1u)) enqueue({p,bit,-1,0,{other,0,0}});

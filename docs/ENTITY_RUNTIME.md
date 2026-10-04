@@ -456,6 +456,31 @@ ejecuta automáticamente al dar de baja ni al finalizar economía. Falta conecta
 los puntos originales de IA/reclutamiento/guardado dentro del turno completo;
 esta hoja no habilita `advanceTurn` ni captura de estados experimentales.
 
+### Disolución de grupos y cierre de guerras — CL-01/CX-02, 2026-10-04
+
+`dissolveTaskForce` integra la entrega de Claude `c5374a5` con CX-01. Recorre
+16 miembros en vivo, libera o transfiere al padre sólo dominio canónico1,
+reparenta15 enlaces a job0, limpia todas las coincidencias del padre original
+y borra los0xc4 bytes del job **junto con sus16 bindings físicos**.
+Padre lleno/AlreadyPresent no deshacen la retirada; autoenlaces y duplicados
+conservan el orden original. Cada efecto incluye la celda/ocupante observados.
+
+Con pool presente se consulta el ocupante actual, nunca el ID esperado. Un
+binding nulo se omite aun con ID no cero. Una celda retirada sigue siendo no
+nula: DeleteArmy deja tipo0/job0 y sólo modifica los links libres+54/+58;
+disolver escribe job0 otra vez sin afectar la lista libre ni crear una entidad0.
+Una reutilización del mismo propietario admite otro ID; propietario vivo ajeno
+se rechaza transaccionalmente. Sin pool conserva el dominio archival validado.
+No se inicializa el pool ni se ejecuta0040aebc como efecto oculto.
+
+Hostilidad de `AiSession::reactEvent` conecta004033d0/00403350 antes de la nueva
+guerra: mensaje de fin y los50 jobs cuyo destino actual coincide, incluidos
+job0 y registros libres cuando se termina una guerra con jugador0. Transferir
+a un job posterior puede causar que esa unidad vuelva a visitarse. Máscaras,
+cola, actitudes, RNG, jobs y sidecar se publican juntos; cualquier fallo tardío
+revierte el conjunto. Todavía faltan ruptura de pactos y negociación y no se
+habilita `RunAITurns`, guardado jugable ni un turno completo.
+
 Ejemplos CLI (sólo memoria, sin destino SAV):
 
 ```powershell

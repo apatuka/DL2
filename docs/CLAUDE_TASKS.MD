@@ -1,8 +1,11 @@
-# Tareas delegadas a Claude
+# Plan de trabajo — tareas retomadas por Codex
 
-Actualizado: 2026-10-03. Base técnica revisada: `fe956f4`.
-Responsable técnico e integrador: Codex. Implementador de los paquetes de este documento: Claude.
-CL-01 en ejecución por Claude, confirmado por el usuario el 2026-10-03.
+Actualizado: 2026-10-04. Base de integración: `68e8588`.
+Responsable técnico, implementador e integrador: Codex.
+Por indicación del usuario, Codex retoma todos los paquetes pendientes. **No hay
+tareas activas asignadas a Claude y no debe iniciarse otro paquete suyo.**
+Se conserva el nombre de este archivo y los IDs para no romper la continuidad.
+Claude entregó CL-01 en `c5374a5`; su rama/worktree se conserva sin modificaciones.
 
 ## Objetivo y situación real
 
@@ -16,6 +19,8 @@ Existe un inspector, un codec de partidas, estado propietario y una fase
 económica verificable. **Todavía no existe un turno completo jugable**.
 La base `fe956f4` tenía 60/60 pruebas. Tras integrar CX-01, la verificación del
 2026-10-03 pasa **61/61 sin omisiones**, normal y AddressSanitizer.
+La integración CL-01/CX-02 del 2026-10-04 pasa **62/62 sin omisiones** en ambas
+configuraciones (121.38s normal,276.02s ASAN); detalle en `RECOVERY.md`.
 EST-04c sigue parcial: disponer de órdenes individuales y consecuencias de
 santuarios aisladas no resuelve IA, orden del turno e interfaz. CX-01 añade
 referencias militares diferidas y limpieza explícita; su programación en el
@@ -29,22 +34,21 @@ el código y los contratos actuales son el punto de partida.
 
 | ID | Prioridad / estado | Responsable | Entrega y conexión posterior |
 | --- | --- | --- | --- |
-| CL-01 | P0 / EN CURSO | Claude | Disolver taskforces vivos; Codex lo conectará con las reacciones de IA pendientes. |
-| CL-02 | P1 / EN COLA | Claude | Estadísticas efectivas; base para resolución de combate, COM-01. |
-| CL-03 | P1 / EN COLA | Claude | Distancias/rutas; base para el ejecutor de movimiento, MOV-02. |
-| CL-04 | P2 / EN COLA | Claude | Orden colectiva de demolición; backend de EST-04c/CON-04. |
+| CL-01 | P0 / INTEGRADA | Codex (entrega base de Claude) | Disolución con celdas vivas, retiradas y reutilizadas;62/62 normal y ASAN. |
+| CL-02 | P1 / EN COLA | Codex | Estadísticas efectivas; base para resolución de combate, COM-01. |
+| CL-03 | P1 / EN COLA | Codex | Distancias/rutas; base para el ejecutor de movimiento, MOV-02. |
+| CL-04 | P2 / EN COLA | Codex | Orden colectiva de demolición; backend de EST-04c/CON-04. |
 | CX-01 | P0 / INTEGRADA | Codex | Pool/referencias diferidas y limpieza explícita; 61/61 normal y ASAN. Programación de turno reservada a CX-02/03. |
-| CX-02 | P0 / RESERVADA | Codex | Integrar CL-01 y dependencias reales de hostilidad/pactos, sin saltarse mensajes/negociación. |
+| CX-02 | P0 / PARCIAL — siguiente prioridad | Codex | Cierre de guerras y disolución conectados; faltan ruptura de pactos y negociación, sin simular sus efectos. |
 | CX-03 | P1 / RESERVADA | Codex | Secuencia completa de movimiento, combate, consecuencias y economía; después activación, guardado y UI. |
 
-**Empezar únicamente por CL-01.** CL-02 y CL-03 son independientes entre sí y
-de CL-01, pero se asignarán expresamente tras revisar la primera entrega.
-Un ticket activo por sesión de Claude; no desarrollar toda la cola de una vez.
-Codex completó CX-01 en paralelo; el siguiente punto de integración es CL-01/CX-02.
+**Prioridad actual: finalizar CL-01/CX-02.** Después seguir con CL-02/CL-03 y sus
+consumidores de combate/movimiento; CL-04 también queda a cargo de Codex.
+No se requiere esperar créditos ni una nueva entrega de Claude.
 «RESERVADA» identifica propiedad del trabajo, no significa que esté ejecutándose.
 
-Codex define contratos compartidos, revisa entregas, integra, ejecuta regresiones
-y actualiza el checklist central. Claude entrega módulos acotados y evidencia.
+Codex define contratos compartidos, implementa, integra, ejecuta regresiones
+y actualiza el checklist central. La entrega histórica de Claude conserva su autoría.
 Una dependencia nueva se comunica con una propuesta concreta; no se amplía el
 ticket ni se altera el núcleo unilateralmente.
 
@@ -54,6 +58,10 @@ Si algo impide avanzar, registrar `BLOQUEADA`, causa, evidencia y decisión requ
 Una hoja integrada no cierra por sí sola EST-04c, COM-01, MOV-02 ni un turno.
 
 ## Preparación y aislamiento del trabajo
+
+Las instrucciones de delegación de esta sección y el mensaje del final son
+**históricos/inactivos** desde 2026-10-04. Sólo se usarán si el usuario vuelve a
+pedir colaboración de Claude. Los contratos técnicos de los paquetes siguen vigentes.
 
 1. Leer esta ficha desde `C:\Games\DL2\docs\CLAUDE_TASKS.MD` antes de crear la rama.
    Si aún no está incluida en el commit base, seguir consultando esta copia central.
@@ -121,25 +129,29 @@ son el mismo objeto. No retener referencias C++ entre llamadas que reemplacen la
 
 Criterios de aceptación:
 
-- [ ] Recorrer las 16 ranuras en orden; sin padre liberar las unidades. Con padre,
+- [x] Recorrer las 16 ranuras en orden; sin padre liberar las unidades. Con padre,
   sólo el dominio **canónico** de unidad `1` se transfiere, no la clase guardada.
-- [ ] Conservar la rama de padre lleno: retirar de origen no garantiza incorporación
+- [x] Conservar la rama de padre lleno: retirar de origen no garantiza incorporación
   al padre. Informar el resultado real, sin inventar una transferencia exitosa.
-- [ ] Reparentar los 15 enlaces de hijos al job base del propietario. Conservar
+- [x] Reparentar los 15 enlaces de hijos al job base del propietario. Conservar
   que `0040b000` escribe el padre del hijo incluso si la lista del nuevo padre está llena.
-- [ ] Eliminar todas las coincidencias del job en la lista del padre y poner a
+- [x] Eliminar todas las coincidencias del job en la lista del padre y poner a
   cero los `0xc4` bytes del job disuelto, sin restaurar artificialmente `owner`.
-- [ ] Pruebas de padre ausente/lleno, tierra/mar/aire, cargo tipo 12, enlaces
+- [x] Pruebas de padre ausente/lleno, tierra/mar/aire, cargo tipo 12, enlaces
   repetidos, hijos y lista de hijos llena, orden de efectos y bytes ajenos intactos.
-- [ ] Índices/propietarios/referencias fuera del dominio: error explícito y rollback
+- [x] Índices/propietarios/referencias fuera del dominio: error explícito y rollback
   incluso tardío; alias, error previo y aislamiento de globales/RNG cubiertos.
 
-Fuera de alcance: referencias a unidades ya retiradas, limpieza `0040aebc`,
+Fuera del alcance **original de la entrega de Claude**: referencias a unidades ya retiradas, limpieza `0040aebc`,
 `00403350/004033d0`, guerra/pactos/mensajes, `AiSession`, turnos y runtime/CLI.
 No interpretar `Job.armies` histórico como punteros. Las referencias diferidas
 necesitan CX-01; **no** sustituirlas por desvinculación temprana o borrado de IDs inválidos.
 
-Nota de integración CX-01: Codex añade `Document.armyPool` y compara bindings por
+Integración completada2026-10-04: se admiten celdas retiradas/reutilizadas y
+bindings nulos con ID residual; el job y su fila `jobSlots` se vacían juntos.
+Se mantiene rechazo explícito de ocupantes vivos de propietario ajeno.
+
+Nota histórica de integración CX-01: Codex añade `Document.armyPool` y compara bindings por
 celda física en Add/Remove. La rama CL-01 parte de la base acordada y no necesita
 editar ese núcleo. Antes de integrar, Codex adaptará la lectura de miembros y el
 vaciado del job para conservar/sincronizar `jobSlots`; probará además celdas
@@ -297,7 +309,7 @@ después actualizará este tablero y el checklist. La coordinación entre sesion
 se hace mediante el informe y su ubicación: este archivo no arranca Claude ni
 envía tareas automáticamente. No iniciar el siguiente ticket sin asignación.
 
-## Mensaje listo para iniciar Claude
+## Mensaje histórico para iniciar Claude — NO usar mientras la delegación esté suspendida
 
 ```text
 Lee C:\Games\DL2\docs\CLAUDE_TASKS.MD y las convenciones indicadas.

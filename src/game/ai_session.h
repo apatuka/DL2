@@ -65,11 +65,18 @@ struct AiAttitudeChange {
     bool applied = false;
     bool operator==(const AiAttitudeChange&) const = default;
 };
+struct AiWarEnd {
+    int player = -1, other = -1;
+    uint32_t maskBefore = 0, maskAfter = 0;
+    std::vector<int> dissolvedJobs; // Physical job indices, in original live traversal order.
+    bool operator==(const AiWarEnd&) const = default;
+};
 struct AiReactionReport {
     AiReactionContext contextAfter;
     std::vector<RngEvent> draws;
     std::vector<AiAttitudeChange> attitudes;
     std::vector<AiMessageAttempt> messages;
+    std::vector<AiWarEnd> warsEnded;
     bool handled = false;
     bool operator==(const AiReactionReport&) const = default;
 };
@@ -112,8 +119,10 @@ public:
                         const AiReactionContext& context, save::Document& destination,
                         AiReactionReport& report, save::Error& error) const;
     //004047a0: ordinary random chat, gratitude, pact-break penalty and event74
-    // implemented. Hostility supports a new war only when prior warMask==0 and
-    // no pact must be broken; task-force dissolution/pact breaking reject.
+    // implemented. Hostility ends previous wars via004033d0/00403350, including
+    // messages and live traversal of all50 jobs through0040beb4. Dissolution
+    // preserves the owned physical pool; no cleanup or ID relookup is invented.
+    // Pact breaking still rejects until its offline handlers are implemented.
     // Events72/73 reject if their RNG branch requires negotiation handlers.
     // Unsupported branches roll back Document, queue, masks and every RNG draw.
     // Unknown event IDs are the authentic default return, reported handled=false.

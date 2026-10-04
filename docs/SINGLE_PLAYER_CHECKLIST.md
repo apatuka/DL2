@@ -1,7 +1,7 @@
 # Checklist de cierre: Deadlock II individual
 
-Revisión: 2026-10-03. Continuación sobre `fe956f4`, centrada en EST-04c:
-referencias militares diferidas, reutilización de slots y limpieza explícita en
+Revisión: 2026-10-04. Continuación sobre `68e8588`, centrada en EST-04c:
+disolución de grupos con referencias físicas y cierre de guerras IA en
 [ENTITY_RUNTIME.md](ENTITY_RUNTIME.md).
 
 ## Qué significa «100% funcionando»
@@ -52,7 +52,7 @@ funcional descubre comportamientos originales aún no identificados.
 - [x] Inicialización IA, reacciones diplomáticas, taskforces y determinados eventos con estado/RNG propietarios; no es el turno IA completo.
 - [x] Tablas canónicas compartidas, 43 campañas y pruebas de contratos entre cabeceras heredadas.
 
-Última verificación: **60/60 pruebas sin omisiones**, normal y AddressSanitizer.
+Última verificación (2026-10-04): **62/62 pruebas sin omisiones**, normal y AddressSanitizer.
 Los **46 documentos** admiten normalización parcial, incluidos los **8 escenarios
 de versión 35** mediante migraciones explícitas; sus copias archivales siguen
 siendo exactas. Se verificaron 46 reconstrucciones de inteligencia, 46 creaciones
@@ -76,8 +76,9 @@ soportadas sobre copias y 455 nombres de retratos contra el PE. Resultados en
     - [x] Órdenes individuales confirmadas de desbandar/demoler en State/CLI; redirección SeaHab, cascada de plataforma y reconstrucción real de flags marinos, con autoridad y rollback.
     - [x] Hoja aislada de penalizaciones diferidas: eventos80/81, moral, puntuación y reacciones IA implementadas dentro del dominio soportado. Conserva la cola como el original; no equivale a ejecución programada en un turno.
     - [x] Bajas con referencias taskforce diferidas propietarias, reutilización nativa de slots y limpieza explícita0040aebc; conectadas con mantenimiento/fase económica y State, sin desprendimiento anticipado ni resurrección de handles.
+    - [x] Disolución0040beb4 de grupos con celdas vivas/retiradas/reutilizadas, padre/hijos y bindings sincronizados. Cierre de guerras004033d0/00403350 conectado a hostilidad, State y consecuencias de santuarios, con mensajes/RNG/rollback. Ruptura de pactos y negociación todavía pendientes.
     - [ ] Programar la limpieza en los puntos originales de IA/reclutamiento/guardado del turno completo; las hojas explícitas no sustituyen esa secuencia.
-    - [ ] Integrar consecuencias después del combate, cerrar ramas IA de ruptura de pactos/disolución, órdenes colectivas y controles gráficos en el turno completo. Sigue sin SAV jugable.
+    - [ ] Integrar consecuencias después del combate, cerrar ramas IA de ruptura de pactos/negociación, órdenes colectivas y controles gráficos en el turno completo. Sigue sin SAV jugable.
   - [x] **EST-04d** Reconstruir enlaces de edificios y vínculos de trabajos/unidades durante la carga parcial, preservando las identidades existentes y publicando el grafo transaccionalmente.
 - [ ] **EST-05** Integrar un estado RNG de partida: semillas, orden de consumo y restauración/inicialización conforme al original.
   - [x] **EST-05a** RNG propietario de sesión con primitivas originales, orden/contadores, snapshots y reseed final offline desde `options.gameId`; no altera RNG global ni la copia archival.

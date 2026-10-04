@@ -538,10 +538,12 @@ void eventReactions() {
     require(ai.reactEvent(*d,{1,0x25,0,1234},context,*output,report,error) && report.draws.empty() &&
             report.messages[0].message == AiDiplomacyMessage{1,1,-1,5,{1234,0,0}},
             "already-war event25 semantic request payload differs");
-    d->aiWarMask[1] = 4; // Draw0 passes1-in8 gate then unported old-war dissolution.
+    d->aiWarMask[1] = 4; // Draw0 passes1-in8 gate; reject an invalid late job atomically.
+    d->jobs[1][49].targetPlayer = 2; d->jobs[1][49].parentJob = 51;
     const auto beforeOutput = bytes(*output); const auto beforeReport = report; const auto beforeSource = bytes(*d);
     require(!ai.reactEvent(*d,{1,10,0,0},context,*output,report,error) && bytes(*output) == beforeOutput &&
-            bytes(*d) == beforeSource && report == beforeReport, "unsupported task-force branch leaked preceding effects");
+            bytes(*d) == beforeSource && report == beforeReport, "failed task-force dissolution leaked preceding effects");
+    d->jobs[1][49].parentJob = 0;
     d->aiWarMask[1] = 0; d->players[1].relations[0] = 2;
     require(!ai.reactEvent(*d,{1,10,0,0},context,*output,report,error) && bytes(*output) == beforeOutput && report == beforeReport,
             "unsupported pact-break branch was approximated");
@@ -559,6 +561,89 @@ void eventReactions() {
             report.attitudes[0].after == 8, "event74 war target gratitude branch differs");
     require(ai.reactEvent(*d,{1,0x40,999,999},context,*output,report,error) && !report.handled && report.draws.empty() &&
             bytes(*output) == bytes(*d), "construction event40 original default invented AI effects");
+}
+
+void warTransitions() {
+    save::Error error; AiSession ai; AiReactionReport report; auto out = fixture();
+    const auto context = reactionContext(0); // War gate0, then new-war draw21468.
+    auto make = [&] {
+        auto d = fixture(); d->aiWarMask[1] = 4;
+        word(d->scratchJob1,1,0,0); word(d->scratchJob2,1,0,0);
+        for (auto& job : d->jobs[1]) job.targetPlayer = -1;
+        d->jobs[1][5].targetPlayer = 2; bind(*d,1,5,0,0);
+        require(ai.initializeAfterLoad(*d,error), "war transition AI setup failed"); return d;
+    };
+    auto d = make(); const auto source = taskForceWitness(*d);
+    require(ai.reactEvent(*d,{1,10,0,0},context,*out,report,error) && out->aiWarMask[1] == 1 &&
+            report.warsEnded == std::vector<AiWarEnd>{{1,2,4,0,{5}}} && out->armyById(101)->job == 0 &&
+            out->jobs[1][5].owner == 0 && out->jobs[1][5].armyIds[0] == 0 && report.draws.size() == 2 &&
+            taskForceWitness(*d) == source, "old war was not dissolved before new war");
+    require(report.messages.size() == 3 && report.messages[0].message == AiDiplomacyMessage{1,4,-1,1,{}} &&
+            report.messages[0].outcome == AiMessageOutcome::NoHumanRecipient &&
+            report.messages[1].message == AiDiplomacyMessage{1,1,-1,0,{0,0,0}} &&
+            report.messages[2].message == AiDiplomacyMessage{1,64,-1,2,{0,0,0}},
+            "end/new war message order, filter or payload differs");
+    auto alias = std::make_unique<Document>(*d); AiReactionReport aliasReport;
+    require(ai.reactEvent(*alias,{1,10,0,0},context,*alias,aliasReport,error) && aliasReport == report &&
+            taskForceWitness(*alias) == taskForceWitness(*out), "war transition alias differs");
+
+    // Live traversal: a unit transferred from job5 into job9 is released when9 is visited.
+    d = make(); d->jobs[1][5].parentJob = 10; d->jobs[1][9].targetPlayer = 2;
+    require(ensureArmyPool(*d,error), "war transition pool setup failed");
+    const auto cell = reuseArmyCell(*d,101,60000);
+    require(ai.reactEvent(*d,{1,10,0,0},context,*out,report,error) &&
+            report.warsEnded[0].dissolvedJobs == std::vector<int>({5,9}) && out->armyById(60000)->job == 0 &&
+            !out->armyPool->jobSlots[1][5][0] && !out->armyPool->jobSlots[1][9][0] &&
+            out->armyPool->liveIds[cell-1] == 60000, "live traversal lost transferred/reused army");
+    (void)bytes(*out);
+    // A late error rolls back earlier dissolved jobs, messages, attitudes, pool and RNG.
+    d->jobs[1][49].targetPlayer = 2; d->jobs[1][49].parentJob = 51;
+    const auto kept = taskForceWitness(*out), before = taskForceWitness(*d); const auto saved = report;
+    require(!ai.reactEvent(*d,{1,10,0,0},context,*out,report,error) && taskForceWitness(*out) == kept &&
+            taskForceWitness(*d) == before && report == saved, "late war failure leaked effects");
+    require(!ai.reactEvent(*d,{1,10,0,0},context,*d,report,error) && taskForceWitness(*d) == before && report == saved,
+            "late war failure leaked alias effects");
+    d->jobs[1][49].parentJob = 0; d->players[1].relations[0] = 2;
+    require(!ai.reactEvent(*d,{1,10,0,0},context,*out,report,error) && taskForceWitness(*out) == kept && report == saved,
+            "unported pact broke atomicity after old-war dissolution");
+
+    // Ending war0 must also visit every empty record with targetPlayer0, including job0.
+    d = fixture(); d->aiWarMask[1] = 1; word(d->scratchJob1,1,2,0); word(d->scratchJob2,1,2,0);
+    require(ai.reactEvent(*d,{1,10,2,0},context,*out,report,error) && out->aiWarMask[1] == 4 &&
+            report.warsEnded.size() == 1 && report.warsEnded[0].dissolvedJobs.size() == 50,
+            "war0 skipped free jobs or job0");
+    for (int j = 0; j < 50; ++j) {
+        const Job zero{};
+        require(report.warsEnded[0].dissolvedJobs[size_t(j)] == j &&
+                std::memcmp(&out->jobs[1][size_t(j)],&zero,sizeof(Job)) == 0, "war0 traversal order differs");
+    }
+    // Multiple wars end in bit order, high unknown bits are not silently normalized away.
+    d = make(); d->aiWarMask[1] = 0x8000000cu; d->jobs[1][7].targetPlayer = 3;
+    auto full = context; full.pendingMessages.resize(kAiMessageCapacity);
+    require(ai.reactEvent(*d,{1,10,0,0},full,*out,report,error) && out->aiWarMask[1] == 0x80000001u &&
+            report.warsEnded == std::vector<AiWarEnd>{{1,2,0x8000000cu,0x80000008u,{5}},
+                                                    {1,3,0x80000008u,0x80000000u,{7}}} &&
+            report.contextAfter.pendingMessages == full.pendingMessages && report.messages.size() == 4 &&
+            report.messages[2].outcome == AiMessageOutcome::Full,
+            "multi-war order, opaque high bits or full message FIFO changed dissolution");
+    // A failed gate consumes its real RNG draw but never ends an old war.
+    const auto denied = reactionContext(seedForRoll(1));
+    require(ai.reactEvent(*d,{1,10,0,0},denied,*out,report,error) && report.warsEnded.empty() &&
+            out->aiWarMask[1] == d->aiWarMask[1] && out->jobs[1][5].armyIds[0] == 101,
+            "denied war gate still dissolved task forces");
+    // Existing State consumer rebuilds Graph without retiring surviving public handles.
+    d = make(); require(ensureArmyPool(*d,error), "runtime war pool setup failed");
+    runtime::State state; require(state.prepare(*d,error), "runtime war prepare failed");
+    const auto handle = state.armyById(101);
+    require(state.graph().jobs[1][5].armies[0] == handle && state.graph().jobs[1][5].pointerPresent[0],
+            "runtime pre-war binding premise");
+    require(state.reactAiEvent({1,10,0,0},context,report,error) && state.army(handle) &&
+            state.army(handle)->job == 0 && !state.graph().jobs[1][5].armies[0] &&
+            !state.graph().jobs[1][5].pointerPresent[0] && !state.graph().jobs[1][5].poolSlots[0] &&
+            state.stage() == runtime::Stage::EntitiesEdited &&
+            *state.aiReactionContext() == report.contextAfter && state.sessionRng() == report.contextAfter.rng,
+            "runtime war left ghost graph binding or lost handle/context");
+    require(!state.capture(*out,error) && !state.advanceTurn(error), "war leaf enabled a partial turn export");
 }
 
 void runtimeReactions() {
@@ -632,6 +717,15 @@ void canonicalPe(const fs::path& directory) {
         std::cout << "AI session: optional original PE unavailable\n"; return;
     }
     OriginalPe pe(path);
+    const std::pair<uint32_t,std::vector<uint8_t>> warAnchors[]{
+        {0x403376,{0x21,0x14,0xb5,0x2c,0x22,0x52,0x00}}, // clear bit before message
+        {0x40337d,{0x6a,0,0x6a,0,0x6a,0,0x6a,1,0x6a,0xff,0x50,0x56,0xe8,0xae,0xd5,4,0}},
+        {0x40339c,{0x0f,0xbf,0x43,8,0x3b,0xf8,0x75,6,0x53,0xe8,0x0a,0x8b,0,0}}, // signed target, dissolve
+        {0x4033aa,{0x81,0xc3,0xc4,0,0,0}}, // next physical job
+        {0x4033f3,{0x8b,0x16,0x85,0xd2,0x74,5,0x83,0xfb,7,0x7c,0xe8}} // live mask, player0..6
+    };
+    for (const auto& [address,code] : warAnchors) for (size_t i = 0; i < code.size(); ++i)
+        require(pe.byte(address+uint32_t(i)) == code[i], "war dissolution PE anchor differs");
     for (size_t f = 0; f < 5; ++f)
         require(pe.word(0x004b502cu + 3*24 + 4 + uint32_t(f)*4) == data::kAiType3.fn[f].addr,
                 "personality function offsets differ from PE (name word is not a callback)");
@@ -733,7 +827,7 @@ int main(int argc, char** argv) {
         const auto low = rtl::seed(), high = rtl::seedHi();
         const auto globals = std::make_unique<GameGlobals>(gg); const auto game = std::make_unique<GameState>(gs);
         initializationAndDispatch(); removals(); additions(); pooledTaskForces(); scoutQueries(); maintainJobs();
-        diplomacyReactions(); eventReactions(); runtimeReactions();
+        diplomacyReactions(); eventReactions(); warTransitions(); runtimeReactions();
         const fs::path directory = argc > 1 ? fs::path(argv[1]) : fs::path{};
         canonicalPe(directory); optionalCorpus(directory);
         require(rtl::seed() == low && rtl::seedHi() == high && std::memcmp(&gg,globals.get(),sizeof(gg)) == 0 &&

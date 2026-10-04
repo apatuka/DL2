@@ -71,7 +71,7 @@ Contrato detallado y límites: [ENTITY_RUNTIME.md](ENTITY_RUNTIME.md).
 | Casillas de construcción y adyacencias | Handles de edificio y territorio verificados |
 | Cinco colas de cada territorio | Cabeceras y nodos propios; cursor inicial en el primer nodo |
 | Lista de ministros de cada jugador | Enlaces prev/next reconstruidos por orden de archivo, incluida la cabecera |
-| Jobs | Destino por índice y unidades por `armyIds`; no por las palabras crudas de `Job::armies` |
+| Jobs | Destino por índice; unidades por ocupante actual de `armyPool.jobSlots`, o `armyIds` sin sidecar; nunca por palabras crudas de `Job::armies` |
 | Enlaces prev/next, carga de unidades y cabeceras guardadas | Referencias conocidas resueltas, conservadas aparte de la pertenencia canónica |
 
 La pertenencia de edificios se obtiene de `Building::territory`, no recorriendo
@@ -306,6 +306,10 @@ el ocupante actual de la celda; `pointerPresent` distingue referencia nula de
 celda retirada y `poolSlots` conserva su identidad física propietaria.
 `pruneTaskForceArmies` / `pruneAllTaskForceArmies` son ediciones explícitas, no
 callbacks de baja ni turnos. Un handle retirado no revive al reutilizar la celda.
+`reactAiEvent` también puede disolver grupos al terminar guerras previas. El
+commit reconstruye el grafo, borra los bindings del job disuelto y conserva
+handles de las unidades liberadas/transferidas. Las ramas de pactos aún no
+implementadas revierten la operación completa y no consumen la continuación.
 Detalles y restricciones de codificación en [ENTITY_RUNTIME.md](ENTITY_RUNTIME.md).
 
 La secuencia económica observada en `FUN_0046c7d4` es impuestos, producción 1,

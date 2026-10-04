@@ -175,9 +175,13 @@ temporizador nativo y briefing de campaña siguen pendientes en presentación.
 `AiSession::reactDiplomacy` porta00404cec, respuestas, matrices de actitudes de los
 dos bloques llamados scratchJob, máscaras de cambio y cola42/41 útil. Consume el
 draw antes de descartar por cola llena/destinatario no humano. No contesta mensajes
-humanos pendientes. `reactEvent` cubre chat, gratitud, penalización y hostilidad
-sin disolución de guerras/pactos previos; negociación y esas dependencias fallan
-sin publicar documento, cola, máscaras ni RNG. No equivale a RunAITurns.
+humanos pendientes. `reactEvent` cubre chat, gratitud, penalización y hostilidad,
+incluido el cierre de guerras previas004033d0/00403350: borra cada bit, encola el
+mensaje correspondiente y disuelve los50 jobs por destino leído en vivo. El
+informe `warsEnded` conserva orden, máscaras y jobs visitados. La disolución
+respeta las celdas físicas retiradas/reutilizadas; no añade limpieza anticipada.
+Ruptura de pactos y negociación todavía fallan sin publicar documento, cola,
+máscaras ni RNG, incluso si ya se disolvieron grupos en la candidata. No equivale a RunAITurns.
 Máscaras/cola no se reinician por LoadGame: deben aportarse. LogEventEx usa sus
 argumentos7/8, no los del formato; LogEvent ordinario aporta0,0.
 `State::reactDiplomacy/reactAiEvent` conserva la continuación y rechaza rebobinarla.

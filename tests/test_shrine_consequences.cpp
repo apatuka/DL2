@@ -205,11 +205,20 @@ void failuresRollback() {
     require(error.message.find("pact-break")!=std::string::npos,"unported AI pact-break branch rolls back local log and attitude");
     source->players[1].relations[0]=0; source->aiWarMask[1]=2;
     // Choose an independent seed whose SECOND draw (after local portrait) has
-    // low3bits0, thereby entering original existing-war dissolution dependency.
+    // low3bits0, thereby entering original existing-war dissolution.
     uint32_t seed=0;
     for (;;++seed) { auto state=seed; secondary(state); if ((secondary(state)&7u)==0) break; }
-    c=context(seed); c.aiSession=&ai; reject({{{0,1}}},c);
-    require(error.message.find("task-force dissolution")!=std::string::npos,"unported dissolution is not replaced by successful partial shrine effect");
+    c=context(seed); c.aiSession=&ai;
+    source->jobs[1][1].owner=1; source->jobs[1][1].targetPlayer=1; source->jobs[1][1].status=77;
+    auto transitioned=run(*source,{{{0,1}}},c);
+    require(transitioned.document->aiWarMask[1]==1 && transitioned.document->jobs[1][1].status==0 &&
+        transitioned.report.events[1].aiReport.warsEnded==std::vector<AiWarEnd>{{1,1,2,0,{1}}} &&
+        transitioned.document->territories[0].data.morale==80,
+        "shrine hostility now performs actual old-war dissolution before applying morale");
+    source->jobs[1][49].owner=1; source->jobs[1][49].targetPlayer=1; source->jobs[1][49].parentJob=51;
+    reject({{{0,1}}},c);
+    require(error.message.find("parent index")!=std::string::npos,
+        "late dissolution domain failure must roll back previous local log, AI and job effects");
     // Clamp-before-hostility can decline a war using its actual preexisting
     // attitude; the unrelated old-war mask must not force a false dependency.
     setAttitude(source->scratchJob1,1,0,50); auto out=run(*source,{{{0,1}}},c);

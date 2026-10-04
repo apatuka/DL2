@@ -16,6 +16,63 @@ inspección: mapa, territorios, edificios, unidades y copias sin modificación. 
 lógica de partida está parcialmente escrita y todavía no está integrada. Cargar
 el documento no equivale a activar el estado de juego, simular un turno ni jugar.
 
+## Retoma de tareas, CL-01 y cierre de guerras — 2026-10-04
+
+El usuario suspendió la delegación: Codex retoma CL-02/03/04 y la integración,
+sin esperar créditos ni documentación adicional de Claude. El tablero vigente
+es [CLAUDE_TASKS.MD](CLAUDE_TASKS.MD); el mensaje para iniciar Claude queda inactivo.
+Se conserva intacto su worktree y la entrega `c5374a5`, basada en `fe956f4`.
+La revisión previa recompiló esa entrega desde cero:61/61,99.37s,sin omisiones.
+
+Integración sobre `68e8588`:
+
+- Incorporado `ai_taskforce_dissolution` y sus pruebas/informe originales.
+  Lectura live de celdas en vez de IDs esperados; vaciado de `jobSlots` junto
+  con los0xc4 bytes del job. Celdas retiradas admitidas como escritura inerte
+  de job0: tipo0/dominio0 confirmado en PE y memset/free-list de00445800.
+  Reutilización observa la unidad actual; propietario vivo ajeno sigue rechazado.
+- Fuente/destino/informe transaccionales, autoenlaces, Full/AlreadyPresent,
+  alias y celdas nulas con ID residual probados. El snapshot de pruebas cubre
+  todos los campos propietarios, sidecar y cola runtime de Territory, incluso
+  cuando el codec rechaza el documento. Corpus real exige éxito, no sólo
+  rechazos deterministas:46 documentos,2 jobs referenciados disueltos.
+- CX-02 conecta004033d0/00403350 con la hostilidad existente: fin de guerra,
+  mensaje, recorrido live de50 jobs y después nueva guerra, preservando RNG y
+  bits altos opacos. `AiReactionReport.warsEnded` informa máscaras y jobs.
+  Pruebas de guerra0/registros vacíos, transferencia hacia un job posterior,
+  varias guerras, cola llena, gate denegado y rollback tardío/in-place.
+- Integración probada en `State::reactAiEvent`: grafo sin bindings residuales,
+  handles supervivientes intactos y continuación RNG/IA conservada. Las
+  consecuencias de santuarios pueden ahora cambiar de guerra realmente.
+  Se sustituyó la antigua expectativa de «función no implementada» por una
+  comprobación de éxito y otra de rollback por job inválido tardío.
+- Evidencia adicional: assembly directo de00403350/004033d0/00445800 y bytes
+  PE comprobados por las pruebas. Son oráculos derivados, no replay del juego.
+
+**CX-02 sigue parcial.** Próximo tramo:004071b0 y los handlers offline
+NetBreakPact00476970/00476a70. No basta borrar bits:004415d0 actualiza relaciones
+bilaterales y emite eventos0x73 a otras IA;00441590 tiene semántica unilateral.
+Faltan también negociación00407290/004073a4/00406dd8 y presentación de avisos.
+No se sustituirán por callbacks vacíos ni respuestas humanas automáticas.
+EST-04c y el turno completo siguen abiertos; no se habilitaron Active,
+advanceTurn, captura de estados editados ni nuevos controles gráficos.
+
+Verificación final: **62/62 aprobadas,0 fallidas,0 omitidas**, normal y
+AddressSanitizer, con código de salida0. Comandos:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File tools/build.ps1 -BuildDir build-verified -Test
+powershell -NoProfile -ExecutionPolicy Bypass -File tools/build.ps1 -BuildDir build-save-asan -Test
+```
+
+Tiempos CTest:121.38s normal y276.02s ASAN. La caché ASAN mantiene
+`/fsanitize=address` realmente activo; sólo aparece el aviso históricoD9025
+de `/W3` reemplazado por `/W4`. Sin diagnósticos del sanitizador. Logs en
+`build-verified/Testing/Temporary/LastTest.log` y
+`build-save-asan/Testing/Temporary/LastTest.log`.
+La pasada intermedia detectó1 fallo por la expectativa antigua de santuarios;
+se corrigió el caso como se explica arriba y se repitieron ambas suites completas.
+
 ## CX-01: referencias militares diferidas — continuación 2026-10-03
 
 Continuación sobre `fe956f4`, mientras Claude desarrolla CL-01 en su worktree

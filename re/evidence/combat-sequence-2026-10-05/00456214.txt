@@ -1,0 +1,61 @@
+// Program: DEADLOCK.EXE
+// Language: x86:LE:32:default
+// Compiler: borlandcpp
+// Function: 00456214 FUN_00456214
+
+ushort * __stdcall FUN_00456214(ushort *param_1,int param_2)
+
+{
+  ushort *puVar1;
+  uint uVar2;
+  
+  puVar1 = (ushort *)0x0;
+  uVar2 = 0xffffffff;
+  for (; param_1 != (ushort *)0x0; param_1 = *(ushort **)(param_1 + 0x2a)) {
+    if ((param_2 < (int)(uint)*param_1) &&
+       ((uVar2 == 0xffffffff || ((int)(uint)*param_1 < (int)uVar2)))) {
+      uVar2 = (uint)*param_1;
+      puVar1 = param_1;
+    }
+  }
+  if (puVar1 == (ushort *)0x0) {
+    puVar1 = (ushort *)0x0;
+  }
+  return puVar1;
+}
+
+
+/* ASSEMBLY
+00456214  PUSH EBP
+00456215  MOV EBP,ESP
+00456217  PUSH EBX
+00456218  PUSH ESI
+00456219  MOV EBX,dword ptr [EBP + 0xc]
+0045621c  XOR ECX,ECX
+0045621e  OR EDX,0xffffffff
+00456221  MOV EAX,dword ptr [EBP + 0x8]
+00456224  TEST EAX,EAX
+00456226  JZ 0x00456247
+00456228  MOVZX ESI,word ptr [EAX]
+0045622b  CMP EBX,ESI
+0045622d  JGE 0x00456240
+0045622f  CMP EDX,-0x1
+00456232  JZ 0x0045623b
+00456234  MOVZX ESI,word ptr [EAX]
+00456237  CMP EDX,ESI
+00456239  JLE 0x00456240
+0045623b  MOVZX EDX,word ptr [EAX]
+0045623e  MOV ECX,EAX
+00456240  MOV EAX,dword ptr [EAX + 0x54]
+00456243  TEST EAX,EAX
+00456245  JNZ 0x00456228
+00456247  TEST ECX,ECX
+00456249  JZ 0x0045624f
+0045624b  MOV EAX,ECX
+0045624d  JMP 0x00456251
+0045624f  XOR EAX,EAX
+00456251  POP ESI
+00456252  POP EBX
+00456253  POP EBP
+00456254  RET 0x8
+*/

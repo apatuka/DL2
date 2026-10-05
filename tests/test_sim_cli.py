@@ -209,6 +209,41 @@ def main():
     assert not run("order-demolish-building", tutorial, 10244, 0, 0, 0, 0, success=False).stdout
     assert not run("order-disband-unit", tutorial, 0, success=False).stdout
     assert not run("order-demolish-building", tutorial, 10241, 0, 0, 0, "bad", success=False).stdout
+    collective = run("order-demolish-colony", tutorial, 14, 0, 0, 0, 0)
+    assert collective == run("order-demolish-colony", tutorial, 14, 0, 0, 0, 0)
+    assert collective["headless_local_order"] and collective["cold_pending_queue"]
+    assert collective["territory"] == 14 and collective["removed_ids"]
+    assert collective["building_count"] == prepared["buildings"] - len(collective["removed_ids"])
+    assert not collective["complete_turn"] and not collective["can_save"]
+    assert not collective["deferred_penalties_applied"] and collective["pending_shrine_count"] == 0
+    assert collective["turn"] == prepared["turn"]
+    for args in ((0, 0, 0, 0, 0), (999, 0, 0, 0, 0), (14, 0, 0, 0, "bad")):
+        assert not run("order-demolish-colony", tutorial, *args, success=False).stdout
+    paths_reset = run("movement-paths", tutorial, 14, 0, 0, 1, 0, 64, 0)
+    assert paths_reset["read_only"] and paths_reset["cold_search_scratch"] and not paths_reset["complete_turn"]
+    assert paths_reset["visits"] == 0 and paths_reset["best_target_distance"] == 10000
+    assert len(paths_reset["territories"]) == prepared["territories"] + 1
+    assert all(t["distance"] == 1000 and not t["flags"] & 64 for t in paths_reset["territories"])
+    paths = run("movement-paths", tutorial, 14, 0, 2, 3, 0, 64, 10243)
+    assert paths == run("movement-paths", tutorial, 14, 0, 2, 3, 0, 64, 10243)
+    assert paths["territories"][14]["distance"] == 0 and paths["territories"][14]["flags"] & 64
+    assert paths["visits"] >= 1 and paths["turn"] == prepared["turn"]
+    target_origin = run("movement-paths", tutorial, 14, 14, -1, 3, 0, 64, 0)
+    assert target_origin["visits"] == 1 and target_origin["best_target_distance"] == 0
+    assert target_origin["territories"][14]["distance"] == 1000
+    move = run("move-unit", tutorial, 10243, 14, 0)
+    assert move == run("move-unit", tutorial, 10243, 14, 0)
+    assert move["isolated_move_leaf"] and move["cold_path_scratch"]
+    assert move["stage"] == "entities_edited" and not move["complete_turn"] and not move["can_save"]
+    assert move["turn"] == prepared["turn"] and move["unit"] == 10243
+    assert move["current"] == move["turn_start"] == move["route_origin"] == 14
+    for args in ((0, 14, 0), (999999, 14, 0), (10243, 0, 0), (10243, 999, 0),
+                 (10243, 14, -1), (10243, 14, "bad")):
+        assert not run("move-unit", tutorial, *args, success=False).stdout
+    for args in ((0, 0, 2, 3, 0, 64, 0), (14, 999, 2, 3, 0, 64, 0),
+                 (14, 0, 2, 7, 0, 64, 0), (14, 0, 2, 3, 0, 64, 999999),
+                 (14, 0, "bad", 3, 0, 64, 0)):
+        assert not run("movement-paths", tutorial, *args, success=False).stdout
     for args in ((0, 0, 0, 0, 0, 0), (10244, 7, 0, 0, 0, 0), (10244, 0, "bad", 0, 0, 0),
                  (10244, 0, 4096, 0, 0, 0), (10244, 0, 0, 0, 0, "2147483648")):
         assert not run("demolish-building-context", tutorial, *args, success=False).stdout
@@ -311,6 +346,8 @@ def main():
                               ("delete-building", (10241,)), ("demolish-building", (10241, 0)),
                               ("demolish-building-context", (10244, 0, 0, 0, 0, 0)),
                               ("order-disband-unit", (10243,)), ("order-demolish-building", (10241, 0, 0, 0, 0)),
+                              ("order-demolish-colony", (14, 0, 0, 0, 0)),
+                              ("movement-paths", (14, 0, 2, 3, 0, 64, 0)),
                               ("start-building", (14, 1, 35, 1)), ("find-site", (14, 1, 1)),
                               ("queue-unit", (14, 1, 1)), ("dequeue-unit", (14, 1, 0)),
                               ("produce-units", (14, 1, 30, 1)), ("progress-buildings", (14, 1)),

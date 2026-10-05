@@ -289,6 +289,9 @@ State& State::operator=(State&& other) noexcept {
         world_ = std::move(other.world_); other.world_.reset();
         ai_ = std::move(other.ai_); other.ai_.reset();
         aiReaction_ = std::move(other.aiReaction_); other.aiReaction_.reset();
+        pendingAi_ = std::move(other.pendingAi_); other.pendingAi_.reset();
+        pendingPacts_ = std::move(other.pendingPacts_); other.pendingPacts_.reset();
+        movement_ = std::move(other.movement_); other.movement_.reset();
         collection_ = std::move(other.collection_); other.collection_.reset();
         eventCities_ = std::move(other.eventCities_); other.eventCities_.reset();
         populationEvents_ = std::move(other.populationEvents_); other.populationEvents_.reset();
@@ -313,7 +316,9 @@ bool State::rebuildGraph(save::Error& error) {
     return true;
 }
 
-bool State::copyForEdit(State& candidate, save::Error& error) const {
+bool State::copyForEdit(State& candidate, save::Error& error, bool completingAi) const {
+    if ((pendingAi_ || pendingPacts_) && !completingAi)
+        return fail(error, save::ErrorCode::InvalidState, "A human AI offer awaits its explicit answer");
     if (!document_ || (stage_ != Stage::Prepared && stage_ != Stage::EntitiesEdited))
         return fail(error, save::ErrorCode::InvalidState, "Structural entity edits require a prepared or structurally edited state");
     candidate.document_ = std::make_unique<save::Document>(*document_);
@@ -331,6 +336,7 @@ bool State::copyForEdit(State& candidate, save::Error& error) const {
     candidate.eventCities_ = eventCities_;
     candidate.populationEvents_ = populationEvents_;
     candidate.buildingRemoval_ = buildingRemoval_;
+    candidate.movement_ = movement_;
     return true;
 }
 
@@ -358,6 +364,8 @@ bool State::finishEdit(State&& candidate, save::Error& error, bool queueNodesRep
 
 bool State::prepare(const save::Document& source, save::Error& error) {
     return guarded([&] {
+        if (pendingAi_ || pendingPacts_)
+            return fail(error, save::ErrorCode::InvalidState, "Cannot replace a state awaiting a human AI answer");
         if (!save::validate(source, error) || !simulation::validateArchivalArmyBindings(source, error)) return false;
         if (source.header.isMap)
             return fail(error, save::ErrorCode::InvalidState, "Execution preparation requires a saved game, not a map");
@@ -379,6 +387,8 @@ bool State::prepare(const save::Document& source, save::Error& error) {
 
 bool State::capture(save::Document& destination, save::Error& error) const {
     return guarded([&] {
+        if (pendingAi_ || pendingPacts_)
+            return fail(error, save::ErrorCode::InvalidState, "Cannot capture a state awaiting a human AI answer");
         if (!document_ || stage_ != Stage::Prepared)
             return fail(error, save::ErrorCode::InvalidState,
                         "Only a prepared snapshot can be saved; an incomplete turn is not resumable");
@@ -391,6 +401,8 @@ bool State::capture(save::Document& destination, save::Error& error) const {
 
 bool State::collectTaxes(simulation::TaxPlan& report, save::Error& error) {
     return guarded([&] {
+        if (pendingAi_ || pendingPacts_)
+            return fail(error, save::ErrorCode::InvalidState, "A human AI offer awaits its explicit answer");
         if (!document_ || stage_ != Stage::Prepared)
             return fail(error, save::ErrorCode::InvalidState, "Taxes require a prepared state and can run only once");
         simulation::TaxPlan candidate;
@@ -406,6 +418,8 @@ bool State::collectTaxes(simulation::TaxPlan& report, save::Error& error) {
 
 bool State::consumeEnergy(simulation::EnergyPlan& report, save::Error& error) {
     return guarded([&] {
+        if (pendingAi_ || pendingPacts_)
+            return fail(error, save::ErrorCode::InvalidState, "A human AI offer awaits its explicit answer");
         if (!document_ || stage_ != Stage::Prepared)
             return fail(error, save::ErrorCode::InvalidState,
                         "Isolated energy consumption requires a fresh prepared state; omitted phases cannot be chained");
@@ -426,6 +440,8 @@ bool State::consumeEnergy(simulation::EnergyPlan& report, save::Error& error) {
 
 bool State::normalizeLabor(simulation::LaborBalancePlan& report, save::Error& error) {
     return guarded([&] {
+        if (pendingAi_ || pendingPacts_)
+            return fail(error, save::ErrorCode::InvalidState, "A human AI offer awaits its explicit answer");
         if (!document_ || stage_ != Stage::Prepared)
             return fail(error, save::ErrorCode::InvalidState,
                         "Labor normalization requires a fresh prepared state; full load/turn phases are not integrated");
@@ -625,6 +641,206 @@ bool State::reactAiEvent(const simulation::AiEventRequest& request,
         if (!candidate.ai_->reactEvent(*candidate.document_, request, context, *candidate.document_, result, error) ||
             !candidate.rng_.restore(result.contextAfter.rng, error)) return false;
         candidate.aiReaction_ = result.contextAfter;
+        if (!finishEdit(std::move(candidate), error)) return false;
+        report = std::move(result); return true;
+    }, error);
+}
+
+bool State::copyAiCompletion(const save::Document& completed, State& candidate, save::Error& error) const {
+    if (completed.armies.size() != document_->armies.size() ||
+        completed.buildings.size() != document_->buildings.size())
+        return fail(error, save::ErrorCode::InvalidState, "AI transaction changed entity identities");
+    for (size_t i = 0; i < completed.armies.size(); ++i)
+        if (completed.armies[i].id != document_->armies[i].id)
+            return fail(error, save::ErrorCode::InvalidState, "AI transaction reordered army identities");
+    for (size_t i = 0; i < completed.buildings.size(); ++i)
+        if (completed.buildings[i].id != document_->buildings[i].id)
+            return fail(error, save::ErrorCode::InvalidState, "AI transaction reordered building identities");
+    if (!copyForEdit(candidate, error, true)) return false;
+    if (!candidate.ai_) {
+        candidate.ai_.emplace();
+        if (!candidate.ai_->initializeAfterLoad(*candidate.document_, error)) return false;
+    }
+    *candidate.document_ = completed;
+    return true;
+}
+
+bool State::publishAiTransaction(simulation::AiEventTransaction transaction,
+                                 simulation::AiReactionReport& report, save::Error& error) {
+    const auto* progress = transaction.report();
+    if (!progress)
+        return fail(error, save::ErrorCode::InvalidState, "AI transaction has no progress report");
+    // Copy before publishing: even a late allocation failure keeps the original
+    // pending checkpoint and output. The transaction itself is immutable COW.
+    simulation::AiReactionReport result = *progress;
+    if (transaction.status() == simulation::AiEventTransactionStatus::AwaitingHuman) {
+        pendingAi_ = std::move(transaction);
+        report = std::move(result); error = {}; return true;
+    }
+    const auto* completed = transaction.completedDocument();
+    if (transaction.status() != simulation::AiEventTransactionStatus::Completed || !completed)
+        return fail(error, save::ErrorCode::InvalidState, "AI transaction has not completed");
+    State candidate;
+    if (!copyAiCompletion(*completed, candidate, error)) return false;
+    candidate.aiReaction_ = result.contextAfter;
+    if (!candidate.rng_.restore(result.contextAfter.rng, error)) return false;
+    if (const auto* campaign = transaction.campaignAfter()) candidate.buildingRemoval_ = *campaign;
+    if (!finishEdit(std::move(candidate), error)) return false;
+    report = std::move(result); return true;
+}
+
+bool State::beginAiEvent(const simulation::AiEventRequest& request,
+                         const simulation::AiReactionContext& context,
+                         const std::optional<simulation::BuildingRemovalContext>& campaign,
+                         simulation::AiReactionReport& report, save::Error& error) {
+    return guarded([&] {
+        if ((aiReaction_ && context != *aiReaction_) ||
+            (rng_.snapshot().initialized && context.rng != rng_.snapshot()))
+            return fail(error, save::ErrorCode::InvalidState, "AI reaction context differs from the owned continuation");
+        if (buildingRemoval_ && campaign != buildingRemoval_)
+            return fail(error, save::ErrorCode::InvalidState, "AI event requires the owned campaign/pending-shrine continuation");
+        State candidate;
+        if (!copyForEdit(candidate, error)) return false;
+        if (!candidate.ai_) {
+            candidate.ai_.emplace();
+            if (!candidate.ai_->initializeAfterLoad(*candidate.document_, error)) return false;
+        }
+        simulation::AiEventTransaction transaction;
+        if (!transaction.begin(*candidate.document_, *candidate.ai_, request, context, campaign, error)) return false;
+        return publishAiTransaction(std::move(transaction), report, error);
+    }, error);
+}
+
+bool State::answerAiOffer(const simulation::AiHumanOffer& offer, simulation::AiHumanAnswer answer,
+                          simulation::AiReactionReport& report, save::Error& error) {
+    return guarded([&] {
+        if (!pendingAi_)
+            return fail(error, save::ErrorCode::InvalidState, "There is no pending human AI offer");
+        auto transaction = *pendingAi_;
+        if (!transaction.answer(offer, answer, error)) return false;
+        return publishAiTransaction(std::move(transaction), report, error);
+    }, error);
+}
+
+bool State::publishPactTransaction(simulation::AiPactReconciliationTransaction transaction,
+                                   simulation::AiPactReconciliationReport& report, save::Error& error) {
+    const auto* progress = transaction.report();
+    if (!progress)
+        return fail(error, save::ErrorCode::InvalidState, "Pact reconciliation has no progress report");
+    simulation::AiPactReconciliationReport result = *progress;
+    if (transaction.status() == simulation::AiEventTransactionStatus::AwaitingHuman) {
+        pendingPacts_ = std::move(transaction);
+        report = std::move(result); error = {}; return true;
+    }
+    const auto* completed = transaction.completedDocument();
+    if (transaction.status() != simulation::AiEventTransactionStatus::Completed || !completed)
+        return fail(error, save::ErrorCode::InvalidState, "Pact reconciliation has not completed");
+    State candidate;
+    if (!copyAiCompletion(*completed, candidate, error)) return false;
+    candidate.aiReaction_ = result.contextAfter.ai;
+    if (!candidate.rng_.restore(result.contextAfter.ai.rng, error)) return false;
+    candidate.events_ = result.contextAfter.log;
+    candidate.eventCities_ = result.contextAfter.cities;
+    if (const auto* campaign = transaction.campaignAfter()) candidate.buildingRemoval_ = *campaign;
+    if (!finishEdit(std::move(candidate), error)) return false;
+    report = std::move(result); return true;
+}
+
+bool State::beginAiPactReconciliation(const simulation::AiPactReconciliationContext& context,
+                                     const std::optional<simulation::BuildingRemovalContext>& campaign,
+                                     simulation::AiPactReconciliationReport& report, save::Error& error) {
+    return guarded([&] {
+        if ((aiReaction_ && context.ai != *aiReaction_) ||
+            (rng_.snapshot().initialized && context.ai.rng != rng_.snapshot()) ||
+            (events_ && context.log != events_) || (eventCities_ && context.cities != *eventCities_))
+            return fail(error, save::ErrorCode::InvalidState, "Pact reconciliation requires the owned AI, RNG, log and city continuation");
+        if (buildingRemoval_ && campaign != buildingRemoval_)
+            return fail(error, save::ErrorCode::InvalidState, "Pact reconciliation requires the owned campaign/pending-shrine continuation");
+        State candidate;
+        if (!copyForEdit(candidate, error)) return false;
+        if (!candidate.ai_) {
+            candidate.ai_.emplace();
+            if (!candidate.ai_->initializeAfterLoad(*candidate.document_, error)) return false;
+        }
+        simulation::AiPactReconciliationTransaction transaction;
+        if (!transaction.begin(*candidate.document_, *candidate.ai_, context, campaign, error)) return false;
+        return publishPactTransaction(std::move(transaction), report, error);
+    }, error);
+}
+
+bool State::answerAiPactOffer(const simulation::AiHumanOffer& offer, simulation::AiHumanAnswer answer,
+                             simulation::AiPactReconciliationReport& report, save::Error& error) {
+    return guarded([&] {
+        if (!pendingPacts_)
+            return fail(error, save::ErrorCode::InvalidState, "There is no pending human pact reconciliation offer");
+        auto transaction = *pendingPacts_;
+        if (!transaction.answer(offer, answer, error)) return false;
+        return publishPactTransaction(std::move(transaction), report, error);
+    }, error);
+}
+
+bool State::resolveMovementCrossings(const simulation::MovementCrossingsContext& context,
+                                      simulation::MovementCrossingsReport& report, save::Error& error) {
+    return guarded([&] {
+        if ((aiReaction_ && context.ai != *aiReaction_) ||
+            (rng_.snapshot().initialized && context.ai.rng != rng_.snapshot()) ||
+            (events_ && context.log != events_) || (eventCities_ && context.cities != *eventCities_) ||
+            (buildingRemoval_ && context.campaign != buildingRemoval_))
+            return fail(error, save::ErrorCode::InvalidState, "Movement crossings require the owned AI, RNG, log, city and campaign continuation");
+        if (movement_ && (context.movement.paths.sentinelFlags != movement_->paths.sentinelFlags ||
+            context.movement.paths.recursionDepth != movement_->paths.recursionDepth ||
+            context.movement.paths.maximumRecursionDepth != movement_->paths.maximumRecursionDepth))
+            return fail(error, save::ErrorCode::InvalidState, "Movement crossings require the owned path scratch continuation");
+        State candidate;
+        if (!copyForEdit(candidate, error)) return false;
+        if (!candidate.ai_) {
+            candidate.ai_.emplace();
+            if (!candidate.ai_->initializeAfterLoad(*candidate.document_, error)) return false;
+        }
+        simulation::MovementCrossingsReport result;
+        if (!simulation::resolveMovementCrossings(*candidate.document_, *candidate.ai_, context,
+                                                  *candidate.document_, result, error)) return false;
+        if (candidate.document_->armies.size() != document_->armies.size() ||
+            candidate.document_->buildings.size() != document_->buildings.size())
+            return fail(error, save::ErrorCode::InvalidState, "Movement crossings changed entity identities");
+        for (size_t i = 0; i < document_->armies.size(); ++i)
+            if (candidate.document_->armies[i].id != document_->armies[i].id)
+                return fail(error, save::ErrorCode::InvalidState, "Movement crossings reordered army identities");
+        for (size_t i = 0; i < document_->buildings.size(); ++i)
+            if (candidate.document_->buildings[i].id != document_->buildings[i].id)
+                return fail(error, save::ErrorCode::InvalidState, "Movement crossings reordered building identities");
+        candidate.movement_ = result.contextAfter.movement;
+        candidate.aiReaction_ = result.contextAfter.ai;
+        if (!candidate.rng_.restore(result.contextAfter.ai.rng, error)) return false;
+        candidate.events_ = result.contextAfter.log;
+        candidate.eventCities_ = result.contextAfter.cities;
+        candidate.buildingRemoval_ = result.contextAfter.campaign;
+        if (!finishEdit(std::move(candidate), error)) return false;
+        report = std::move(result); return true;
+    }, error);
+}
+
+bool State::moveUnit(ArmyHandle handle, uint32_t target, uint32_t routeOrigin,
+                     const simulation::UnitMovementContext& context,
+                     simulation::UnitMovementReport& report, save::Error& error) {
+    return guarded([&] {
+        const auto* value = army(handle);
+        if (!value) return fail(error, save::ErrorCode::InvalidState, "Movement received a null, stale or foreign army handle");
+        if (movement_ && (context.paths.sentinelFlags != movement_->paths.sentinelFlags ||
+            context.paths.recursionDepth != movement_->paths.recursionDepth ||
+            context.paths.maximumRecursionDepth != movement_->paths.maximumRecursionDepth))
+            return fail(error, save::ErrorCode::InvalidState, "Movement requires the owned path scratch continuation");
+        State candidate;
+        if (!copyForEdit(candidate, error)) return false;
+        simulation::UnitMovementReport result;
+        if (!simulation::moveUnit(*candidate.document_, {value->id, target, routeOrigin}, context,
+                                  *candidate.document_, result, error)) return false;
+        if (candidate.document_->armies.size() != document_->armies.size())
+            return fail(error, save::ErrorCode::InvalidState, "Movement changed army identities");
+        for (size_t i = 0; i < document_->armies.size(); ++i)
+            if (candidate.document_->armies[i].id != document_->armies[i].id)
+                return fail(error, save::ErrorCode::InvalidState, "Movement reordered army identities");
+        candidate.movement_ = result.contextAfter;
         if (!finishEdit(std::move(candidate), error)) return false;
         report = std::move(result); return true;
     }, error);
@@ -1092,6 +1308,31 @@ bool State::orderDemolishBuilding(int actor, BuildingHandle handle,
         }
         if (removed != result.removedIds.size() || candidate.document_->buildings.size() + removed != document_->buildings.size())
             return fail(error, save::ErrorCode::InvalidState, "Demolition order report differs from retired records");
+        if (!finishEdit(std::move(candidate), error)) return false;
+        report = std::move(result); return true;
+    }, error);
+}
+
+bool State::orderDemolishColony(const simulation::DemolishColonyOrderRequest& request,
+                               const simulation::BuildingRemovalContext& context,
+                               simulation::DemolishColonyOrderReport& report, save::Error& error) {
+    return guarded([&] {
+        State candidate;
+        if (!copyForEdit(candidate, error)) return false;
+        if (candidate.buildingRemoval_ && context != *candidate.buildingRemoval_)
+            return fail(error, save::ErrorCode::InvalidState, "Collective demolition requires the owned campaign/pending-shrine continuation");
+        simulation::DemolishColonyOrderReport result;
+        if (!simulation::orderDemolishColony(*candidate.document_, request, context,
+                                             *candidate.document_, result, error)) return false;
+        candidate.buildingRemoval_ = result.contextAfter;
+        size_t removed = 0;
+        for (size_t i = document_->buildings.size(); i-- > 0; ) {
+            if (!candidate.document_->buildingById(document_->buildings[i].id)) {
+                retireSlot(candidate.buildingSlots_, candidate.buildingDenseSlots_, uint32_t(i)); ++removed;
+            }
+        }
+        if (removed != result.removedIds.size() || candidate.document_->buildings.size() + removed != document_->buildings.size())
+            return fail(error, save::ErrorCode::InvalidState, "Collective demolition report differs from retired records");
         if (!finishEdit(std::move(candidate), error)) return false;
         report = std::move(result); return true;
     }, error);

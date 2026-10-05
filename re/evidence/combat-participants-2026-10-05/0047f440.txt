@@ -1,0 +1,97 @@
+// Program: DEADLOCK.EXE
+// Language: x86:LE:32:default
+// Compiler: borlandcpp
+// Function: 0047f440 FUN_0047f440
+
+char __stdcall FUN_0047f440(int param_1)
+
+{
+  char cVar1;
+  int iVar2;
+  int local_38;
+  
+  FUN_0044de9c();
+  iVar2 = ((local_38 - *(short *)(param_1 + 0x14)) * 100) / local_38;
+  if ((*(byte *)(param_1 + 2) & 2) == 0) {
+    cVar1 = ((&DAT_004f9dc5)[*(char *)(param_1 + 4) * 0x32] == '\x02') + 'o';
+  }
+  else {
+    if (iVar2 < 0x1e) {
+      cVar1 = 'i';
+    }
+    else if (iVar2 < 0x3c) {
+      cVar1 = 'j';
+    }
+    else {
+      cVar1 = 'k';
+    }
+    if ((&DAT_004f9dc5)[*(char *)(param_1 + 4) * 0x32] == '\x02') {
+      cVar1 = cVar1 + '\x03';
+    }
+  }
+  return cVar1;
+}
+
+
+/* ASSEMBLY
+0047f440  PUSH EBP
+0047f441  MOV EBP,ESP
+0047f443  ADD ESP,-0x34
+0047f446  MOV EAX,[0x00657de0]
+0047f44b  LEA EDX,[EBP + -0x34]
+0047f44e  PUSH EBX
+0047f44f  MOV EBX,dword ptr [EBP + 0x8]
+0047f452  PUSH EDX
+0047f453  MOVSX ECX,byte ptr [EAX + 0x21]
+0047f457  PUSH ECX
+0047f458  MOVSX EDX,byte ptr [EBX + 0x4]
+0047f45c  PUSH EDX
+0047f45d  MOVSX EAX,byte ptr [EAX + 0x20]
+0047f461  LEA ECX,[EAX + EAX*0x2]
+0047f464  SHL ECX,0x3
+0047f467  SUB ECX,EAX
+0047f469  SHL ECX,0x2
+0047f46c  SUB ECX,EAX
+0047f46e  SHL ECX,0x3
+0047f471  ADD ECX,0x59f160
+0047f477  PUSH ECX
+0047f478  CALL 0x0044de9c
+0047f47d  MOVSX EAX,word ptr [EBX + 0x14]
+0047f481  MOV ECX,dword ptr [EBP + -0x34]
+0047f484  MOV EDX,ECX
+0047f486  SUB EDX,EAX
+0047f488  MOV EAX,EDX
+0047f48a  SHL EAX,0x2
+0047f48d  LEA EAX,[EAX + EAX*0x4]
+0047f490  LEA EAX,[EAX + EAX*0x4]
+0047f493  CDQ
+0047f494  IDIV ECX
+0047f496  MOVSX ECX,byte ptr [EBX + 0x4]
+0047f49a  TEST byte ptr [EBX + 0x2],0x2
+0047f49e  LEA EDX,[ECX + ECX*0x4]
+0047f4a1  LEA EDX,[EDX + EDX*0x4]
+0047f4a4  MOVSX EDX,byte ptr [EDX*0x2 + 0x4f9dc5]
+0047f4ac  JNZ 0x0047f4be
+0047f4ae  MOV EAX,0x1
+0047f4b3  CMP EDX,0x2
+0047f4b6  JZ 0x0047f4b9
+0047f4b8  DEC EAX
+0047f4b9  ADD EAX,0x6f
+0047f4bc  JMP 0x0047f4e3
+0047f4be  CMP EAX,0x1e
+0047f4c1  JGE 0x0047f4ca
+0047f4c3  MOV EAX,0x69
+0047f4c8  JMP 0x0047f4db
+0047f4ca  CMP EAX,0x3c
+0047f4cd  JGE 0x0047f4d6
+0047f4cf  MOV EAX,0x6a
+0047f4d4  JMP 0x0047f4db
+0047f4d6  MOV EAX,0x6b
+0047f4db  CMP EDX,0x2
+0047f4de  JNZ 0x0047f4e3
+0047f4e0  ADD EAX,0x3
+0047f4e3  POP EBX
+0047f4e4  MOV ESP,EBP
+0047f4e6  POP EBP
+0047f4e7  RET 0x4
+*/

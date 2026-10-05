@@ -1,0 +1,77 @@
+// Program: DEADLOCK.EXE
+// Language: x86:LE:32:default
+// Compiler: borlandcpp
+// Function: 004503f4 FUN_004503f4
+
+undefined4 __stdcall FUN_004503f4(int param_1,int param_2,int param_3)
+
+{
+  uint uVar1;
+  uint uVar2;
+  undefined *puVar3;
+  
+  if (param_1 == 7) {
+    puVar3 = (&PTR_PTR_004cabc8)[param_2 * 2];
+    uVar2 = *(uint *)(&DAT_004cabcc + param_2 * 8);
+  }
+  else if (param_1 == 8) {
+    puVar3 = (&PTR_PTR_004cabe8)[param_2 * 2];
+    uVar2 = *(uint *)(&DAT_004cabec + param_2 * 8);
+  }
+  else {
+    uVar2 = *(uint *)(&DAT_004ca3b4 + param_1 * 8 + param_2 * 0x38);
+    puVar3 = (&PTR_PTR_004ca3b0)[param_2 * 0xe + param_1 * 2];
+  }
+  if (param_3 == -1) {
+    uVar1 = FUN_0046ca40();
+    uVar1 = uVar1 % uVar2;
+  }
+  else {
+    uVar1 = param_3 % (int)uVar2;
+  }
+  return *(undefined4 *)(puVar3 + uVar1 * 4);
+}
+
+
+/* ASSEMBLY
+004503f4  PUSH EBP
+004503f5  MOV EBP,ESP
+004503f7  PUSH EBX
+004503f8  PUSH ESI
+004503f9  MOV ECX,dword ptr [EBP + 0x10]
+004503fc  MOV EAX,dword ptr [EBP + 0xc]
+004503ff  MOV EDX,dword ptr [EBP + 0x8]
+00450402  CMP EDX,0x7
+00450405  JNZ 0x00450417
+00450407  MOV ESI,dword ptr [EAX*0x8 + 0x4cabc8]
+0045040e  MOV EBX,dword ptr [EAX*0x8 + 0x4cabcc]
+00450415  JMP 0x00450447
+00450417  CMP EDX,0x8
+0045041a  JNZ 0x0045042c
+0045041c  MOV ESI,dword ptr [EAX*0x8 + 0x4cabe8]
+00450423  MOV EBX,dword ptr [EAX*0x8 + 0x4cabec]
+0045042a  JMP 0x00450447
+0045042c  MOV EBX,EAX
+0045042e  SHL EBX,0x3
+00450431  SUB EBX,EAX
+00450433  LEA EAX,[EBX*0x8 + 0x4ca3b4]
+0045043a  LEA ESI,[EBX*0x8 + 0x4ca3b0]
+00450441  MOV EBX,dword ptr [EAX + EDX*0x8]
+00450444  MOV ESI,dword ptr [ESI + EDX*0x8]
+00450447  CMP ECX,-0x1
+0045044a  JNZ 0x00450459
+0045044c  CALL 0x0046ca40
+00450451  XOR EDX,EDX
+00450453  DIV EBX
+00450455  MOV EAX,EDX
+00450457  JMP 0x00450460
+00450459  MOV EAX,ECX
+0045045b  CDQ
+0045045c  IDIV EBX
+0045045e  MOV EAX,EDX
+00450460  MOV EAX,dword ptr [ESI + EAX*0x4]
+00450463  POP ESI
+00450464  POP EBX
+00450465  POP EBP
+00450466  RET 0xc
+*/

@@ -1,0 +1,35 @@
+// Program: DEADLOCK.EXE
+// Language: x86:LE:32:default
+// Compiler: borlandcpp
+// Function: 00447190 FUN_00447190
+
+int __stdcall FUN_00447190(int param_1)
+
+{
+  int iVar1;
+  
+  iVar1 = CONCAT31(*(char *)(param_1 + 6) >> 7,(&DAT_004faf8c)[*(char *)(param_1 + 6) * 0x24]);
+  if ((1 << (*(byte *)(param_1 + 8) & 0x1f) & (int)DAT_004fc4a8) != 0) {
+    iVar1 = iVar1 + 1;
+  }
+  return iVar1;
+}
+
+
+/* ASSEMBLY
+00447190  PUSH EBP
+00447191  MOV EBP,ESP
+00447193  MOV EDX,dword ptr [EBP + 0x8]
+00447196  MOVSX EAX,byte ptr [EDX + 0x6]
+0044719a  LEA ECX,[EAX + EAX*0x8]
+0044719d  MOV AL,byte ptr [ECX*0x4 + 0x4faf8c]
+004471a4  MOV CL,byte ptr [EDX + 0x8]
+004471a7  MOV EDX,0x1
+004471ac  SHL EDX,CL
+004471ae  MOVSX ECX,word ptr [0x004fc4a8]
+004471b5  AND EDX,ECX
+004471b7  JZ 0x004471ba
+004471b9  INC EAX
+004471ba  POP EBP
+004471bb  RET 0x4
+*/

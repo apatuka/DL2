@@ -201,8 +201,13 @@ void failuresRollback() {
     c=context(); source->players[1].type=3; reject({{{0,1}}},c);
     require(error.message.find("AI")!=std::string::npos,"missing AI binding rejects after local event without partial commit");
     AiSession ai; ok(ai.initializeAfterLoad(*source,error),error); c.aiSession=&ai;
-    source->players[1].relations[0]=1; reject({{{0,1}}},c);
-    require(error.message.find("pact-break")!=std::string::npos,"unported AI pact-break branch rolls back local log and attitude");
+    source->players[1].relations[0]=1;
+    auto withPact=run(*source,{{{0,1}}},c);
+    require(withPact.report.events[1].aiReport.pacts.size()==1 &&
+        !withPact.report.events[1].aiReport.pacts[0].accepted &&
+        withPact.document->players[1].relations[0]==1 && withPact.document->aiWarMask[1]==1 &&
+        withPact.document->territories[0].data.morale==80,
+        "disabled alliances reject the native pact ACK but shrine hostility and morale still continue");
     source->players[1].relations[0]=0; source->aiWarMask[1]=2;
     // Choose an independent seed whose SECOND draw (after local portrait) has
     // low3bits0, thereby entering original existing-war dissolution.

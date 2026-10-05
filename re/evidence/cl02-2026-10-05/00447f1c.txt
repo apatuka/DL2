@@ -1,0 +1,28 @@
+// Program: DEADLOCK.EXE
+// Language: x86:LE:32:default
+// Compiler: borlandcpp
+// Function: 00447f1c FUN_00447f1c
+
+bool __stdcall FUN_00447f1c(int param_1)
+
+{
+  return ((int)DAT_004fc0f2 & 1 << (*(byte *)(param_1 + 8) & 0x1f)) != 0;
+}
+
+
+/* ASSEMBLY
+00447f1c  PUSH EBP
+00447f1d  MOV EBP,ESP
+00447f1f  MOVSX EDX,word ptr [0x004fc0f2]
+00447f26  MOV EAX,dword ptr [EBP + 0x8]
+00447f29  MOV CL,byte ptr [EAX + 0x8]
+00447f2c  MOV EAX,0x1
+00447f31  SHL EAX,CL
+00447f33  TEST EDX,EAX
+00447f35  JZ 0x00447f3e
+00447f37  MOV EAX,0x1
+00447f3c  JMP 0x00447f40
+00447f3e  XOR EAX,EAX
+00447f40  POP EBP
+00447f41  RET 0x4
+*/

@@ -3,6 +3,7 @@
 #include "game/construction_site.h"
 #include "game/production_plan.h"
 #include "game/entity_rules.h"
+#include "game/movement_paths.h"
 #include "game/save_files.h"
 #include <charconv>
 #include <bit>
@@ -430,6 +431,7 @@ int usage() {
                  "  dl2sim demolish-building <save> <building-id> <refund-player>\n"
                  "  dl2sim demolish-building-context <save> <building-id> <refund-player> <campaign-flags> <goal0> <goal1> <goal2>\n"
                  "  dl2sim order-demolish-building <save> <building-id> <campaign-flags> <goal0> <goal1> <goal2>\n"
+                 "  dl2sim order-demolish-colony <save> <territory> <campaign-flags> <goal0> <goal1> <goal2>\n"
                  "  dl2sim order-disband-unit <save> <unit-id>\n"
                  "  dl2sim start-building <save> <territory> <building-type> <site> <seed-int32>\n"
                  "  dl2sim find-site <save> <territory> <building-type> <seed-int32>\n"
@@ -462,6 +464,10 @@ int usage() {
                  "  dl2sim placement <save> <territory> <building-type> <site>\n"
                  "  dl2sim placement-archive <HDX/HDD-base> <entry> <territory> <building-type> <site>\n"
                  "    Read-only placement/footprint, NOT ownership/technology/affordability permission.\n"
+                 "  dl2sim move-unit <save> <unit> <territory> <route-origin-or-0>\n"
+                 "    Isolated MoveUnit leaf with selected unit and zero initial path scratch; no conquest or combat.\n"
+                 "  dl2sim movement-paths <save> <origin> <target-or-0> <range> <domain> <player> <mark-mask> <moving-unit-or-0>\n"
+                 "    Read-only distance/search scratch, with explicit zero initial scratch; does not move units.\n"
                  "  dl2sim turn <save>  (explicitly unavailable)\n"
                  "Experiments print JSON. No partial SAV is written.\n";
     return 2;
@@ -484,8 +490,9 @@ int main(int argc, char** argv) {
                              command == "normalize-session" || command == "production-prefix" || command == "production-phase" || command == "delete-unit" || command == "disband-unit" || command == "order-disband-unit" || command == "delete-building" || command == "reset-labor" || command == "building-toggle")) ||
               (argc == 5 && (command == "demolish-building" || command == "progress-buildings" || command == "building-lock" || command == "research-clear")) ||
               (argc == 7 && (command == "start-building" || command == "produce-units")) ||
-              (argc == 6 && (command == "create-unit" || command == "find-site" || command == "queue-unit" || command == "dequeue-unit" || command == "move-labor" || command == "research-select" || command == "research-toggle")) ||
-              (argc == 8 && (command == "transfer-labor" || command == "order-demolish-building")) || (argc == 9 && (command == "move-population" || command == "demolish-building-context")) ||
+              (argc == 6 && (command == "move-unit" || command == "create-unit" || command == "find-site" || command == "queue-unit" || command == "dequeue-unit" || command == "move-labor" || command == "research-select" || command == "research-toggle")) ||
+              (argc == 8 && (command == "transfer-labor" || command == "order-demolish-building" || command == "order-demolish-colony")) || (argc == 9 && (command == "move-population" || command == "demolish-building-context")) ||
+              (argc == 10 && command == "movement-paths") ||
               ((isPlacement || isCreation) && argc == (archive ? 7 : 6)))) return usage();
         auto document = std::make_unique<save::Document>();
         save::Error error;
@@ -494,7 +501,56 @@ int main(int argc, char** argv) {
         runtime::State state;
         require(state.prepare(*document, error), error);
         if (command == "turn") { require(state.advanceTurn(error), error); return 1; }
-        if(command=="transfer-labor" || command=="move-labor" || command=="reset-labor") {
+        if(command=="movement-paths") {
+            const int origin=integer(argv[3]),target=integer(argv[4]),moving=integer(argv[9]);
+            if(origin<=0 || target<0 || moving<0)
+                throw std::runtime_error("Movement query requires positive origin and nonnegative target/unit IDs");
+            simulation::MovementPathRequest request;
+            request.origin=uint32_t(origin);
+            if(target) request.target=uint32_t(target);
+            request.range=integer(argv[5]); request.domain=integer(argv[6]); request.player=integer(argv[7]);
+            request.markMask=uint32_t(integer(argv[8]));
+            simulation::MovementPathContext context; context.creation.movingArmyId=uint32_t(moving);
+            simulation::MovementPathReport report;
+            require(simulation::findMovementPaths(*state.document(),request,context,report,error),error);
+            std::cout << "{\"stage\":\"prepared\",\"read_only\":true,\"complete_turn\":false,\"cold_search_scratch\":true,"
+                "\"origin\":" << origin << ",\"target\":" << target << ",\"turn\":" << document->options.turn
+                << ",\"best_target_distance\":" << report.bestTargetDistance << ",\"visits\":" << report.visitCount
+                << ",\"maximum_depth\":" << report.maximumRecursionDepthAfter << ",\"territories\":[";
+            for(size_t index=0;index<report.territories.size();++index) {
+                const auto& entry=report.territories[index];
+                std::cout << (index ? "," : "") << "{\"index\":" << index << ",\"distance\":" << entry.distance
+                    << ",\"flags\":" << entry.flags << '}';
+            }
+            std::cout << "]}\n";
+        } else if(command=="move-unit") {
+            const int id=integer(argv[3]),target=integer(argv[4]),origin=integer(argv[5]);
+            if(id<=0 || target<=0 || origin<0)
+                throw std::runtime_error("Movement requires positive unit/target and nonnegative route origin");
+            const auto handle=state.armyById(uint32_t(id));
+            simulation::UnitMovementContext context; context.paths.creation.movingArmyId=uint32_t(id);
+            simulation::UnitMovementReport report;
+            require(state.moveUnit(handle,uint32_t(target),uint32_t(origin),context,report,error),error);
+            const auto* army=state.army(handle);
+            std::cout << std::boolalpha << "{\"stage\":\"entities_edited\",\"complete_turn\":false,\"can_save\":false,"
+                "\"isolated_move_leaf\":true,\"cold_path_scratch\":true,\"turn\":" << state.document()->options.turn
+                << ",\"unit\":" << id << ",\"target\":" << target << ",\"native_result\":" << report.moved
+                << ",\"reason\":" << int(report.reason) << ",\"current\":" << army->dest.raw
+                << ",\"turn_start\":" << army->territory.raw << ",\"route_origin\":" << army->origin.raw
+                << ",\"strength_before\":" << int(report.strengthBefore) << ",\"strength_after\":" << int(report.strengthAfter)
+                << ",\"mission_before\":" << int(report.missionBefore) << ",\"mission_after\":" << int(report.missionAfter)
+                << ",\"maximum_depth\":" << report.contextAfter.paths.maximumRecursionDepth
+                << ",\"relinks\":[";
+            for(size_t i=0;i<report.relinks.size();++i) {
+                const auto& entry=report.relinks[i];
+                std::cout << (i ? "," : "") << "{\"unit\":" << entry.armyId << ",\"from\":" << entry.from
+                    << ",\"target\":" << entry.target << ",\"native_result\":" << entry.nativeResult
+                    << ",\"changed\":" << entry.changed << '}';
+            }
+            std::cout << "],\"transport_count\":" << report.transports.size()
+                << ",\"untransported_notice_count\":" << report.untransported.size()
+                << ",\"siege_advice\":" << report.siegeAdvice << "}\n";
+        } else if(command=="transfer-labor" || command=="move-labor" || command=="reset-labor") {
             const int territory=integer(argv[3]);
             if(territory<=0) throw std::runtime_error("Territory index must be positive");
             simulation::ColonyLaborOrderReport report;
@@ -621,6 +677,21 @@ int main(int argc, char** argv) {
             simulation::DemolishBuildingOrderReport report;
             require(state.orderDemolishBuilding(document->options.localPlayer,state.buildingById(uint32_t(id)),context,report,error),error);
             demolitionOrder(state,report);
+        } else if (command == "order-demolish-colony") {
+            const int territory=integer(argv[3]);
+            if (territory<=0) throw std::runtime_error("Territory index must be positive");
+            simulation::BuildingRemovalContext context;
+            context.campaignFlags=uint32_t(integer(argv[4]));
+            for (size_t slot=0;slot<3;++slot) context.campaignProgress[slot]=integer(argv[5+slot]);
+            simulation::DemolishColonyOrderReport report;
+            require(state.orderDemolishColony({document->options.localPlayer,uint32_t(territory)},context,report,error),error);
+            std::cout << std::boolalpha << "{\"stage\":\"entities_edited_in_memory\",\"complete_turn\":false,\"can_save\":false,"
+                "\"headless_local_order\":true,\"cold_pending_queue\":true,\"territory\":" << report.territory
+                << ",\"removed_ids\":";
+            numbers(report.removedIds);
+            std::cout << ",\"building_count\":" << state.document()->buildings.size()
+                << ",\"pending_shrine_count\":" << report.contextAfter.pendingShrines.entries.size()
+                << ",\"deferred_penalties_applied\":false,\"turn\":" << state.document()->options.turn << "}\n";
         } else if (command == "order-disband-unit") {
             const int id=integer(argv[3]);
             if (id<=0) throw std::runtime_error("Unit ID must be positive");

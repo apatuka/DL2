@@ -1,0 +1,27 @@
+// Program: DEADLOCK.EXE
+// Language: x86:LE:32:default
+// Compiler: borlandcpp
+// Function: 004512a8 FUN_004512a8
+
+void __stdcall FUN_004512a8(void)
+
+{
+  FUN_004a6838();
+  FUN_004a6838();
+  return;
+}
+
+
+/* ASSEMBLY
+004512a8  PUSH 0x510
+004512ad  PUSH 0x0
+004512af  PUSH 0x57ce00
+004512b4  CALL 0x004a6838
+004512b9  ADD ESP,0xc
+004512bc  PUSH 0x510
+004512c1  PUSH 0x0
+004512c3  PUSH 0x57d310
+004512c8  CALL 0x004a6838
+004512cd  ADD ESP,0xc
+004512d0  RET
+*/

@@ -1,0 +1,25 @@
+// Program: DEADLOCK.EXE
+// Language: x86:LE:32:default
+// Compiler: borlandcpp
+// Function: 00450f84 FUN_00450f84
+
+bool __stdcall FUN_00450f84(int param_1)
+
+{
+  return (&DAT_004faf87)[*(int *)(param_1 + 4) * 0x24] == '\t';
+}
+
+
+/* ASSEMBLY
+00450f84  PUSH EBP
+00450f85  MOV EBP,ESP
+00450f87  MOV EAX,dword ptr [EBP + 0x8]
+00450f8a  MOV EDX,dword ptr [EAX + 0x4]
+00450f8d  LEA EDX,[EDX + EDX*0x8]
+00450f90  MOVSX ECX,byte ptr [EDX*0x4 + 0x4faf87]
+00450f98  CMP ECX,0x9
+00450f9b  SETZ AL
+00450f9e  AND EAX,0x1
+00450fa1  POP EBP
+00450fa2  RET 0x4
+*/

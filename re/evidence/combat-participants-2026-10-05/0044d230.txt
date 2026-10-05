@@ -1,0 +1,61 @@
+// Program: DEADLOCK.EXE
+// Language: x86:LE:32:default
+// Compiler: borlandcpp
+// Function: 0044d230 FUN_0044d230
+
+int __stdcall FUN_0044d230(int param_1,int param_2,int param_3)
+
+{
+  int iVar1;
+  int *piVar2;
+  
+  piVar2 = (int *)(param_1 + 0x154 + param_3 * 0x34);
+  while( true ) {
+    if (0x23 < param_3) {
+      return -1;
+    }
+    iVar1 = *piVar2;
+    if ((((iVar1 != 0) && (param_2 == *(char *)(iVar1 + 5))) && (*(short *)(iVar1 + 0x14) == 0)) &&
+       ((*(byte *)(iVar1 + 2) & 4) != 0)) break;
+    param_3 = param_3 + 1;
+    piVar2 = piVar2 + 0xd;
+  }
+  return param_3;
+}
+
+
+/* ASSEMBLY
+0044d230  PUSH EBP
+0044d231  MOV EBP,ESP
+0044d233  PUSH EBX
+0044d234  PUSH ESI
+0044d235  MOV EDX,dword ptr [EBP + 0x10]
+0044d238  MOV ECX,dword ptr [EBP + 0x8]
+0044d23b  CMP EDX,0x24
+0044d23e  MOV EBX,dword ptr [EBP + 0xc]
+0044d241  LEA EAX,[EDX + EDX*0x2]
+0044d244  LEA EAX,[EDX + EAX*0x4]
+0044d247  LEA ECX,[ECX + EAX*0x4 + 0x154]
+0044d24e  JGE 0x0044d278
+0044d250  MOV EAX,dword ptr [ECX]
+0044d252  TEST EAX,EAX
+0044d254  JZ 0x0044d26f
+0044d256  MOVSX ESI,byte ptr [EAX + 0x5]
+0044d25a  CMP EBX,ESI
+0044d25c  JNZ 0x0044d26f
+0044d25e  CMP word ptr [EAX + 0x14],0x0
+0044d263  JNZ 0x0044d26f
+0044d265  TEST byte ptr [EAX + 0x2],0x4
+0044d269  JZ 0x0044d26f
+0044d26b  MOV EAX,EDX
+0044d26d  JMP 0x0044d27b
+0044d26f  INC EDX
+0044d270  ADD ECX,0x34
+0044d273  CMP EDX,0x24
+0044d276  JL 0x0044d250
+0044d278  OR EAX,0xffffffff
+0044d27b  POP ESI
+0044d27c  POP EBX
+0044d27d  POP EBP
+0044d27e  RET 0xc
+*/

@@ -1,6 +1,11 @@
 # Plan de trabajo — tareas retomadas por Codex
 
-Actualizado: 2026-10-04. Base de integración: `68e8588`.
+Revisado: 2026-10-05 sobre `27a4b44`; base histórica de integración: `68e8588`.
+Lote actual verificado: **84/84 normal (97,71s) y 84/84 ASAN (82,37s)**,
+sin fallos ni omisiones. Comparación binaria: **46/46 casos, 11.706.282 bytes**
+(43 documentos y tres vectores RNG),
+cero distintos/ignorados y sin regresiones frente al lote crossings-preparation.
+Detalle en [RECOVERY.md](RECOVERY.md).
 Responsable técnico, implementador e integrador: Codex.
 Por indicación del usuario, Codex retoma todos los paquetes pendientes. **No hay
 tareas activas asignadas a Claude y no debe iniciarse otro paquete suyo.**
@@ -35,15 +40,26 @@ el código y los contratos actuales son el punto de partida.
 | ID | Prioridad / estado | Responsable | Entrega y conexión posterior |
 | --- | --- | --- | --- |
 | CL-01 | P0 / INTEGRADA | Codex (entrega base de Claude) | Disolución con celdas vivas, retiradas y reutilizadas;62/62 normal y ASAN. |
-| CL-02 | P1 / EN COLA | Codex | Estadísticas efectivas; base para resolución de combate, COM-01. |
-| CL-03 | P1 / EN COLA | Codex | Distancias/rutas; base para el ejecutor de movimiento, MOV-02. |
-| CL-04 | P2 / EN COLA | Codex | Orden colectiva de demolición; backend de EST-04c/CON-04. |
+| CL-02 | P1 / INTEGRADA | Codex | Proyección y seis estadísticas efectivas; creación00451b68, pools/Battle/grid y composición de participantes territoriales con edificios/milicia/minas/defensa. Falta conectar la resolución COM-01. |
+| CL-03 | P1 / INTEGRADA | Codex | Búsqueda const dominios1..6, scratch explícito y CLI; ampliación verificada inicialmente en74/74 normal y ASAN. Selección004467e8 y ejecutor00446084 con transporte/State/CLI implementados; falta secuencia MOV-02 jugable. |
+| CL-04 | P2 / INTEGRADA | Codex | Demolición colectiva con retiro/balance por sitio, State/CLI y rollback; 70/70 normal y ASAN. UI pendiente. |
 | CX-01 | P0 / INTEGRADA | Codex | Pool/referencias diferidas y limpieza explícita; 61/61 normal y ASAN. Programación de turno reservada a CX-02/03. |
-| CX-02 | P0 / PARCIAL — siguiente prioridad | Codex | Cierre de guerras y disolución conectados; faltan ruptura de pactos y negociación, sin simular sus efectos. |
-| CX-03 | P1 / RESERVADA | Codex | Secuencia completa de movimiento, combate, consecuencias y economía; después activación, guardado y UI. |
+| CX-02 | P0 / PARCIAL | Codex | Guerras, rupturas y negociación IA conectadas. Eventos IA y conciliación00441400 reanudables ante ofertas humanas, con cursor propietario, State, log, RNG y campaña. Faltan presentación y secuencia del turno IA. |
+| CX-03 | P1 / PARCIAL — siguiente prioridad | Codex | Movimiento y creación00451b68 implementados; cruces0045727c+00401108 con State, preparación Battle/grid y participantes territoriales hasta antes de004526b0. Faltan ticks, consecuencias e integración del turno completo. |
 
-**Prioridad actual: finalizar CL-01/CX-02.** Después seguir con CL-02/CL-03 y sus
-consumidores de combate/movimiento; CL-04 también queda a cargo de Codex.
+**Prioridad actual: resolución de batallas CX-03**, según
+[COMBAT_TURN_SEQUENCE.md](COMBAT_TURN_SEQUENCE.md): `004526b0`, condición de
+final00451034 y ticks00457048/004570e0 con sus consumidores reales. Selección
+territorial, sitios, edificios, milicia, minas y defensa ya se componen en
+`combat_territory`. La preparación aún no está programada en el turno de State.
+CL-01..04 están integradas dentro de su alcance. La creación de combatientes
+`00451b68`, el ejecutor aislado `00446084` con State/CLI y la selección `004467e8`
+ya están implementados. La conciliación admite ahora toda su continuación humana
+mediante cursor y State; su contrato está en
+[AI_NEGOTIATION_CONTINUATION.md](AI_NEGOTIATION_CONTINUATION.md).
+Quedan los ticks de combate, la presentación y la secuencia completa de IA/turno.
+El orden original confirmado coloca la economía antes del combate; las hojas
+aisladas no autorizan saltarse sus predecesores ni habilitar guardado/turno.
 No se requiere esperar créditos ni una nueva entrega de Claude.
 «RESERVADA» identifica propiedad del trabajo, no significa que esté ejecutándose.
 
@@ -163,6 +179,9 @@ ID esperado siempre identifica al ocupante actual de un slot.
 **Objetivo:** proyección propietaria del combatiente y consultas puras de ataque,
 defensa, velocidad, cadencia, alcance y precisión. Sin ejecutar un combate.
 
+**Estado (2026-10-05): integrada.** Prueba focal `combat_stats` y regresión del
+lote completo aprobadas:67/67 normal y ASAN, sin omisiones.
+
 Archivos exclusivos: `src/game/combat_stats.h`, `src/game/combat_stats.cpp`,
 `tests/test_combat_stats.cpp`. Nombre CTest: `combat_stats`.
 
@@ -179,30 +198,66 @@ no conversiones a puntero de `Warrior+0x3c`. Confirmar campos por dirección:
 
 Criterios de aceptación:
 
-- [ ] Separar proyección de Army y consultas; conservar el límite superior de
+- [x] Separar proyección de Army y consultas; conservar el límite superior de
   experiencia 1000, órdenes y desabastecimiento según cada original.
-- [ ] Cubrir tipos/races canónicos y modificadores guardados; LaserSquad con ataque
+- [x] Cubrir tipos/races canónicos y modificadores guardados; LaserSquad con ataque
   base 2 y modificador racial 0/+1/-1 produce 2/3/1 antes de otros efectos.
-- [ ] Verificar duplicación racial antes del ajuste y desabastecimiento después;
+- [x] Verificar duplicación racial antes del ajuste y desabastecimiento después;
   experiencia 99/100/400/401, negativa y superior a 1000.
-- [ ] Cubrir tecnología 27, CommandCorps y exclusiones específicas misil/fortaleza/milicia.
+- [x] Cubrir tecnología 27, CommandCorps y exclusiones específicas misil/fortaleza/milicia.
   No aplicar un multiplicador genérico a estadísticas con reglas diferentes.
-- [ ] Preservar divisiones intermedias, mínimos, shifts firmados y overflow definido;
+- [x] Preservar divisiones intermedias, mínimos, shifts firmados y overflow definido;
   clase canónica frente a guardada y propietarios actual/original explícitos.
-- [ ] Errores sin publicar resultados parciales; entradas, globales y RNG intactos.
+- [x] Errores sin publicar resultados parciales; entradas, globales y RNG intactos.
   Identificar los oráculos calculados desde decompilado, no atribuirlos a una
   ejecución del juego original que no se haya realizado.
 
-Fuera de alcance: daño, elección de blancos, disparos, bajas, animación y turnos.
-Codex integrará las consultas con sus consumidores; no cerrar todo COM-01 por esta hoja.
+API entregada: `projectArmyCombatant`, `combatStat`, `combatStats` y
+`combatExperienceLevel`. `CombatStatsContext` posee los combatientes y resuelve
+sus objetivos por `CombatantRef`, sin interpretar direcciones históricas.
+La proyección conserva la penalización de suministro del momento de la copia;
+las consultas usan los modificadores raciales guardados. Tecnología 27 consulta al propietario
+actual; raza y dificultad, al original. El alcance se devuelve al cuadrado y
+la precisión conserva resultados negativos, con sólo el máximo 100 original.
 
-## CL-03 — Distancias y búsqueda de movimiento
+La prueba focal cubre los 39 tipos canónicos y 7 razas, valores extremos,
+referencias inválidas, rollback tardío, aislamiento de globales/RNG y unidades
+de `TUTORIAL.SAV`. También verifica Sea Colonizer (ataque fila 39/defensa fila 30)
+y Command Corps (fila 32 reemplaza alcance; fila 31 lo eleva al cuadrado;
+milicia excluye sólo fila 32). Los oráculos son derivados del decompilado.
+Se rechazan tipos/propietarios fuera de tabla y razas/dificultades inválidas
+cuando la hoja correspondiente necesita consultarlas.
 
-**Objetivo:** búsquedas desde origen o hacia destino, con distancias firmadas y
-marcas de búsqueda explícitas. No mover unidades ni cambiar propietarios.
+Fuera de alcance de CL-02: daño, elección de blancos, disparos, bajas, animación y turnos.
+**Ampliación integrada2026-10-05:** `combat_creation.h/.cpp` implementa la creación
+efectiva `00451b68` y sus hojas de colocación, dirección, retirada y RNG privado,
+reutilizando estas estadísticas. Posee pool, referencias tipadas, Battle y grid
+explícitos; conserva estrechamientos, estado anterior de la celda y resultados
+nativos sin combatiente. Verificada dentro del lote77/77 normal y ASAN.
+La creación no inicializa por sí misma Battle/grid ni ejecuta sus ticks.
+La continuación `combat_preparation` ya implementa reset, semillas, inicio y
+grid, y `createPreparedCombatWarrior` la compone con esta creación dentro de
+los mismos pools propietarios. `combat_territory` añade participantes004568c8,
+sitios, edificios, milicia, minas, semilla de replay posterior y defensa. El
+límite de esta ampliación está justo antes de004526b0, sin ticks ni consecuencias.
+Los consumidores pendientes y el orden exterior están detallados en
+[COMBAT_TURN_SEQUENCE.md](COMBAT_TURN_SEQUENCE.md); COM-01 sigue abierto.
+
+## CL-03 — Distancias, búsqueda y ejecutor de movimiento
+
+**Integrada2026-10-05:** `findMovementPaths`, consulta de scratch/distancias y
+CLI `movement-paths`; 70/70 normal y ASAN, sin omisiones.
+**Ampliación2026-10-05:** `selectMovementNextStep`, `moveUnit`/`State::moveUnit` y CLI `move-unit`
+integrados y verificados en74/74 pruebas normales y ASAN, sin omisiones.
+
+**Objetivo base:** búsquedas desde origen o hacia destino, con distancias firmadas
+y marcas de búsqueda explícitas. La ampliación ejecuta la hoja de movimiento
+sin conquista ni secuencia de turno.
 
 Archivos exclusivos: `src/game/movement_paths.h`, `src/game/movement_paths.cpp`,
 `tests/test_movement_paths.cpp`. Nombre CTest: `movement_paths`.
+Ampliación: `src/game/unit_movement.h/.cpp`, `tests/test_unit_movement.cpp`;
+nombre CTest `unit_movement`, con consumidores State y CLI. Selección en `movement_next_step.h/.cpp`, CTest `movement_next_step`: ranking, scouts, acceso y traza nativa explícita; esta traza no representa una ruta final.
 
 Fuentes en `re/decomp/`: `00446b08`, `00446b3c`, `00446b94`, `00446440`,
 `0045dfb0`, pactos `004412d4`, edificios terminados `0044d1e4` y acceso/embarque
@@ -215,22 +270,47 @@ de inteligencia/deserción no reemplazan todos los dominios de movimiento.
 
 Criterios de aceptación:
 
-- [ ] Portar todas las ramas de dominio de la búsqueda original, incluida la 4;
+- [x] Portar todas las ramas de dominio de la búsqueda original, incluida la 4;
   costes 1/2/5/100, tratamiento del origen y reducción por depósito de combustible.
-- [ ] Pactos 1/2/0x10, ciudades terminadas, territorios excluidos y dominio 5 con
+- [x] Pactos 1/2/0x10, ciudades terminadas, territorios excluidos y dominio 5 con
   barco disponible/no disponible, capacidad y unidad que se está moviendo.
-- [ ] Rango 0 sólo reinicia; frontera exacta de rango, mejora estricta de distancia
+- [x] Rango 0 sólo reinicia; frontera exacta de rango, mejora estricta de distancia
   y recorrido por bits en orden ascendente. No sustituir por A* con desempates distintos.
-- [ ] Ciclos, desconectados, adyacencias inválidas y límites de distancias firmadas;
+- [x] Ciclos, desconectados, adyacencias inválidas y límites de distancias firmadas;
   errores seguros sin aproximar una referencia inválida a territorio 0.
-- [ ] Fixtures sintéticos y consultas sobre muestras reales; informe transaccional,
+- [x] Fixtures sintéticos y consultas sobre muestras reales; informe transaccional,
   fuente/globales/RNG intactos y resultados reproducibles.
 
-Fuera de alcance: siguiente paso `004467e8`, ejecutor `_MoveUnit00446084`, conquista,
-descubrimiento, transporte ejecutado, combate y turnos. Codex programará su integración;
-la búsqueda por sí sola no cierra MOV-02 ni permite una orden de movimiento jugable.
+Fuera de alcance: conquista, descubrimiento, combate,
+editor `004471c0` y turnos. La consulta y el ejecutor aislado no cierran MOV-02
+ni permiten una orden de movimiento jugable.
+Resultado indexado0..N: fila0 sólo scratch explícito, jamás destino. Referencias
+a0 o filas ausentes se rechazan al recorrerlas. Rango0 sólo reinicia;1000 es
+la frontera real de mejora de signed16. Incluye editor explícito y estadísticas
+de profundidad, sin mutar flags del documento. Pruebas reales: tutorial y tres
+escenarios,24 consultas de dominio, además de los fixtures sintéticos.
+
+La ampliación porta `00446084`, `ReLinkArmy00445898`, transporte
+`00445a04/00445a74/00445aac` y máximo `00447190`, con evidencia assembly en
+`re/evidence/movement-execution-2026-10-05` y transferencia de jobs `0040cd0c`
+en `re/evidence/movement-taskforce-2026-10-05`. Busca desde el inicio del turno
+`Army+38`, actualiza ubicación `+3c` y ruta `+40` por separado, y calcula
+`+0a=max-distancia total`, sin usar el presupuesto anterior. Conserva misiones,
+pares35/36, carga tipo12, orden de listas y transferencia segura de taskforces.
+
+`moved` es el retorno nativo: falso publica igualmente flags/distancias, mientras
+un error de API revierte toda la operación. Se conservan fallos ignorados de
+reenlace/embarque y el rechazo explícito del branch disband seguido de escritura
+del registro retirado. State conserva handles, grafo y continuación del scratch;
+un resultado falso también bloquea captura/turno. Pruebas nuevas escritas para
+distancia acumulada, tecnología46, cero rango, rechazos, carga y parejas,
+taskforces completos, alias, fallos tardíos, pool lleno, State y globales/RNG.
+Contrato completo en [ENTITY_RUNTIME.md](ENTITY_RUNTIME.md#ejecución-aislada-de-movimiento00446084--2026-10-05).
 
 ## CL-04 — Orden confirmada «demoler todo»
+
+**Integrada2026-10-05:** `orderDemolishColony`, consumidor State y CLI
+`order-demolish-colony`; 70/70 normal y ASAN, sin omisiones.
 
 **Objetivo:** rama colectiva no-editor de `0045b304`, sin diálogos.
 
@@ -246,19 +326,45 @@ e informe con retiros/devoluciones ordenados y `contextAfter`.
 
 Criterios de aceptación:
 
-- [ ] Recorrer los 36 sitios vivos en orden ascendente, no el orden del vector.
+- [x] Recorrer los 36 sitios vivos en orden ascendente, no el orden del vector.
   Omitir categoría **guardada** 11, incluso si discrepa del tipo canónico.
-- [ ] Devolución al propietario territorial y balance tras cada demolición.
+- [x] Devolución al propietario territorial y balance tras cada demolición.
   No añadir redirección SeaHab, cascada de plataforma ni reconstrucción marina:
   esta rama original no las llama.
-- [ ] Separar visibilidad 4 nativa de política defensiva local: actor humano/local,
+- [x] Separar visibilidad 4 nativa de política defensiva local: actor humano/local,
   índice coherente y propiedad local, conforme a las órdenes existentes.
-- [ ] Casos mixtos, plataformas/sockets, santuarios omitidos, costes pagados/canónicos,
+- [x] Casos mixtos, plataformas/sockets, santuarios omitidos, costes pagados/canónicos,
   orden de sitios y contexto; cero edificios elegibles produce cero retiros explícitos.
-- [ ] Fallo tardío revierte la orden entera; alias, informe y contexto transaccionales,
+- [x] Fallo tardío revierte la orden entera; alias, informe y contexto transaccionales,
   sin tocar globales/RNG ni aplicar consecuencias diferidas de santuarios.
 
-Fuera de alcance: editor, multiselección de unidades, State/CLI/UI, turno y captura SAV.
+La integración añade State/CLI: retira las identidades eliminadas, conserva
+handles supervivientes y rechaza reiniciar el contexto vivo de campaña/santuarios.
+Fuera de alcance: editor, multiselección de unidades, UI, turno y captura SAV.
+
+## CX-02 — Continuación humana y conciliación de pactos
+
+**Ampliación integrada2026-10-05, lote77/77 normal y ASAN:**
+`AiPactReconciliationTransaction` completa la operación `00441400` en el perfil
+offline con respuestas humanas explícitas. Conserva cursor de fila/columna/fase
+y destinatario, captura `before/changed` antes de callbacks y relee las máscaras
+vivas antes de intersectarlas. Cada entrega IA usa `AiEventTransaction`; reanudar
+reemplaza su reacción parcial y sufijo de RNG, sin repetir el log ni efectos previos.
+
+Las copias comparten snapshots inmutables. Ofertas sucesivas validan identidad,
+ordinal y checkpoint; un fallo tardío conserva la oferta pendiente. El informe
+pendiente contiene sólo pares completados y la última reacción parcial, con
+AI/RNG/campaña en su checkpoint. No expone un documento pendiente exportable.
+`State::beginAiPactReconciliation` y `State::answerAiPactOffer` conservan documento,
+handles, log y RNG publicados mientras esperan, bloquean otras mutaciones y
+publican juntos todos los efectos al completar. El contexto vivo de campaña y
+santuarios es compartido; no se reconstruye desde bytes archivados.
+
+La API anterior `reconcileAiPacts` conserva su rechazo atómico si llega a una
+oferta humana sin el modo de continuación. La conciliación completa aquí no
+implementa la presentación de ofertas, RunAITurns ni el turno exterior.
+Contrato y límites en [AI_NEGOTIATION_CONTINUATION.md](AI_NEGOTIATION_CONTINUATION.md);
+programación en el turno en [COMBAT_TURN_SEQUENCE.md](COMBAT_TURN_SEQUENCE.md).
 
 ## Pruebas y definición de entrega
 

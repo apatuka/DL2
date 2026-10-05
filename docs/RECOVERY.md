@@ -16,6 +16,453 @@ inspección: mapa, territorios, edificios, unidades y copias sin modificación. 
 lógica de partida está parcialmente escrita y todavía no está integrada. Cargar
 el documento no equivale a activar el estado de juego, simular un turno ni jugar.
 
+## Participantes y defensa de batallas — 2026-10-05
+
+Sexta continuación sobre `27a4b44`, conservando los cambios anteriores.
+`combat_territory` compone004568c8 hasta justo antes de004526b0: selección
+territorial, proyección de sitios, ejércitos por ID, edificios por sitio,
+milicias,24 intentos de minas, semilla posterior y reconstrucción de defensa.
+El wrapper00456c10 restaura la selección exterior. Un resultado sin batalla
+conserva documento y contexto; los errores revierten ambos incluso después
+de escrituras o draws previos.
+
+Las nuevas hojas `combat_buildings`, `combat_auxiliaries` y `combat_defense`
+conservan ocupación antes del rechazo por capacidad, pools/slots anteriores,
+la espiral y consumo de labor ante creación nula, narrowings de defensa y
+sumas con wrap de byte. Las fortificaciones y auxiliares reutilizan la creación
+real00451b68. No se añaden callbacks ficticios, ejecución de ticks ni resultados
+de batalla inventados.
+
+Verificación vigente:
+
+- **84/84 normal**,97,71s; **84/84 AddressSanitizer**,82,37s. Cero fallos u
+  omisiones; build ASAN instrumentado con `/fsanitize=address`.
+- **46/46 comparaciones binarias exactas**,43 documentos y3 vectores RNG,
+  **11.706.282 bytes**, cero distintos/ignorados y cero regresiones contra
+  `results/crossings-preparation-2026-10-05/results.json`.
+- Cuatro pruebas nuevas: edificios, auxiliares, defensa y preparación territorial.
+  Incluyen anclas/tablas PE, oráculos geométricos y de RNG, orden de participantes,
+  límites, referencias no leídas, pool lleno, alias y rollback tardío.
+- Se corrigieron una declaración mixta de `auto` en el test territorial y el
+  número de jugadores omitido en una fixture de defensa. Ningún guard se relajó.
+  Las suites completas se ejecutaron después de esas correcciones.
+
+Informe: [results/combat-participants-2026-10-05/results.html](../results/combat-participants-2026-10-05/results.html)
+y JSON. Recibos válidos de84 aprobadas en ambos builds, con fingerprint
+`8c1fd02b32429ec864ab0df394fab441738b462713dc038a71cb57c00283d2b2`.
+Logs: `.recovery/combat-participants-normal-build-final.log`,
+`.recovery/combat-participants-asan-build.log`,
+`.recovery/combat-participants-{normal,asan}-tests.log` y
+`.recovery/combat-participants-matching.log`. Los logs focales conservan el
+fallo inicial de fixture y su corrección aprobada.
+
+Se añadieron12 exports enfocados (total115) y la máscara marina225 DWORD en
+`re/evidence/combat-participants-2026-10-05`. Milicia se contrasta con el prólogo
+004522c0 y el cuerpo004522c6 juntos. El ejecutable original conserva SHA-256
+`7da13cf4ac15c2d6004a0e2172a525b9f1d27a0cb1d73590dd1fadff5d453a58`.
+REA mantiene su restricción PE32; se reutilizó Ghidra directo, sin nuevos
+intentos de apertura MCP. La [auditoría de participantes](COMBAT_PARTICIPANTS_AUDIT.md)
+documenta evidencia estática y revisión cruzada; no representa combates
+observados en ejecución del original.
+
+Siguiente bloque:004526b0, condición de final00451034 y ticks00457048/004570e0,
+con blancos, disparos, daño, bajas y consecuencias. La preparación conserva un
+contexto separado de State. Siguen pendientes el contrato de fases y AfterMove;
+`EconomyPhaseApplied` permanece terminal. No se habilitaron `advanceTurn`,
+activación jugable ni exportación de estados parciales.
+
+## Cruces y preparación de batallas — 2026-10-05
+
+Quinta continuación sobre `27a4b44`, preservando las entregas anteriores.
+
+- `movement_crossings`:0045727c y puntuación00401108 con sus cinco argumentos
+  reales. Snapshot de112 filas y diez grupos, filtros de misión/clase, pactos
+  direccionales, productos signed con wrap32 y desempate original. Recorre las
+  listas vivas con `next` capturado antes de mover; conserva las revisitas
+  producidas por transporte y emite un evento152 por grupo incluso si los
+  movimientos devuelven falso. Log local real, payload anterior sin Ex y rama
+  IA con extras0/0. Un presupuesto explícito de recorrido falla atómicamente;
+  no se presenta como un límite nativo.
+- `State::resolveMovementCrossings`: publicación conjunta de documento, grafo,
+  scratch, IA/RNG, log, ciudades y campaña, preservando handles. Rechaza
+  continuaciones rebobinadas, ofertas humanas pendientes y etapas económicas
+  terminales. La hoja no acredita sus predecesores de turno.
+- `combat_preparation`: reset selectivo de840 Warriors,1200 estructuras y32
+  Battles, prefijo de fase con32 semillas, comienzo de Battle y grid36×36.
+  Conserva campos y referencias no escritos; distingue modo32 de su byte
+  almacenado, mar abierto de colonia, terreno00ff de ffff y roads firmados de
+  ejecución frente a WORDs de reproducción.
+- `createPreparedCombatWarrior`: composición de preparación y creación real
+  dentro de los mismos pools. Conserva los otros Battles, las estructuras,
+  relojes y seed de replay; no inventa participantes ni resuelve combate.
+
+Corrección de evidencia: las notas anteriores identificaban las32 semillas
+como Long31. El nuevo assembly demuestra `0046c9cc→004ae5b0`, es decir,
+**32 Rand15 de sesión**, conservando la palabra alta y el generador secundario.
+El RNG privado se siembra desde el Battle elegido, sin draw adicional.
+La implementación y sus oráculos usan la primitiva corregida.
+
+Verificación del conjunto:
+
+- Normal: **80/80**, cero fallos u omisiones, **87,86s**.
+- AddressSanitizer: **80/80**, cero fallos u omisiones, **81,03s**, sin hallazgos.
+  Compilación instrumentada con `/fsanitize=address` y `/INCREMENTAL:NO`.
+- **46/46 comparaciones binarias exactas**,43 documentos y3 vectores RNG,
+  **11.706.282 bytes**, cero distintos/ignorados, sin regresiones frente a
+  `results/pact-combat-2026-10-05/results.json`.
+- Nuevas pruebas: `movement_crossings`, `movement_crossings_runtime` y
+  `combat_preparation`. Ampliados los bloqueos de oferta humana y fase económica.
+  Preparación incluye43 documentos originales, anclas de instrucciones PE,
+  grid/roads, límites, alias y agotamiento tardío de contadores. Cruces verifica
+  overflow alcanzable, daño signed, fila111/fila0, transporte con revisitas,
+  fallo posterior a movimiento y evento tras rechazo nativo.
+- Corregidas coordenadas de una fixture sintética y la preparación explícita
+  offline de la copia del tutorial antes de inicializar IA. El original no se
+  modifica ni se relajan los guards. Compilaciones finales sin advertencias
+  nuevas; `git diff --check` sin errores.
+
+Informe: `results/crossings-preparation-2026-10-05/results.html` y JSON.
+Recibos válidos de80 aprobadas en `build-verified/status-ctest.json` y
+`build-save-asan/status-ctest.json`, ambos con fingerprint
+`804051d34104f175d02a7b40c24c3bf3ae1908bc472fe5e68c1020c84f5e926f`.
+Logs finales: `.recovery/crossings-preparation-*-build-final.log` y
+`.recovery/crossings-preparation-*-tests.log`.
+
+Se añadieron11 exports Ghidra:9 en `re/evidence/combat-preparation-2026-10-05`
+y2 en `re/evidence/movement-crossings-2026-10-05`; total enfocado103.
+El ejecutable original conserva SHA-256
+`7da13cf4ac15c2d6004a0e2172a525b9f1d27a0cb1d73590dd1fadff5d453a58`.
+REA no se reintentó tras su restricción PE32 ya confirmada.
+[COMBAT_PREPARATION_AUDIT.md](COMBAT_PREPARATION_AUDIT.md) registra la revisión
+independiente, fuentes y límites. Son oráculos derivados estáticos, no una
+comparación de combates ejecutados en el juego original.
+
+Siguiente bloque: selección territorial004568c8, reconstrucción de sitios
+00456618 y consumidores de edificios/milicia/minas00451de4/004522c0/00452250;
+después resolución004526b0, ticks, daños, bajas, consecuencias y AfterMove.
+La preparación de combate aún posee un estado independiente de State; integrar
+las fases exige conservar sus predecesores y continuaciones. No se habilitaron
+`advanceTurn`, activación jugable ni exportación de estados parciales.
+
+## Conciliación reanudable y creación de combatientes — 2026-10-05
+
+Cuarta continuación sobre `27a4b44`, conservando los cambios anteriores.
+
+- `AiPactReconciliationTransaction`: recorrido completo de00441400 con cursor
+  de pareja/fase/destinatario y ofertas humanas reanudables. Conserva los valores
+  anteriores a los callbacks y relee las máscaras vivas antes de intersectarlas.
+  Cada entrega posee su transacción de evento; responder no duplica el log ni
+  los consumos de RNG. Copias, respuestas obsoletas y fallos tardíos están probados.
+- `State::beginAiPactReconciliation/answerAiPactOffer`: exclusión compartida con
+  eventos individuales, continuidad de contextos y publicación conjunta de
+  documento, RNG, IA, log, ciudades y campaña. Mantiene los handles y conserva
+  el estado publicado durante la espera. La API directa anterior sigue rechazando
+  ofertas que requieren una respuesta humana.
+- `combat_creation`: creación00451b68 y sus consultas de colocación, retirada,
+  estadísticas y registro. Pool propietario de840 slots, entradas Army reales
+  o sintéticas explícitas, preservación de campos no escritos, clases especiales,
+  suministro previo y umbral de retirada con la conversión x87 original.
+  El RNG de combate es privado y distinto del RNG de sesión. Se conservan el
+  fallback de colocación y la aritmética original; los errores revierten el informe.
+- [COMBAT_TURN_SEQUENCE.md](COMBAT_TURN_SEQUENCE.md) registra el orden estático
+  de la fase de combate y del turno, las dependencias de cruces y preparación de
+  batallas y los dos caminos distintos de penalización de santuarios. La fase
+  económica terminal requiere un contrato nuevo antes de poder encadenar combate.
+
+Verificación del conjunto:
+
+- Normal: **77/77**, cero fallos u omisiones, **91,29s**.
+- AddressSanitizer: **77/77**, cero fallos u omisiones, **79,96s**, sin hallazgos.
+  La compilación mantiene `/fsanitize=address` y `/INCREMENTAL:NO`.
+- **46/46 comparaciones binarias exactas**,43 documentos y3 vectores RNG,
+  **11.706.282 bytes**, cero distintos/ignorados; sin regresiones frente a
+  `results/movement-human-2026-10-05/results.json`.
+- Pruebas nuevas: `ai_pact_transaction`, `ai_pact_runtime`, `combat_creation`.
+  La última contrasta2320 valores de tablas contra el PE, las constantes x87
+  y el módulo del pool; usa también Army de `TUTORIAL.SAV` con un contexto de
+  batalla sintético explícito. Se corrigió la geometría de un fixture antes de
+  la regresión final, sin cambiar la implementación.
+- Compilaciones finales sin nuevas advertencias; `git diff --check` sin errores.
+
+Informe: `results/pact-combat-2026-10-05/results.html` y JSON. Recibos válidos en
+`build-verified/status-ctest.json` y `build-save-asan/status-ctest.json`, ambos
+con fingerprint `6eb44dc7e5fd0431eedeb57517cc7b5f30df4d02bc2225be84de5bf11cf1aa13`.
+Logs: `.recovery/pact-combat-normal-build-final.log`,
+`pact-combat-asan-build.log` y `pact-combat-*-tests.log`.
+
+Ghidra directo añadió31 exports:22 en `re/evidence/combat-creation-2026-10-05`
+y9 en `re/evidence/combat-sequence-2026-10-05`; total enfocado92.
+`constants.json` conserva cinco bloques del PE con direcciones y offsets.
+El SHA-256 original permanece
+`7da13cf4ac15c2d6004a0e2172a525b9f1d27a0cb1d73590dd1fadff5d453a58`.
+REA no se reintentó por su restricción PE32 ya confirmada. Esta evidencia y los
+oráculos son estáticos; no acreditan una ejecución equivalente del combate nativo.
+
+Próximos paquetes: cruces0045727c y puntuación00401108; reinicio/preparación de
+Battle y grid004571d4/00456150/0045209c; después ticks, disparos, daño, bajas y
+consecuencias, además de presentación y secuencia IA. La creación implementada
+no inicializa por sí sola una batalla ni conecta sus llamadores de edificios,
+milicia y minas. Siguen pendientes el turno completo, la activación jugable y el
+guardado reanudable. No se habilitó `advanceTurn` ni exportación de estados parciales.
+
+## Movimiento y respuesta humana reanudable — 2026-10-05
+
+Tercera continuación sobre `27a4b44`, preservando las entregas anteriores.
+
+- `movement_next_step`: selección004467e8 con distancias signed16 explícitas,
+  ranking y empates originales, consultas de acceso/scouting y buffer de traza
+  con capacidad y contenido previo. Conserva las escrituras intermedias y
+  sobrescrituras nativas; el buffer no se presenta como una ruta completa.
+- `unit_movement`: ejecución00446084, relink, embarque/desembarque, carga y
+  restricciones35/36. Distancia calculada desde inicio del turno, presupuesto
+  recalculado desde el máximo, misiones y referencias de ruta por separado.
+  `State::moveUnit` conserva handles, reconstruye el grafo y continúa scratch.
+  El rechazo nativo publica flags/distancias; los errores de API revierten todo.
+  CLI `move-unit <save> <unit> <territory> <route-origin-or-0>` con resultado
+  nativo separado del resultado de cada relink, sin exportar una partida parcial.
+- `AiEventTransaction`: snapshots privados e inmutables, pausa en ofertas
+  humanas y decisiones explícitas con identidad/checkpoint exactos. Reanuda
+  callbacks y ofertas anidadas sin duplicar efectos lógicos o RNG. Categoría15
+  recuperada:104 nombres contrastados directamente con el PE. Conserva el
+  objetivo de campaña1 para máscaras exactas2/16 antes de los callbacks.
+- `State::beginAiEvent/answerAiOffer`: bloquean otras ediciones, preparación y
+  captura durante la espera; conservan documento/RNG/handles publicados hasta
+  completar el evento. Campaña y penalizaciones pendientes comparten la
+  continuación ya usada por demolición/economía. Las respuestas inválidas o
+  fallos tardíos mantienen la misma oferta pendiente.
+
+Verificación del conjunto:
+
+- Normal: **74/74**, cero fallos u omisiones, **80,36s**.
+- AddressSanitizer: **74/74**, cero fallos u omisiones, **71,94s**; sin hallazgos,
+  con `/fsanitize=address` confirmado en la configuración.
+- **46/46 comparaciones binarias exactas**,43 documentos y3 vectores RNG,
+  **11.706.282 bytes**, cero distintos/ignorados y ninguna regresión frente a
+  `results/cl03-cl04-reconciliation-2026-10-05/results.json`.
+- Compilación final sin nuevas advertencias. Corregidos narrowings constantes
+  en pruebas de rutas sin cambiar sus máscaras. `git diff --check` sin errores.
+
+Informe: `results/movement-human-2026-10-05/results.html` y JSON. Recibos en
+`build-verified/status-ctest.json` y `build-save-asan/status-ctest.json`.
+Logs `.recovery/movement-human-*-build*.log`, `movement-human-*-tests.log`
+y `movement-human-byte-matching.log`.
+
+Ghidra directo añadió14 exports de ensamblado/pseudocódigo:12 en
+`re/evidence/movement-execution-2026-10-05` y2 en `movement-taskforce-2026-10-05`.
+El SHA-256 original permanece `7da13cf4ac15c2d6004a0e2172a525b9f1d27a0cb1d73590dd1fadff5d453a58`.
+REA no se reintentó: persiste la restricción PE32 documentada. Las pruebas son
+oráculos derivados de evidencia estática, no una comparación de ejecución nativa.
+
+Pendientes: envolver la conciliación completa en la continuación humana,
+presentación y secuencia IA; autoridad/controles de movimiento, descubrimiento,
+conquista, creación de combatientes00451b68, combate y coordinación CX-03.
+La rama nativa de transporte que libera un pasajero y después lo escribe se
+rechaza atómicamente; el modo editor sigue fuera de alcance. No se habilitó
+`advanceTurn`, activación jugable ni guardado de estados parciales.
+
+## Distancias, demolición colectiva y conciliación — 2026-10-05
+
+Segunda continuación sobre `27a4b44`, conservando los cambios anteriores.
+CL-03 y CL-04 quedan integradas dentro de sus contratos; CX-02 avanza con
+conciliación explícita, pero sigue pendiente la interacción humana y el turno IA.
+
+- `movement_paths`: búsquedas00446b3c/94 y DFS00446440, dominios1..6, costes
+  originales, pactos, ciudades/depósitos, transporte disponible y contexto de
+  unidad en movimiento. Scratch de flags/distancias separado del documento,
+  sentinel0 explícito no traversable, límites signed16 y profundidad signed32.
+  CLI `movement-paths` consulta sin mover unidades. Además de fixtures, se
+  ejecutaron24 consultas de dominio sobre tutorial y tres escenarios reales.
+- `colony_demolition_orders`: orden confirmada0045b304 no-editor, recorrido
+  vivo de36 sitios, exclusión por categoría guardada11 y devolución/balance
+  por retiro. Conserva las diferencias con la demolición individual. Conectada
+  a `State::orderDemolishColony` y CLI `order-demolish-colony`, con retiro de
+  handles, grafo coherente, contexto continuado y rollback de la orden completa.
+- `ai_pact_reconciliation`:00441400 como operación propietaria completa,
+  callbacks58/73 reales, log humano con retrato/RNG y conciliación posterior
+  de máscaras vivas. Orden por filas/columnas, parejas inversas y diagonales,
+  inactivos, bits altos y negociación reentrante probados. No se programa aún
+  desde State/turno ni se reinician máscaras implícitamente.
+- Documentado el siguiente contrato de
+  [respuesta humana/reanudación](AI_NEGOTIATION_CONTINUATION.md): retrato antes
+  de la decisión, estados de oferta, efectos de campaña y operaciones anidadas
+  pendientes. Las ofertas humanas actuales siguen rechazando toda la transacción;
+  no se fabricó una aceptación/rechazo para cerrar la dependencia.
+
+Ghidra directo produjo15 exports adicionales con ensamblado, en
+`re/evidence/cl03-cl04-2026-10-05` y `cx02-human-2026-10-05`.
+SHA-256 del original intacto. Se reutilizó la base local ya reconstruida;
+la restricción PE32 del proveedor REA sigue documentada, sin repetir su apertura.
+
+Verificación final:
+
+- Normal: **70/70**, cero fallos u omisiones, **79,64s**.
+- AddressSanitizer: **70/70**, cero fallos u omisiones, **71,10s**, sin hallazgos
+  de memoria; compilación realmente instrumentada con `/fsanitize=address`.
+- **46/46 comparaciones binarias exactas**,43 documentos originales y3 vectores
+  RNG, **11.706.282 bytes**, cero distintos/ignorados. Sin regresiones del
+  informe frente a `results/cx02-cl02-2026-10-05/results.json`.
+- `git diff --check` sin errores de whitespace. Las dos advertencias C4310
+  del test de rutas son narrowing explícito de máscaras unsigned a16bits,
+  sin advertencias nuevas en la implementación. Los oráculos siguen siendo
+  derivados estáticos; no acreditan ejecución equivalente de una partida nativa.
+
+Informe: `results/cl03-cl04-reconciliation-2026-10-05/results.html` y JSON.
+Recibos vigentes: `build-verified/status-ctest.json`,
+`build-save-asan/status-ctest.json` y XML/logs correspondientes. Logs locales
+de esta entrega: `.recovery/continuation-*-build*.log`,
+`continuation-*-tests.log`, `continuation-byte-matching.log` y exports Ghidra.
+
+Pendientes siguientes: respuesta humana CX-02, siguiente paso004467e8 y
+ejecutor00446084, creación de combatientes00451b68 y coordinación CX-03.
+No se habilitaron controles gráficos, guardado jugable ni `advanceTurn`.
+
+## Continuación con REA, pactos y estadísticas — 2026-10-05
+
+Tras la revisión del entorno se reconstruyó `ghidra_project/DL2.gpr` desde el
+PE32 original, con Ghidra12.1.4/JDK25 y compilador `borlandcpp`. Se exportaron
+32 funciones enfocadas con pseudocódigo y ensamblado; véase
+[el registro de evidencia](../re/evidence/README.md). Se conservaron los 3.971
+exports históricos y el SHA-256 del ejecutable original permanece intacto.
+
+El MCP de REA está accesible, pero `open_binary` no admite este destino:
+`capability_unavailable` / `unsupported_provider`, con
+`architecture_unsupported` porque su proveedor Ghidra P0 en Windows sólo admite
+PE x86-64. También detecta `GHIDRA_INSTALL_DIR` ausente y Java17; corregir esos
+dos puntos no soluciona la restricción PE32. No se abrió sesión ni se obtuvo un
+Evidence ID nativo de REA. `npx rea-agents doctor` falló con `spawn EINVAL`.
+La alternativa Ghidra headless directa funcionó, sin alterar el proveedor.
+
+Implementación añadida:
+
+- CX-02: ruptura privada/pública, máscaras bilaterales, ACK offline, avisos
+  semánticos y callbacks0x72/0x73. Valoración y negociación entre IA con
+  cooldown, destinatario ocupado, propuestas ya procesadas y continuación
+  explícita. Reentrada, signed32, transporte16bit, RNG y rollback conservados.
+  Los callbacks comprueban personalidad instalada; no ejecutan punteros SAV.
+- CL-02: proyección propietaria del combatiente y consultas de ataque, defensa,
+  velocidad, cadencia, alcance al cuadrado y precisión. Modificadores guardados,
+  experiencia, suministro, órdenes, tecnología27 y Command Corps comprobados.
+- Categoría20:35 nombres originales de retratos añadidos; el contraste con
+  el PE cubre ahora490 nombres. Las consecuencias de santuarios usan los
+  nuevos efectos de pactos; actualizada la expectativa antigua de rechazo.
+
+Verificación del lote final:
+
+- Normal: **67/67 aprobadas, cero fallidas y cero omitidas**,77,21s.
+- AddressSanitizer: **67/67 aprobadas, cero fallidas y cero omitidas**,69,57s,
+  sin diagnósticos de memoria; recompilado con `/fsanitize=address`.
+- Byte matching: **46/46 exactos**,43 documentos originales y3 vectores RNG,
+  **11.706.282 bytes, cero diferentes o ignorados**.
+- Revisión independiente del orden de pactos/negociación sin discrepancias
+  sustantivas; oráculos estáticos derivados, no ejecución comparativa del EXE.
+
+Recibos actuales: `build-verified/status-ctest.json`,
+`build-save-asan/status-ctest.json` y respectivos XML/logs. Informe:
+`results/cx02-cl02-2026-10-05/results.html` y `results.json`.
+Los archivos `.recovery/cx02-*-tests.log`, `cx02-asan-build.log` y
+`ghidra-cx02*.log`/`ghidra-cl02.log` conservan las ejecuciones locales.
+
+**CX-02 sigue parcial:** faltan respuesta humana/reanudación, presentación,
+reconciliación posterior de máscaras secretas y ejecución desde el turno IA.
+CL-02 cierra su contrato de consultas, pero no crea Warriors ni ejecuta combate.
+No se habilitaron `Active`, `advanceTurn`, guardado jugable ni controles de
+partida. El tablero conserva CL-03 (rutas), CL-04 (demolición colectiva) y
+CX-03 (secuencia completa) como pendientes. El dashboard de funciones sigue
+acreditando sólo contratos con golden binario registrado; CTest por sí solo
+no añade estas funciones a su porcentaje conservador.
+
+## Revisión del entorno y base de continuación — 2026-10-05
+
+Revisión sobre `27a4b44`, en `C:\Games\DL2`, solicitada antes de retomar los
+pendientes. La instalación original está en `C:\GOG Games\Deadlock 2` y se usa
+como entrada de sólo lectura. Su `DEADLOCK.EXE` conserva el SHA-256
+`7da13cf4ac15c2d6004a0e2172a525b9f1d27a0cb1d73590dd1fadff5d453a58`.
+
+Entorno comprobado:
+
+- Visual Studio Community 2026, MSVC 19.51, CMake 4.2.3 y Ninja.
+- SDK oficial SDL2 2.32.10 en `.recovery/sdl2/SDL2-2.32.10`, descargado de
+  [la publicación oficial](https://github.com/libsdl-org/SDL/releases/tag/release-2.32.10).
+  No se requiere instalar vcpkg para esta configuración.
+- Python 3.12.14 en
+  `C:/Users/enryq/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/python.exe`;
+  `pefile` 2024.8.26 en `.recovery/python-packages` mediante `PYTHONPATH`.
+- Ghidra 12.1.4 en `C:/ghidra_12.1.4_PUBLIC`: arranque headless verificado con el
+  JDK 25.0.2 de `C:/Program Files/JetBrains/IntelliJ IDEA 2026.1.2/jbr`.
+  El Java 17 de PATH no satisface su mínimo Java 21. No se descargó otro Ghidra.
+
+El entorno heredado de esta sesión tenía entradas duplicadas `Path`/`PATH`:
+MSBuild fallaba antes de identificar el compilador. El lanzador local
+`.recovery/run_local.py` normaliza las claves del entorno, importa VsDevCmd y
+expone CMake, Python, SDL2 y pefile sólo a sus procesos hijos. No modifica el PATH
+permanente. `.recovery/`, `build*/` y `results/` están excluidos de Git: guardar
+una copia si se migra de máquina; no forman parte del código distribuido.
+
+Correcciones realizadas durante la comprobación:
+
+- `tools/build.ps1` localiza también CMake/Ninja dentro de Visual Studio y acepta
+  `-Sdl2Dir`/`SDL2_DIR` y `-PythonExecutable`/`Python3_EXECUTABLE`.
+- CMake copia la DLL compartida de SDL2 junto a `deadlock2` y `dl2tool`.
+  Antes, CTest encontraba la copia de `tests/`, ocultando que el ejecutable no
+  arrancaba desde otro directorio. Los smoke tests ahora parten de `src/`.
+- El SDK oficial devolvía `SDL not compiled with stdio support` en
+  `SDL_RWFromFP`. La captura usa callbacks de archivo de la aplicación y sigue
+  creando el destino exclusivamente. `inspector_capture` comprueba BMP real de
+  640×480, contenido, rechazo de sobrescritura y ruta inexistente.
+
+Resultado final, incluyendo esas correcciones:
+
+- `build-verified`: **64/64**, sin omisiones, **47,02 s**.
+- `build-save-asan`: **64/64**, sin omisiones, **65,11 s**, sin hallazgos de
+  AddressSanitizer. Flags comprobados: `/DWIN32 /D_WINDOWS /EHsc /fsanitize=address`,
+  configuración RelWithDebInfo y linker `/INCREMENTAL:NO`.
+- Tablas originales: **53 grupos, cero discrepancias**.
+- Corpus actual: **43 documentos**, tutorial más los 42 escenarios.
+  No están los tres archivos opcionales históricos `Saves/AUTOSAVE.SAV`,
+  `Campaign/AUTOSAVE.CPN` y `Campaign/ChCht001.CPN`; las 46 muestras de otras
+  secciones pertenecen a la máquina anterior.
+- Byte matching: **46/46 casos exactos**, 43 documentos originales más tres
+  vectores RNG derivados. **11.706.282 bytes comparados, cero distintos o
+  ignorados**. Sin baseline independiente de la máquina anterior; no se afirma
+  una comparación entre commits ni ejecución equivalente del juego original.
+- Captura del tutorial inspeccionada visualmente; mapa, panel y sprite visibles.
+
+Recibos: `build-verified/status-ctest.json`, `build-save-asan/status-ctest.json`
+y sus XML/logs. Informe final:
+`results/readiness-2026-10-05-final/results.html` y `results.json`.
+La captura está en `results/readiness-2026-10-05/inspector.bmp`.
+Los informes anteriores al sufijo `-final` son verificaciones intermedias.
+
+Para repetir desde esta sesión, usando el lanzador local preparado:
+
+```powershell
+$python = 'C:/Users/enryq/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/python.exe'
+& $python -B .recovery/run_local.py python -B run-tests --build-dir build-verified --data-dir 'C:/GOG Games/Deadlock 2'
+& $python -B .recovery/run_local.py python -B run-tests --build-dir build-save-asan --data-dir 'C:/GOG Games/Deadlock 2'
+# Usar un destino nuevo para cada informe.
+& $python -B .recovery/run_local.py python -B run-byte-matching --build-dir build-verified --data-dir 'C:/GOG Games/Deadlock 2' --require-originals --output results/next-check
+```
+
+El aislamiento de herramientas bloqueó la lectura de pefile instalado y la
+escritura inicial de configuración de Ghidra; estas comprobaciones se ejecutaron
+con la autorización de ejecución fuera del aislamiento. No se cambiaron los
+permisos del sistema ni los archivos originales del juego.
+
+Pendientes al terminar esa revisión (base Ghidra reconstruida en la continuación
+documentada arriba): faltaba `ghidra_project/DL2.gpr`, recuperable mediante
+una nueva importación para inspección interactiva/assembly. Las 3.971
+funciones exportadas, símbolos y tablas están disponibles y permiten retomar
+los paquetes actuales. Faltan también los tres guardados opcionales anteriores;
+no impiden usar la instalación y el corpus actuales. No se reconstruyó la base
+Ghidra en esa primera revisión ni se verificaron interacción gráfica manual/audio
+o una partida real.
+
+Orden de continuación confirmado: **CX-02** (ruptura de pactos y negociación),
+**CL-02/CL-03** (estadísticas de combate y rutas), **CL-04** (demolición colectiva)
+y **CX-03** (coordinador de movimiento/combate/economía, después activación,
+guardado y UI). CL-01 y CX-01 ya están integradas. El checklist individual sigue
+vigente: no se cerró ningún sistema jugable por aprobar esta revisión técnica.
+
 ## Retoma de tareas, CL-01 y cierre de guerras — 2026-10-04
 
 El usuario suspendió la delegación: Codex retoma CL-02/03/04 y la integración,

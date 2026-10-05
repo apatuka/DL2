@@ -1,0 +1,117 @@
+// Program: DEADLOCK.EXE
+// Language: x86:LE:32:default
+// Compiler: borlandcpp
+// Function: 00447f44 FUN_00447f44
+
+int __stdcall FUN_00447f44(int param_1)
+
+{
+  int iVar1;
+  int *piVar2;
+  int local_14 [3];
+  int local_8;
+  
+  local_8 = (int)(char)(&DAT_004faf91)[*(int *)(param_1 + 4) * 0x24] +
+            (int)*(short *)(&DAT_0055a084 +
+                           (char)(&DAT_0059f162)[(uint)*(byte *)(param_1 + 0x1e) * 0x2d8] * 2);
+  if (*(char *)(param_1 + 9) == '\x04') {
+    local_8 = local_8 * 2;
+  }
+  iVar1 = FUN_004482cc();
+  if (iVar1 != 0) {
+    local_8 = local_8 / 2;
+  }
+  iVar1 = FUN_00447f1c();
+  if (iVar1 != 0) {
+    local_14[2] = (local_8 * 0x19) / 100;
+    local_14[1] = 1;
+    if (local_14[2] < 1) {
+      piVar2 = local_14 + 1;
+    }
+    else {
+      piVar2 = local_14 + 2;
+    }
+    local_8 = local_8 - *piVar2;
+  }
+  local_14[0] = 0;
+  if (local_8 < 0) {
+    piVar2 = local_14;
+  }
+  else {
+    piVar2 = &local_8;
+  }
+  return *piVar2;
+}
+
+
+/* ASSEMBLY
+00447f44  PUSH EBP
+00447f45  MOV EBP,ESP
+00447f47  ADD ESP,-0x10
+00447f4a  XOR ECX,ECX
+00447f4c  PUSH EBX
+00447f4d  MOV EBX,dword ptr [EBP + 0x8]
+00447f50  MOV EAX,dword ptr [EBX + 0x4]
+00447f53  MOV CL,byte ptr [EBX + 0x1e]
+00447f56  LEA EAX,[EAX + EAX*0x8]
+00447f59  MOVSX EDX,byte ptr [EAX*0x4 + 0x4faf91]
+00447f61  LEA EAX,[ECX + ECX*0x2]
+00447f64  SHL EAX,0x3
+00447f67  SUB EAX,ECX
+00447f69  SHL EAX,0x2
+00447f6c  SUB EAX,ECX
+00447f6e  MOVSX ECX,byte ptr [EAX*0x8 + 0x59f162]
+00447f76  MOVSX EAX,word ptr [ECX*0x2 + 0x55a084]
+00447f7e  ADD EDX,EAX
+00447f80  MOV dword ptr [EBP + -0x4],EDX
+00447f83  MOV DL,byte ptr [EBX + 0x9]
+00447f86  CMP DL,0x4
+00447f89  JNZ 0x00447f93
+00447f8b  MOV ECX,dword ptr [EBP + -0x4]
+00447f8e  ADD ECX,ECX
+00447f90  MOV dword ptr [EBP + -0x4],ECX
+00447f93  PUSH EBX
+00447f94  CALL 0x004482cc
+00447f99  TEST EAX,EAX
+00447f9b  JZ 0x00447fab
+00447f9d  MOV ECX,0x2
+00447fa2  MOV EAX,dword ptr [EBP + -0x4]
+00447fa5  CDQ
+00447fa6  IDIV ECX
+00447fa8  MOV dword ptr [EBP + -0x4],EAX
+00447fab  PUSH EBX
+00447fac  CALL 0x00447f1c
+00447fb1  TEST EAX,EAX
+00447fb3  JZ 0x00447fe7
+00447fb5  MOV EAX,dword ptr [EBP + -0x4]
+00447fb8  LEA EAX,[EAX + EAX*0x4]
+00447fbb  LEA EAX,[EAX + EAX*0x4]
+00447fbe  MOV ECX,0x64
+00447fc3  CDQ
+00447fc4  IDIV ECX
+00447fc6  MOV dword ptr [EBP + -0x8],EAX
+00447fc9  MOV dword ptr [EBP + -0xc],0x1
+00447fd0  MOV EAX,dword ptr [EBP + -0xc]
+00447fd3  MOV EDX,dword ptr [EBP + -0x8]
+00447fd6  CMP EAX,EDX
+00447fd8  JLE 0x00447fdf
+00447fda  LEA ECX,[EBP + -0xc]
+00447fdd  JMP 0x00447fe2
+00447fdf  LEA ECX,[EBP + -0x8]
+00447fe2  MOV EAX,dword ptr [ECX]
+00447fe4  SUB dword ptr [EBP + -0x4],EAX
+00447fe7  XOR EDX,EDX
+00447fe9  MOV dword ptr [EBP + -0x10],EDX
+00447fec  MOV EAX,dword ptr [EBP + -0x10]
+00447fef  MOV EDX,dword ptr [EBP + -0x4]
+00447ff2  CMP EAX,EDX
+00447ff4  JLE 0x00447ffb
+00447ff6  LEA ECX,[EBP + -0x10]
+00447ff9  JMP 0x00447ffe
+00447ffb  LEA ECX,[EBP + -0x4]
+00447ffe  MOV EAX,dword ptr [ECX]
+00448000  POP EBX
+00448001  MOV ESP,EBP
+00448003  POP EBP
+00448004  RET 0x4
+*/

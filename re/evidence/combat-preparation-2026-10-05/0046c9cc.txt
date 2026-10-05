@@ -1,0 +1,20 @@
+// Program: DEADLOCK.EXE
+// Language: x86:LE:32:default
+// Compiler: borlandcpp
+// Function: 0046c9cc FUN_0046c9cc
+
+void __stdcall FUN_0046c9cc(void)
+
+{
+  FUN_004ae5b0();
+  return;
+}
+
+
+/* ASSEMBLY
+0046c9cc  PUSH EBP
+0046c9cd  MOV EBP,ESP
+0046c9cf  CALL 0x004ae5b0
+0046c9d4  POP EBP
+0046c9d5  RET 0x4
+*/

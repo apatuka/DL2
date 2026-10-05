@@ -51,7 +51,7 @@ target_link_libraries(test_entity_rules PRIVATE dl2game dl2engine)
 add_test(NAME entity_rules COMMAND test_entity_rules "${DL2_DATA_DIR}")
 set_tests_properties(entity_rules PROPERTIES TIMEOUT 60)
 
-foreach(_module session_rng load_derived load_profile table_contracts runtime_load load_intelligence entity_creation load_session ai_session army_pool ai_taskforce_dissolution entity_lifecycle entity_orders shrine_demolition shrine_consequences load_world_presentation construction_payment load_shrine_events construction_order construction_site building_progress unit_manufacturing manufacturing_runtime territory_production economic_logistics economic_consumption building_costs economic_upkeep economic_prefix population_growth colony_morale research_phase colony_unrest economic_phase colony_labor_orders population_orders research_orders building_orders economic_orders_runtime)
+foreach(_module session_rng load_derived load_profile table_contracts runtime_load load_intelligence entity_creation load_session ai_session ai_pact_rules ai_pact_reconciliation ai_pact_transaction ai_pact_runtime ai_negotiation ai_event_transaction ai_event_runtime combat_stats combat_creation combat_preparation combat_buildings combat_auxiliaries combat_defense combat_territory movement_paths movement_next_step unit_movement movement_crossings movement_crossings_runtime army_pool ai_taskforce_dissolution entity_lifecycle entity_orders colony_demolition_orders shrine_demolition shrine_consequences load_world_presentation construction_payment load_shrine_events construction_order construction_site building_progress unit_manufacturing manufacturing_runtime territory_production economic_logistics economic_consumption building_costs economic_upkeep economic_prefix population_growth colony_morale research_phase colony_unrest economic_phase colony_labor_orders population_orders research_orders building_orders economic_orders_runtime)
     add_executable(test_${_module} test_${_module}.cpp)
     target_link_libraries(test_${_module} PRIVATE dl2game dl2engine)
     add_test(NAME ${_module} COMMAND test_${_module} "${DL2_DATA_DIR}")
@@ -113,6 +113,7 @@ endif()
 if(EXISTS "${DL2_DATA_DIR}/deadcyb.cam" AND EXISTS "${DL2_DATA_DIR}/deadtext.cam")
     add_test(NAME application_smoke COMMAND deadlock2 "${DL2_DATA_DIR}" --demo --smoke-frames 3)
     set_tests_properties(application_smoke PROPERTIES
+        WORKING_DIRECTORY "$<TARGET_FILE_DIR:deadlock2>"
         ENVIRONMENT "SDL_VIDEODRIVER=dummy;SDL_AUDIODRIVER=dummy;SDL_RENDER_DRIVER=software"
         TIMEOUT 20)
 endif()
@@ -120,11 +121,20 @@ if(EXISTS "${DL2_DATA_DIR}/deadtext.cam" AND EXISTS "${DL2_DATA_DIR}/SPRITENW.DA
     if(EXISTS "${DL2_DATA_DIR}/TUTORIAL.SAV")
         add_test(NAME inspector_smoke COMMAND deadlock2 "${DL2_DATA_DIR}" --smoke-frames 3)
         set_tests_properties(inspector_smoke PROPERTIES
+            WORKING_DIRECTORY "$<TARGET_FILE_DIR:deadlock2>"
             ENVIRONMENT "SDL_VIDEODRIVER=dummy;SDL_RENDER_DRIVER=software" TIMEOUT 20)
+        if(Python3_Interpreter_FOUND)
+            add_test(NAME inspector_capture COMMAND "${Python3_EXECUTABLE}" -B
+                "${CMAKE_CURRENT_SOURCE_DIR}/test_inspector_capture.py" $<TARGET_FILE:deadlock2>
+                "${DL2_DATA_DIR}" "${CMAKE_CURRENT_BINARY_DIR}")
+            set_tests_properties(inspector_capture PROPERTIES
+                ENVIRONMENT "SDL_VIDEODRIVER=dummy;SDL_RENDER_DRIVER=software" TIMEOUT 60)
+        endif()
     endif()
     if(EXISTS "${DL2_DATA_DIR}/LEVELS.HDX" AND EXISTS "${DL2_DATA_DIR}/LEVELS.HDD")
         add_test(NAME inspector_scenario_smoke COMMAND deadlock2 "${DL2_DATA_DIR}" --scenario CHCHT1 --smoke-frames 3)
         set_tests_properties(inspector_scenario_smoke PROPERTIES
+            WORKING_DIRECTORY "$<TARGET_FILE_DIR:deadlock2>"
             ENVIRONMENT "SDL_VIDEODRIVER=dummy;SDL_RENDER_DRIVER=software" TIMEOUT 20)
     endif()
 endif()
@@ -133,7 +143,7 @@ endif()
 if(WIN32 AND TARGET SDL2::SDL2)
     get_target_property(_dl2_sdl_type SDL2::SDL2 TYPE)
     if(_dl2_sdl_type STREQUAL "SHARED_LIBRARY")
-        foreach(_target test_engine test_resources test_input test_inspector_session test_world_inspector test_production_plan test_labor_balance test_runtime_entities test_entity_rules test_session_rng test_load_derived test_load_profile test_table_contracts test_runtime_load test_load_intelligence test_entity_creation test_load_session test_ai_session test_army_pool test_ai_taskforce_dissolution test_entity_lifecycle test_entity_orders test_shrine_demolition test_shrine_consequences test_load_world_presentation test_construction_payment test_load_shrine_events test_construction_order test_construction_site test_building_progress test_unit_manufacturing test_manufacturing_runtime test_territory_production test_economic_logistics test_economic_consumption test_building_costs test_economic_upkeep test_economic_prefix test_population_growth test_colony_morale test_research_phase test_colony_unrest test_economic_phase test_colony_labor_orders test_population_orders test_research_orders test_building_orders test_economic_orders_runtime)
+        foreach(_target test_engine test_resources test_input test_inspector_session test_world_inspector test_production_plan test_labor_balance test_runtime_entities test_entity_rules test_session_rng test_load_derived test_load_profile test_table_contracts test_runtime_load test_load_intelligence test_entity_creation test_load_session test_ai_session test_ai_pact_rules test_ai_pact_reconciliation test_ai_pact_transaction test_ai_pact_runtime test_ai_negotiation test_ai_event_transaction test_ai_event_runtime test_combat_stats test_combat_creation test_combat_preparation test_combat_buildings test_combat_auxiliaries test_combat_defense test_combat_territory test_movement_paths test_movement_next_step test_unit_movement test_movement_crossings test_movement_crossings_runtime test_army_pool test_ai_taskforce_dissolution test_entity_lifecycle test_entity_orders test_colony_demolition_orders test_shrine_demolition test_shrine_consequences test_load_world_presentation test_construction_payment test_load_shrine_events test_construction_order test_construction_site test_building_progress test_unit_manufacturing test_manufacturing_runtime test_territory_production test_economic_logistics test_economic_consumption test_building_costs test_economic_upkeep test_economic_prefix test_population_growth test_colony_morale test_research_phase test_colony_unrest test_economic_phase test_colony_labor_orders test_population_orders test_research_orders test_building_orders test_economic_orders_runtime)
             add_custom_command(TARGET ${_target} POST_BUILD
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different
                     $<TARGET_FILE:SDL2::SDL2> $<TARGET_FILE_DIR:${_target}>)

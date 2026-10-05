@@ -3,11 +3,15 @@
 #pragma once
 #include "game/load_profile.h"
 #include "game/session_rng.h"
+#include "game/ai_pact_rules.h"
 #include <array>
 #include <cstdint>
 #include <vector>
+#include <optional>
+#include <string>
 
 namespace dl2::simulation {
+namespace ai_event_detail { struct ReplayState; }
 enum class AiBinding : uint8_t {
     None, InitializeMachiavelli, TurnMachiavelli, DiplomacyMachiavelli,
     VerifiedReturn, EventMachiavelli
@@ -43,6 +47,15 @@ struct AiDiplomacyMessage {
     std::array<int32_t,3> arguments{};
     bool operator==(const AiDiplomacyMessage&) const = default;
 };
+// Live globals, not SAV fields. The caller supplies their actual continuation;
+// missing state rejects only a branch that needs it, never invents a cold reset.
+struct AiNegotiationState {
+    std::array<std::array<int32_t,kMaxPlayers>,kMaxPlayers> lastOfferTurn{}; //0052245c
+    std::array<int32_t,kMaxPlayers> offerState{}; //006534fc: idle,busy,pending,accept,reject
+    std::array<uint32_t,kMaxPlayers> processedOfferMask{}; //00522264, reset per AI turn
+    AiVictoryMetrics victory;
+    bool operator==(const AiNegotiationState&) const = default;
+};
 struct AiReactionContext {
     RngSnapshot rng;
     // 00522248 is not saved/reset by LoadGame: explicit previous-session state.
@@ -51,6 +64,7 @@ struct AiReactionContext {
     // pending human messages/requests are not silently answered or discarded.
     std::vector<AiDiplomacyMessage> pendingMessages;
     bool gameAborted = false;
+    std::optional<AiNegotiationState> negotiation;
     bool operator==(const AiReactionContext&) const = default;
 };
 enum class AiMessageOutcome { Queued, NoHumanRecipient, Full };
@@ -71,12 +85,41 @@ struct AiWarEnd {
     std::vector<int> dissolvedJobs; // Physical job indices, in original live traversal order.
     bool operator==(const AiWarEnd&) const = default;
 };
+enum class AiPactAction { SecretBreak, PublicBreak, Make };
+struct AiPactEdit {
+    int player = -1, other = -1;
+    AiPactAction action = AiPactAction::SecretBreak;
+    uint32_t requested = 0, applied = 0; // Network leaf truncates to uint16.
+    bool accepted = false; // Original ACK; false does not imply API failure.
+    bool operator==(const AiPactEdit&) const = default;
+};
+struct AiPactEvent {
+    int recipient = -1, eventType = 0, player = -1, other = -1;
+    bool operator==(const AiPactEvent&) const = default;
+};
+struct AiPactNotice {
+    int player = -1, recipient = -1;
+    uint32_t mask = 0;
+    std::string portrait;
+    bool operator==(const AiPactNotice&) const = default;
+};
+enum class AiOfferOutcome { Busy, Accepted, Rejected, AwaitingHuman };
+struct AiPactOffer {
+    int player = -1, other = -1;
+    uint32_t mask = 0;
+    AiOfferOutcome outcome = AiOfferOutcome::Busy;
+    bool operator==(const AiPactOffer&) const = default;
+};
 struct AiReactionReport {
     AiReactionContext contextAfter;
     std::vector<RngEvent> draws;
     std::vector<AiAttitudeChange> attitudes;
     std::vector<AiMessageAttempt> messages;
     std::vector<AiWarEnd> warsEnded;
+    std::vector<AiPactEdit> pacts;
+    std::vector<AiPactEvent> pactEvents; // Synchronous AI callbacks, not human log records.
+    std::vector<AiPactNotice> pactNotices;
+    std::vector<AiPactOffer> offers;
     bool handled = false;
     bool operator==(const AiReactionReport&) const = default;
 };
@@ -122,14 +165,19 @@ public:
     // implemented. Hostility ends previous wars via004033d0/00403350, including
     // messages and live traversal of all50 jobs through0040beb4. Dissolution
     // preserves the owned physical pool; no cleanup or ID relookup is invented.
-    // Pact breaking still rejects until its offline handlers are implemented.
-    // Events72/73 reject if their RNG branch requires negotiation handlers.
+    // Offline secret/public pact breaks and recursive72/73 negotiation are
+    // supported with explicit live negotiation state. Human offers reject
+    // atomically here; AiEventTransaction is the explicit response API.
     // Unsupported branches roll back Document, queue, masks and every RNG draw.
     // Unknown event IDs are the authentic default return, reported handled=false.
     bool reactEvent(const save::Document& source, const AiEventRequest& request,
                     const AiReactionContext& context, save::Document& destination,
                     AiReactionReport& report, save::Error& error) const;
 private:
+    friend class AiEventTransaction;
+    bool replayEvent(const save::Document& source,const AiEventRequest& request,
+        const AiReactionContext& context,ai_event_detail::ReplayState& replay,
+        save::Document& destination,AiReactionReport& report,save::Error& error) const;
     AiSessionSnapshot state_;
 };
 

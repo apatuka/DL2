@@ -40,9 +40,33 @@ Puede completar efectos de carga sin ventanas, pero no la activación jugable. S
 las dependencias de carga de presentación/turno IA; no permite exportar un estado parcial.
 La demostración previa del motor y del panel SMenu `D000` se conserva mediante `--demo`.
 
+La ampliación del 2026-10-05 conecta ruptura de pactos y negociación entre IA,
+con continuación explícita y rollback, y añade consultas de estadísticas efectivas
+de combate. La base
+Ghidra local fue reconstruida; [las nuevas exportaciones](re/evidence/README.md)
+incluyen ensamblado y documentan la limitación del MCP de REA para este PE32.
+La continuación añade `movement-paths` (consulta de distancias sin mover unidades),
+`order-demolish-colony` (orden colectiva en memoria, con sus reglas originales)
+y la conciliación de pactos con log/callbacks. También incorpora selección del
+siguiente paso, `move-unit` (movimiento y transporte aislados) y ofertas humanas
+que esperan una decisión explícita mediante una transacción de eventos IA.
+La conciliación completa de pactos también puede suspenderse y reanudarse;
+conserva avisos, RNG y cursor hasta publicar conjuntamente los resultados.
+`combat_creation` reconstruye la creación de combatientes con pool propio,
+colocación, retirada y RNG de combate. El [orden original del turno](docs/COMBAT_TURN_SEQUENCE.md)
+documenta las dependencias que faltan para ejecutar una batalla completa.
+La continuación añade cruces de movimientos con retiradas y avisos reales en
+State, y preparación propietaria de pools, semillas, Battles y grid. La creación
+de combatientes ya puede consumir ese estado de batalla preparado.
+`combat_territory` añade selección territorial y composición de edificios,
+milicias, minas y zona de defensa en esos pools, conservando el RNG y orden
+originales. Se detiene antes del bucle que resuelve la batalla.
+La verificación vigente se registra en [RECOVERY.md](docs/RECOVERY.md).
+Faltan combate, presentación y coordinación del turno completo jugable.
+
 - [Recuperación de la sesión de Claude](docs/RECOVERY.md): entregables, evidencias y archivos recuperables.
 - [Plan por hitos verificables](docs/ROADMAP.md): orden de continuación y criterios de cierre.
-- [Tareas para Claude](docs/CLAUDE_TASKS.MD): paquetes delegados, responsables, pruebas y protocolo de integración con Codex.
+- [Tablero de tareas retomadas por Codex](docs/CLAUDE_TASKS.MD): paquetes, responsables, pruebas y continuidad histórica.
 - [Checklist completo de juego individual](docs/SINGLE_PLAYER_CHECKLIST.md): pendientes para el cierre funcional sin multijugador.
 - [Integración de la lógica](docs/GAME_INTEGRATION.md): código existente que aún no puede enlazarse.
 - [API del motor](docs/ENGINE_API.md): recursos, dibujo y SMenu.
@@ -144,6 +168,12 @@ localizado. Si una caché antigua muestra cientos de líneas `Nota: inclusión d
 configurar un directorio nuevo con el script; no reutilizar esa caché defectuosa.
 
 Parámetros adicionales: `-VcpkgRoot C:\vcpkg` y `-Configuration Debug|Release|RelWithDebInfo`.
+También se admite el SDK oficial de SDL2 mediante `-Sdl2Dir <carpeta-cmake>`
+(o `SDL2_DIR`) en lugar de vcpkg, y `-PythonExecutable <python.exe>`
+(o `Python3_EXECUTABLE`) cuando Python no está en PATH. Usar un directorio de
+build nuevo al cambiar de proveedor de SDL2. La DLL se copia junto a la aplicación
+y las herramientas gráficas. Véase la revisión del entorno del 2026-10-05 en
+[RECOVERY.md](docs/RECOVERY.md) para los resultados y comandos de esta máquina.
 Las pruebas de infraestructura y motor no requieren los datos originales. Las pruebas de recursos,
 guardados y tablas los leen sin modificarlos; CTest señala las omitidas si no están disponibles.
 Las comprobaciones Python requieren Python 3, y la de tablas además requiere `pefile`.

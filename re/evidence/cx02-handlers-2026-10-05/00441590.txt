@@ -1,0 +1,42 @@
+// Program: DEADLOCK.EXE
+// Language: x86:LE:32:default
+// Compiler: borlandcpp
+// Function: 00441590 FUN_00441590
+
+bool __stdcall FUN_00441590(int param_1,int param_2,uint param_3)
+
+{
+  bool bVar1;
+  
+  bVar1 = DAT_004d5af4 != 0;
+  if (bVar1) {
+    (&DAT_0059f3da)[param_1 * 0xb6 + param_2] = (&DAT_0059f3da)[param_1 * 0xb6 + param_2] & ~param_3
+    ;
+  }
+  return bVar1;
+}
+
+
+/* ASSEMBLY
+00441590  PUSH EBP
+00441591  MOV EBP,ESP
+00441593  CMP dword ptr [0x004d5af4],0x0
+0044159a  JNZ 0x004415a0
+0044159c  XOR EAX,EAX
+0044159e  JMP 0x004415c9
+004415a0  MOV ECX,dword ptr [EBP + 0x8]
+004415a3  MOV EDX,dword ptr [EBP + 0x10]
+004415a6  MOV EAX,ECX
+004415a8  NOT EDX
+004415aa  LEA ECX,[EAX + ECX*0x2]
+004415ad  SHL ECX,0x3
+004415b0  SUB ECX,EAX
+004415b2  SHL ECX,0x2
+004415b5  SUB ECX,EAX
+004415b7  MOV EAX,dword ptr [EBP + 0xc]
+004415ba  LEA ECX,[ECX*0x8 + 0x59f3da]
+004415c1  AND dword ptr [ECX + EAX*0x4],EDX
+004415c4  MOV EAX,0x1
+004415c9  POP EBP
+004415ca  RET 0xc
+*/

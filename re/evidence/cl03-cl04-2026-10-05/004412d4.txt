@@ -1,0 +1,76 @@
+// Program: DEADLOCK.EXE
+// Language: x86:LE:32:default
+// Compiler: borlandcpp
+// Function: 004412d4 FUN_004412d4
+
+bool __stdcall FUN_004412d4(int param_1,int param_2,uint param_3)
+
+{
+  bool bVar1;
+  
+  if (DAT_004d5af4 == 0) {
+    bVar1 = false;
+  }
+  else if ((param_1 < 0) || (DAT_004d5aec <= param_1)) {
+    bVar1 = false;
+  }
+  else if ((param_2 < 0) || (DAT_004d5aec <= param_2)) {
+    bVar1 = false;
+  }
+  else if (((&DAT_0059f3da)[param_1 * 0xb6 + param_2] & 0x10) == 0) {
+    bVar1 = param_3 == ((&DAT_0059f3da)[param_1 * 0xb6 + param_2] & param_3);
+  }
+  else {
+    bVar1 = param_3 == (param_3 & 0x1e);
+  }
+  return bVar1;
+}
+
+
+/* ASSEMBLY
+004412d4  PUSH EBP
+004412d5  MOV EBP,ESP
+004412d7  PUSH EBX
+004412d8  CMP dword ptr [0x004d5af4],0x0
+004412df  MOV EAX,dword ptr [EBP + 0x10]
+004412e2  MOV ECX,dword ptr [EBP + 0xc]
+004412e5  MOV EDX,dword ptr [EBP + 0x8]
+004412e8  JNZ 0x004412ee
+004412ea  XOR EAX,EAX
+004412ec  JMP 0x00441345
+004412ee  TEST EDX,EDX
+004412f0  JL 0x004412fa
+004412f2  CMP EDX,dword ptr [0x004d5aec]
+004412f8  JL 0x004412fe
+004412fa  XOR EAX,EAX
+004412fc  JMP 0x00441345
+004412fe  TEST ECX,ECX
+00441300  JL 0x0044130a
+00441302  CMP ECX,dword ptr [0x004d5aec]
+00441308  JL 0x0044130e
+0044130a  XOR EAX,EAX
+0044130c  JMP 0x00441345
+0044130e  MOV EBX,EDX
+00441310  LEA EDX,[EBX + EDX*0x2]
+00441313  SHL EDX,0x3
+00441316  SUB EDX,EBX
+00441318  SHL EDX,0x2
+0044131b  SUB EDX,EBX
+0044131d  LEA EDX,[EDX*0x8 + 0x59f3da]
+00441324  MOV EDX,dword ptr [EDX + ECX*0x4]
+00441327  TEST DL,0x10
+0044132a  JZ 0x0044133b
+0044132c  MOV ECX,EAX
+0044132e  AND ECX,0x1e
+00441331  CMP EAX,ECX
+00441333  SETZ AL
+00441336  AND EAX,0x1
+00441339  JMP 0x00441345
+0044133b  AND EDX,EAX
+0044133d  CMP EAX,EDX
+0044133f  SETZ AL
+00441342  AND EAX,0x1
+00441345  POP EBX
+00441346  POP EBP
+00441347  RET 0xc
+*/

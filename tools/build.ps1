@@ -5,6 +5,8 @@ param(
     [string]$Configuration = 'RelWithDebInfo',
     [string]$DataDir = $(if ($env:DL2_DATA) { $env:DL2_DATA } else { 'C:\GOG Games\Deadlock 2' }),
     [string]$VcpkgRoot = $(if ($env:VCPKG_ROOT) { $env:VCPKG_ROOT } else { 'C:\vcpkg' }),
+    [string]$Sdl2Dir = $env:SDL2_DIR,
+    [string]$PythonExecutable = $env:Python3_EXECUTABLE,
     [switch]$Test
 )
 
@@ -38,13 +40,30 @@ try {
             [Environment]::SetEnvironmentVariable($line.Substring(0, $separator), $line.Substring($separator + 1), 'Process')
         }
     }
-    $toolchain = Join-Path $VcpkgRoot 'scripts\buildsystems\vcpkg.cmake'
-    if (-not (Test-Path -LiteralPath $toolchain)) { throw "vcpkg toolchain not found: $toolchain" }
+    # Visual Studio's CMake tools are not always exported by VsDevCmd.
+    $cmakeTools = Join-Path $installation 'Common7\IDE\CommonExtensions\Microsoft\CMake'
+    $env:Path = "$(Join-Path $cmakeTools 'CMake\bin');$(Join-Path $cmakeTools 'Ninja');$env:Path"
+    $dependencyArgs = @()
+    if ($Sdl2Dir) {
+        if (-not (Test-Path -LiteralPath (Join-Path $Sdl2Dir 'sdl2-config.cmake')) -and
+            -not (Test-Path -LiteralPath (Join-Path $Sdl2Dir 'SDL2Config.cmake'))) {
+            throw "SDL2 CMake package not found: $Sdl2Dir"
+        }
+        $dependencyArgs += "-DSDL2_DIR=$Sdl2Dir"
+    } else {
+        $toolchain = Join-Path $VcpkgRoot 'scripts\buildsystems\vcpkg.cmake'
+        if (-not (Test-Path -LiteralPath $toolchain)) { throw "vcpkg toolchain not found: $toolchain. Supply -Sdl2Dir to use an SDL2 SDK instead." }
+        $dependencyArgs += "-DCMAKE_TOOLCHAIN_FILE=$toolchain", '-DVCPKG_TARGET_TRIPLET=x64-windows'
+    }
+    if ($PythonExecutable) {
+        if (-not (Test-Path -LiteralPath $PythonExecutable)) { throw "Python executable not found: $PythonExecutable" }
+        $dependencyArgs += "-DPython3_EXECUTABLE=$PythonExecutable"
+    }
 
     Push-Location $projectRoot
     try {
         & cmake -S . -B $BuildDir -G Ninja "-DCMAKE_BUILD_TYPE=$Configuration" `
-            "-DCMAKE_TOOLCHAIN_FILE=$toolchain" -DVCPKG_TARGET_TRIPLET=x64-windows `
+            @dependencyArgs `
             -DBUILD_TESTING=ON "-DDL2_DATA_DIR=$DataDir"
         if ($LASTEXITCODE -ne 0) { throw "CMake configuration failed ($LASTEXITCODE)." }
         & cmake --build $BuildDir --config $Configuration

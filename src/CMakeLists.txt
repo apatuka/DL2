@@ -58,3 +58,18 @@ if(DL2_BUILD_TOOLS)
         target_compile_options(dl2sim PRIVATE /W4 /utf-8)
     endif()
 endif()
+
+# The standalone SDL SDK does not have vcpkg's automatic app-local deployment.
+# Keep the runtime beside every application that links the shared SDL target.
+if(WIN32 AND TARGET SDL2::SDL2)
+    get_target_property(_dl2_sdl_type SDL2::SDL2 TYPE)
+    if(_dl2_sdl_type STREQUAL "SHARED_LIBRARY")
+        foreach(_target deadlock2 dl2tool)
+            if(TARGET ${_target})
+                add_custom_command(TARGET ${_target} POST_BUILD
+                    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                        $<TARGET_FILE:SDL2::SDL2> $<TARGET_FILE_DIR:${_target}>)
+            endif()
+        endforeach()
+    endif()
+endif()

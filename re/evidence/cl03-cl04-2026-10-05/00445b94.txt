@@ -1,0 +1,193 @@
+// Program: DEADLOCK.EXE
+// Language: x86:LE:32:default
+// Compiler: borlandcpp
+// Function: 00445b94 FUN_00445b94
+
+uint __stdcall FUN_00445b94(int param_1,int param_2)
+
+{
+  int iVar1;
+  int iVar2;
+  uint uVar3;
+  int iVar4;
+  int iVar5;
+  undefined4 *puVar6;
+  undefined4 *puVar7;
+  byte bVar8;
+  undefined4 local_bc;
+  undefined1 local_b5;
+  undefined4 local_60;
+  undefined1 local_59;
+  
+  bVar8 = 0;
+  iVar1 = *(int *)(param_1 + 0x76);
+  if ((((DAT_004d5aa0 == '\0') && ((&DAT_004faf87)[param_2 * 0x24] == '\t')) && (param_2 != 0x24))
+     && (iVar2 = FUN_0044d1e4(), iVar2 == -1)) {
+    uVar3 = 0;
+  }
+  else if ((*(char *)(param_1 + 0x21) == '\0') && ((&DAT_004faf8d)[param_2 * 0x24] == '\x01')) {
+    uVar3 = FUN_00445940();
+  }
+  else if ((*(char *)(param_1 + 0x21) == '\0') || ((&DAT_004faf8d)[param_2 * 0x24] != '\x02')) {
+    if (*(char *)(param_1 + 0x21) == '\0') {
+      puVar6 = &DAT_004c51d4;
+      puVar7 = &local_60;
+      for (iVar2 = 0x17; iVar2 != 0; iVar2 = iVar2 + -1) {
+        *puVar7 = *puVar6;
+        puVar6 = puVar6 + (uint)bVar8 * -2 + 1;
+        puVar7 = puVar7 + (uint)bVar8 * -2 + 1;
+      }
+      iVar2 = 0;
+      local_59 = (&DAT_004faf87)[param_2 * 0x24];
+      iVar4 = FUN_004594b8();
+      for (; iVar1 != 0; iVar1 = *(int *)(iVar1 + 0x54)) {
+        iVar5 = FUN_004594b8();
+        if (iVar4 == iVar5) {
+          iVar2 = iVar2 + 1;
+        }
+      }
+      uVar3 = (uint)(iVar2 < (int)(&DAT_004faf6c)[iVar4]);
+    }
+    else {
+      puVar6 = &DAT_004c5230;
+      puVar7 = &local_bc;
+      for (iVar2 = 0x17; iVar2 != 0; iVar2 = iVar2 + -1) {
+        *puVar7 = *puVar6;
+        puVar6 = puVar6 + (uint)bVar8 * -2 + 1;
+        puVar7 = puVar7 + (uint)bVar8 * -2 + 1;
+      }
+      iVar2 = 0;
+      local_b5 = (&DAT_004faf87)[param_2 * 0x24];
+      iVar4 = FUN_0045951c();
+      for (; iVar1 != 0; iVar1 = *(int *)(iVar1 + 0x54)) {
+        iVar5 = FUN_0045951c();
+        if (iVar4 == iVar5) {
+          iVar2 = iVar2 + 1;
+        }
+      }
+      uVar3 = (uint)(iVar2 < (int)(&DAT_004faf5c)[iVar4]);
+    }
+  }
+  else {
+    uVar3 = 0;
+  }
+  return uVar3;
+}
+
+
+/* ASSEMBLY
+00445b94  PUSH EBP
+00445b95  MOV EBP,ESP
+00445b97  ADD ESP,0xffffff48
+00445b9d  MOV AL,[0x004d5aa0]
+00445ba2  TEST AL,AL
+00445ba4  PUSH EBX
+00445ba5  PUSH ESI
+00445ba6  PUSH EDI
+00445ba7  MOV EDI,dword ptr [EBP + 0x8]
+00445baa  MOV ESI,dword ptr [EBP + 0xc]
+00445bad  MOV EBX,dword ptr [EDI + 0x76]
+00445bb0  JNZ 0x00445bdb
+00445bb2  LEA EDX,[ESI + ESI*0x8]
+00445bb5  MOVSX ECX,byte ptr [EDX*0x4 + 0x4faf87]
+00445bbd  CMP ECX,0x9
+00445bc0  JNZ 0x00445bdb
+00445bc2  CMP ESI,0x24
+00445bc5  JZ 0x00445bdb
+00445bc7  PUSH 0x0
+00445bc9  PUSH 0xa
+00445bcb  PUSH EDI
+00445bcc  CALL 0x0044d1e4
+00445bd1  INC EAX
+00445bd2  JNZ 0x00445bdb
+00445bd4  XOR EAX,EAX
+00445bd6  JMP 0x00445cce
+00445bdb  MOV DL,byte ptr [EDI + 0x21]
+00445bde  TEST DL,DL
+00445be0  JNZ 0x00445bfb
+00445be2  LEA ECX,[ESI + ESI*0x8]
+00445be5  MOVSX EAX,byte ptr [ECX*0x4 + 0x4faf8d]
+00445bed  DEC EAX
+00445bee  JNZ 0x00445bfb
+00445bf0  PUSH EBX
+00445bf1  CALL 0x00445940
+00445bf6  JMP 0x00445cce
+00445bfb  MOV AL,byte ptr [EDI + 0x21]
+00445bfe  TEST AL,AL
+00445c00  JZ 0x00445c19
+00445c02  LEA EDX,[ESI + ESI*0x8]
+00445c05  MOVSX ECX,byte ptr [EDX*0x4 + 0x4faf8d]
+00445c0d  CMP ECX,0x2
+00445c10  JNZ 0x00445c19
+00445c12  XOR EAX,EAX
+00445c14  JMP 0x00445cce
+00445c19  TEST AL,AL
+00445c1b  JNZ 0x00445c73
+00445c1d  XOR EDI,EDI
+00445c1f  PUSH ESI
+00445c20  PUSH EDI
+00445c21  MOV ESI,0x4c51d4
+00445c26  LEA EDI,[EBP + -0x5c]
+00445c29  MOV ECX,0x17
+00445c2e  MOVSD.REP ES:EDI,ESI
+00445c30  POP EDI
+00445c31  POP ESI
+00445c32  LEA EAX,[ESI + ESI*0x8]
+00445c35  MOV DL,byte ptr [EAX*0x4 + 0x4faf87]
+00445c3c  MOV byte ptr [EBP + -0x55],DL
+00445c3f  LEA ECX,[EBP + -0x5c]
+00445c42  PUSH ECX
+00445c43  CALL 0x004594b8
+00445c48  MOV ESI,EAX
+00445c4a  TEST EBX,EBX
+00445c4c  JZ 0x00445c60
+00445c4e  PUSH EBX
+00445c4f  CALL 0x004594b8
+00445c54  CMP ESI,EAX
+00445c56  JNZ 0x00445c59
+00445c58  INC EDI
+00445c59  MOV EBX,dword ptr [EBX + 0x54]
+00445c5c  TEST EBX,EBX
+00445c5e  JNZ 0x00445c4e
+00445c60  MOV EAX,dword ptr [ESI*0x4 + 0x4faf6c]
+00445c67  CMP EDI,EAX
+00445c69  SETL AL
+00445c6c  AND EAX,0x1
+00445c6f  JMP 0x00445cce
+00445c73  XOR EDI,EDI
+00445c75  PUSH ESI
+00445c76  PUSH EDI
+00445c77  MOV ESI,0x4c5230
+00445c7c  LEA EDI,[EBP + 0xffffff48]
+00445c82  MOV ECX,0x17
+00445c87  MOVSD.REP ES:EDI,ESI
+00445c89  POP EDI
+00445c8a  POP ESI
+00445c8b  LEA EAX,[ESI + ESI*0x8]
+00445c8e  MOV DL,byte ptr [EAX*0x4 + 0x4faf87]
+00445c95  MOV byte ptr [EBP + 0xffffff4f],DL
+00445c9b  LEA ECX,[EBP + 0xffffff48]
+00445ca1  PUSH ECX
+00445ca2  CALL 0x0045951c
+00445ca7  MOV ESI,EAX
+00445ca9  TEST EBX,EBX
+00445cab  JZ 0x00445cbf
+00445cad  PUSH EBX
+00445cae  CALL 0x0045951c
+00445cb3  CMP ESI,EAX
+00445cb5  JNZ 0x00445cb8
+00445cb7  INC EDI
+00445cb8  MOV EBX,dword ptr [EBX + 0x54]
+00445cbb  TEST EBX,EBX
+00445cbd  JNZ 0x00445cad
+00445cbf  MOV EAX,dword ptr [ESI*0x4 + 0x4faf5c]
+00445cc6  CMP EDI,EAX
+00445cc8  SETL AL
+00445ccb  AND EAX,0x1
+00445cce  POP EDI
+00445ccf  POP ESI
+00445cd0  POP EBX
+00445cd1  MOV ESP,EBP
+00445cd3  POP EBP
+00445cd4  RET 0x8
+*/

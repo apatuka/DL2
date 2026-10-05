@@ -1,0 +1,80 @@
+// Program: DEADLOCK.EXE
+// Language: x86:LE:32:default
+// Compiler: borlandcpp
+// Function: 00445a04 FUN_00445a04
+
+undefined4 __stdcall FUN_00445a04(int param_1)
+
+{
+  int iVar1;
+  int iVar2;
+  
+  iVar1 = FUN_00445940();
+  if (iVar1 != 0) {
+    iVar2 = FUN_004459dc();
+    if (iVar2 != 0) {
+      return 1;
+    }
+    if ((*(short *)(iVar1 + 0x36) != *(short *)(param_1 + 0x36)) && (DAT_0058f1f4 == DAT_004d5a58))
+    {
+      FUN_0040cd0c();
+    }
+    iVar2 = FUN_004459bc();
+    if (iVar2 != -1) {
+      *(undefined4 *)(param_1 + 0x44) = 0;
+      *(int *)(param_1 + 0x48) = iVar1;
+      *(int *)(iVar1 + 0x48 + iVar2 * 4) = param_1;
+      return 1;
+    }
+  }
+  return 0;
+}
+
+
+/* ASSEMBLY
+00445a04  PUSH EBP
+00445a05  MOV EBP,ESP
+00445a07  PUSH EBX
+00445a08  PUSH ESI
+00445a09  PUSH EDI
+00445a0a  MOV ESI,dword ptr [EBP + 0x8]
+00445a0d  PUSH ESI
+00445a0e  CALL 0x00445940
+00445a13  MOV EBX,EAX
+00445a15  TEST EAX,EAX
+00445a17  JZ 0x00445a69
+00445a19  PUSH ESI
+00445a1a  PUSH EBX
+00445a1b  CALL 0x004459dc
+00445a20  TEST EAX,EAX
+00445a22  JZ 0x00445a2b
+00445a24  MOV EAX,0x1
+00445a29  JMP 0x00445a6b
+00445a2b  MOV DX,word ptr [EBX + 0x36]
+00445a2f  CMP DX,word ptr [ESI + 0x36]
+00445a33  JZ 0x00445a4b
+00445a35  MOV ECX,dword ptr [0x0058f1f4]
+00445a3b  MOV EAX,[0x004d5a58]
+00445a40  CMP ECX,EAX
+00445a42  JNZ 0x00445a4b
+00445a44  PUSH ESI
+00445a45  PUSH EBX
+00445a46  CALL 0x0040cd0c
+00445a4b  PUSH EBX
+00445a4c  CALL 0x004459bc
+00445a51  MOV EDI,EAX
+00445a53  INC EAX
+00445a54  JZ 0x00445a69
+00445a56  XOR EDX,EDX
+00445a58  MOV EAX,0x1
+00445a5d  MOV dword ptr [ESI + 0x44],EDX
+00445a60  MOV dword ptr [ESI + 0x48],EBX
+00445a63  MOV dword ptr [EBX + EDI*0x4 + 0x48],ESI
+00445a67  JMP 0x00445a6b
+00445a69  XOR EAX,EAX
+00445a6b  POP EDI
+00445a6c  POP ESI
+00445a6d  POP EBX
+00445a6e  POP EBP
+00445a6f  RET 0x4
+*/

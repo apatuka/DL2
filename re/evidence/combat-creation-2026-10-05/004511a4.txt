@@ -1,0 +1,41 @@
+// Program: DEADLOCK.EXE
+// Language: x86:LE:32:default
+// Compiler: borlandcpp
+// Function: 004511a4 FUN_004511a4
+
+undefined1 __stdcall FUN_004511a4(int param_1,int param_2)
+
+{
+  undefined1 uVar1;
+  
+  if ((((param_1 < -9) || (0x1a < param_1)) || (param_2 < -9)) || (0x1a < param_2)) {
+    uVar1 = 0;
+  }
+  else {
+    uVar1 = (&DAT_004cf9a5)[param_1 + param_2 * 0x24];
+  }
+  return uVar1;
+}
+
+
+/* ASSEMBLY
+004511a4  PUSH EBP
+004511a5  MOV EBP,ESP
+004511a7  MOV EDX,dword ptr [EBP + 0xc]
+004511aa  MOV EAX,dword ptr [EBP + 0x8]
+004511ad  CMP EAX,-0x9
+004511b0  JL 0x004511d1
+004511b2  CMP EAX,0x1b
+004511b5  JGE 0x004511d1
+004511b7  CMP EDX,-0x9
+004511ba  JL 0x004511d1
+004511bc  CMP EDX,0x1b
+004511bf  JGE 0x004511d1
+004511c1  LEA EDX,[EDX + EDX*0x8]
+004511c4  LEA ECX,[EDX*0x4 + 0x4cf9a5]
+004511cb  MOVZX EAX,byte ptr [ECX + EAX*0x1]
+004511cf  JMP 0x004511d3
+004511d1  XOR EAX,EAX
+004511d3  POP EBP
+004511d4  RET 0x8
+*/

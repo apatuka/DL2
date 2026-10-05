@@ -1,0 +1,103 @@
+// Program: DEADLOCK.EXE
+// Language: x86:LE:32:default
+// Compiler: borlandcpp
+// Function: 0042d304 FUN_0042d304
+
+int __stdcall FUN_0042d304(void)
+
+{
+  int iVar1;
+  int in_ECX;
+  
+  if (((DAT_00557c48 != 0) && (*(char *)(DAT_00557c48 + 0x3c) == '\0')) && (DAT_004bf910 == 0)) {
+    DAT_004c5b78 = 0;
+    DAT_004c5b70 = 0;
+    DAT_004c5b7c = 0;
+    DAT_004c5b74 = 0;
+    FUN_00412f10();
+    FUN_00412d38();
+    if (DAT_00557c4c != 0) {
+      FUN_004b0274();
+      DAT_00557c4c = 0;
+    }
+  }
+  DAT_004d59a4 = 1;
+  DAT_0051b824 = 1;
+  FUN_0048db5d();
+  FUN_0042d04c();
+  iVar1 = FUN_004a2cb5();
+  if (((iVar1 == 0) && (in_ECX != 0)) &&
+     ((*(int *)(DAT_004bf8fc + 100) == 0 && (in_ECX - 0x25U < 2)))) {
+    DAT_004d59a4 = 0;
+    return in_ECX;
+  }
+  DAT_004d59a4 = 0;
+  return 0;
+}
+
+
+/* ASSEMBLY
+0042d304  PUSH ECX
+0042d305  MOV EAX,[0x00557c48]
+0042d30a  TEST EAX,EAX
+0042d30c  JZ 0x0042d36e
+0042d30e  MOV EAX,[0x00557c48]
+0042d313  CMP byte ptr [EAX + 0x3c],0x0
+0042d317  JNZ 0x0042d36e
+0042d319  CMP dword ptr [0x004bf910],0x0
+0042d320  JNZ 0x0042d36e
+0042d322  XOR EDX,EDX
+0042d324  MOV dword ptr [0x004c5b78],EDX
+0042d32a  MOV dword ptr [0x004c5b70],EDX
+0042d330  MOV dword ptr [0x004c5b7c],EDX
+0042d336  MOV dword ptr [0x004c5b74],EDX
+0042d33c  PUSH EAX
+0042d33d  CALL 0x00412f10
+0042d342  MOV EAX,[0x004bf8fc]
+0042d347  MOV ECX,dword ptr [EAX + 0x3c]
+0042d34a  PUSH ECX
+0042d34b  MOV EAX,[0x00557c48]
+0042d350  PUSH EAX
+0042d351  CALL 0x00412d38
+0042d356  MOV EAX,[0x00557c4c]
+0042d35b  TEST EAX,EAX
+0042d35d  JZ 0x0042d36e
+0042d35f  PUSH EAX
+0042d360  CALL 0x004b0274
+0042d365  POP ECX
+0042d366  XOR EDX,EDX
+0042d368  MOV dword ptr [0x00557c4c],EDX
+0042d36e  MOV dword ptr [0x004d59a4],0x1
+0042d378  MOV dword ptr [0x0051b824],0x1
+0042d382  PUSH 0x0
+0042d384  CALL 0x0048db5d
+0042d389  CALL 0x0042d04c
+0042d38e  PUSH ESP
+0042d38f  MOV ECX,dword ptr [0x004bf8fc]
+0042d395  PUSH ECX
+0042d396  CALL 0x004a2cb5
+0042d39b  TEST EAX,EAX
+0042d39d  JNZ 0x0042d3cd
+0042d39f  MOV EAX,dword ptr [ESP]
+0042d3a2  TEST EAX,EAX
+0042d3a4  JZ 0x0042d3cd
+0042d3a6  MOV EDX,dword ptr [0x004bf8fc]
+0042d3ac  MOV ECX,dword ptr [EDX + 0x64]
+0042d3af  TEST ECX,ECX
+0042d3b1  JNZ 0x0042d3cd
+0042d3b3  MOV EAX,dword ptr [ESP]
+0042d3b6  ADD EAX,-0x25
+0042d3b9  SUB EAX,0x2
+0042d3bc  JC 0x0042d3c0
+0042d3be  JMP 0x0042d3cd
+0042d3c0  XOR EDX,EDX
+0042d3c2  MOV EAX,dword ptr [ESP]
+0042d3c5  MOV dword ptr [0x004d59a4],EDX
+0042d3cb  POP EDX
+0042d3cc  RET
+0042d3cd  XOR EDX,EDX
+0042d3cf  XOR EAX,EAX
+0042d3d1  MOV dword ptr [0x004d59a4],EDX
+0042d3d7  POP EDX
+0042d3d8  RET
+*/

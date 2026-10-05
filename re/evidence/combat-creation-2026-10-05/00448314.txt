@@ -1,0 +1,130 @@
+// Program: DEADLOCK.EXE
+// Language: x86:LE:32:default
+// Compiler: borlandcpp
+// Function: 00448314 FUN_00448314
+
+int __stdcall FUN_00448314(int param_1,int param_2,int param_3)
+
+{
+  char *pcVar1;
+  int iVar2;
+  int iVar3;
+  int iVar4;
+  int iVar5;
+  int iVar6;
+  int iVar7;
+  
+  pcVar1 = *(char **)(param_1 + 0x80 + *(char *)(param_1 + 0x75) * 4);
+  iVar4 = (int)*pcVar1;
+  iVar3 = (int)pcVar1[1];
+  pcVar1 = *(char **)(param_2 + 0x80 + *(char *)(param_2 + 0x75) * 4);
+  iVar5 = (int)*pcVar1;
+  iVar2 = (int)pcVar1[1];
+  if (iVar5 < iVar4) {
+    iVar6 = iVar4 - iVar5;
+  }
+  else {
+    iVar6 = iVar5 - iVar4;
+  }
+  if (iVar2 < iVar3) {
+    iVar7 = iVar3 - iVar2;
+  }
+  else {
+    iVar7 = iVar2 - iVar3;
+  }
+  if (iVar7 < iVar6) {
+    if (iVar5 < iVar4) {
+      iVar2 = 2;
+    }
+    else {
+      iVar2 = 8;
+    }
+  }
+  else if (iVar2 < iVar3) {
+    iVar2 = 4;
+  }
+  else {
+    iVar2 = 1;
+  }
+  if ((*(char *)(param_2 + 0x21) == '\x04') && (param_3 == 0)) {
+    if (iVar2 == 8) {
+      iVar2 = 4;
+    }
+    if (iVar2 == 1) {
+      iVar2 = 2;
+    }
+  }
+  return iVar2;
+}
+
+
+/* ASSEMBLY
+00448314  PUSH EBP
+00448315  MOV EBP,ESP
+00448317  ADD ESP,-0x8
+0044831a  PUSH EBX
+0044831b  PUSH ESI
+0044831c  PUSH EDI
+0044831d  MOV EDX,dword ptr [EBP + 0x8]
+00448320  MOV EAX,dword ptr [EBP + 0xc]
+00448323  MOVSX ECX,byte ptr [EDX + 0x75]
+00448327  MOVSX ESI,byte ptr [EDX + 0x75]
+0044832b  MOV ECX,dword ptr [EDX + ECX*0x4 + 0x80]
+00448332  MOVSX EDI,byte ptr [EAX + 0x75]
+00448336  MOVSX EBX,byte ptr [ECX]
+00448339  MOVSX EDX,byte ptr [ECX + 0x1]
+0044833d  MOVSX ECX,byte ptr [EAX + 0x75]
+00448341  MOV ECX,dword ptr [EAX + ECX*0x4 + 0x80]
+00448348  MOVSX ESI,byte ptr [ECX]
+0044834b  MOVSX ECX,byte ptr [ECX + 0x1]
+0044834f  CMP ESI,EBX
+00448351  JGE 0x00448359
+00448353  MOV EDI,EBX
+00448355  SUB EDI,ESI
+00448357  JMP 0x0044835d
+00448359  MOV EDI,ESI
+0044835b  SUB EDI,EBX
+0044835d  MOV dword ptr [EBP + -0x4],EDI
+00448360  CMP ECX,EDX
+00448362  JGE 0x0044836a
+00448364  MOV EDI,EDX
+00448366  SUB EDI,ECX
+00448368  JMP 0x0044836e
+0044836a  MOV EDI,ECX
+0044836c  SUB EDI,EDX
+0044836e  MOV dword ptr [EBP + -0x8],EDI
+00448371  MOV EDI,dword ptr [EBP + -0x4]
+00448374  CMP EDI,dword ptr [EBP + -0x8]
+00448377  JLE 0x0044838b
+00448379  CMP ESI,EBX
+0044837b  JGE 0x00448384
+0044837d  MOV EDX,0x2
+00448382  JMP 0x0044839b
+00448384  MOV EDX,0x8
+00448389  JMP 0x0044839b
+0044838b  CMP ECX,EDX
+0044838d  JGE 0x00448396
+0044838f  MOV EDX,0x4
+00448394  JMP 0x0044839b
+00448396  MOV EDX,0x1
+0044839b  MOVSX EAX,byte ptr [EAX + 0x21]
+0044839f  CMP EAX,0x4
+004483a2  JNZ 0x004483bf
+004483a4  MOV ECX,dword ptr [EBP + 0x10]
+004483a7  TEST ECX,ECX
+004483a9  JNZ 0x004483bf
+004483ab  CMP EDX,0x8
+004483ae  JNZ 0x004483b5
+004483b0  MOV EDX,0x4
+004483b5  CMP EDX,0x1
+004483b8  JNZ 0x004483bf
+004483ba  MOV EDX,0x2
+004483bf  MOV EAX,EDX
+004483c1  POP EDI
+004483c2  POP ESI
+004483c3  POP EBX
+004483c4  POP ECX
+004483c5  POP ECX
+004483c6  POP EBP
+004483c7  RET 0xc
+*/

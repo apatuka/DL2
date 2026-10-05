@@ -16,6 +16,30 @@ std::string_view eliminationPortrait(int observerRace, int defeatedRace) {
         ? values[observerRace][defeatedRace] : std::string_view{};
 }
 namespace {
+//004503f4 category15, rows004ca6f8..004ca728.0042d0ac selects a
+// successful human pact-offer dialog portrait with one Secondary15 draw.
+constexpr std::string_view pactOfferNames[7][15] = {
+    {"CCALLYA","CCALLYB","CCALLYC","CCALLYD","CCALLYE","CCALLYF","CCALLYG","CCALLYH","CCALLYI","CCALLYJ","CCALLYK","CCALLYL","CCALLYM","CCALLYN",""},
+    {"YYALLYA","YYALLYB","YYALLYC","YYALLYD","YYALLYE","YYALLYF","YYALLYG","YYALLYH","YYALLYI","YYALLYJ","YYALLYK","YYALLYL","YYALLYM","YYALLYN","YYALLYO"},
+    {"HHALLYA","HHALLYB","HHALLYC","HHALLYD","HHALLYE","HHALLYF","HHALLYG","HHALLYH","HHALLYI","HHALLYJ","HHALLYK","HHALLYL","HHALLYM","HHALLYN","HHALLYO"},
+    {"MMALLYA","MMALLYB","MMALLYC","MMALLYD","MMALLYE","MMALLYF","MMALLYG","MMALLYH","MMALLYI","MMALLYJ","MMALLYK","MMALLYL","MMALLYM","MMALLYN","MMALLYO"},
+    {"RRALLYA","RRALLYB","RRALLYC","RRALLYD","RRALLYE","RRALLYF","RRALLYG","RRALLYH","RRALLYI","RRALLYJ","RRALLYK","RRALLYL","RRALLYM","RRALLYN","RRALLYO"},
+    {"TTALLYA","TTALLYB","TTALLYC","TTALLYD","TTALLYE","TTALLYF","TTALLYG","TTALLYH","TTALLYI","TTALLYJ","TTALLYK","TTALLYL","TTALLYM","TTALLYN","TTALLYO"},
+    {"UUALLYA","UUALLYB","UUALLYC","UUALLYD","UUALLYE","UUALLYF","UUALLYG","UUALLYH","UUALLYI","UUALLYJ","UUALLYK","UUALLYL","UUALLYM","UUALLYN","UUALLYO"}
+};
+// orig:004503f4 category20, rows004ca810..004ca840. NetBreakPact
+// selects one of these five resources using Secondary15%5 for its local
+// notification. The special race7/8 tables have no category20 row: their
+// computed addresses overlap the unrelated elimination-pointer table.
+constexpr std::string_view pactBreakNames[7][5] = {
+    {"CCQUITA", "CCQUITB", "CCQUITC", "CCQUITD", "CCQUITE"},
+    {"YYQUITA", "YYQUITB", "YYQUITC", "YYQUITD", "YYQUITE"},
+    {"HHQUITA", "HHQUITB", "HHQUITC", "HHQUITD", "HHQUITE"},
+    {"MMQUITA", "MMQUITB", "MMQUITC", "MMQUITD", "MMQUITE"},
+    {"RRQUITA", "RRQUITB", "RRQUITC", "RRQUITD", "RRQUITE"},
+    {"TTQUITA", "TTQUITB", "TTQUITC", "TTQUITD", "TTQUITE"},
+    {"UUQUITA", "UUQUITB", "UUQUITC", "UUQUITD", "UUQUITE"}
+};
 constexpr std::string_view names[] = {
     "CCWARNA", "CCWARNB", "CCWARNC", "CCWARND", "CCWARNE", "YYWARNA", "YYWARNB", "YYWARNC",
     "YYWARND", "YYWARNE", "HHWARNA", "HHWARNB", "HHWARNC", "HHWARND", "HHWARNE", "MMWARNA",
@@ -185,6 +209,8 @@ constexpr Row rows[] = {
 };
 }
 std::span<const std::string_view> eventPortraitNames(int race, int category) {
+    if (category == 15 && race >= 0 && race < 7) return {pactOfferNames[race],race==0?size_t(14):size_t(15)};
+    if (category == 20 && race >= 0 && race < 7) return pactBreakNames[race];
     for (const auto& row : rows) if (row.race == race && row.category == category)
         return {names + row.first, row.count};
     return {};

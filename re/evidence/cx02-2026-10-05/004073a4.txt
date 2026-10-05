@@ -1,0 +1,42 @@
+// Program: DEADLOCK.EXE
+// Language: x86:LE:32:default
+// Compiler: borlandcpp
+// Function: 004073a4 FUN_004073a4
+
+void __stdcall FUN_004073a4(int param_1,undefined4 param_2,int param_3)
+
+{
+  if ((-1 < *(int *)(&DAT_005220a4 + param_3 * 4 + param_1 * 0x1c)) &&
+     ((1 << ((byte)param_3 & 0x1f) & *(uint *)(&DAT_0052222c + param_1 * 4)) == 0)) {
+    FUN_00406dd8();
+  }
+  return;
+}
+
+
+/* ASSEMBLY
+004073a4  PUSH EBP
+004073a5  MOV EBP,ESP
+004073a7  PUSH EBX
+004073a8  MOV EDX,dword ptr [EBP + 0x10]
+004073ab  MOV EAX,dword ptr [EBP + 0x8]
+004073ae  MOV ECX,EAX
+004073b0  SHL ECX,0x3
+004073b3  SUB ECX,EAX
+004073b5  LEA ECX,[ECX*0x4 + 0x5220a4]
+004073bc  MOV ECX,dword ptr [ECX + EDX*0x4]
+004073bf  TEST ECX,ECX
+004073c1  JL 0x004073de
+004073c3  MOV ECX,EDX
+004073c5  MOV EBX,0x1
+004073ca  SHL EBX,CL
+004073cc  MOV ECX,dword ptr [EAX*0x4 + 0x52222c]
+004073d3  AND EBX,ECX
+004073d5  JNZ 0x004073de
+004073d7  PUSH EDX
+004073d8  PUSH EAX
+004073d9  CALL 0x00406dd8
+004073de  POP EBX
+004073df  POP EBP
+004073e0  RET 0xc
+*/

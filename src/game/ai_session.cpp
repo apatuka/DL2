@@ -1,7 +1,9 @@
 #include "game/ai_session.h"
+#include "game/ai_event_transaction.h"
 #include "game/ai_taskforce_dissolution.h"
 #include "game/army_pool.h"
 #include "game/data_tables.h"
+#include "game/event_portraits.h"
 #include <algorithm>
 #include <bit>
 #include <cstring>
@@ -366,6 +368,9 @@ int signedType(const Player& p) { return p.type < 128 ? p.type : int(p.type) - 2
 int32_t wrapAdd(int32_t a, int32_t b) { return std::bit_cast<int32_t>(uint32_t(a) + uint32_t(b)); }
 struct ReactionWork {
     save::Document& d; AiReactionReport& result; SessionRng& rng; save::Error& error;
+    const AiSessionSnapshot* bindings = nullptr;
+    ai_event_detail::ReplayState* replay = nullptr;
+    unsigned eventDepth = 0;
     bool player(int p) { return (p >= 0 && p < kMaxPlayers) || fail(error, "AI reaction player index leaves its seven-player array"); }
     bool draw(uint32_t& value, const char* tag) {
         RngEvent event;
@@ -425,6 +430,231 @@ struct ReactionWork {
         const uint32_t bits = second ? d.players[size_t(p)].relations2[other] : d.players[size_t(p)].relations[other];
         return required == ((bits & 0x10u) ? (required & 0x1eu) : (bits & required));
     }
+    bool negotiationState() {
+        return result.contextAfter.negotiation.has_value() ||
+            fail(error,"AI negotiation needs explicit live cooldowns, offer states, masks and victory metrics");
+    }
+    bool assess(int p, int other, uint32_t mask, bool initiating, bool& accepted) {
+        if (!negotiationState()) return false;
+        AiPactAssessmentReport assessment;
+        if (!assessAiPact(d,{p,other,mask,initiating},result.contextAfter.negotiation->victory,
+                          rng.snapshot(),assessment,error)) return false;
+        if (!rng.restore(assessment.rngAfter,error)) return false;
+        result.draws.insert(result.draws.end(),assessment.draws.begin(),assessment.draws.end());
+        accepted=assessment.accepted; return true;
+    }
+    //004237d0 keeps the two explicit callback arguments, unlike00423690.
+    // Both pact leaves notify third-party AI slots only; no human log is forged.
+    bool notifyPact(int eventType, int p, int other) {
+        for (int recipient=0;recipient<kMaxPlayers;++recipient) {
+            if (recipient==p || recipient==other || signedType(d.players[size_t(recipient)])<=2) continue;
+            if (d.players[size_t(recipient)].type!=3)
+                return fail(error,"Pact notification requires an unimplemented AI personality");
+            if (!bindings || !bindings->data.ai[size_t(recipient)].initialized ||
+                bindings->personalityBindings[size_t(recipient)][4]!=AiBinding::EventMachiavelli)
+                return fail(error,"Pact notification requires an initialized owned event binding");
+            result.pactEvents.push_back({recipient,eventType,p,other});
+            if (!event({recipient,eventType,p,other})) return false;
+        }
+        return true;
+    }
+    //004415d0: all four masks are cleared before any synchronous AI callback.
+    bool clearPublicPact(int p,int other,uint32_t mask) {
+        d.players[size_t(p)].relations[other]&=~mask;
+        d.players[size_t(other)].relations[p]&=~mask;
+        d.players[size_t(p)].relations2[other]&=~mask;
+        d.players[size_t(other)].relations2[p]&=~mask;
+        return notifyPact(0x73,p,other);
+    }
+    //004071b0 ->00476aac/e4 -> offline handlers00476970/00476a70.
+    bool breakPacts(int p,int other) {
+        const uint32_t requested=d.players[size_t(p)].relations[other];
+        if (!requested) return true;
+        const int32_t threshold=std::bit_cast<int32_t>(uint32_t(attitude(d.scratchJob1,p,other))*uint32_t(-100))/50;
+        uint32_t chance; if (!draw(chance,"AiBreakPactChoice004071b0")) return false;
+        const bool secret=int32_t(chance%100)<threshold;
+        const uint32_t mask=uint16_t(requested); //004779c0 message payload
+        result.pacts.push_back({p,other,secret?AiPactAction::SecretBreak:AiPactAction::PublicBreak,
+                                requested,mask,d.options.allowAlliances!=0});
+        // A rejected native ACK is ignored by these wrappers: war still starts.
+        if (!d.options.allowAlliances) return true;
+        if (secret) { d.players[size_t(p)].relations[other]&=~mask; return true; }
+        if (!clearPublicPact(p,other,mask)) return false;
+        if (signedType(d.players[size_t(other)])>=3) {
+            int delta=0;
+            if (mask&2u) delta=-20;
+            if (mask&8u) delta-=8;
+            if (mask&4u) delta-=8;
+            if (mask&16u) delta-=20;
+            return change(other,p,delta); //00407248 with multiply flag0
+        }
+        if (other==d.options.localPlayer) {
+            const int race=d.players[size_t(p)].race;
+            const auto portraits=data::eventPortraitNames(race,20);
+            if (race<0 || race>=7 || mask>=32 || portraits.empty())
+                return fail(error,"Pact-break portrait leaves its verified race/category domain");
+            uint32_t selected; if (!draw(selected,"AiBreakPactPortrait004503f4")) return false;
+            result.pactNotices.push_back({p,other,mask,std::string(portraits[selected%portraits.size()])});
+        }
+        return true;
+    }
+    //00441700 via the uint16 offline wire payload. Reentrant events can change
+    // the same masks before the outer call resumes; always read the live copy.
+    bool makePact(int p,int other,uint32_t requested) {
+        const uint32_t mask=uint16_t(requested);
+        result.pacts.push_back({p,other,AiPactAction::Make,requested,mask,d.options.allowAlliances!=0});
+        if (!d.options.allowAlliances) return true;
+        if ((p==d.options.localPlayer || other==d.options.localPlayer) && (mask==2 || mask==16)) {
+            if (!replay || !replay->campaign)
+                return fail(error,"Human pact acceptance requires explicit live campaign objective state");
+            //0044fe1c(1) precedes0044fdf0/0044fe58. Do not reconstruct these
+            // mutable int32 progress words from the three archival SAV bytes.
+            if (replay->campaign->campaignFlags&2u) {
+                const int campaign=d.options.campaign;
+                if (campaign<0 || campaign>=data::kNumCampaigns)
+                    return fail(error,"Pact campaign objective indexes outside its canonical table");
+                size_t slot=0;
+                while (slot<3 && data::kCampaigns[campaign].goals[slot].type!=1) ++slot;
+                if (slot==3)
+                    return fail(error,"Live campaign flag1 has no canonical goal1 (original out-of-row write)");
+                replay->campaign->campaignProgress[slot]=1;
+            }
+        }
+        if ((mask&1u) && !clearPublicPact(p,other,2)) return false;
+        if ((mask&2u) && !clearPublicPact(p,other,1)) return false;
+        d.players[size_t(p)].relations[other]|=mask;
+        d.players[size_t(other)].relations[p]|=mask;
+        d.players[size_t(p)].relations2[other]|=mask;
+        d.players[size_t(other)].relations2[p]|=mask;
+        return notifyPact(0x72,p,other);
+    }
+    //00406c64: a previously seen offer returns without a draw or attitude edit.
+    bool respondToOffer(int p,int other,uint32_t mask,bool& accepted) {
+        auto& live=*result.contextAfter.negotiation;
+        accepted=false; const uint32_t bit=uint32_t(1)<<uint32_t(p);
+        if (live.processedOfferMask[size_t(other)]&bit) return true;
+        if (signedType(d.players[size_t(other)])>2 && attitude(d.scratchJob1,other,p)>=0 &&
+            !(d.aiWarMask[size_t(other)]&bit) && !assess(other,p,mask,false,accepted)) return false;
+        uint32_t chance=0;
+        if (!accepted && !draw(chance,"AiOfferRejectionAttitude00406c64")) return false;
+        if ((accepted || !(chance&1u)) && !change(other,p,4)) return false;
+        live.processedOfferMask[size_t(other)]|=bit;
+        return true;
+    }
+    //00476b8c -> successful dialog0042d0ac ->004503f4(category15).
+    // Only the explicit transaction enables suspension/recorded decisions.
+    // Presentation allocation failures/network arrivals are outside this
+    // offline successful-presentation profile; no missing UI implies refusal.
+    bool humanOffer(int p,int other,uint32_t mask,bool& accepted) {
+        if (!replay)
+            return fail(error,"AI pact offer requires a real human response; pending negotiation is not answered implicitly");
+        if (other!=d.options.localPlayer || d.players[size_t(other)].type!=1)
+            return fail(error,"Human pact continuation requires the normalized local human recipient");
+        if (replay->consumed>=ai_event_detail::kMaxHumanResponses)
+            return fail(error,"AI event human response transcript exceeds its supported limit",save::ErrorCode::Limit);
+        const int race=d.players[size_t(p)].race;
+        const auto names=data::eventPortraitNames(race,15);
+        if (race<0 || race>=7 || names.empty())
+            return fail(error,"Human pact offer portrait leaves its canonical race/category domain");
+        uint32_t selected;
+        if (!draw(selected,"AiHumanOfferPortrait0042d0ac")) return false;
+        AiHumanOffer offer;
+        offer.transactionId=replay->transactionId; offer.ordinal=uint32_t(replay->consumed+1);
+        offer.player=p; offer.recipient=other; offer.mask=uint16_t(mask);
+        offer.portrait=std::string(names[selected%names.size()]);
+        offer.checkpoint=result.contextAfter; offer.checkpoint.rng=rng.snapshot();
+        offer.campaignCheckpoint=replay->campaign;
+        if (replay->consumed==replay->responses.size()) {
+            replay->pending=std::move(offer); return false;
+        }
+        const auto& response=replay->responses[replay->consumed];
+        if (response.offer!=offer ||
+            (response.answer!=AiHumanAnswer::Accept && response.answer!=AiHumanAnswer::Reject))
+            return fail(error,"AI event replay disagrees with its recorded human offer checkpoint");
+        accepted=response.answer==AiHumanAnswer::Accept; ++replay->consumed; return true;
+    }
+    //00406dd8,00476c44/00476b8c. Human decisions are not synthesized.
+    bool negotiate(int p,int other) {
+        if (!player(p) || !player(other)) return false;
+        if (!d.players[size_t(other)].type) return true;
+        if (!negotiationState()) return false;
+        auto& live=*result.contextAfter.negotiation;
+        const int32_t elapsed=std::bit_cast<int32_t>(uint32_t(d.options.turn)-uint32_t(live.lastOfferTurn[size_t(p)][size_t(other)]));
+        if (elapsed<5) return true;
+        uint32_t mask=0; bool accepted=false;
+        if (!pact(p,other,1,true) && !pact(p,other,2,true)) {
+            if (!assess(p,other,1,true,accepted)) return false;
+            if (accepted) mask=1;
+        }
+        if (!pact(p,other,2,true) && !mask) {
+            if (!assess(p,other,2,true,accepted)) return false;
+            if (accepted) mask=2;
+        }
+        if (!pact(p,other,8,true)) {
+            if (!assess(p,other,mask|8u,true,accepted)) return false;
+            if (accepted) mask|=8;
+        }
+        if (!pact(p,other,4,true)) {
+            if (!assess(p,other,mask|4u,true,accepted)) return false;
+            if (accepted) mask|=4;
+        }
+        if (!pact(p,other,0x10,true) && pact(p,other,0xe)) {
+            if (!assess(p,other,0x10,true,accepted)) return false;
+            if (accepted) mask=0x10;
+        }
+        if (!normalizeAiPactOffer(d,p,other,mask,mask,error)) return false;
+        if (!mask) return true;
+        live.offerState[size_t(p)]=2;
+        live.lastOfferTurn[size_t(p)][size_t(other)]=d.options.turn;
+        const size_t offerIndex=result.offers.size();
+        result.offers.push_back({p,other,mask,AiOfferOutcome::Busy});
+        if (live.offerState[size_t(other)]!=0) live.offerState[size_t(p)]=1;
+        else {
+            live.offerState[size_t(other)]=2;
+            if (other==d.options.localPlayer || signedType(d.players[size_t(other)])<3) {
+                if (!humanOffer(p,other,mask,accepted)) {
+                    if (replay && replay->pending) result.offers[offerIndex].outcome=AiOfferOutcome::AwaitingHuman;
+                    return false;
+                }
+            } else {
+                if (d.players[size_t(other)].type!=3)
+                    return fail(error,"Pact offer requires an unimplemented AI personality");
+                if (!respondToOffer(p,other,uint16_t(mask),accepted)) return false;
+            }
+            live.offerState[size_t(p)]=accepted?3:4;
+            live.offerState[size_t(other)]=0;
+        }
+        const int32_t response=live.offerState[size_t(p)];
+        if (response==3) {
+            result.offers[offerIndex].outcome=AiOfferOutcome::Accepted;
+            if (!makePact(p,other,mask) || !change(p,other,8)) return false;
+        } else if (response==0 || response==4) {
+            result.offers[offerIndex].outcome=AiOfferOutcome::Rejected;
+            if (!change(p,other,-8)) return false;
+        }
+        live.offerState[size_t(p)]=0;
+        return true;
+    }
+    bool pactEvent(int eventType,int p,int other,int third) {
+        if (!player(other) || !player(third)) return false;
+        const uint32_t bit=uint32_t(1)<<uint32_t(third);
+        const int32_t relation=attitude(d.scratchJob1,p,other);
+        const bool friendly=attitude(d.scratchJob1,p,third)>=0 && !(d.aiWarMask[size_t(p)]&bit);
+        if (eventType==0x73) return !friendly || negotiate(p,third);
+        if (relation < -19) {
+            if (friendly && std::bit_cast<int32_t>(d.players[size_t(p)].relations[third])<
+                            std::bit_cast<int32_t>(d.players[size_t(other)].relations2[third])) {
+                if (!negotiationState()) return false;
+                const auto& metrics=result.contextAfter.negotiation->victory;
+                if (aiVictoryMetric(d,p,metrics)<aiVictoryMetric(d,third,metrics)) {
+                    enqueue({p,bit,-1,9,{other,0,0}}); return true;
+                }
+            }
+            return change(p,third,-4);
+        }
+        if (relation>19 && friendly) return change(p,third,4) && negotiate(p,third);
+        return true;
+    }
     bool diplomacy(const AiDiplomacyRequest& request) {
         if (result.contextAfter.gameAborted || request.category < 31 || request.category > 35) return true;
         if (!player(request.other)) return false;
@@ -478,10 +708,7 @@ struct ReactionWork {
             if ((d.options.playerSkill[p] == 4 && signedType(d.players[size_t(other)]) >= 3) ||
                 attitude(d.scratchJob1,p,other) >= 8) return chat(p,other,31);
             if (!endWars(p)) return false;
-            if (d.players[size_t(p)].relations[other] != 0)
-                return fail(error, "AI hostility requires unported004071b0 pact-break dispatch");
-            //004071b0 is genuinely empty only without a pact. Unsupported
-            // pact effects roll back prior dissolution/messages in reaction().
+            if (!breakPacts(p,other)) return false;
             d.aiWarMask[size_t(p)] |= bit;
             uint32_t chance; if (!draw(chance,"AiNewWarMessage00403408")) return false;
             if (!(chance & 1u)) enqueue({p,bit,-1,0,{other,0,0}});
@@ -498,6 +725,8 @@ struct ReactionWork {
         return chat(p,other,32);
     }
     bool event(const AiEventRequest& request) {
+        if (eventDepth>=64) return fail(error,"AI pact callback nesting exceeds the supported limit",save::ErrorCode::Limit);
+        struct Depth { unsigned& value; explicit Depth(unsigned& v):value(v){++value;} ~Depth(){--value;} } depth(eventDepth);
         const int p = request.player, other = request.extra1;
         uint32_t chance = 0; int alternate = 0;
         result.handled = true;
@@ -524,7 +753,8 @@ struct ReactionWork {
         case 0x72: case 0x73:
             if (!draw(chance,"AiPactEventGate004047a0")) return false;
             if (chance & 1u) return true;
-            return fail(error, "AI event requires unported negotiation00407290/004073a4/00406dd8; no human response is invented");
+            return pactEvent(request.eventType,p,other,request.extra2) &&
+                   pactEvent(request.eventType,p,request.extra2,other);
         case 0x74: {
             const int third = request.extra2;
             if (!player(other) || !player(third)) return false;
@@ -547,7 +777,8 @@ struct ReactionWork {
 template<class Request, class Action>
 bool reaction(const AiSessionSnapshot& state, const save::Document& source, const Request& request,
               const AiReactionContext& context, save::Document& destination,
-              AiReactionReport& report, save::Error& error, Action action) {
+              AiReactionReport& report, save::Error& error, Action action,
+              ai_event_detail::ReplayState* replay = nullptr) {
     try {
         if (!state.initializationComplete || request.player < 0 || request.player >= kMaxPlayers ||
             !state.data.ai[size_t(request.player)].initialized)
@@ -560,8 +791,9 @@ bool reaction(const AiSessionSnapshot& state, const save::Document& source, cons
         SessionRng rng; if (!rng.restore(context.rng,error)) return false;
         auto candidate = std::make_unique<save::Document>(source); AiReactionReport result;
         result.contextAfter = context;
-        ReactionWork work{*candidate,result,rng,error};
-        if (!action(work,request) || !save::validate(*candidate,error)) return false;
+        ReactionWork work{*candidate,result,rng,error,&state,replay};
+        if (!action(work,request) && (!replay || !replay->pending)) return false;
+        if (!save::validate(*candidate,error)) return false;
         result.contextAfter.rng = rng.snapshot();
         destination = std::move(*candidate); report = std::move(result); error = {}; return true;
     } catch (const std::bad_alloc&) {
@@ -585,6 +817,12 @@ bool AiSession::reactEvent(const save::Document& source, const AiEventRequest& r
                           AiReactionReport& report, save::Error& error) const {
     return reaction(state_,source,request,context,destination,report,error,
                     [](ReactionWork& work, const AiEventRequest& input) { return work.event(input); });
+}
+bool AiSession::replayEvent(const save::Document& source,const AiEventRequest& request,
+    const AiReactionContext& context,ai_event_detail::ReplayState& replay,
+    save::Document& destination,AiReactionReport& report,save::Error& error) const {
+    return reaction(state_,source,request,context,destination,report,error,
+                    [](ReactionWork& work,const AiEventRequest& input) { return work.event(input); },&replay);
 }
 
 bool changeAiAttitude(const save::Document& source,const AiAttitudeRequest& request,

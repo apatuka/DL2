@@ -1,8 +1,25 @@
 # Checklist de cierre: Deadlock II individual
 
-Revisión: 2026-10-04. Continuación sobre `68e8588`, centrada en EST-04c:
-disolución de grupos con referencias físicas y cierre de guerras IA en
-[ENTITY_RUNTIME.md](ENTITY_RUNTIME.md).
+Revisión técnica: 2026-10-05 sobre `27a4b44`; **84/84 pruebas normales**
+(97,71 s) y **84/84 con ASAN** (82,37 s), sin fallos ni omisiones.
+Las **46/46 comparaciones binarias** de 43 documentos locales y tres RNG
+conservan **11.706.282 bytes exactos**, sin bytes distintos ni ignorados y sin
+regresiones frente al lote `crossings-preparation`.
+La revisión preparó el entorno y corrigió despliegue SDL/capturas. La continuación
+añadió pactos entre IA, estadísticas de combate, búsqueda de distancias,
+demolición colectiva, selección/ejecución de movimiento, conciliación completa
+con respuestas humanas reanudables, creación de combatientes, cruces y
+preparación de batallas/grid;
+no cerró un turno jugable.
+Evidencia y límites actuales en [RECOVERY.md](RECOVERY.md).
+
+Última integración de reglas: 2026-10-05, sobre `27a4b44`: ruptura de pactos,
+negociación y conciliación `00441400` con cursor propietario y publicación
+transaccional en `State`, además de creación `00451b68` con colocación, retirada
+y RNG privado explícitos. Añadidos cruces0045727c con State y preparación de
+pools/Battle/grid, con32 Rand15 de sesión y composición con creación.
+Contratos en [ENTITY_RUNTIME.md](ENTITY_RUNTIME.md)
+y secuencia pendiente en [COMBAT_TURN_SEQUENCE.md](COMBAT_TURN_SEQUENCE.md).
 
 ## Qué significa «100% funcionando»
 
@@ -49,10 +66,12 @@ funcional descubre comportamientos originales aún no identificados.
 - [x] Continuación económica hasta crecimiento, moral, investigación, disturbios/deserciones y balance final, en una única transacción. `EconomyPhaseApplied` no es turno jugable ni exportable; dominios pendientes documentados en ECO-07/09/11.
 - [x] Órdenes locales headless de trabajadores, actividad/bloqueos de edificios, traslado de población y selección/cola de investigación, integradas en State/CLI antes de la fase económica. Sin controles gráficos ni SAV reanudable; contexto vivo de investigación/plagas explícito.
 - [x] Demolición de santuarios con campaña/cola propietarias y órdenes individuales de bajas, con cascada de plataforma y flags marinos. Penalizaciones diferidas implementadas como hoja aislada, aún sin ejecutor de turno posterior al combate.
-- [x] Inicialización IA, reacciones diplomáticas, taskforces y determinados eventos con estado/RNG propietarios; no es el turno IA completo.
+- [x] Inicialización IA, reacciones diplomáticas, taskforces y determinados eventos con estado/RNG propietarios; conciliación completa de pactos con cursor, ofertas humanas anidadas y continuación en State. Falta el turno IA completo y su presentación.
+- [x] Creación aislada de combatientes `00451b68`: pool propietario de 840 slots, colocación, selección de retirada, contadores y RNG privado, con pruebas y tablas verificadas contra el PE. Recibe Battle/grid explícitos; no inicializa ni resuelve una batalla.
+- [x] Cruces `0045727c` con puntuación estratégica, retiradas y avisos, integrado en State; preparación aislada de pools/semillas/Battle/grid y participantes territoriales: ejércitos, edificios, milicia, minas y defensa. Se detiene antes de resolver la batalla.
 - [x] Tablas canónicas compartidas, 43 campañas y pruebas de contratos entre cabeceras heredadas.
 
-Última verificación (2026-10-04): **62/62 pruebas sin omisiones**, normal y AddressSanitizer.
+Verificación histórica (2026-10-04): **62/62 pruebas sin omisiones**, normal y AddressSanitizer.
 Los **46 documentos** admiten normalización parcial, incluidos los **8 escenarios
 de versión 35** mediante migraciones explícitas; sus copias archivales siguen
 siendo exactas. Se verificaron 46 reconstrucciones de inteligencia, 46 creaciones
@@ -74,19 +93,20 @@ soportadas sobre copias y 455 nombres de retratos contra el PE. Resultados en
   - [ ] **EST-04c — parcial.** Implementados edificios especiales, creación/bajas con transporte/parejas, selección de sitio, obra pagada, progreso/finalización/mejoras y fabricación por colas, conectados a la secuencia económica. Desglose de lo recién resuelto y lo que impide cerrar:
     - [x] Demolición de santuarios con objetivo12/cola pendiente explícitos, refunds, labor, identidad y continuidad en State; sin inferir estados vivos desde bytes SAV.
     - [x] Órdenes individuales confirmadas de desbandar/demoler en State/CLI; redirección SeaHab, cascada de plataforma y reconstrucción real de flags marinos, con autoridad y rollback.
+    - [x] Orden colectiva confirmada de demolición en State/CLI, con recorrido vivo por sitios, exclusión por categoría guardada11 y balance/refund por retiro. Mantiene su semántica distinta de la individual, identidades y contexto vivo.
     - [x] Hoja aislada de penalizaciones diferidas: eventos80/81, moral, puntuación y reacciones IA implementadas dentro del dominio soportado. Conserva la cola como el original; no equivale a ejecución programada en un turno.
     - [x] Bajas con referencias taskforce diferidas propietarias, reutilización nativa de slots y limpieza explícita0040aebc; conectadas con mantenimiento/fase económica y State, sin desprendimiento anticipado ni resurrección de handles.
-    - [x] Disolución0040beb4 de grupos con celdas vivas/retiradas/reutilizadas, padre/hijos y bindings sincronizados. Cierre de guerras004033d0/00403350 conectado a hostilidad, State y consecuencias de santuarios, con mensajes/RNG/rollback. Ruptura de pactos y negociación todavía pendientes.
+    - [x] Disolución0040beb4 de grupos con celdas vivas/retiradas/reutilizadas, padre/hijos y bindings sincronizados. Cierre de guerras004033d0/00403350 conectado a hostilidad, State y consecuencias de santuarios, con mensajes/RNG/rollback. Ruptura privada/pública, negociación y conciliación completa00441400 con callbacks, respuestas humanas anidadas y cursor reanudable en State; log, ciudades, campaña y RNG se publican juntos al completar la operación.
     - [ ] Programar la limpieza en los puntos originales de IA/reclutamiento/guardado del turno completo; las hojas explícitas no sustituyen esa secuencia.
-    - [ ] Integrar consecuencias después del combate, cerrar ramas IA de ruptura de pactos/negociación, órdenes colectivas y controles gráficos en el turno completo. Sigue sin SAV jugable.
+    - [ ] Integrar consecuencias después del combate, programar la conciliación/reanudación en la secuencia del turno, multiselección de unidades y controles gráficos. Sigue sin SAV jugable.
   - [x] **EST-04d** Reconstruir enlaces de edificios y vínculos de trabajos/unidades durante la carga parcial, preservando las identidades existentes y publicando el grafo transaccionalmente.
 - [ ] **EST-05** Integrar un estado RNG de partida: semillas, orden de consumo y restauración/inicialización conforme al original.
   - [x] **EST-05a** RNG propietario de sesión con primitivas originales, orden/contadores, snapshots y reseed final offline desde `options.gameId`; no altera RNG global ni la copia archival.
-  - [ ] **EST-05b — parcial.** Conectados reinicio, mundo cambiado, eventos cargados/nuevos, santuarios, diplomacia/reacciones IA y la secuencia económica completa, incluidos crecimiento, investigación y disturbios/robo tecnológico; frontera RNG de SaveGame probada como plan. Faltan consumidores de movimiento/combate, turno IA completo y guardado jugable; se mantiene rechazo del evento nativo inválido de deserción local. No inventar semillas del SAV ni reseed offline por turno.
+  - [ ] **EST-05b — parcial.** Conectados reinicio, mundo cambiado, eventos cargados/nuevos, santuarios, diplomacia/conciliación con respuestas humanas y la secuencia económica completa; frontera RNG de SaveGame probada como plan. La preparación de combate consume32 Rand15 de sesión para las semillas; comenzar Battle copia su seed al RNG privado y creación lo continúa. Cruces comparten el RNG del log/IA. Faltan consumidores de resolución de combate, turno IA completo y guardado jugable; se mantiene rechazo del evento nativo inválido de deserción local. No inventar semillas del SAV ni reseed offline por turno.
 - [x] **EST-06** Unificar tablas y contratos heredados: fuente canónica `data::*`, adaptadores de economía, 43 campañas y helpers compartidos. Contrastes de tablas con el EXE y cabeceras compiladas juntas; no implica implementar las funciones de gameplay declaradas.
 - [ ] **EST-07** Conectar efectos reales entre módulos, sustituyendo los callbacks ausentes necesarios; no aceptar operaciones vacías como éxito.
   - [x] **EST-07a** Conexión directa del subconjunto de carga implementado y rechazo explícito de `Complete`; se eliminan asignaciones a fallbacks inexistentes en `turn_api.h`.
-  - [ ] **EST-07b — parcial.** Conectados carga→santuarios→log/IA, construcción→cobro/importación→evento→labor/caminos/puerto, obras/colas→producción real y toda la secuencia económica hasta crecimiento/moral/investigación/disturbios/balance; bajas→transporte/taskforces/refunds y diplomacia→actitudes/cola/RNG. Faltan movimiento, combate, coordinación de turno IA y presentación jugable, además de dominios inseguros documentados. Los callbacks excluidos no son una ruta alternativa.
+  - [ ] **EST-07b — parcial.** Conectados carga→santuarios→log/IA, construcción→cobro/importación→evento→labor/caminos/puerto, obras/colas→producción real y toda la secuencia económica hasta crecimiento/moral/investigación/disturbios/balance; bajas→transporte/taskforces/refunds, diplomacia→actitudes/cola/RNG y conciliación→ofertas humanas→publicación conjunta en State. El movimiento y la creación de combatientes tienen hojas aisladas; faltan sus consumidores de batalla, coordinación de turno IA y presentación jugable, además de dominios inseguros documentados. Los callbacks excluidos no son una ruta alternativa.
 - [x] **EST-08** Transacciones en las rutas propietarias implementadas: errores conservan documento, grafo, identidades, RNG e informe. Separación `Prepared`/`LoadNormalized`; la normalización parcial no puede capturarse como SAV reanudable ni avanzar turno. Una futura etapa jugable requiere cerrar EST-01/02/07.
 
 Cierre: cargar una muestra deja una sesión coherente y utilizable por la lógica,
@@ -126,7 +146,7 @@ actual no satisface este bloque.
   - [x] **CON-03a** Inicio pagado con importaciones, eventos, labor y caminos.
   - [x] **CON-03b** Ramas originales de progreso/finalización/mejora a partir del trabajo asignado, tareas/labor, relocalización, eventos y conteos, integradas en State/CLI y probadas.
   - [ ] **CON-03c — parcial.** ProcessBuildingCosts y financiación pendiente conectados después de ambos pases; activación disponible como orden local. Faltan órdenes específicas de mejora, UI y guardado intermedio jugable.
-- [ ] **CON-04 — parcial.** Activación/desactivación y locks de tareas implementados en State/CLI con transferencia a vivienda y balance, además del trabajo/reparación ya conectado. Faltan controles gráficos, cierre de ventanas con sus efectos, daños de combate y demolición de santuarios.
+- [ ] **CON-04 — parcial.** Activación/desactivación, locks y demolición individual/colectiva implementados en State/CLI, con contexto de santuarios y balance. Faltan controles gráficos, cierre de ventanas con sus efectos, daños de combate y programación de las penalizaciones diferidas tras combate.
 - [ ] **CON-05** Conectar las cinco colas de fabricación: añadir, ordenar/cancelar según permita el original, progresar y producir unidades reales.
   - [x] **CON-05a** QueueUnit/DequeueUnit propietarios con costes, imports, población de colonizadores y devoluciones originales.
   - [x] **CON-05b** ProduceUnits con financiación incremental, trabajo signed16, unidades reales, puerto, límites, repetición, eventos/IA/RNG y referencias de cola seguras.
@@ -140,7 +160,7 @@ resultado correcto tras los turnos necesarios, incluido un guardado intermedio.
 ## 4. Unidades, movimiento y exploración — pendiente
 
 - [ ] **MOV-01** Implementar órdenes, puntos de movimiento, posturas, misiones y límites de unidades.
-- [ ] **MOV-02** Calcular rutas y accesibilidad por terreno, dominio de unidad, propietario y pactos.
+- [ ] **MOV-02 — parcial.** Búsqueda de distancias00446440 y wrappers00446b3c/94 implementados para dominios1..6, pactos, ciudades/depósitos y transporte disponible, con scratch explícito y CLI de consulta. Añadidas selección004467e8 y ejecución00446084 con State/CLI, transporte, asedio y scratch persistente. Faltan autoridad/controles de la orden, descubrimiento, conquista, combate y coordinación de llegadas en el turno.
 - [ ] **MOV-03** Ejecutar movimientos, actualizar listas/posiciones y resolver ocupación, conquista o abandono de territorios.
 - [ ] **MOV-04** Implementar carga/descarga de transportes, capacidad, movimiento de pasajeros y comportamiento al perder el transporte.
 - [ ] **MOV-05** Resolver exploración, descubrimientos, santuarios, escaneo y contactos entre jugadores.
@@ -151,9 +171,9 @@ resultado correcto tras los turnos necesarios, incluido un guardado intermedio.
 Cierre: las órdenes terrestres, navales y aéreas legales se ejecutan; las ilegales
 se rechazan con una explicación; la información visible coincide con el estado.
 
-## 5. Combate completo — pendiente
+## 5. Combate completo — parcial, bloqueante
 
-- [ ] **COM-01** Implementar estadísticas efectivas: raza, tecnología, experiencia, postura, terreno y estado de abastecimiento.
+- [ ] **COM-01 — parcial.** CL-02 implementa proyección y seis estadísticas; `combat_creation` crea Warriors con colocación, retirada y RNG privado. `combat_preparation` posee pools840/1200/32, reset,32 Rand15, Battle y grid. `combat_territory` compone selección, sitios, ejércitos por ID, edificios, milicia,24 minas y defensa, guardando la semilla posterior. `movement_crossings` conecta puntuación y retiradas con State/log/IA/RNG. Falta conexión a resolución y turno exterior. Son oráculos derivados del assembly/PE; las hojas no ejecutan ni completan una batalla.
 - [ ] **COM-02** Resolver selección de objetivos, alcance, movimiento/disparo, impactos y daño con el orden y RNG originales.
 - [ ] **COM-03** Cubrir combates terrestres, navales y aéreos, defensas y enfrentamientos contra edificios/santuarios.
 - [ ] **COM-04** Implementar ataques especiales, misiles, armas nucleares y minas, con restricciones y efectos asociados.
@@ -162,6 +182,14 @@ se rechazan con una explicación; la información visible coincide con el estado
 - [ ] **COM-07** Integrar el visor y los informes de combate; su reproducción no puede cambiar ni repetir el resultado de la simulación.
 - [ ] **COM-08** Comparar casos representativos y extremos con evidencia del original, no sólo comprobar que no se bloquea.
 
+**CX-03 sigue parcial:** cruces `0045727c` con puntuación `00401108` e
+inicialización de Battle/grid `004571d4`/`00456150`/`0045209c` ya están
+implementados, junto con selección territorial `004568c8`, reconstrucción de sitios
+`00456618` y callers de edificios/milicia/minas/defensa. Sigue resolución `004526b0`,
+consecuencias y postprocesamiento. El límite terminal de economía se conserva
+hasta implementar un contrato fiel de fases. Evidencia,
+orden y dependencias en [COMBAT_TURN_SEQUENCE.md](COMBAT_TURN_SEQUENCE.md).
+
 Cierre: combates reproducibles dejan resultados correctos y persistentes; todas
 las clases y acciones disponibles tienen una ruta funcional.
 
@@ -169,7 +197,7 @@ las clases y acciones disponibles tienen una ruta funcional.
 
 - [ ] **SIS-01 — parcial.** Progreso, prerrequisitos/campaña, descubrimiento, pactos, excedentes y cola local conectados al ciclo económico. Selección/toggle/limpieza de cola implementados en State/CLI con contexto vivo explícito; hojas originales de setter/default/autoselección probadas. Faltan pantalla jugable, planificación IA e integración con el turno completo.
 - [ ] **SIS-02** Aplicar efectos tecnológicos y raciales a todos los sistemas, incluidas restricciones de campaña.
-- [ ] **SIS-03** Implementar relaciones, propuestas, aceptación/rechazo, pactos, ruptura y vencimiento, con efectos sobre acceso y hostilidad.
+- [ ] **SIS-03 / CX-02 — parcial.** Relaciones, ruptura privada/pública y propuestas entre IA implementadas con RNG y callbacks. La conciliación completa `00441400` ya conserva un cursor propietario y reanuda ofertas humanas sucesivas/anidadas mediante `State::beginAiPactReconciliation` y `answerAiPactOffer`. Mantiene el orden de callbacks y relee pactos al intersectar; documento, grafo, log, ciudades, campaña y RNG se publican juntos al finalizar. Mientras espera una respuesta, bloquea otras ediciones y rechaza tokens falsos/ajenos/viejos; los fallos conservan la continuación. Falta presentación, programación en el turno y el resto de la coordinación IA; CX-02 no se cierra por esta operación aislada.
 - [ ] **SIS-04** Ejecutar comercio, intercambios y transferencias permitidos por el original, con pagos, límites, entrega y notificaciones.
 - [ ] **SIS-05** Integrar el mercado Skirineen: disponibilidad, operaciones, costes, renovaciones y consecuencias.
 - [ ] **SIS-06** Implementar espionaje y contraespionaje: asignaciones, misiones, costes, detección, resultados y repercusiones.
@@ -195,7 +223,7 @@ turno; cambiar dificultad o raza no rompe decisiones ni objetivos de campaña.
 
 ## 8. Coordinador del turno individual — bloqueante
 
-- [ ] **TUR-01** Establecer una única secuencia original de fases, documentando el orden y las dependencias.
+- [ ] **TUR-01 — parcial.** Orden exterior confirmado en assembly y documentado en [COMBAT_TURN_SEQUENCE.md](COMBAT_TURN_SEQUENCE.md): conciliación→efectos marinos→campaña→misiones1→economía→combate→penalizaciones pendientes de santuarios→balance adicional→misiones2→AfterMove→victoria→incremento de turno. Falta convertirlo en un coordinador con etapas verificables y cerrar sus dependencias; `EconomyPhaseApplied` sigue terminal.
 - [ ] **TUR-02** Conectar órdenes humanas y de IA por una ruta local validada, sin requerir conexiones de red.
 - [ ] **TUR-03** Integrar preparación, decisiones IA, pactos, llegadas de campaña, misiones, economía, movimiento/combate y postprocesamiento.
 - [ ] **TUR-04** Situar eventos, transferencias, limpieza, ordenación, estadísticas y reconstrucciones en el punto correcto de esa secuencia.
@@ -317,7 +345,11 @@ explícitas y compatibles con el alcance acordado.
    secuencia principal y órdenes económicas locales ya están conectadas.
 3. Integrar órdenes restantes, movimiento, combate, investigación, eventos y turnos IA
    hasta obtener una partida cargada jugable. Construir su interfaz mínima en
-   paralelo con cada sistema, no dejar toda la UI para el final.
+   paralelo con cada sistema, no dejar toda la UI para el final. La conciliación
+   humana completa ya tiene cursor/State; ahora faltan su presentación y lugar
+   en el turno. Para combate, seguir con preparación territorial y los callers
+   de edificios/milicia/minas, después ticks y consecuencias según
+   [COMBAT_TURN_SEQUENCE.md](COMBAT_TURN_SEQUENCE.md).
 4. Cerrar el ciclo completo: nueva partida, victoria/derrota, guardado/reanudación,
    diplomacia/espionaje y todas las reglas aún no usadas por ese primer recorrido.
 5. Completar tutorial y todas las campañas, interfaz/presentación restantes,
@@ -346,10 +378,14 @@ opcional: una partida básica terminable es un hito intermedio, no el 100% offli
 - [CMake de lógica](../src/game/CMakeLists.txt), [CMake de aplicación](../src/CMakeLists.txt) y [pruebas](../tests/CMakeLists.txt): qué está realmente integrado.
 - [economy.h](../src/game/economy.h), [turn_api.h](../src/game/turn_api.h), [newgame.h](../src/game/newgame.h), [campaign_flow.h](../src/game/campaign_flow.h) y cabeceras IA: inventario pendiente, no prueba de implementación.
 - [RECOVERY](RECOVERY.md): origen del trabajo y resultados de verificaciones anteriores.
+- [COMBAT_TURN_SEQUENCE](COMBAT_TURN_SEQUENCE.md): callers, orden exterior confirmado, preparación/resolución pendientes y próximos paquetes; enlaza exports locales de assembly.
 
-La revisión inicial sólo produjo documentación. El lote posterior de trabajo
-laboral sí compiló y ejecutó las 21 pruebas en ambos builds. No ejecutó una
-partida completa del port: todavía no existe esa capacidad.
+La revisión inicial sólo produjo documentación. Los lotes posteriores sí
+implementaron, integraron y probaron las hojas descritas; la verificación final
+actual pasa 84/84 pruebas en ambos builds y mantiene las 46 comparaciones binarias
+exactas. Estas pruebas y los oráculos de assembly no equivalen a una comparación
+diferencial de combates ejecutados en el original. No se ejecutó una partida
+completa del port: todavía no existe esa capacidad.
 Los nombres/comentarios heredados pueden ser incorrectos; cada implementación
 debe confirmarse con evidencia y pruebas antes de cerrar su casilla.
 Por ejemplo, algunas cabeceras citan tests, fallbacks o documentos todavía

@@ -1,0 +1,69 @@
+// Program: DEADLOCK.EXE
+// Language: x86:LE:32:default
+// Compiler: borlandcpp
+// Function: 00416c28 FUN_00416c28
+
+undefined4 __stdcall FUN_00416c28(int param_1,int param_2)
+
+{
+  char cVar1;
+  undefined4 uVar2;
+  
+  cVar1 = (&DAT_004faf87)[param_2 * 0x24];
+  if ((((param_2 == 0x18) || (param_2 == 0xb)) ||
+      ((*(short *)(&DAT_0055a0f4 + (char)(&DAT_0059f162)[param_1 * 0x2d8] * 2) != 0 &&
+       ((cVar1 == '\x01' || (cVar1 == '\v')))))) ||
+     (((1 << ((byte)param_1 & 0x1f) & (int)DAT_004fc412) != 0 &&
+      (((param_2 == 0xc || (cVar1 == '\x01')) || (cVar1 == '\v')))))) {
+    uVar2 = 1;
+  }
+  else {
+    uVar2 = 0;
+  }
+  return uVar2;
+}
+
+
+/* ASSEMBLY
+00416c28  PUSH EBP
+00416c29  MOV EBP,ESP
+00416c2b  PUSH EBX
+00416c2c  MOV EDX,dword ptr [EBP + 0xc]
+00416c2f  MOV EBX,dword ptr [EBP + 0x8]
+00416c32  LEA EAX,[EBX + EBX*0x2]
+00416c35  SHL EAX,0x3
+00416c38  SUB EAX,EBX
+00416c3a  SHL EAX,0x2
+00416c3d  SUB EAX,EBX
+00416c3f  MOVSX ECX,byte ptr [EAX*0x8 + 0x59f162]
+00416c47  LEA EAX,[EDX + EDX*0x8]
+00416c4a  MOVSX EAX,byte ptr [EAX*0x4 + 0x4faf87]
+00416c52  CMP EDX,0x18
+00416c55  JZ 0x00416c94
+00416c57  CMP EDX,0xb
+00416c5a  JZ 0x00416c94
+00416c5c  CMP word ptr [ECX*0x2 + 0x55a0f4],0x0
+00416c65  JZ 0x00416c71
+00416c67  CMP EAX,0x1
+00416c6a  JZ 0x00416c94
+00416c6c  CMP EAX,0xb
+00416c6f  JZ 0x00416c94
+00416c71  MOV ECX,EBX
+00416c73  MOV EBX,0x1
+00416c78  SHL EBX,CL
+00416c7a  MOVSX ECX,word ptr [0x004fc412]
+00416c81  AND EBX,ECX
+00416c83  JZ 0x00416c9b
+00416c85  CMP EDX,0xc
+00416c88  JZ 0x00416c94
+00416c8a  CMP EAX,0x1
+00416c8d  JZ 0x00416c94
+00416c8f  CMP EAX,0xb
+00416c92  JNZ 0x00416c9b
+00416c94  MOV EAX,0x1
+00416c99  JMP 0x00416c9d
+00416c9b  XOR EAX,EAX
+00416c9d  POP EBX
+00416c9e  POP EBP
+00416c9f  RET 0x8
+*/

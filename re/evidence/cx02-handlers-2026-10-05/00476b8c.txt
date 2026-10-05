@@ -1,0 +1,113 @@
+// Program: DEADLOCK.EXE
+// Language: x86:LE:32:default
+// Compiler: borlandcpp
+// Function: 00476b8c FUN_00476b8c
+
+void __stdcall FUN_00476b8c(int param_1)
+
+{
+  int iVar1;
+  uint uVar2;
+  
+  uVar2 = (uint)*(ushort *)(param_1 + 0x1c);
+  if (uVar2 != DAT_0058f1f4) {
+    if ((char)(&DAT_0059f161)[uVar2 * 0x2d8] < '\x03') {
+      return;
+    }
+    if (DAT_0058f1f4 != DAT_004d5a58) {
+      return;
+    }
+  }
+  if (*(int *)(&DAT_006534fc + uVar2 * 4) == 0) {
+    FUN_004767f0();
+    if (uVar2 == DAT_0058f1f4) {
+      iVar1 = FUN_0042d3dc();
+    }
+    else {
+      iVar1 = FUN_00406c64();
+    }
+    if (iVar1 == 1) {
+      FUN_004767f0();
+    }
+    else {
+      FUN_004767f0();
+    }
+    FUN_004767f0();
+  }
+  else {
+    FUN_004767f0();
+  }
+  return;
+}
+
+
+/* ASSEMBLY
+00476b8c  PUSH EBP
+00476b8d  MOV EBP,ESP
+00476b8f  PUSH EBX
+00476b90  PUSH ESI
+00476b91  PUSH EDI
+00476b92  MOV EAX,dword ptr [EBP + 0x8]
+00476b95  MOVZX EDI,word ptr [EAX + 0x18]
+00476b99  MOVZX ESI,word ptr [EAX + 0x1a]
+00476b9d  MOVZX EBX,word ptr [EAX + 0x1c]
+00476ba1  MOV EAX,[0x0058f1f4]
+00476ba6  CMP EBX,EAX
+00476ba8  JZ 0x00476bd3
+00476baa  LEA EDX,[EBX + EBX*0x2]
+00476bad  SHL EDX,0x3
+00476bb0  SUB EDX,EBX
+00476bb2  SHL EDX,0x2
+00476bb5  SUB EDX,EBX
+00476bb7  MOVSX ECX,byte ptr [EDX*0x8 + 0x59f161]
+00476bbf  CMP ECX,0x3
+00476bc2  JL 0x00476c3c
+00476bc4  MOV EAX,[0x0058f1f4]
+00476bc9  MOV EDX,dword ptr [0x004d5a58]
+00476bcf  CMP EAX,EDX
+00476bd1  JNZ 0x00476c3c
+00476bd3  MOV ECX,dword ptr [EBX*0x4 + 0x6534fc]
+00476bda  TEST ECX,ECX
+00476bdc  JZ 0x00476be8
+00476bde  PUSH 0x1
+00476be0  PUSH ESI
+00476be1  CALL 0x004767f0
+00476be6  JMP 0x00476c3c
+00476be8  PUSH 0x2
+00476bea  PUSH EBX
+00476beb  CALL 0x004767f0
+00476bf0  MOV EAX,[0x0058f1f4]
+00476bf5  CMP EBX,EAX
+00476bf7  JNZ 0x00476c17
+00476bf9  LEA EDX,[ESI + ESI*0x2]
+00476bfc  SHL EDX,0x3
+00476bff  SUB EDX,ESI
+00476c01  SHL EDX,0x2
+00476c04  SUB EDX,ESI
+00476c06  MOVSX ECX,byte ptr [EDX*0x8 + 0x59f162]
+00476c0e  PUSH ECX
+00476c0f  PUSH EDI
+00476c10  CALL 0x0042d3dc
+00476c15  JMP 0x00476c1f
+00476c17  PUSH EDI
+00476c18  PUSH EBX
+00476c19  PUSH ESI
+00476c1a  CALL 0x00406c64
+00476c1f  DEC EAX
+00476c20  JNZ 0x00476c2c
+00476c22  PUSH 0x3
+00476c24  PUSH ESI
+00476c25  CALL 0x004767f0
+00476c2a  JMP 0x00476c34
+00476c2c  PUSH 0x4
+00476c2e  PUSH ESI
+00476c2f  CALL 0x004767f0
+00476c34  PUSH 0x0
+00476c36  PUSH EBX
+00476c37  CALL 0x004767f0
+00476c3c  POP EDI
+00476c3d  POP ESI
+00476c3e  POP EBX
+00476c3f  POP EBP
+00476c40  RET 0x4
+*/

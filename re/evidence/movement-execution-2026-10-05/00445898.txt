@@ -1,0 +1,119 @@
+// Program: DEADLOCK.EXE
+// Language: x86:LE:32:default
+// Compiler: borlandcpp
+// Function: 00445898 FUN_00445898
+
+undefined4 __stdcall FUN_00445898(int param_1,undefined4 param_2,int *param_3,int *param_4)
+
+{
+  int iVar1;
+  undefined4 uVar2;
+  
+  if (param_4 == param_3) {
+    uVar2 = 1;
+  }
+  else {
+    FUN_004455fc();
+    for (iVar1 = *param_3; iVar1 != 0; iVar1 = *(int *)(iVar1 + 0x54)) {
+      if (param_1 == iVar1) {
+        if (*(int *)(param_1 + 0x58) != 0) {
+          *(undefined4 *)(*(int *)(param_1 + 0x58) + 0x54) = *(undefined4 *)(param_1 + 0x54);
+        }
+        if (*(int *)(param_1 + 0x54) != 0) {
+          *(undefined4 *)(*(int *)(param_1 + 0x54) + 0x58) = *(undefined4 *)(param_1 + 0x58);
+        }
+        if (param_1 == *param_3) {
+          *param_3 = *(int *)(param_1 + 0x54);
+        }
+        if (*param_4 != 0) {
+          *(int *)(*param_4 + 0x58) = param_1;
+        }
+        *(int *)(param_1 + 0x54) = *param_4;
+        *(undefined4 *)(param_1 + 0x58) = 0;
+        *param_4 = param_1;
+        *(undefined4 *)(param_1 + 0x3c) = param_2;
+        FUN_004455fc();
+        return 1;
+      }
+    }
+    if (DAT_0058f1fc == 0) {
+      uVar2 = 0;
+    }
+    else {
+      FUN_00458990();
+      uVar2 = 0;
+    }
+  }
+  return uVar2;
+}
+
+
+/* ASSEMBLY
+00445898  PUSH EBP
+00445899  MOV EBP,ESP
+0044589b  PUSH EBX
+0044589c  PUSH ESI
+0044589d  PUSH EDI
+0044589e  MOV ESI,dword ptr [EBP + 0x14]
+004458a1  MOV EDI,dword ptr [EBP + 0x10]
+004458a4  MOV EBX,dword ptr [EBP + 0x8]
+004458a7  CMP ESI,EDI
+004458a9  JNZ 0x004458b5
+004458ab  MOV EAX,0x1
+004458b0  JMP 0x00445939
+004458b5  PUSH 0x6
+004458b7  CALL 0x004455fc
+004458bc  MOV EAX,dword ptr [EDI]
+004458be  TEST EAX,EAX
+004458c0  JZ 0x0044591b
+004458c2  CMP EBX,EAX
+004458c4  JNZ 0x00445914
+004458c6  MOV EAX,dword ptr [EBX + 0x58]
+004458c9  TEST EAX,EAX
+004458cb  JZ 0x004458d3
+004458cd  MOV EDX,dword ptr [EBX + 0x54]
+004458d0  MOV dword ptr [EAX + 0x54],EDX
+004458d3  MOV EAX,dword ptr [EBX + 0x54]
+004458d6  TEST EAX,EAX
+004458d8  JZ 0x004458e0
+004458da  MOV EDX,dword ptr [EBX + 0x58]
+004458dd  MOV dword ptr [EAX + 0x58],EDX
+004458e0  MOV ECX,dword ptr [EDI]
+004458e2  CMP EBX,ECX
+004458e4  JNZ 0x004458eb
+004458e6  MOV EAX,dword ptr [EBX + 0x54]
+004458e9  MOV dword ptr [EDI],EAX
+004458eb  MOV EAX,dword ptr [ESI]
+004458ed  TEST EAX,EAX
+004458ef  JZ 0x004458f4
+004458f1  MOV dword ptr [EAX + 0x58],EBX
+004458f4  MOV EDX,dword ptr [ESI]
+004458f6  MOV dword ptr [EBX + 0x54],EDX
+004458f9  XOR ECX,ECX
+004458fb  MOV dword ptr [EBX + 0x58],ECX
+004458fe  MOV dword ptr [ESI],EBX
+00445900  MOV EAX,dword ptr [EBP + 0xc]
+00445903  MOV dword ptr [EBX + 0x3c],EAX
+00445906  PUSH 0x7
+00445908  CALL 0x004455fc
+0044590d  MOV EAX,0x1
+00445912  JMP 0x00445939
+00445914  MOV EAX,dword ptr [EAX + 0x54]
+00445917  TEST EAX,EAX
+00445919  JNZ 0x004458c2
+0044591b  MOV EDX,dword ptr [0x0058f1fc]
+00445921  TEST EDX,EDX
+00445923  JZ 0x00445937
+00445925  TEST EAX,EAX
+00445927  JNZ 0x00445937
+00445929  PUSH 0x4c5319
+0044592e  CALL 0x00458990
+00445933  XOR EAX,EAX
+00445935  JMP 0x00445939
+00445937  XOR EAX,EAX
+00445939  POP EDI
+0044593a  POP ESI
+0044593b  POP EBX
+0044593c  POP EBP
+0044593d  RET 0x10
+*/

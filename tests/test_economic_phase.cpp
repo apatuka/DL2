@@ -93,6 +93,15 @@ void connected() {
     const auto final=bytes(*state.document()); const auto steps=r->completed; const auto rng=state.sessionRng();
     check(!state.runEconomicPhase(c,*r,e) && !state.capture(*pure,e) && !state.advanceTurn(e),"cannot repeat/export/advance whole turn");
     UnitDequeueReport dq; check(!state.dequeueUnit({1,1,0},dq,e),"terminal phase cannot accept further structural experiments");
+    MovementCrossingsContext crossingContext;
+    crossingContext.ai = *state.aiReactionContext(); crossingContext.log = *state.loadedEvents();
+    crossingContext.cities = *state.eventCities();
+    if (state.buildingRemovalContext()) crossingContext.campaign = *state.buildingRemovalContext();
+    MovementCrossingsReport crossingReport;
+    check(!state.resolveMovementCrossings(crossingContext,crossingReport,e) &&
+          e.message == "Structural entity edits require a prepared or structurally edited state" &&
+          crossingReport.crossings.empty() && state.stage()==runtime::Stage::EconomyPhaseApplied,
+          "crossings must not bypass the missing phase contract after economics");
     check(bytes(*state.document())==final && r->completed==steps && state.sessionRng()==rng,"failed operations preserve final state/report");
 }
 void lateRollback() {

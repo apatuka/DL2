@@ -1,0 +1,55 @@
+// Program: DEADLOCK.EXE
+// Language: x86:LE:32:default
+// Compiler: borlandcpp
+// Function: 00451508 FUN_00451508
+
+undefined4 __stdcall FUN_00451508(void)
+
+{
+  int iVar1;
+  undefined4 uVar2;
+  
+  iVar1 = FUN_00450de0();
+  if (iVar1 == 0) {
+    uVar2 = 0;
+  }
+  else {
+    FUN_00450f84();
+    uVar2 = FUN_00448314();
+    *(byte *)(DAT_0057cdf8 + 0x84) = *(byte *)(DAT_0057cdf8 + 0x84) | (byte)uVar2;
+  }
+  return uVar2;
+}
+
+
+/* ASSEMBLY
+00451508  PUSH EBP
+00451509  MOV EBP,ESP
+0045150b  PUSH EBX
+0045150c  PUSH ESI
+0045150d  PUSH EDI
+0045150e  MOV EBX,dword ptr [EBP + 0x8]
+00451511  PUSH EBX
+00451512  CALL 0x00450de0
+00451517  TEST EAX,EAX
+00451519  JNZ 0x0045151f
+0045151b  XOR EAX,EAX
+0045151d  JMP 0x00451546
+0045151f  MOV EDX,dword ptr [EBX]
+00451521  MOV EAX,[0x0057cdf8]
+00451526  MOV EDI,dword ptr [EAX + 0x4]
+00451529  MOV ESI,dword ptr [EDX + 0x40]
+0045152c  PUSH EBX
+0045152d  CALL 0x00450f84
+00451532  PUSH EAX
+00451533  PUSH EDI
+00451534  PUSH ESI
+00451535  CALL 0x00448314
+0045153a  MOV EDX,dword ptr [0x0057cdf8]
+00451540  OR byte ptr [EDX + 0x84],AL
+00451546  POP EDI
+00451547  POP ESI
+00451548  POP EBX
+00451549  POP EBP
+0045154a  RET 0x4
+*/

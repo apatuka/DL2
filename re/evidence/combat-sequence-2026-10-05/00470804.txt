@@ -1,0 +1,813 @@
+// Program: DEADLOCK.EXE
+// Language: x86:LE:32:default
+// Compiler: borlandcpp
+// Function: 00470804 FUN_00470804
+
+undefined4 __stdcall FUN_00470804(undefined4 param_1,int param_2)
+
+{
+  short sVar1;
+  HWND hWnd;
+  undefined4 uVar2;
+  int iVar3;
+  HDC hdc;
+  
+  DAT_0058f19c = param_1;
+  hWnd = FindWindowA(s_XenoMainWnd_004d594c,(LPCSTR)0x0);
+  if (hWnd == (HWND)0x0) {
+    FUN_004586f4();
+    FUN_00458a5c();
+    FUN_0046fa7c();
+    iVar3 = FUN_0046fae4();
+    if (iVar3 == 0) {
+      uVar2 = 0;
+    }
+    else {
+      FUN_0046cc14();
+      (*(code *)PTR_FUN_004d5c14)();
+      FUN_00441a44();
+      FUN_00477f98();
+      if ((param_2 == 0) && (iVar3 = FUN_0046cb4c(), iVar3 == 0)) {
+        return 0xffffffff;
+      }
+      sVar1 = FUN_0046cc6c();
+      if (sVar1 == 0) {
+        timeGetTime();
+        FUN_0046ca60();
+        sVar1 = FUN_0046cca4();
+        if (sVar1 == 0) {
+          iVar3 = FUN_0046fca4();
+          if (iVar3 == 0) {
+            uVar2 = 0xffffffff;
+          }
+          else {
+            FUN_004587f0();
+            hdc = GetDC((HWND)0x0);
+            iVar3 = GetDeviceCaps(hdc,0x18);
+            if (iVar3 == 0x10) {
+              FUN_0042836c();
+            }
+            ReleaseDC((HWND)0x0,hdc);
+            FUN_00465e20();
+            FUN_004587f0();
+            FUN_00494def();
+            iVar3 = FUN_00467078();
+            if (iVar3 == 0) {
+              FUN_00494def();
+              FUN_004587f0();
+              FUN_00487bdc();
+              FUN_004587f0();
+              FUN_00487b80();
+              FUN_004b3dbc();
+              FUN_004ae594();
+              iVar3 = FUN_00470050();
+              if (iVar3 == 0) {
+                uVar2 = 0xfffffffc;
+              }
+              else {
+                FUN_0046c9f8();
+                if (DAT_004d5ab0 != 0) {
+                  iVar3 = (DAT_004d5adc * 3000) / 100 + -3000;
+                  FUN_00482f6c(iVar3,(DAT_004d5adc * 3000) % 100,100,iVar3);
+                }
+                if (DAT_004d5aac != 0) {
+                  iVar3 = (DAT_004d5ad8 * 3000) / 100 + -3000;
+                  FUN_00482f3c(iVar3,(DAT_004d5ad8 * 3000) % 100,100,iVar3);
+                }
+                while (DAT_0058f1f0 == 0) {
+                  if (DAT_004d5ab0 == 0) {
+                    FUN_00482f6c();
+                  }
+                  if (DAT_004d5aac == 0) {
+                    FUN_00482f3c();
+                  }
+                  DAT_004d59b4 = 0x32;
+                  FUN_0046ffec();
+                  if (DAT_004d59b4 != 0x2a) {
+                    FUN_00436098();
+                    FUN_00436064();
+                  }
+                  FUN_004587f0();
+                  FUN_0046f94c();
+                  FUN_004587f0();
+                  FUN_00425690();
+                  FUN_004587f0();
+                  FUN_00465e54();
+                  if (DAT_004d5aa0 == '\0') {
+                    FUN_00482b38();
+                  }
+                  FUN_004587f0();
+                  FUN_0046da14();
+                  FUN_00470554();
+                  FUN_004579a4();
+                  FUN_004587f0();
+                  iVar3 = FUN_00469074();
+                  if (iVar3 == 0) break;
+                  if (((DAT_004d598c == 0) && (DAT_0058f1ec == 0)) &&
+                     (FUN_0046d4ac(), DAT_0058f1ec == 0)) {
+                    FUN_0046e730();
+                    FUN_0046f5d4();
+                    DAT_0059f154 = 1;
+                  }
+                  FUN_00458840();
+                  if (DAT_0058f1ec == 0) {
+                    if (DAT_004d59b4 != 0x2a) {
+                      FUN_00436098();
+                    }
+                    if (DAT_004d598c == 0) {
+                      FUN_00486910();
+                      FUN_004842e4();
+                    }
+                    FUN_00486964();
+                    FUN_0046c1a8();
+                    FUN_0046e338();
+                    FUN_0043aa88();
+                    if (DAT_004d59b4 == 0x2a) {
+                      FUN_004360ec();
+                    }
+                    DAT_004d59b4 = 0;
+                    FUN_004a5b1c();
+                    FUN_0044a000();
+                    FUN_004152e0();
+                    FUN_0049117e();
+                    FUN_00414a30();
+                    FUN_00414e74();
+                    FUN_004658a8();
+                    FUN_004149fc();
+                    FUN_004152ec();
+                    FUN_00450b20();
+                    if (DAT_004d598c == 0) {
+                      FUN_004238c8();
+                    }
+                    if (DAT_004d5aa0 == '\0') {
+                      FUN_00482b38();
+                    }
+                    DAT_004d59a8 = 0;
+                  }
+                  DAT_004d59bc = 1;
+                  while (DAT_0058f1ec == 0) {
+                    iVar3 = FUN_0045add0();
+                    if ((iVar3 == 1) && (DAT_004d5a50 != 0)) {
+                      FUN_00478090();
+                    }
+                    if ((DAT_0058f1fc == 0) && (DAT_004d5b34 != 0)) {
+                      DAT_004d5b34 = 0;
+                    }
+                    if (DAT_004d598c == 0) {
+                      FUN_0047d71c();
+                    }
+                    FUN_004589a0();
+                    FUN_004589a0();
+                    FUN_0046ed64();
+                    if (DAT_0058f1ec == 0) {
+                      FUN_004152ec();
+                      if (DAT_004d598c == 0) {
+                        FUN_00471b3c();
+                      }
+                      FUN_004589a0();
+                      FUN_0046f804();
+                      FUN_004589a0();
+                      FUN_0046c780();
+                      FUN_004589a0();
+                      FUN_0046eea0();
+                      FUN_004589a0();
+                      DAT_005644d4 = 1;
+                      FUN_0046f0e0();
+                      FUN_00482668();
+                      if ((DAT_0058f1fc != 0) && (DAT_004d5a78 != 0)) {
+                        FUN_00427ee8();
+                        DAT_004d5a78 = 0;
+                      }
+                      if (DAT_0059f154 == 1) {
+                        FUN_00470740();
+                      }
+                      FUN_004589a0();
+                      FUN_0045f2d8();
+                      if (DAT_0058f1fc != 0) {
+                        FUN_00427eb4();
+                        FUN_00427f04();
+                        DAT_004d5a78 = 1;
+                      }
+                      FUN_0046fa54();
+                      FUN_004589a0();
+                      FUN_00470740();
+                      FUN_00405378();
+                      if (DAT_0058f1ec == 0) {
+                        FUN_004589a0();
+                        FUN_004152e0();
+                        DAT_005644d4 = 0;
+                        FUN_004589a0();
+                        FUN_004238c8();
+                        FUN_004589a0();
+                        FUN_0046ee88();
+                        FUN_004589a0();
+                        FUN_004878a8();
+                        FUN_004589a0();
+                        FUN_0046ed64();
+                        FUN_004589a0();
+                        FUN_0046f938();
+                        FUN_00441400();
+                        FUN_0046f404();
+                        if (DAT_0058f1ec == 0) {
+                          FUN_0047c730();
+                          FUN_004589a0();
+                          FUN_00485668();
+                          FUN_004589a0();
+                          FUN_0046c7d4();
+                          if (DAT_0058f1fc != 0) {
+                            FUN_0046e9f4();
+                            FUN_0047b3a8();
+                            FUN_0046e9f4();
+                            FUN_0044cabc();
+                            FUN_00445710();
+                          }
+                          FUN_004589a0();
+                          FUN_00457624();
+                          FUN_0044b9e4();
+                          FUN_004589a0();
+                          FUN_0046c780();
+                          FUN_004589a0();
+                          FUN_00485668();
+                          FUN_004589a0();
+                          FUN_0046e730();
+                          FUN_004589a0();
+                          FUN_00486e34();
+                        }
+                      }
+                      FUN_004589a0();
+                      for (iVar3 = 0; iVar3 < DAT_004d5aec; iVar3 = iVar3 + 1) {
+                        FUN_0046ac44();
+                      }
+                      if (DAT_0058f1fc != 0) {
+                        if (DAT_0058f1ec == 0) {
+                          if ((DAT_0058f1fc != 0) && (DAT_0058f1f4 != DAT_004d5a58)) {
+                            FUN_0049117e();
+                            FUN_0049117e();
+                            FUN_00427eb4();
+                          }
+                          FUN_0046e9f4();
+                          if ((DAT_0058f1fc != 0) && (DAT_0058f1f4 != DAT_004d5a58)) {
+                            FUN_0047b3a8();
+                          }
+                          FUN_0046e9f4();
+                          if ((DAT_0058f1fc != 0) && (DAT_0058f1f4 != DAT_004d5a58)) {
+                            FUN_00427ee8();
+                          }
+                        }
+                        FUN_0044cabc();
+                        FUN_00445710();
+                      }
+                    }
+                    FUN_004152ec();
+                    DAT_0059f154 = DAT_0059f154 + 1;
+                  }
+                  if ((DAT_0058f1fc != 0) && (DAT_004d5a78 != 0)) {
+                    FUN_00427ee8();
+                    DAT_004d5a78 = 0;
+                  }
+                  FUN_00467754();
+                  FUN_0046ce10();
+                  if (DAT_004d59b4 == 0x2a) {
+                    FUN_004360ec();
+                    DAT_004d59b4 = 0x32;
+                  }
+                }
+                FUN_0046ced4();
+                uVar2 = 0;
+              }
+            }
+            else {
+              uVar2 = 0xfffffffc;
+            }
+          }
+        }
+        else {
+          uVar2 = 0xfffffffd;
+        }
+      }
+      else {
+        uVar2 = 0xfffffffe;
+      }
+    }
+  }
+  else {
+    SetForegroundWindow(hWnd);
+    uVar2 = 0;
+  }
+  return uVar2;
+}
+
+
+/* ASSEMBLY
+00470804  PUSH EBP
+00470805  MOV EBP,ESP
+00470807  ADD ESP,0xfffffe34
+0047080d  PUSH EBX
+0047080e  PUSH ESI
+0047080f  MOV EBX,dword ptr [EBP + 0x8]
+00470812  MOV dword ptr [0x0058f19c],EBX
+00470818  PUSH 0x0
+0047081a  PUSH 0x4d594c
+0047081f  CALL 0x004b41af
+00470824  MOV ESI,EAX
+00470826  TEST EAX,EAX
+00470828  JZ 0x00470837
+0047082a  PUSH ESI
+0047082b  CALL 0x004b40b9
+00470830  XOR EAX,EAX
+00470832  JMP 0x00470fb8
+00470837  CALL 0x004586f4
+0047083c  CALL 0x00458a5c
+00470841  PUSH 0x14
+00470843  LEA EDX,[EBP + -0x4c]
+00470846  PUSH EDX
+00470847  MOV ECX,dword ptr [EBP + 0x10]
+0047084a  PUSH ECX
+0047084b  CALL 0x0046fa7c
+00470850  INC EAX
+00470851  LEA EDX,[EBP + -0x50]
+00470854  PUSH EDX
+00470855  PUSH EAX
+00470856  CALL 0x0046fae4
+0047085b  TEST EAX,EAX
+0047085d  JNZ 0x00470866
+0047085f  XOR EAX,EAX
+00470861  JMP 0x00470fb8
+00470866  CALL 0x0046cc14
+0047086b  PUSH EBX
+0047086c  CALL dword ptr [0x004d5c14]
+00470872  CALL 0x00441a44
+00470877  CALL 0x00477f98
+0047087c  MOV ECX,dword ptr [EBP + 0xc]
+0047087f  TEST ECX,ECX
+00470881  JNZ 0x00470895
+00470883  PUSH EBX
+00470884  CALL 0x0046cb4c
+00470889  TEST EAX,EAX
+0047088b  JNZ 0x00470895
+0047088d  OR EAX,0xffffffff
+00470890  JMP 0x00470fb8
+00470895  PUSH EBX
+00470896  CALL 0x0046cc6c
+0047089b  TEST AX,AX
+0047089e  JZ 0x004708aa
+004708a0  MOV EAX,0xfffffffe
+004708a5  JMP 0x00470fb8
+004708aa  CALL 0x004b4263
+004708af  PUSH EAX
+004708b0  CALL 0x0046ca60
+004708b5  MOV EDX,dword ptr [EBP + 0x14]
+004708b8  PUSH EDX
+004708b9  CALL 0x0046cca4
+004708be  TEST AX,AX
+004708c1  JZ 0x004708cd
+004708c3  MOV EAX,0xfffffffd
+004708c8  JMP 0x00470fb8
+004708cd  MOV EDX,dword ptr [0x0058f1a4]
+004708d3  PUSH EDX
+004708d4  PUSH EBX
+004708d5  CALL 0x0046fca4
+004708da  TEST EAX,EAX
+004708dc  JNZ 0x004708e6
+004708de  OR EAX,0xffffffff
+004708e1  JMP 0x00470fb8
+004708e6  PUSH 0x4d5e2c
+004708eb  CALL 0x004587f0
+004708f0  PUSH 0x0
+004708f2  CALL 0x004b4191
+004708f7  MOV EBX,EAX
+004708f9  PUSH 0x18
+004708fb  PUSH EBX
+004708fc  CALL 0x004b42f9
+00470901  CMP EAX,0x10
+00470904  JNZ 0x0047091e
+00470906  PUSH 0x0
+00470908  PUSH 0x0
+0047090a  PUSH 0x4
+0047090c  MOV EAX,[0x00509838]
+00470911  PUSH EAX
+00470912  MOV EDX,dword ptr [0x00509834]
+00470918  PUSH EDX
+00470919  CALL 0x0042836c
+0047091e  PUSH EBX
+0047091f  PUSH 0x0
+00470921  CALL 0x004b40ef
+00470926  CALL 0x00465e20
+0047092b  PUSH 0x4d5e3a
+00470930  CALL 0x004587f0
+00470935  PUSH 0x0
+00470937  CALL 0x00494def
+0047093c  CALL 0x00467078
+00470941  TEST EAX,EAX
+00470943  JZ 0x0047094f
+00470945  MOV EAX,0xfffffffc
+0047094a  JMP 0x00470fb8
+0047094f  PUSH 0x1
+00470951  CALL 0x00494def
+00470956  PUSH 0x4d5e40
+0047095b  CALL 0x004587f0
+00470960  CALL 0x00487bdc
+00470965  PUSH 0x4d5e4c
+0047096a  CALL 0x004587f0
+0047096f  CALL 0x00487b80
+00470974  PUSH 0x0
+00470976  CALL 0x004b3dbc
+0047097b  POP ECX
+0047097c  PUSH EAX
+0047097d  CALL 0x004ae594
+00470982  POP ECX
+00470983  CALL 0x00470050
+00470988  TEST EAX,EAX
+0047098a  JNZ 0x00470996
+0047098c  MOV EAX,0xfffffffc
+00470991  JMP 0x00470fb8
+00470996  CALL 0x0046c9f8
+0047099b  MOV EDX,dword ptr [0x004d5ab0]
+004709a1  TEST EDX,EDX
+004709a3  JZ 0x004709cc
+004709a5  MOV EAX,[0x004d5adc]
+004709aa  SHL EAX,0x3
+004709ad  LEA EAX,[EAX + EAX*0x2]
+004709b0  LEA EAX,[EAX + EAX*0x4]
+004709b3  LEA EAX,[EAX + EAX*0x4]
+004709b6  LEA EAX,[EAX + EAX*0x4]
+004709b9  MOV ECX,0x64
+004709be  CDQ
+004709bf  IDIV ECX
+004709c1  ADD EAX,0xfffff448
+004709c6  PUSH EAX
+004709c7  CALL 0x00482f6c
+004709cc  MOV EAX,[0x004d5aac]
+004709d1  TEST EAX,EAX
+004709d3  JZ 0x00470fa4
+004709d9  MOV EAX,[0x004d5ad8]
+004709de  SHL EAX,0x3
+004709e1  LEA EAX,[EAX + EAX*0x2]
+004709e4  LEA EAX,[EAX + EAX*0x4]
+004709e7  LEA EAX,[EAX + EAX*0x4]
+004709ea  LEA EAX,[EAX + EAX*0x4]
+004709ed  MOV ECX,0x64
+004709f2  CDQ
+004709f3  IDIV ECX
+004709f5  ADD EAX,0xfffff448
+004709fa  PUSH EAX
+004709fb  CALL 0x00482f3c
+00470a00  JMP 0x00470fa4
+00470a05  MOV EAX,[0x004d5ab0]
+00470a0a  TEST EAX,EAX
+00470a0c  JNZ 0x00470a18
+00470a0e  PUSH 0xffffd8f0
+00470a13  CALL 0x00482f6c
+00470a18  MOV EDX,dword ptr [0x004d5aac]
+00470a1e  TEST EDX,EDX
+00470a20  JNZ 0x00470a2c
+00470a22  PUSH 0xffffd8f0
+00470a27  CALL 0x00482f3c
+00470a2c  MOV dword ptr [0x004d59b4],0x32
+00470a36  CALL 0x0046ffec
+00470a3b  MOV ECX,dword ptr [0x004d59b4]
+00470a41  CMP ECX,0x2a
+00470a44  JZ 0x00470a50
+00470a46  CALL 0x00436098
+00470a4b  CALL 0x00436064
+00470a50  PUSH 0x4d5e58
+00470a55  CALL 0x004587f0
+00470a5a  CALL 0x0046f94c
+00470a5f  PUSH 0x4d5e63
+00470a64  CALL 0x004587f0
+00470a69  CALL 0x00425690
+00470a6e  PUSH 0x4d5e6c
+00470a73  CALL 0x004587f0
+00470a78  CALL 0x00465e54
+00470a7d  MOV AL,[0x004d5aa0]
+00470a82  TEST AL,AL
+00470a84  JNZ 0x00470a8f
+00470a86  PUSH 0x0
+00470a88  PUSH 0x1
+00470a8a  CALL 0x00482b38
+00470a8f  PUSH 0x4d5e7b
+00470a94  CALL 0x004587f0
+00470a99  PUSH 0x1
+00470a9b  CALL 0x0046da14
+00470aa0  CALL 0x00470554
+00470aa5  CALL 0x004579a4
+00470aaa  PUSH 0x4d5e8a
+00470aaf  CALL 0x004587f0
+00470ab4  CALL 0x00469074
+00470ab9  TEST EAX,EAX
+00470abb  JZ 0x00470fb1
+00470ac1  MOV EDX,dword ptr [0x004d598c]
+00470ac7  TEST EDX,EDX
+00470ac9  JNZ 0x00470af9
+00470acb  MOV ECX,dword ptr [0x0058f1ec]
+00470ad1  TEST ECX,ECX
+00470ad3  JNZ 0x00470af9
+00470ad5  CALL 0x0046d4ac
+00470ada  MOV EAX,[0x0058f1ec]
+00470adf  TEST EAX,EAX
+00470ae1  JNZ 0x00470af9
+00470ae3  PUSH 0x0
+00470ae5  CALL 0x0046e730
+00470aea  CALL 0x0046f5d4
+00470aef  MOV dword ptr [0x0059f154],0x1
+00470af9  CALL 0x00458840
+00470afe  MOV EDX,dword ptr [0x0058f1ec]
+00470b04  TEST EDX,EDX
+00470b06  JNZ 0x00470bd1
+00470b0c  MOV ECX,dword ptr [0x004d59b4]
+00470b12  CMP ECX,0x2a
+00470b15  JZ 0x00470b1c
+00470b17  CALL 0x00436098
+00470b1c  MOV EAX,[0x004d598c]
+00470b21  TEST EAX,EAX
+00470b23  JNZ 0x00470b31
+00470b25  PUSH 0x0
+00470b27  CALL 0x00486910
+00470b2c  CALL 0x004842e4
+00470b31  CALL 0x00486964
+00470b36  PUSH 0x1
+00470b38  CALL 0x0046c1a8
+00470b3d  CALL 0x0046e338
+00470b42  CALL 0x0043aa88
+00470b47  MOV EDX,dword ptr [0x004d59b4]
+00470b4d  CMP EDX,0x2a
+00470b50  JNZ 0x00470b57
+00470b52  CALL 0x004360ec
+00470b57  XOR ECX,ECX
+00470b59  MOV dword ptr [0x004d59b4],ECX
+00470b5f  CALL 0x004a5b1c
+00470b64  CALL 0x0044a000
+00470b69  CALL 0x004152e0
+00470b6e  PUSH 0x1
+00470b70  PUSH 0x37333044
+00470b75  PUSH 0x0
+00470b77  PUSH 0x54415453
+00470b7c  PUSH 0x0
+00470b7e  CALL 0x0049117e
+00470b83  PUSH EAX
+00470b84  PUSH 0x0
+00470b86  CALL 0x00414a30
+00470b8b  MOV EBX,EAX
+00470b8d  CALL 0x00414e74
+00470b92  CALL 0x004658a8
+00470b97  PUSH 0x1
+00470b99  PUSH EBX
+00470b9a  CALL 0x004149fc
+00470b9f  CALL 0x004152ec
+00470ba4  CALL 0x00450b20
+00470ba9  MOV EAX,[0x004d598c]
+00470bae  TEST EAX,EAX
+00470bb0  JNZ 0x00470bb7
+00470bb2  CALL 0x004238c8
+00470bb7  MOV DL,byte ptr [0x004d5aa0]
+00470bbd  TEST DL,DL
+00470bbf  JNZ 0x00470bca
+00470bc1  PUSH 0x0
+00470bc3  PUSH 0x2
+00470bc5  CALL 0x00482b38
+00470bca  MOV byte ptr [0x004d59a8],0x0
+00470bd1  MOV dword ptr [0x004d59bc],0x1
+00470bdb  JMP 0x00470f50
+00470be0  CALL 0x0045add0
+00470be5  DEC EAX
+00470be6  JNZ 0x00470bf7
+00470be8  MOV ECX,dword ptr [0x004d5a50]
+00470bee  TEST ECX,ECX
+00470bf0  JZ 0x00470bf7
+00470bf2  CALL 0x00478090
+00470bf7  MOV EAX,[0x0058f1fc]
+00470bfc  TEST EAX,EAX
+00470bfe  JNZ 0x00470c12
+00470c00  MOV EDX,dword ptr [0x004d5b34]
+00470c06  TEST EDX,EDX
+00470c08  JZ 0x00470c12
+00470c0a  XOR ECX,ECX
+00470c0c  MOV dword ptr [0x004d5b34],ECX
+00470c12  MOV EAX,[0x004d598c]
+00470c17  TEST EAX,EAX
+00470c19  JNZ 0x00470c20
+00470c1b  CALL 0x0047d71c
+00470c20  PUSH 0x4d5e99
+00470c25  CALL 0x004589a0
+00470c2a  PUSH 0x4d5e9d
+00470c2f  CALL 0x004589a0
+00470c34  MOV EDX,dword ptr [0x0059f154]
+00470c3a  PUSH EDX
+00470c3b  CALL 0x0046ed64
+00470c40  MOV ECX,dword ptr [0x0058f1ec]
+00470c46  TEST ECX,ECX
+00470c48  JNZ 0x00470f45
+00470c4e  CALL 0x004152ec
+00470c53  MOV EAX,[0x004d598c]
+00470c58  TEST EAX,EAX
+00470c5a  JNZ 0x00470c61
+00470c5c  CALL 0x00471b3c
+00470c61  PUSH 0x4d5ea1
+00470c66  CALL 0x004589a0
+00470c6b  CALL 0x0046f804
+00470c70  PUSH 0x4d5cb3
+00470c75  CALL 0x004589a0
+00470c7a  CALL 0x0046c780
+00470c7f  PUSH 0x4d5cc2
+00470c84  CALL 0x004589a0
+00470c89  CALL 0x0046eea0
+00470c8e  PUSH 0x4d5ea5
+00470c93  CALL 0x004589a0
+00470c98  MOV dword ptr [0x005644d4],0x1
+00470ca2  PUSH 0x0
+00470ca4  CALL 0x0046f0e0
+00470ca9  CALL 0x00482668
+00470cae  MOV EDX,dword ptr [0x0058f1fc]
+00470cb4  TEST EDX,EDX
+00470cb6  JZ 0x00470cce
+00470cb8  MOV ECX,dword ptr [0x004d5a78]
+00470cbe  TEST ECX,ECX
+00470cc0  JZ 0x00470cce
+00470cc2  CALL 0x00427ee8
+00470cc7  XOR EAX,EAX
+00470cc9  MOV [0x004d5a78],EAX
+00470cce  MOV EDX,dword ptr [0x0059f154]
+00470cd4  DEC EDX
+00470cd5  JNZ 0x00470cdc
+00470cd7  CALL 0x00470740
+00470cdc  PUSH 0x4d5ea7
+00470ce1  CALL 0x004589a0
+00470ce6  CALL 0x0045f2d8
+00470ceb  MOV ECX,dword ptr [0x0058f1fc]
+00470cf1  TEST ECX,ECX
+00470cf3  JZ 0x00470d1c
+00470cf5  PUSH 0x2
+00470cf7  PUSH 0x0
+00470cf9  MOV EAX,[0x00509848]
+00470cfe  PUSH EAX
+00470cff  MOV EDX,dword ptr [0x00509844]
+00470d05  PUSH EDX
+00470d06  PUSH 0x1
+00470d08  CALL 0x00427eb4
+00470d0d  CALL 0x00427f04
+00470d12  MOV dword ptr [0x004d5a78],0x1
+00470d1c  CALL 0x0046fa54
+00470d21  PUSH 0x4d5ea9
+00470d26  CALL 0x004589a0
+00470d2b  CALL 0x00470740
+00470d30  CALL 0x00405378
+00470d35  MOV ECX,dword ptr [0x0058f1ec]
+00470d3b  TEST ECX,ECX
+00470d3d  JNZ 0x00470e68
+00470d43  PUSH 0x4d5d34
+00470d48  CALL 0x004589a0
+00470d4d  CALL 0x004152e0
+00470d52  XOR EAX,EAX
+00470d54  PUSH 0x4d5eab
+00470d59  MOV [0x005644d4],EAX
+00470d5e  CALL 0x004589a0
+00470d63  CALL 0x004238c8
+00470d68  PUSH 0x4d5eae
+00470d6d  CALL 0x004589a0
+00470d72  CALL 0x0046ee88
+00470d77  PUSH 0x4d5eb1
+00470d7c  CALL 0x004589a0
+00470d81  CALL 0x004878a8
+00470d86  PUSH 0x4d5eb4
+00470d8b  CALL 0x004589a0
+00470d90  MOV EDX,dword ptr [0x0059f154]
+00470d96  PUSH EDX
+00470d97  CALL 0x0046ed64
+00470d9c  PUSH 0x4d5eb7
+00470da1  CALL 0x004589a0
+00470da6  CALL 0x0046f938
+00470dab  CALL 0x00441400
+00470db0  CALL 0x0046f404
+00470db5  MOV ECX,dword ptr [0x0058f1ec]
+00470dbb  TEST ECX,ECX
+00470dbd  JNZ 0x00470e68
+00470dc3  CALL 0x0047c730
+00470dc8  PUSH 0x4d5eba
+00470dcd  CALL 0x004589a0
+00470dd2  PUSH 0x1
+00470dd4  CALL 0x00485668
+00470dd9  PUSH 0x4d5d30
+00470dde  CALL 0x004589a0
+00470de3  CALL 0x0046c7d4
+00470de8  MOV EAX,[0x0058f1fc]
+00470ded  TEST EAX,EAX
+00470def  JZ 0x00470e14
+00470df1  PUSH 0x4d5ebd
+00470df6  CALL 0x0046e9f4
+00470dfb  CALL 0x0047b3a8
+00470e00  PUSH 0x4d5ebd
+00470e05  CALL 0x0046e9f4
+00470e0a  CALL 0x0044cabc
+00470e0f  CALL 0x00445710
+00470e14  PUSH 0x4d5eeb
+00470e19  CALL 0x004589a0
+00470e1e  CALL 0x00457624
+00470e23  CALL 0x0044b9e4
+00470e28  PUSH 0x4d5eee
+00470e2d  CALL 0x004589a0
+00470e32  CALL 0x0046c780
+00470e37  PUSH 0x4d5ef1
+00470e3c  CALL 0x004589a0
+00470e41  PUSH 0x2
+00470e43  CALL 0x00485668
+00470e48  PUSH 0x4d5ef4
+00470e4d  CALL 0x004589a0
+00470e52  PUSH 0x0
+00470e54  CALL 0x0046e730
+00470e59  PUSH 0x4d5ef7
+00470e5e  CALL 0x004589a0
+00470e63  CALL 0x00486e34
+00470e68  PUSH 0x4d5efa
+00470e6d  CALL 0x004589a0
+00470e72  XOR EBX,EBX
+00470e74  JMP 0x00470e84
+00470e76  PUSH EBX
+00470e77  LEA EAX,[EBP + 0xffffff38]
+00470e7d  PUSH EAX
+00470e7e  CALL 0x0046ac44
+00470e83  INC EBX
+00470e84  MOV EDX,dword ptr [0x004d5aec]
+00470e8a  CMP EBX,EDX
+00470e8c  JL 0x00470e76
+00470e8e  MOV ECX,dword ptr [0x0058f1fc]
+00470e94  TEST ECX,ECX
+00470e96  JZ 0x00470f45
+00470e9c  MOV EAX,[0x0058f1ec]
+00470ea1  TEST EAX,EAX
+00470ea3  JNZ 0x00470f3b
+00470ea9  MOV EDX,dword ptr [0x0058f1fc]
+00470eaf  TEST EDX,EDX
+00470eb1  JZ 0x00470eeb
+00470eb3  MOV ECX,dword ptr [0x0058f1f4]
+00470eb9  MOV EAX,[0x004d5a58]
+00470ebe  CMP ECX,EAX
+00470ec0  JZ 0x00470eeb
+00470ec2  PUSH 0x2
+00470ec4  PUSH 0x0
+00470ec6  PUSH 0x13
+00470ec8  PUSH 0x54415453
+00470ecd  PUSH 0x0
+00470ecf  CALL 0x0049117e
+00470ed4  PUSH EAX
+00470ed5  PUSH 0x12
+00470ed7  PUSH 0x54415453
+00470edc  PUSH 0x0
+00470ede  CALL 0x0049117e
+00470ee3  PUSH EAX
+00470ee4  PUSH 0x0
+00470ee6  CALL 0x00427eb4
+00470eeb  PUSH 0x4d5efd
+00470ef0  CALL 0x0046e9f4
+00470ef5  MOV EDX,dword ptr [0x0058f1fc]
+00470efb  TEST EDX,EDX
+00470efd  JZ 0x00470f13
+00470eff  MOV ECX,dword ptr [0x0058f1f4]
+00470f05  MOV EAX,[0x004d5a58]
+00470f0a  CMP ECX,EAX
+00470f0c  JZ 0x00470f13
+00470f0e  CALL 0x0047b3a8
+00470f13  PUSH 0x4d5f2c
+00470f18  CALL 0x0046e9f4
+00470f1d  MOV EDX,dword ptr [0x0058f1fc]
+00470f23  TEST EDX,EDX
+00470f25  JZ 0x00470f3b
+00470f27  MOV ECX,dword ptr [0x0058f1f4]
+00470f2d  MOV EAX,[0x004d5a58]
+00470f32  CMP ECX,EAX
+00470f34  JZ 0x00470f3b
+00470f36  CALL 0x00427ee8
+00470f3b  CALL 0x0044cabc
+00470f40  CALL 0x00445710
+00470f45  CALL 0x004152ec
+00470f4a  INC dword ptr [0x0059f154]
+00470f50  MOV EDX,dword ptr [0x0058f1ec]
+00470f56  TEST EDX,EDX
+00470f58  JZ 0x00470be0
+00470f5e  MOV ECX,dword ptr [0x0058f1fc]
+00470f64  TEST ECX,ECX
+00470f66  JZ 0x00470f7e
+00470f68  MOV EAX,[0x004d5a78]
+00470f6d  TEST EAX,EAX
+00470f6f  JZ 0x00470f7e
+00470f71  CALL 0x00427ee8
+00470f76  XOR EDX,EDX
+00470f78  MOV dword ptr [0x004d5a78],EDX
+00470f7e  CALL 0x00467754
+00470f83  PUSH 0x1
+00470f85  CALL 0x0046ce10
+00470f8a  MOV ECX,dword ptr [0x004d59b4]
+00470f90  CMP ECX,0x2a
+00470f93  JNZ 0x00470fa4
+00470f95  CALL 0x004360ec
+00470f9a  MOV dword ptr [0x004d59b4],0x32
+00470fa4  MOV EAX,[0x0058f1f0]
+00470fa9  TEST EAX,EAX
+00470fab  JZ 0x00470a05
+00470fb1  CALL 0x0046ced4
+00470fb6  XOR EAX,EAX
+00470fb8  POP ESI
+00470fb9  POP EBX
+00470fba  MOV ESP,EBP
+00470fbc  POP EBP
+00470fbd  RET 0x10
+*/

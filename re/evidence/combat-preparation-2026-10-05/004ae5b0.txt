@@ -1,0 +1,34 @@
+// Program: DEADLOCK.EXE
+// Language: x86:LE:32:default
+// Compiler: borlandcpp
+// Function: 004ae5b0 FUN_004ae5b0
+
+uint __stdcall FUN_004ae5b0(void)
+
+{
+  int iVar1;
+  int iVar2;
+  
+  iVar1 = FUN_004b366c();
+  iVar1 = *(int *)(iVar1 + 0x44);
+  iVar2 = FUN_004b366c();
+  *(int *)(iVar2 + 0x44) = iVar1 * 0x15a4e35 + 1;
+  iVar1 = FUN_004b366c();
+  return *(uint *)(iVar1 + 0x44) >> 0x10 & 0x7fff;
+}
+
+
+/* ASSEMBLY
+004ae5b0  PUSH EBX
+004ae5b1  CALL 0x004b366c
+004ae5b6  IMUL EBX,dword ptr [EAX + 0x44],0x15a4e35
+004ae5bd  INC EBX
+004ae5be  CALL 0x004b366c
+004ae5c3  MOV dword ptr [EAX + 0x44],EBX
+004ae5c6  CALL 0x004b366c
+004ae5cb  MOV EAX,dword ptr [EAX + 0x44]
+004ae5ce  SHR EAX,0x10
+004ae5d1  AND EAX,0x7fff
+004ae5d6  POP EBX
+004ae5d7  RET
+*/

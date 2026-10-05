@@ -19,10 +19,15 @@
 #include "game/entity_creation.h"
 #include "game/entity_lifecycle.h"
 #include "game/entity_orders.h"
+#include "game/colony_demolition_orders.h"
 #include "game/load_startup.h"
 #include "game/load_world_presentation.h"
 #include "game/load_shrine_events.h"
 #include "game/ai_session.h"
+#include "game/ai_event_transaction.h"
+#include "game/ai_pact_transaction.h"
+#include "game/unit_movement.h"
+#include "game/movement_crossings.h"
 #include "game/army_pool.h"
 #include "game/building_progress.h"
 #include "game/unit_manufacturing.h"
@@ -204,6 +209,10 @@ public:
     const simulation::LoadWorldPresentationReport* worldPresentation() const { return world_ ? &*world_ : nullptr; }
     const simulation::AiSession* aiSession() const { return ai_ ? &*ai_ : nullptr; }
     const simulation::AiReactionContext* aiReactionContext() const { return aiReaction_ ? &*aiReaction_ : nullptr; }
+    const simulation::AiHumanOffer* pendingAiOffer() const {
+        return pendingAi_ ? pendingAi_->pending() : pendingPacts_ ? pendingPacts_->pending() : nullptr;
+    }
+    const simulation::UnitMovementContext* movementContext() const { return movement_ ? &*movement_ : nullptr; }
     const simulation::ResourceCollectionState* resourceCollection() const { return collection_ ? &*collection_ : nullptr; }
     const simulation::BuildingRemovalContext* buildingRemovalContext() const { return buildingRemoval_ ? &*buildingRemoval_ : nullptr; }
     const std::array<int32_t, kMaxPlayers>* eventCities() const { return eventCities_ ? &*eventCities_ : nullptr; }
@@ -232,6 +241,30 @@ public:
     bool reactAiEvent(const simulation::AiEventRequest& request,
                       const simulation::AiReactionContext& context,
                       simulation::AiReactionReport& report, save::Error& error);
+    // May suspend on an explicit human decision. The published document, RNG
+    // and graph stay unchanged until the whole event completes. While pending,
+    // all other edits, preparation and capture reject; no default answer exists.
+    // A reply must supply the exact owned checkpoint (copy it before replying).
+    bool beginAiEvent(const simulation::AiEventRequest& request,
+                      const simulation::AiReactionContext& context,
+                      const std::optional<simulation::BuildingRemovalContext>& campaign,
+                      simulation::AiReactionReport& report, save::Error& error);
+    bool answerAiOffer(const simulation::AiHumanOffer& offer, simulation::AiHumanAnswer answer,
+                       simulation::AiReactionReport& report, save::Error& error);
+    // Complete00441400, including resumable nested human offers. Owns live
+    // log/cities as well as AI/RNG/campaign continuation; all publish together.
+    // Shares the same pending-offer exclusion with beginAiEvent and edits.
+    bool beginAiPactReconciliation(const simulation::AiPactReconciliationContext& context,
+                                  const std::optional<simulation::BuildingRemovalContext>& campaign,
+                                  simulation::AiPactReconciliationReport& report, save::Error& error);
+    bool answerAiPactOffer(const simulation::AiHumanOffer& offer, simulation::AiHumanAnswer answer,
+                          simulation::AiPactReconciliationReport& report, save::Error& error);
+    // Isolated0045727c, not the combat phase or a completed movement order.
+    // Publishes movement scratch, log, AI/RNG and campaign together, preserving
+    // entity identities. Inputs must continue the owned transient contexts.
+    // Prepared/EntitiesEdited only; no bypass of economic/pending-offer stages.
+    bool resolveMovementCrossings(const simulation::MovementCrossingsContext& context,
+                                  simulation::MovementCrossingsReport& report, save::Error& error);
     // Completed-building initializer with real local labor/footprint/roads.
     // Not a paid construction order; shares the explicit nonplayable edit stage.
     bool createCompletedBuilding(const simulation::BuildingCreationRequest& request,
@@ -272,6 +305,12 @@ public:
     bool createArmy(const simulation::ArmyCreationRequest& request,
                     const simulation::ArmyCreationContext& context, ArmyHandle& created,
                     simulation::ArmyLifecycleReport& report, save::Error& error);
+    // Isolated native MoveUnit leaf, without human-order authority or combat.
+    // Native refusal still commits distance/flag scratch. Continues owned path
+    // scratch; the selected movingArmyId remains an explicit caller input.
+    bool moveUnit(ArmyHandle handle, uint32_t target, uint32_t routeOrigin,
+                  const simulation::UnitMovementContext& context,
+                  simulation::UnitMovementReport& report, save::Error& error);
     bool removeArmy(ArmyHandle handle, simulation::ArmyRemovalKind kind, bool detachTaskForces,
                     simulation::ArmyLifecycleReport& report, save::Error& error);
     // Explicit0040aebc / ordered all-job cleanup, not a DeleteUnit callback,
@@ -285,6 +324,11 @@ public:
     bool orderDemolishBuilding(int actor, BuildingHandle handle,
                               const simulation::BuildingRemovalContext& context,
                               simulation::DemolishBuildingOrderReport& report, save::Error& error);
+    // Confirmed collective order, with its own site-order/skip rules. Preserves
+    // surviving handles and explicit campaign/pending-shrine continuation.
+    bool orderDemolishColony(const simulation::DemolishColonyOrderRequest& request,
+                            const simulation::BuildingRemovalContext& context,
+                            simulation::DemolishColonyOrderReport& report, save::Error& error);
     bool removeBuilding(BuildingHandle handle, simulation::BuildingRemovalKind kind, int refundPlayer,
                         simulation::BuildingLifecycleReport& report, save::Error& error);
     // Explicit live campaign progress and pending shrine penalties. Retained
@@ -337,7 +381,12 @@ private:
     uint64_t preparationIdentity_ = 0; // Static graph handles' owning lifetime.
     uint64_t queueNodeIdentity_ = 0; // Positional queue graph generation, not SAV data.
     bool rebuildGraph(save::Error& error);
-    bool copyForEdit(State& candidate, save::Error& error) const;
+    bool copyForEdit(State& candidate, save::Error& error, bool completingAi = false) const;
+    bool publishAiTransaction(simulation::AiEventTransaction transaction,
+                              simulation::AiReactionReport& report, save::Error& error);
+    bool publishPactTransaction(simulation::AiPactReconciliationTransaction transaction,
+                                simulation::AiPactReconciliationReport& report, save::Error& error);
+    bool copyAiCompletion(const save::Document& completed, State& candidate, save::Error& error) const;
     bool finishEdit(State&& candidate, save::Error& error, bool queueNodesReplaced = false);
     bool applyBuildingRemoval(BuildingHandle handle, simulation::BuildingRemovalKind kind, int refundPlayer,
         const simulation::BuildingRemovalContext* context,
@@ -361,6 +410,9 @@ private:
     std::optional<simulation::LoadWorldPresentationReport> world_;
     std::optional<simulation::AiSession> ai_;
     std::optional<simulation::AiReactionContext> aiReaction_;
+    std::optional<simulation::AiEventTransaction> pendingAi_;
+    std::optional<simulation::AiPactReconciliationTransaction> pendingPacts_;
+    std::optional<simulation::UnitMovementContext> movement_;
     std::optional<simulation::ResourceCollectionState> collection_;
     std::optional<std::array<int32_t, kMaxPlayers>> eventCities_;
     std::optional<simulation::PopulationEventBindings> populationEvents_;

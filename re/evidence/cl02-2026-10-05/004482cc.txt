@@ -1,0 +1,47 @@
+// Program: DEADLOCK.EXE
+// Language: x86:LE:32:default
+// Compiler: borlandcpp
+// Function: 004482cc FUN_004482cc
+
+int __stdcall FUN_004482cc(int param_1)
+
+{
+  int iVar1;
+  
+  if ((*(char *)(param_1 + 9) == '\x02') &&
+     ((&DAT_004faf87)[*(int *)(param_1 + 4) * 0x24] == '\x01')) {
+    iVar1 = (int)*(short *)(&DAT_00559fdc +
+                           (char)(&DAT_0059f162)[(uint)*(byte *)(param_1 + 0x1e) * 0x2d8] * 2);
+  }
+  else {
+    iVar1 = 0;
+  }
+  return iVar1;
+}
+
+
+/* ASSEMBLY
+004482cc  PUSH EBP
+004482cd  MOV EBP,ESP
+004482cf  MOV EAX,dword ptr [EBP + 0x8]
+004482d2  CMP byte ptr [EAX + 0x9],0x2
+004482d6  JNZ 0x0044830e
+004482d8  MOV EDX,dword ptr [EAX + 0x4]
+004482db  LEA EDX,[EDX + EDX*0x8]
+004482de  MOVSX ECX,byte ptr [EDX*0x4 + 0x4faf87]
+004482e6  DEC ECX
+004482e7  JNZ 0x0044830e
+004482e9  MOVZX EAX,byte ptr [EAX + 0x1e]
+004482ed  MOV EDX,EAX
+004482ef  LEA EAX,[EDX + EAX*0x2]
+004482f2  SHL EAX,0x3
+004482f5  SUB EAX,EDX
+004482f7  SHL EAX,0x2
+004482fa  SUB EAX,EDX
+004482fc  MOVSX ECX,byte ptr [EAX*0x8 + 0x59f162]
+00448304  MOVSX EAX,word ptr [ECX*0x2 + 0x559fdc]
+0044830c  JMP 0x00448310
+0044830e  XOR EAX,EAX
+00448310  POP EBP
+00448311  RET 0x4
+*/

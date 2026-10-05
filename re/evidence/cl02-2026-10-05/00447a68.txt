@@ -1,0 +1,100 @@
+// Program: DEADLOCK.EXE
+// Language: x86:LE:32:default
+// Compiler: borlandcpp
+// Function: 00447a68 FUN_00447a68
+
+void __stdcall FUN_00447a68(int param_1,int param_2)
+
+{
+  int *piVar1;
+  int local_c;
+  int local_8;
+  
+  FUN_004a6838();
+  *(int *)(param_2 + 4) = (int)*(char *)(param_1 + 6);
+  *(undefined1 *)(param_2 + 0x1e) = *(undefined1 *)(param_1 + 8);
+  *(undefined1 *)(param_2 + 8) = *(undefined1 *)(param_1 + 8);
+  local_8 = (int)*(short *)(param_1 + 0x28);
+  local_c = 1000;
+  if (*(short *)(param_1 + 0x28) < 0x3e9) {
+    piVar1 = &local_8;
+  }
+  else {
+    piVar1 = &local_c;
+  }
+  *(short *)(param_2 + 10) = (short)*piVar1;
+  *(undefined1 *)(param_2 + 9) = *(undefined1 *)(param_1 + 0x24);
+  *(undefined4 *)(param_2 + 0x3c) = 0;
+  if ((((&DAT_0059f169)[*(char *)(param_1 + 8) * 0x2d8] & 1) == 0) &&
+     (((&DAT_0059f169)[*(char *)(param_1 + 8) * 0x2d8] & 2) == 0)) {
+    *(undefined1 *)(param_2 + 0x1c) = 0;
+  }
+  else {
+    *(undefined1 *)(param_2 + 0x1c) = 0xff;
+  }
+  return;
+}
+
+
+/* ASSEMBLY
+00447a68  PUSH EBP
+00447a69  MOV EBP,ESP
+00447a6b  ADD ESP,-0x8
+00447a6e  PUSH EBX
+00447a6f  PUSH ESI
+00447a70  MOV EBX,dword ptr [EBP + 0xc]
+00447a73  MOV ESI,dword ptr [EBP + 0x8]
+00447a76  PUSH 0x4c
+00447a78  PUSH 0x0
+00447a7a  PUSH EBX
+00447a7b  CALL 0x004a6838
+00447a80  MOVSX EAX,byte ptr [ESI + 0x6]
+00447a84  MOV dword ptr [EBX + 0x4],EAX
+00447a87  ADD ESP,0xc
+00447a8a  MOV DL,byte ptr [ESI + 0x8]
+00447a8d  MOV byte ptr [EBX + 0x1e],DL
+00447a90  MOV CL,byte ptr [ESI + 0x8]
+00447a93  MOV byte ptr [EBX + 0x8],CL
+00447a96  MOVSX EAX,word ptr [ESI + 0x28]
+00447a9a  MOV dword ptr [EBP + -0x4],EAX
+00447a9d  MOV dword ptr [EBP + -0x8],0x3e8
+00447aa4  MOV EDX,dword ptr [EBP + -0x8]
+00447aa7  MOV ECX,dword ptr [EBP + -0x4]
+00447aaa  CMP EDX,ECX
+00447aac  JGE 0x00447ab3
+00447aae  LEA EAX,[EBP + -0x8]
+00447ab1  JMP 0x00447ab6
+00447ab3  LEA EAX,[EBP + -0x4]
+00447ab6  MOV DX,word ptr [EAX]
+00447ab9  XOR EAX,EAX
+00447abb  MOV word ptr [EBX + 0xa],DX
+00447abf  MOV CL,byte ptr [ESI + 0x24]
+00447ac2  MOV byte ptr [EBX + 0x9],CL
+00447ac5  MOV dword ptr [EBX + 0x3c],EAX
+00447ac8  MOVSX EDX,byte ptr [ESI + 0x8]
+00447acc  LEA ECX,[EDX + EDX*0x2]
+00447acf  SHL ECX,0x3
+00447ad2  SUB ECX,EDX
+00447ad4  SHL ECX,0x2
+00447ad7  SUB ECX,EDX
+00447ad9  MOV AL,byte ptr [ECX*0x8 + 0x59f169]
+00447ae0  TEST AL,0x1
+00447ae2  JNZ 0x00447af9
+00447ae4  MOVSX EDX,byte ptr [ESI + 0x8]
+00447ae8  LEA ECX,[EDX + EDX*0x2]
+00447aeb  SHL ECX,0x3
+00447aee  SUB ECX,EDX
+00447af0  SHL ECX,0x2
+00447af3  SUB ECX,EDX
+00447af5  TEST AL,0x2
+00447af7  JZ 0x00447aff
+00447af9  MOV byte ptr [EBX + 0x1c],0xff
+00447afd  JMP 0x00447b03
+00447aff  MOV byte ptr [EBX + 0x1c],0x0
+00447b03  POP ESI
+00447b04  POP EBX
+00447b05  POP ECX
+00447b06  POP ECX
+00447b07  POP EBP
+00447b08  RET 0x8
+*/

@@ -25,7 +25,33 @@ bool screenshot(const engine::OffPort& port, const fs::path& destination, std::s
     auto* file = std::fopen(destination.c_str(), "wbx");
 #endif
     if (!file) { error = "Screenshot path must be a new writable file"; return false; }
-    auto* rw = SDL_RWFromFP(file, SDL_TRUE);
+    // Official SDL Windows binaries can disable SDL_RWFromFP. Keep stdio in
+    // this executable's CRT and retain the exclusive creation above.
+    auto* rw = SDL_AllocRW();
+    if (rw) {
+        rw->type = SDL_RWOPS_UNKNOWN;
+        rw->hidden.unknown.data1 = file;
+        rw->size = [](SDL_RWops*) -> Sint64 { return SDL_SetError("Size query unsupported"); };
+        rw->seek = [](SDL_RWops* stream, Sint64 offset, int origin) -> Sint64 {
+            auto* output = static_cast<FILE*>(stream->hidden.unknown.data1);
+#ifdef _WIN32
+            if (_fseeki64(output, offset, origin) != 0) return SDL_SetError("BMP seek failed");
+            return _ftelli64(output);
+#else
+            if (fseeko(output, offset, origin) != 0) return SDL_SetError("BMP seek failed");
+            return ftello(output);
+#endif
+        };
+        rw->read = [](SDL_RWops*, void*, size_t, size_t) -> size_t { return 0; };
+        rw->write = [](SDL_RWops* stream, const void* data, size_t size, size_t count) -> size_t {
+            return std::fwrite(data, size, count, static_cast<FILE*>(stream->hidden.unknown.data1));
+        };
+        rw->close = [](SDL_RWops* stream) -> int {
+            const int result = std::fclose(static_cast<FILE*>(stream->hidden.unknown.data1));
+            SDL_FreeRW(stream);
+            return result;
+        };
+    }
     if (!rw) { std::fclose(file); error = SDL_GetError(); }
     else if (SDL_SaveBMP_RW(surface.get(), rw, 1) == 0) return true;
     else error = SDL_GetError();

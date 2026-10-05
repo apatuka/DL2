@@ -1,0 +1,107 @@
+// Program: DEADLOCK.EXE
+// Language: x86:LE:32:default
+// Compiler: borlandcpp
+// Function: 00448008 FUN_00448008
+
+int __stdcall FUN_00448008(int param_1)
+
+{
+  int iVar1;
+  int *piVar2;
+  int local_14 [3];
+  int local_8;
+  
+  local_8 = (int)(char)(&DAT_004faf92)[*(int *)(param_1 + 4) * 0x24];
+  iVar1 = FUN_00448210();
+  if (iVar1 == 0) {
+    iVar1 = FUN_004481a4();
+    if (iVar1 == 0) goto LAB_0044803f;
+  }
+  local_8 = local_8 * 2;
+LAB_0044803f:
+  iVar1 = FUN_00447f1c();
+  if (iVar1 != 0) {
+    local_14[2] = (local_8 * 10) / 100;
+    local_14[1] = 1;
+    if (local_14[2] < 1) {
+      piVar2 = local_14 + 1;
+    }
+    else {
+      piVar2 = local_14 + 2;
+    }
+    local_8 = local_8 - *piVar2;
+  }
+  if (*(char *)(param_1 + 9) == '\x04') {
+    local_8 = local_8 + 1;
+  }
+  local_14[0] = -1;
+  if (local_8 < -1) {
+    piVar2 = local_14;
+  }
+  else {
+    piVar2 = &local_8;
+  }
+  return *piVar2;
+}
+
+
+/* ASSEMBLY
+00448008  PUSH EBP
+00448009  MOV EBP,ESP
+0044800b  ADD ESP,-0x10
+0044800e  PUSH EBX
+0044800f  MOV EBX,dword ptr [EBP + 0x8]
+00448012  MOV EAX,dword ptr [EBX + 0x4]
+00448015  LEA EAX,[EAX + EAX*0x8]
+00448018  MOVSX EDX,byte ptr [EAX*0x4 + 0x4faf92]
+00448020  MOV dword ptr [EBP + -0x4],EDX
+00448023  PUSH EBX
+00448024  CALL 0x00448210
+00448029  TEST EAX,EAX
+0044802b  JNZ 0x00448037
+0044802d  PUSH EBX
+0044802e  CALL 0x004481a4
+00448033  TEST EAX,EAX
+00448035  JZ 0x0044803f
+00448037  MOV ECX,dword ptr [EBP + -0x4]
+0044803a  ADD ECX,ECX
+0044803c  MOV dword ptr [EBP + -0x4],ECX
+0044803f  PUSH EBX
+00448040  CALL 0x00447f1c
+00448045  TEST EAX,EAX
+00448047  JZ 0x0044807a
+00448049  MOV EAX,dword ptr [EBP + -0x4]
+0044804c  ADD EAX,EAX
+0044804e  LEA EAX,[EAX + EAX*0x4]
+00448051  MOV ECX,0x64
+00448056  CDQ
+00448057  IDIV ECX
+00448059  MOV dword ptr [EBP + -0x8],EAX
+0044805c  MOV dword ptr [EBP + -0xc],0x1
+00448063  MOV EAX,dword ptr [EBP + -0xc]
+00448066  MOV EDX,dword ptr [EBP + -0x8]
+00448069  CMP EAX,EDX
+0044806b  JLE 0x00448072
+0044806d  LEA ECX,[EBP + -0xc]
+00448070  JMP 0x00448075
+00448072  LEA ECX,[EBP + -0x8]
+00448075  MOV EAX,dword ptr [ECX]
+00448077  SUB dword ptr [EBP + -0x4],EAX
+0044807a  MOV DL,byte ptr [EBX + 0x9]
+0044807d  CMP DL,0x4
+00448080  JNZ 0x00448085
+00448082  INC dword ptr [EBP + -0x4]
+00448085  MOV dword ptr [EBP + -0x10],0xffffffff
+0044808c  MOV EAX,dword ptr [EBP + -0x10]
+0044808f  MOV EDX,dword ptr [EBP + -0x4]
+00448092  CMP EAX,EDX
+00448094  JLE 0x0044809b
+00448096  LEA ECX,[EBP + -0x10]
+00448099  JMP 0x0044809e
+0044809b  LEA ECX,[EBP + -0x4]
+0044809e  MOV EAX,dword ptr [ECX]
+004480a0  POP EBX
+004480a1  MOV ESP,EBP
+004480a3  POP EBP
+004480a4  RET 0x4
+*/

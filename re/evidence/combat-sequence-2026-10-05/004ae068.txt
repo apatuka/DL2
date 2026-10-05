@@ -1,0 +1,34 @@
+// Program: DEADLOCK.EXE
+// Language: x86:LE:32:default
+// Compiler: borlandcpp
+// Function: 004ae068 FUN_004ae068
+
+undefined4 __stdcall FUN_004ae068(void)
+
+{
+  longdouble in_ST0;
+  undefined4 local_10;
+  
+  local_10 = (undefined4)(longlong)ROUND(in_ST0);
+  return local_10;
+}
+
+
+/* ASSEMBLY
+004ae068  PUSH EBP
+004ae069  MOV EBP,ESP
+004ae06b  LEA ESP,[EBP + -0xc]
+004ae06e  FSTCW word ptr [EBP + -0x4]
+004ae072  WAIT
+004ae073  MOV AL,byte ptr [EBP + -0x3]
+004ae076  OR byte ptr [EBP + -0x3],0xc
+004ae07a  FLDCW word ptr [EBP + -0x4]
+004ae07d  FISTP qword ptr [EBP + -0xc]
+004ae080  MOV byte ptr [EBP + -0x3],AL
+004ae083  FLDCW word ptr [EBP + -0x4]
+004ae086  MOV EAX,dword ptr [EBP + -0xc]
+004ae089  MOV EDX,dword ptr [EBP + -0x8]
+004ae08c  MOV ESP,EBP
+004ae08e  POP EBP
+004ae08f  RET
+*/

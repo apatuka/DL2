@@ -1,0 +1,220 @@
+// Program: DEADLOCK.EXE
+// Language: x86:LE:32:default
+// Compiler: borlandcpp
+// Function: 00406b1c FUN_00406b1c
+
+undefined4 __stdcall FUN_00406b1c(int param_1,int param_2,uint param_3,int param_4)
+
+{
+  undefined4 uVar1;
+  int iVar2;
+  int iVar3;
+  uint uVar4;
+  int iVar5;
+  char *local_8;
+  
+  if ((1 << ((byte)param_2 & 0x1f) & *(uint *)(&DAT_0052222c + param_1 * 4)) == 0) {
+    iVar5 = 0;
+    if (param_4 == 0) {
+      iVar5 = 0x14;
+    }
+    if ((param_3 & 2) != 0) {
+      iVar5 = iVar5 + -0x14;
+    }
+    if ((param_3 & 8) != 0) {
+      iVar5 = iVar5 + -10;
+    }
+    if ((param_3 & 4) != 0) {
+      iVar5 = iVar5 + -10;
+    }
+    if ((param_3 & 0x10) != 0) {
+      iVar5 = iVar5 + -0x1e;
+    }
+    iVar2 = FUN_004412d4();
+    if (iVar2 != 0) {
+      iVar5 = iVar5 + 10;
+    }
+    iVar2 = FUN_004412d4();
+    if (iVar2 != 0) {
+      iVar5 = iVar5 + 0x14;
+    }
+    iVar2 = FUN_004412d4();
+    if (iVar2 != 0) {
+      iVar5 = iVar5 + 10;
+    }
+    iVar2 = FUN_004412d4();
+    if (iVar2 != 0) {
+      iVar5 = iVar5 + 10;
+    }
+    local_8 = &DAT_0059f161;
+    iVar2 = 0;
+    do {
+      if (*local_8 != '\0') {
+        iVar3 = FUN_004412d4();
+        if (iVar3 != 0) {
+          iVar5 = iVar5 + -0x14;
+        }
+      }
+      iVar2 = iVar2 + 1;
+      local_8 = local_8 + 0x2d8;
+    } while (iVar2 < 7);
+    iVar2 = FUN_00444274();
+    iVar3 = FUN_00444274();
+    if (iVar3 < iVar2) {
+      iVar5 = iVar5 + 10;
+    }
+    else {
+      iVar2 = FUN_00444274();
+      iVar3 = FUN_00444274();
+      if (iVar2 < iVar3) {
+        iVar5 = iVar5 + -10;
+      }
+    }
+    iVar2 = (*(int *)(&DAT_005220a4 + param_2 * 4 + param_1 * 0x1c) * 100) / 0x32;
+    uVar4 = FUN_0046ca40(iVar2,(*(int *)(&DAT_005220a4 + param_2 * 4 + param_1 * 0x1c) * 100) % 0x32
+                        );
+    if ((int)(uVar4 % 100) < iVar5 + iVar2) {
+      uVar1 = 1;
+    }
+    else {
+      uVar1 = 0;
+    }
+  }
+  else {
+    uVar1 = 0;
+  }
+  return uVar1;
+}
+
+
+/* ASSEMBLY
+00406b1c  PUSH EBP
+00406b1d  MOV EBP,ESP
+00406b1f  PUSH ECX
+00406b20  PUSH EBX
+00406b21  PUSH ESI
+00406b22  PUSH EDI
+00406b23  MOV EAX,dword ptr [EBP + 0x10]
+00406b26  MOV ESI,dword ptr [EBP + 0x8]
+00406b29  MOV ECX,dword ptr [EBP + 0xc]
+00406b2c  MOV EDX,0x1
+00406b31  SHL EDX,CL
+00406b33  MOV ECX,dword ptr [ESI*0x4 + 0x52222c]
+00406b3a  AND EDX,ECX
+00406b3c  JZ 0x00406b45
+00406b3e  XOR EAX,EAX
+00406b40  JMP 0x00406c5c
+00406b45  XOR EDI,EDI
+00406b47  MOV EDX,dword ptr [EBP + 0x14]
+00406b4a  TEST EDX,EDX
+00406b4c  JNZ 0x00406b51
+00406b4e  ADD EDI,0x14
+00406b51  TEST AL,0x2
+00406b53  JZ 0x00406b58
+00406b55  SUB EDI,0x14
+00406b58  TEST AL,0x8
+00406b5a  JZ 0x00406b5f
+00406b5c  SUB EDI,0xa
+00406b5f  TEST AL,0x4
+00406b61  JZ 0x00406b66
+00406b63  SUB EDI,0xa
+00406b66  TEST AL,0x10
+00406b68  JZ 0x00406b6d
+00406b6a  SUB EDI,0x1e
+00406b6d  PUSH 0x1
+00406b6f  MOV EAX,dword ptr [EBP + 0xc]
+00406b72  PUSH EAX
+00406b73  PUSH ESI
+00406b74  CALL 0x004412d4
+00406b79  TEST EAX,EAX
+00406b7b  JZ 0x00406b80
+00406b7d  ADD EDI,0xa
+00406b80  PUSH 0x2
+00406b82  MOV ECX,dword ptr [EBP + 0xc]
+00406b85  PUSH ECX
+00406b86  PUSH ESI
+00406b87  CALL 0x004412d4
+00406b8c  TEST EAX,EAX
+00406b8e  JZ 0x00406b93
+00406b90  ADD EDI,0x14
+00406b93  PUSH 0x8
+00406b95  MOV EAX,dword ptr [EBP + 0xc]
+00406b98  PUSH EAX
+00406b99  PUSH ESI
+00406b9a  CALL 0x004412d4
+00406b9f  TEST EAX,EAX
+00406ba1  JZ 0x00406ba6
+00406ba3  ADD EDI,0xa
+00406ba6  PUSH 0x4
+00406ba8  MOV EDX,dword ptr [EBP + 0xc]
+00406bab  PUSH EDX
+00406bac  PUSH ESI
+00406bad  CALL 0x004412d4
+00406bb2  TEST EAX,EAX
+00406bb4  JZ 0x00406bb9
+00406bb6  ADD EDI,0xa
+00406bb9  MOV dword ptr [EBP + -0x4],0x59f161
+00406bc0  XOR EBX,EBX
+00406bc2  MOV EAX,dword ptr [EBP + -0x4]
+00406bc5  MOV DL,byte ptr [EAX]
+00406bc7  TEST DL,DL
+00406bc9  JZ 0x00406bdb
+00406bcb  PUSH 0x10
+00406bcd  PUSH EBX
+00406bce  PUSH ESI
+00406bcf  CALL 0x004412d4
+00406bd4  TEST EAX,EAX
+00406bd6  JZ 0x00406bdb
+00406bd8  SUB EDI,0x14
+00406bdb  INC EBX
+00406bdc  ADD dword ptr [EBP + -0x4],0x2d8
+00406be3  CMP EBX,0x7
+00406be6  JL 0x00406bc2
+00406be8  MOV ECX,dword ptr [EBP + 0xc]
+00406beb  PUSH ECX
+00406bec  CALL 0x00444274
+00406bf1  MOV EBX,EAX
+00406bf3  PUSH ESI
+00406bf4  CALL 0x00444274
+00406bf9  CMP EBX,EAX
+00406bfb  JLE 0x00406c02
+00406bfd  ADD EDI,0xa
+00406c00  JMP 0x00406c1a
+00406c02  MOV EAX,dword ptr [EBP + 0xc]
+00406c05  PUSH EAX
+00406c06  CALL 0x00444274
+00406c0b  MOV EBX,EAX
+00406c0d  PUSH ESI
+00406c0e  CALL 0x00444274
+00406c13  CMP EBX,EAX
+00406c15  JGE 0x00406c1a
+00406c17  SUB EDI,0xa
+00406c1a  MOV EAX,ESI
+00406c1c  SHL EAX,0x3
+00406c1f  SUB EAX,ESI
+00406c21  LEA EDX,[EAX*0x4 + 0x5220a4]
+00406c28  MOV ECX,dword ptr [EBP + 0xc]
+00406c2b  MOV EAX,dword ptr [EDX + ECX*0x4]
+00406c2e  SHL EAX,0x2
+00406c31  LEA EAX,[EAX + EAX*0x4]
+00406c34  LEA EAX,[EAX + EAX*0x4]
+00406c37  MOV ECX,0x32
+00406c3c  CDQ
+00406c3d  IDIV ECX
+00406c3f  ADD EDI,EAX
+00406c41  CALL 0x0046ca40
+00406c46  MOV ECX,0x64
+00406c4b  XOR EDX,EDX
+00406c4d  DIV ECX
+00406c4f  CMP EDI,EDX
+00406c51  JLE 0x00406c5a
+00406c53  MOV EAX,0x1
+00406c58  JMP 0x00406c5c
+00406c5a  XOR EAX,EAX
+00406c5c  POP EDI
+00406c5d  POP ESI
+00406c5e  POP EBX
+00406c5f  POP ECX
+00406c60  POP EBP
+00406c61  RET 0x10
+*/

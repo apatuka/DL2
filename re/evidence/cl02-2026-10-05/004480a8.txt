@@ -1,0 +1,84 @@
+// Program: DEADLOCK.EXE
+// Language: x86:LE:32:default
+// Compiler: borlandcpp
+// Function: 004480a8 FUN_004480a8
+
+int __stdcall FUN_004480a8(int param_1)
+
+{
+  int iVar1;
+  int *piVar2;
+  int local_c;
+  int local_8;
+  
+  iVar1 = FUN_004482cc();
+  if (iVar1 == 0) {
+    local_8 = FUN_00448210();
+    if (local_8 == 0) {
+      local_8 = (int)(char)(&DAT_004faf93)[*(int *)(param_1 + 4) * 0x24];
+    }
+    iVar1 = FUN_004481a4();
+    if (iVar1 != 0) {
+      local_8 = local_8 * local_8;
+    }
+    local_c = 0;
+    if (local_8 < 0) {
+      piVar2 = &local_c;
+    }
+    else {
+      piVar2 = &local_8;
+    }
+    iVar1 = *piVar2;
+  }
+  else {
+    iVar1 = 2;
+  }
+  return iVar1;
+}
+
+
+/* ASSEMBLY
+004480a8  PUSH EBP
+004480a9  MOV EBP,ESP
+004480ab  ADD ESP,-0x8
+004480ae  PUSH EBX
+004480af  MOV EBX,dword ptr [EBP + 0x8]
+004480b2  PUSH EBX
+004480b3  CALL 0x004482cc
+004480b8  TEST EAX,EAX
+004480ba  JZ 0x004480c3
+004480bc  MOV EAX,0x2
+004480c1  JMP 0x00448111
+004480c3  PUSH EBX
+004480c4  CALL 0x00448210
+004480c9  MOV dword ptr [EBP + -0x4],EAX
+004480cc  MOV EDX,dword ptr [EBP + -0x4]
+004480cf  TEST EDX,EDX
+004480d1  JNZ 0x004480e4
+004480d3  MOV ECX,dword ptr [EBX + 0x4]
+004480d6  LEA ECX,[ECX + ECX*0x8]
+004480d9  MOVSX EAX,byte ptr [ECX*0x4 + 0x4faf93]
+004480e1  MOV dword ptr [EBP + -0x4],EAX
+004480e4  PUSH EBX
+004480e5  CALL 0x004481a4
+004480ea  TEST EAX,EAX
+004480ec  JZ 0x004480f8
+004480ee  MOV EDX,dword ptr [EBP + -0x4]
+004480f1  IMUL EDX,dword ptr [EBP + -0x4]
+004480f5  MOV dword ptr [EBP + -0x4],EDX
+004480f8  XOR ECX,ECX
+004480fa  MOV dword ptr [EBP + -0x8],ECX
+004480fd  MOV EAX,dword ptr [EBP + -0x8]
+00448100  MOV EDX,dword ptr [EBP + -0x4]
+00448103  CMP EAX,EDX
+00448105  JLE 0x0044810c
+00448107  LEA ECX,[EBP + -0x8]
+0044810a  JMP 0x0044810f
+0044810c  LEA ECX,[EBP + -0x4]
+0044810f  MOV EAX,dword ptr [ECX]
+00448111  POP EBX
+00448112  POP ECX
+00448113  POP ECX
+00448114  POP EBP
+00448115  RET 0x4
+*/

@@ -1,0 +1,39 @@
+// Program: DEADLOCK.EXE
+// Language: x86:LE:32:default
+// Compiler: borlandcpp
+// Function: 00447a40 FUN_00447a40
+
+undefined4 __stdcall FUN_00447a40(int param_1)
+
+{
+  undefined4 uVar1;
+  
+  if (param_1 < 100) {
+    uVar1 = 0;
+  }
+  else if (param_1 < 0x191) {
+    uVar1 = 1;
+  }
+  else {
+    uVar1 = 2;
+  }
+  return uVar1;
+}
+
+
+/* ASSEMBLY
+00447a40  PUSH EBP
+00447a41  MOV EBP,ESP
+00447a43  MOV EAX,dword ptr [EBP + 0x8]
+00447a46  CMP EAX,0x64
+00447a49  JGE 0x00447a4f
+00447a4b  XOR EAX,EAX
+00447a4d  JMP 0x00447a62
+00447a4f  CMP EAX,0x190
+00447a54  JG 0x00447a5d
+00447a56  MOV EAX,0x1
+00447a5b  JMP 0x00447a62
+00447a5d  MOV EAX,0x2
+00447a62  POP EBP
+00447a63  RET 0x4
+*/

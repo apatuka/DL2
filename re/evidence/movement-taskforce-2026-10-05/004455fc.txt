@@ -1,0 +1,94 @@
+// Program: DEADLOCK.EXE
+// Language: x86:LE:32:default
+// Compiler: borlandcpp
+// Function: 004455fc FUN_004455fc
+
+void __stdcall FUN_004455fc(void)
+
+{
+  undefined4 *puVar1;
+  undefined4 *puVar2;
+  
+  if ((((DAT_004c515c == (undefined4 *)0x0) || (DAT_004c515c < &DAT_00645370)) ||
+      ((undefined4 *)0x651caf < DAT_004c515c)) ||
+     (((uint)(DAT_004c515c + -0x1914dc) % 0x5c != 0 || (*(char *)((int)DAT_004c515c + 6) != '\0'))))
+  {
+    for (puVar1 = (undefined4 *)&DAT_00645370;
+        (puVar1 < &DAT_00651cb0 && (*(char *)((int)puVar1 + 6) != '\0')); puVar1 = puVar1 + 0x17) {
+    }
+    puVar2 = puVar1;
+    DAT_004c515c = puVar1;
+    if (puVar1 == &DAT_00651cb0) {
+      DAT_004c515c = (undefined4 *)0x0;
+    }
+    else {
+      for (; puVar1 < &DAT_00651cb0; puVar1 = puVar1 + 0x17) {
+        if (*(char *)((int)puVar1 + 6) == '\0') {
+          puVar2[0x15] = puVar1;
+          puVar1[0x16] = puVar2;
+          puVar2 = puVar1;
+        }
+      }
+      puVar2[0x15] = 0;
+      DAT_004c515c[0x16] = 0;
+    }
+  }
+  return;
+}
+
+
+/* ASSEMBLY
+004455fc  PUSH EBP
+004455fd  MOV EBP,ESP
+004455ff  PUSH EBX
+00445600  MOV ECX,dword ptr [0x004c515c]
+00445606  TEST ECX,ECX
+00445608  JZ 0x00445639
+0044560a  CMP ECX,0x645370
+00445610  JC 0x00445639
+00445612  CMP ECX,0x651cb0
+00445618  JNC 0x00445639
+0044561a  MOV EAX,[0x004c515c]
+0044561f  MOV EBX,0x5c
+00445624  SUB EAX,0x645370
+0044562a  XOR EDX,EDX
+0044562c  DIV EBX
+0044562e  TEST EDX,EDX
+00445630  JNZ 0x00445639
+00445632  MOV AL,byte ptr [ECX + 0x6]
+00445635  TEST AL,AL
+00445637  JZ 0x00445694
+00445639  MOV EAX,0x645370
+0044563e  JMP 0x00445643
+00445640  ADD EAX,0x5c
+00445643  CMP EAX,0x651cb0
+00445648  JNC 0x00445651
+0044564a  MOV DL,byte ptr [EAX + 0x6]
+0044564d  TEST DL,DL
+0044564f  JNZ 0x00445640
+00445651  CMP EAX,0x651cb0
+00445656  JNZ 0x00445662
+00445658  XOR ECX,ECX
+0044565a  MOV dword ptr [0x004c515c],ECX
+00445660  JMP 0x00445694
+00445662  MOV [0x004c515c],EAX
+00445667  MOV EDX,EAX
+00445669  JMP 0x0044567d
+0044566b  MOV CL,byte ptr [EAX + 0x6]
+0044566e  TEST CL,CL
+00445670  JNZ 0x0044567a
+00445672  MOV dword ptr [EDX + 0x54],EAX
+00445675  MOV dword ptr [EAX + 0x58],EDX
+00445678  MOV EDX,EAX
+0044567a  ADD EAX,0x5c
+0044567d  CMP EAX,0x651cb0
+00445682  JC 0x0044566b
+00445684  XOR EAX,EAX
+00445686  MOV dword ptr [EDX + 0x54],EAX
+00445689  MOV ECX,dword ptr [0x004c515c]
+0044568f  XOR EAX,EAX
+00445691  MOV dword ptr [ECX + 0x58],EAX
+00445694  POP EBX
+00445695  POP EBP
+00445696  RET 0x4
+*/

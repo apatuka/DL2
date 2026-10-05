@@ -1,0 +1,69 @@
+// Program: DEADLOCK.EXE
+// Language: x86:LE:32:default
+// Compiler: borlandcpp
+// Function: 00444274 FUN_00444274
+
+undefined4 __stdcall FUN_00444274(int param_1)
+
+{
+  undefined4 uVar1;
+  
+  if ((param_1 < 0) || (DAT_004d5aec < param_1)) {
+    uVar1 = 0;
+  }
+  else if ((&DAT_0059f161)[param_1 * 0x2d8] == '\0') {
+    uVar1 = 0;
+  }
+  else if (DAT_004d5b00 == '\0') {
+    uVar1 = (&DAT_0065e3cc)[param_1];
+  }
+  else if (DAT_004d5b00 == '\x01') {
+    uVar1 = (&DAT_0065e3b0)[param_1];
+  }
+  else if (DAT_004d5b00 == '\x02') {
+    uVar1 = (&DAT_0065e3e8)[param_1];
+  }
+  else {
+    uVar1 = 0;
+  }
+  return uVar1;
+}
+
+
+/* ASSEMBLY
+00444274  PUSH EBP
+00444275  MOV EBP,ESP
+00444277  MOV EAX,dword ptr [EBP + 0x8]
+0044427a  TEST EAX,EAX
+0044427c  JL 0x00444286
+0044427e  CMP EAX,dword ptr [0x004d5aec]
+00444284  JLE 0x0044428a
+00444286  XOR EAX,EAX
+00444288  JMP 0x004442d6
+0044428a  LEA EDX,[EAX + EAX*0x2]
+0044428d  SHL EDX,0x3
+00444290  SUB EDX,EAX
+00444292  SHL EDX,0x2
+00444295  SUB EDX,EAX
+00444297  MOV CL,byte ptr [EDX*0x8 + 0x59f161]
+0044429e  TEST CL,CL
+004442a0  JNZ 0x004442a6
+004442a2  XOR EAX,EAX
+004442a4  JMP 0x004442d6
+004442a6  MOV DL,byte ptr [0x004d5b00]
+004442ac  SUB DL,0x1
+004442af  JC 0x004442c2
+004442b1  JZ 0x004442b9
+004442b3  DEC DL
+004442b5  JZ 0x004442cb
+004442b7  JMP 0x004442d4
+004442b9  MOV EAX,dword ptr [EAX*0x4 + 0x65e3b0]
+004442c0  JMP 0x004442d6
+004442c2  MOV EAX,dword ptr [EAX*0x4 + 0x65e3cc]
+004442c9  JMP 0x004442d6
+004442cb  MOV EAX,dword ptr [EAX*0x4 + 0x65e3e8]
+004442d2  JMP 0x004442d6
+004442d4  XOR EAX,EAX
+004442d6  POP EBP
+004442d7  RET 0x4
+*/

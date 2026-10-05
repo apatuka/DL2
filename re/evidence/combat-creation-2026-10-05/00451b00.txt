@@ -1,0 +1,57 @@
+// Program: DEADLOCK.EXE
+// Language: x86:LE:32:default
+// Compiler: borlandcpp
+// Function: 00451b00 FUN_00451b00
+
+void __stdcall FUN_00451b00(int param_1)
+
+{
+  if (*(int *)(param_1 + 4) == 0xf) {
+    *(undefined1 *)(DAT_0057cdf8 + 0xe + (uint)*(byte *)(param_1 + 0x1e)) = 1;
+  }
+  if (*(int *)(param_1 + 4) == 0x21) {
+    *(undefined1 *)(DAT_0057cdf8 + 0x15 + (uint)*(byte *)(param_1 + 0x1e)) = 1;
+  }
+  if (*(int *)(param_1 + 4) == 0x1c) {
+    *(undefined1 *)(DAT_0057cdf8 + 0x1c + (uint)*(byte *)(param_1 + 0x1e)) = 1;
+  }
+  if (*(int *)(param_1 + 4) == 0x1a) {
+    *(undefined1 *)(DAT_0057cdf8 + 0x23 + (uint)*(byte *)(param_1 + 0x1e)) = 1;
+  }
+  return;
+}
+
+
+/* ASSEMBLY
+00451b00  PUSH EBP
+00451b01  MOV EBP,ESP
+00451b03  MOV EAX,dword ptr [EBP + 0x8]
+00451b06  CMP dword ptr [EAX + 0x4],0xf
+00451b0a  JNZ 0x00451b1c
+00451b0c  XOR EDX,EDX
+00451b0e  MOV DL,byte ptr [EAX + 0x1e]
+00451b11  MOV ECX,dword ptr [0x0057cdf8]
+00451b17  MOV byte ptr [ECX + EDX*0x1 + 0xe],0x1
+00451b1c  MOV EDX,dword ptr [EAX + 0x4]
+00451b1f  CMP EDX,0x21
+00451b22  JNZ 0x00451b34
+00451b24  XOR ECX,ECX
+00451b26  MOV CL,byte ptr [EAX + 0x1e]
+00451b29  MOV EDX,dword ptr [0x0057cdf8]
+00451b2f  MOV byte ptr [EDX + ECX*0x1 + 0x15],0x1
+00451b34  MOV ECX,dword ptr [EAX + 0x4]
+00451b37  CMP ECX,0x1c
+00451b3a  JNZ 0x00451b4c
+00451b3c  XOR EDX,EDX
+00451b3e  MOV DL,byte ptr [EAX + 0x1e]
+00451b41  MOV ECX,dword ptr [0x0057cdf8]
+00451b47  MOV byte ptr [ECX + EDX*0x1 + 0x1c],0x1
+00451b4c  MOV EDX,dword ptr [EAX + 0x4]
+00451b4f  CMP EDX,0x1a
+00451b52  JNZ 0x00451b63
+00451b54  MOVZX EAX,byte ptr [EAX + 0x1e]
+00451b58  MOV ECX,dword ptr [0x0057cdf8]
+00451b5e  MOV byte ptr [ECX + EAX*0x1 + 0x23],0x1
+00451b63  POP EBP
+00451b64  RET 0x4
+*/

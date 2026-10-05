@@ -1,5 +1,5 @@
 // Event portrait selection lists from DEADLOCK.EXE, table 004ca3b0.
-// Only categories referenced by canonical EventDef; races 0..6. Not pointers.
+// EventDef categories plus pact-offer15/public pact-break20; races0..6. Not pointers.
 #pragma once
 #include <cstdint>
 #include <span>

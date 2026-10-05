@@ -1,0 +1,56 @@
+// Program: DEADLOCK.EXE
+// Language: x86:LE:32:default
+// Compiler: borlandcpp
+// Function: 00446b94 FUN_00446b94
+
+void __stdcall FUN_00446b94(undefined4 param_1,undefined4 param_2,int param_3)
+
+{
+  FUN_0045dfb0();
+  FUN_00446b08();
+  DAT_00564214 = param_1;
+  DAT_004c528c = param_2;
+  DAT_004c5290 = 10000;
+  if (param_3 != 0) {
+    FUN_00446440();
+  }
+  return;
+}
+
+
+/* ASSEMBLY
+00446b94  PUSH EBP
+00446b95  MOV EBP,ESP
+00446b97  PUSH EBX
+00446b98  PUSH ESI
+00446b99  PUSH EDI
+00446b9a  MOV EDI,dword ptr [EBP + 0x18]
+00446b9d  MOV ESI,dword ptr [EBP + 0x10]
+00446ba0  MOV EBX,dword ptr [EBP + 0x8]
+00446ba3  MOV EAX,dword ptr [EBP + 0x1c]
+00446ba6  PUSH EAX
+00446ba7  CALL 0x0045dfb0
+00446bac  PUSH EDI
+00446bad  PUSH 0x3e8
+00446bb2  CALL 0x00446b08
+00446bb7  MOV dword ptr [0x00564214],EBX
+00446bbd  MOV EDX,dword ptr [EBP + 0xc]
+00446bc0  MOV dword ptr [0x004c528c],EDX
+00446bc6  MOV dword ptr [0x004c5290],0x2710
+00446bd0  TEST ESI,ESI
+00446bd2  JZ 0x00446be6
+00446bd4  MOV ECX,dword ptr [EBP + 0x1c]
+00446bd7  PUSH ECX
+00446bd8  PUSH EDI
+00446bd9  MOV EAX,dword ptr [EBP + 0x14]
+00446bdc  PUSH EAX
+00446bdd  PUSH ESI
+00446bde  PUSH 0x0
+00446be0  PUSH EBX
+00446be1  CALL 0x00446440
+00446be6  POP EDI
+00446be7  POP ESI
+00446be8  POP EBX
+00446be9  POP EBP
+00446bea  RET 0x18
+*/

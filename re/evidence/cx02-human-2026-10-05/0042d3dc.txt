@@ -1,0 +1,106 @@
+// Program: DEADLOCK.EXE
+// Language: x86:LE:32:default
+// Compiler: borlandcpp
+// Function: 0042d3dc FUN_0042d3dc
+
+undefined4 __stdcall FUN_0042d3dc(void)
+
+{
+  int iVar1;
+  undefined4 uVar2;
+  
+  iVar1 = FUN_0042d0ac();
+  if (iVar1 == 0) {
+    uVar2 = 0;
+  }
+  else {
+    iVar1 = FUN_0042c50c();
+    if (iVar1 == 0) {
+      FUN_0042d27c();
+      uVar2 = 0;
+    }
+    else {
+      FUN_0042d04c();
+      FUN_0044a000();
+      DAT_004d59a4 = 1;
+      FUN_0048db5d();
+      DAT_004d59a4 = 0;
+      iVar1 = FUN_0042c73c();
+      if (iVar1 == 0) {
+        FUN_0042d27c();
+        uVar2 = 0;
+      }
+      else {
+        iVar1 = 0;
+        while (iVar1 == 0) {
+          if (*(int *)(&DAT_006534fc + DAT_0058f1f4 * 4) != 2) break;
+          FUN_00477f9c();
+          iVar1 = FUN_0042d304();
+        }
+        FUN_0042d27c();
+        if (iVar1 == 0x25) {
+          uVar2 = 1;
+        }
+        else {
+          uVar2 = 0;
+        }
+      }
+    }
+  }
+  return uVar2;
+}
+
+
+/* ASSEMBLY
+0042d3dc  PUSH EBP
+0042d3dd  MOV EBP,ESP
+0042d3df  PUSH EBX
+0042d3e0  MOV EAX,dword ptr [EBP + 0xc]
+0042d3e3  PUSH EAX
+0042d3e4  MOV EDX,dword ptr [EBP + 0x8]
+0042d3e7  PUSH EDX
+0042d3e8  CALL 0x0042d0ac
+0042d3ed  TEST EAX,EAX
+0042d3ef  JNZ 0x0042d3f5
+0042d3f1  XOR EAX,EAX
+0042d3f3  JMP 0x0042d474
+0042d3f5  CALL 0x0042c50c
+0042d3fa  TEST EAX,EAX
+0042d3fc  JNZ 0x0042d407
+0042d3fe  CALL 0x0042d27c
+0042d403  XOR EAX,EAX
+0042d405  JMP 0x0042d474
+0042d407  CALL 0x0042d04c
+0042d40c  CALL 0x0044a000
+0042d411  MOV dword ptr [0x004d59a4],0x1
+0042d41b  PUSH 0x0
+0042d41d  CALL 0x0048db5d
+0042d422  XOR EDX,EDX
+0042d424  MOV dword ptr [0x004d59a4],EDX
+0042d42a  CALL 0x0042c73c
+0042d42f  TEST EAX,EAX
+0042d431  JNZ 0x0042d43c
+0042d433  CALL 0x0042d27c
+0042d438  XOR EAX,EAX
+0042d43a  JMP 0x0042d474
+0042d43c  XOR EBX,EBX
+0042d43e  JMP 0x0042d44c
+0042d440  CALL 0x00477f9c
+0042d445  CALL 0x0042d304
+0042d44a  MOV EBX,EAX
+0042d44c  TEST EBX,EBX
+0042d44e  JNZ 0x0042d461
+0042d450  MOV EAX,[0x0058f1f4]
+0042d455  MOV EDX,dword ptr [EAX*0x4 + 0x6534fc]
+0042d45c  CMP EDX,0x2
+0042d45f  JZ 0x0042d440
+0042d461  CALL 0x0042d27c
+0042d466  CMP EBX,0x25
+0042d469  JNZ 0x0042d472
+0042d46b  MOV EAX,0x1
+0042d470  JMP 0x0042d474
+0042d472  XOR EAX,EAX
+0042d474  POP EBX
+0042d475  POP EBP
+0042d476  RET 0x8
+*/

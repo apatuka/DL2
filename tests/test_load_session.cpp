@@ -426,15 +426,21 @@ public:
     }
 };
 void portraitTables(const fs::path& directory) {
-    constexpr int categories[]{1,2,3,4,5,6,7,8,12,13,21,24,25,26,27};
-    constexpr size_t counts[]{5,5,5,5,5,5,4,12,3,3,3,2,6,1,1};
+    constexpr int categories[]{1,2,3,4,5,6,7,8,12,13,20,21,24,25,26,27};
+    constexpr size_t counts[]{5,5,5,5,5,5,4,12,3,3,5,3,2,6,1,1};
+    static_assert(std::size(categories)==std::size(counts));
+    size_t expectedTotal=0;
+    for (const auto count:counts) expectedTotal+=7*count;
     size_t total=0;
     for (size_t i=0;i<std::size(categories);++i) for (int race=0;race<7;++race) {
         const auto names=data::eventPortraitNames(race,categories[i]);
         require(names.size()==counts[i],"verified portrait table extent differs"); total+=names.size();
         for (const auto name:names) require(!name.empty() && name.size()<16,"invalid portrait resource name");
     }
-    require(total==455 && data::eventPortraitNames(-1,1).empty() && data::eventPortraitNames(7,1).empty() &&
+    require(total==expectedTotal && data::eventPortraitNames(-1,1).empty() && data::eventPortraitNames(7,1).empty() &&
+            data::eventPortraitNames(-1,20).empty() && data::eventPortraitNames(7,20).empty() &&
+            data::eventPortraitNames(8,20).empty() && data::eventPortraitNames(0,20).front()=="CCQUITA" &&
+            data::eventPortraitNames(6,20).back()=="UUQUITE" &&
             data::eventPortraitNames(0,-1).empty() && data::eventPortraitNames(0,9).empty(),"portrait-domain/count contract differs");
     const auto path=directory/"DEADLOCK.EXE";
     if (directory.empty() || !fs::is_regular_file(path)) {
@@ -456,7 +462,7 @@ void portraitTables(const fs::path& directory) {
         for (size_t i=0;i<names.size();++i)
             require(pe.text(pe.word(list+uint32_t(i)*4u))==names[i],"portrait resource string/order differs from original PE");
     }
-    std::cout<<"load session: all455 portrait names match original PE tables\n";
+    std::cout<<"load session: all"<<total<<" portrait names match original PE tables\n";
 }
 
 std::vector<std::string> scenarioNames(const fs::path& path) {

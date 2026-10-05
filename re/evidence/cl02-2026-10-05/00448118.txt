@@ -1,0 +1,85 @@
+// Program: DEADLOCK.EXE
+// Language: x86:LE:32:default
+// Compiler: borlandcpp
+// Function: 00448118 FUN_00448118
+
+int __stdcall FUN_00448118(int param_1)
+
+{
+  int iVar1;
+  int *piVar2;
+  int local_c;
+  int local_8;
+  
+  iVar1 = FUN_004482cc();
+  if (iVar1 == 0) {
+    iVar1 = FUN_00447a40();
+    local_8 = iVar1 * 0xf +
+              (int)*(short *)(&DAT_0055a076 +
+                             (char)(&DAT_0059f162)[(uint)*(byte *)(param_1 + 0x1e) * 0x2d8] * 2) +
+              *(int *)(&DAT_004c52c8 + (char)(&DAT_005a0548)[*(byte *)(param_1 + 0x1e)] * 4) + 0x32;
+    local_c = 100;
+    if (local_8 < 0x65) {
+      piVar2 = &local_8;
+    }
+    else {
+      piVar2 = &local_c;
+    }
+    iVar1 = *piVar2;
+  }
+  else {
+    iVar1 = 100;
+  }
+  return iVar1;
+}
+
+
+/* ASSEMBLY
+00448118  PUSH EBP
+00448119  MOV EBP,ESP
+0044811b  ADD ESP,-0x8
+0044811e  PUSH EBX
+0044811f  PUSH ESI
+00448120  MOV EBX,dword ptr [EBP + 0x8]
+00448123  PUSH EBX
+00448124  CALL 0x004482cc
+00448129  TEST EAX,EAX
+0044812b  JZ 0x00448134
+0044812d  MOV EAX,0x64
+00448132  JMP 0x00448199
+00448134  MOVSX EDX,word ptr [EBX + 0xa]
+00448138  PUSH EDX
+00448139  CALL 0x00447a40
+0044813e  MOVZX ESI,byte ptr [EBX + 0x1e]
+00448142  MOV ECX,EAX
+00448144  SHL ECX,0x4
+00448147  SUB ECX,EAX
+00448149  LEA EAX,[ESI + ESI*0x2]
+0044814c  SHL EAX,0x3
+0044814f  SUB EAX,ESI
+00448151  SHL EAX,0x2
+00448154  SUB EAX,ESI
+00448156  MOVSX EDX,byte ptr [EAX*0x8 + 0x59f162]
+0044815e  MOVSX EAX,word ptr [EDX*0x2 + 0x55a076]
+00448166  MOVSX EDX,byte ptr [ESI + 0x5a0548]
+0044816d  ADD ECX,EAX
+0044816f  MOV EAX,dword ptr [EDX*0x4 + 0x4c52c8]
+00448176  ADD ECX,EAX
+00448178  ADD ECX,0x32
+0044817b  MOV dword ptr [EBP + -0x4],ECX
+0044817e  MOV dword ptr [EBP + -0x8],0x64
+00448185  MOV EDX,dword ptr [EBP + -0x8]
+00448188  MOV ECX,dword ptr [EBP + -0x4]
+0044818b  CMP EDX,ECX
+0044818d  JGE 0x00448194
+0044818f  LEA EAX,[EBP + -0x8]
+00448192  JMP 0x00448197
+00448194  LEA EAX,[EBP + -0x4]
+00448197  MOV EAX,dword ptr [EAX]
+00448199  POP ESI
+0044819a  POP EBX
+0044819b  POP ECX
+0044819c  POP ECX
+0044819d  POP EBP
+0044819e  RET 0x4
+*/

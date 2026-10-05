@@ -1,0 +1,35 @@
+// Program: DEADLOCK.EXE
+// Language: x86:LE:32:default
+// Compiler: borlandcpp
+// Function: 0045130c FUN_0045130c
+
+void __stdcall FUN_0045130c(int param_1,int param_2,int param_3)
+
+{
+  if (param_3 == 0) {
+    (&DAT_0057cf4d)[param_1 + param_2 * 0x24] = (&DAT_0057cf4d)[param_1 + param_2 * 0x24] & 0xfb;
+  }
+  else {
+    (&DAT_0057cf4d)[param_1 + param_2 * 0x24] = (&DAT_0057cf4d)[param_1 + param_2 * 0x24] | 4;
+  }
+  return;
+}
+
+
+/* ASSEMBLY
+0045130c  PUSH EBP
+0045130d  MOV EBP,ESP
+0045130f  MOV EDX,dword ptr [EBP + 0xc]
+00451312  MOV EAX,dword ptr [EBP + 0x8]
+00451315  CMP dword ptr [EBP + 0x10],0x0
+00451319  JZ 0x0045132b
+0045131b  LEA EDX,[EDX + EDX*0x8]
+0045131e  LEA ECX,[EDX*0x4 + 0x57cf4d]
+00451325  OR byte ptr [ECX + EAX*0x1],0x4
+00451329  JMP 0x00451339
+0045132b  LEA EDX,[EDX + EDX*0x8]
+0045132e  LEA ECX,[EDX*0x4 + 0x57cf4d]
+00451335  AND byte ptr [ECX + EAX*0x1],0xfb
+00451339  POP EBP
+0045133a  RET 0xc
+*/

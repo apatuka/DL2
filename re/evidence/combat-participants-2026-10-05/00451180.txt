@@ -1,0 +1,31 @@
+// Program: DEADLOCK.EXE
+// Language: x86:LE:32:default
+// Compiler: borlandcpp
+// Function: 00451180 FUN_00451180
+
+int __stdcall FUN_00451180(int param_1,int param_2,int param_3)
+
+{
+  param_2 = *(int *)(param_1 + 0x20) - param_2;
+  param_3 = *(int *)(param_1 + 0x24) - param_3;
+  return param_2 * param_2 + param_3 * param_3;
+}
+
+
+/* ASSEMBLY
+00451180  PUSH EBP
+00451181  MOV EBP,ESP
+00451183  MOV EDX,dword ptr [EBP + 0x8]
+00451186  MOV EAX,dword ptr [EDX + 0x20]
+00451189  MOV EDX,dword ptr [EDX + 0x24]
+0045118c  SUB EAX,dword ptr [EBP + 0xc]
+0045118f  SUB EDX,dword ptr [EBP + 0x10]
+00451192  MOV ECX,EAX
+00451194  IMUL ECX,EAX
+00451197  MOV EAX,EDX
+00451199  IMUL EDX
+0045119b  ADD ECX,EAX
+0045119d  MOV EAX,ECX
+0045119f  POP EBP
+004511a0  RET 0xc
+*/

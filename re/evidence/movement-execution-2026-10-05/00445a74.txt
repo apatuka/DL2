@@ -1,0 +1,53 @@
+// Program: DEADLOCK.EXE
+// Language: x86:LE:32:default
+// Compiler: borlandcpp
+// Function: 00445a74 FUN_00445a74
+
+undefined4 __stdcall FUN_00445a74(int param_1)
+
+{
+  int *piVar1;
+  int iVar2;
+  
+  if (*(int *)(param_1 + 0x48) != 0) {
+    iVar2 = 0;
+    piVar1 = (int *)(*(int *)(param_1 + 0x48) + 0x48);
+    do {
+      if (param_1 == *piVar1) {
+        *piVar1 = 0;
+        *(undefined4 *)(param_1 + 0x48) = 0;
+        return 1;
+      }
+      iVar2 = iVar2 + 1;
+      piVar1 = piVar1 + 1;
+    } while (iVar2 < 3);
+  }
+  return 0;
+}
+
+
+/* ASSEMBLY
+00445a74  PUSH EBP
+00445a75  MOV EBP,ESP
+00445a77  MOV ECX,dword ptr [EBP + 0x8]
+00445a7a  MOV EAX,dword ptr [ECX + 0x48]
+00445a7d  TEST EAX,EAX
+00445a7f  JZ 0x00445aa3
+00445a81  XOR EDX,EDX
+00445a83  ADD EAX,0x48
+00445a86  CMP ECX,dword ptr [EAX]
+00445a88  JNZ 0x00445a9a
+00445a8a  XOR EDX,EDX
+00445a8c  MOV dword ptr [EAX],EDX
+00445a8e  XOR EAX,EAX
+00445a90  MOV dword ptr [ECX + 0x48],EAX
+00445a93  MOV EAX,0x1
+00445a98  JMP 0x00445aa5
+00445a9a  INC EDX
+00445a9b  ADD EAX,0x4
+00445a9e  CMP EDX,0x3
+00445aa1  JL 0x00445a86
+00445aa3  XOR EAX,EAX
+00445aa5  POP EBP
+00445aa6  RET 0x4
+*/

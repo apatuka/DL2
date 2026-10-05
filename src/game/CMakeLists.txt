@@ -30,10 +30,26 @@ set(GAME_SOURCES
     load_session.cpp
     load_startup.cpp
     ai_session.cpp
+    ai_event_transaction.cpp
+    ai_pact_rules.cpp
+    ai_pact_reconciliation.cpp
+    ai_pact_transaction.cpp
+    combat_stats.cpp
+    combat_creation.cpp
+    combat_preparation.cpp
+    combat_buildings.cpp
+    combat_auxiliaries.cpp
+    combat_defense.cpp
+    combat_territory.cpp
+    movement_paths.cpp
+    movement_next_step.cpp
+    unit_movement.cpp
+    movement_crossings.cpp
     army_pool.cpp
     ai_taskforce_dissolution.cpp
     entity_lifecycle.cpp
     entity_orders.cpp
+    colony_demolition_orders.cpp
     shrine_consequences.cpp
     load_world_presentation.cpp
     construction_payment.cpp

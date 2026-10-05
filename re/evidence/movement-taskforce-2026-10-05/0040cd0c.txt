@@ -1,0 +1,92 @@
+// Program: DEADLOCK.EXE
+// Language: x86:LE:32:default
+// Compiler: borlandcpp
+// Function: 0040cd0c FUN_0040cd0c
+
+void __stdcall FUN_0040cd0c(int param_1,int param_2)
+
+{
+  char cVar1;
+  int iVar2;
+  
+  if (*(short *)(param_1 + 0x36) != 0) {
+    iVar2 = *(int *)(&DAT_005224c0 +
+                    *(char *)(param_1 + 8) * 0x2648 + *(short *)(param_1 + 0x36) * 0xc4);
+    if ((((iVar2 == 3) || (iVar2 == 9)) &&
+        ((cVar1 = *(char *)(param_2 + 7), cVar1 == '\x01' ||
+         ((cVar1 == '\x02' || (cVar1 == '\x06')))))) ||
+       ((*(int *)(&DAT_005224c0 +
+                 *(char *)(param_1 + 8) * 0x2648 + *(short *)(param_1 + 0x36) * 0xc4) == 4 &&
+        (iVar2 = FUN_00416ca4(), iVar2 != 0)))) {
+      FUN_0040adf4();
+      FUN_0040b0c0();
+    }
+    else {
+      FUN_0040adf4();
+      FUN_00475854();
+    }
+    return;
+  }
+  FUN_0040adf4();
+  FUN_00475854();
+  return;
+}
+
+
+/* ASSEMBLY
+0040cd0c  PUSH EBP
+0040cd0d  MOV EBP,ESP
+0040cd0f  PUSH EBX
+0040cd10  PUSH ESI
+0040cd11  MOV EBX,dword ptr [EBP + 0xc]
+0040cd14  MOV EAX,dword ptr [EBP + 0x8]
+0040cd17  CMP word ptr [EAX + 0x36],0x0
+0040cd1c  JNZ 0x0040cd2c
+0040cd1e  PUSH EBX
+0040cd1f  CALL 0x0040adf4
+0040cd24  PUSH EBX
+0040cd25  CALL 0x00475854
+0040cd2a  JMP 0x0040cd98
+0040cd2c  MOVSX EDX,byte ptr [EAX + 0x8]
+0040cd30  IMUL ESI,EDX,0x2648
+0040cd36  MOVSX EAX,word ptr [EAX + 0x36]
+0040cd3a  LEA EDX,[EAX + EAX*0x2]
+0040cd3d  SHL EDX,0x4
+0040cd40  ADD EDX,EAX
+0040cd42  SHL EDX,0x2
+0040cd45  ADD ESI,EDX
+0040cd47  ADD ESI,0x5224c0
+0040cd4d  MOV EAX,dword ptr [ESI]
+0040cd4f  CMP EAX,0x3
+0040cd52  JZ 0x0040cd59
+0040cd54  CMP EAX,0x9
+0040cd57  JNZ 0x0040cd6c
+0040cd59  MOVSX EAX,byte ptr [EBX + 0x7]
+0040cd5d  CMP EAX,0x1
+0040cd60  JZ 0x0040cd7d
+0040cd62  CMP EAX,0x2
+0040cd65  JZ 0x0040cd7d
+0040cd67  CMP EAX,0x6
+0040cd6a  JZ 0x0040cd7d
+0040cd6c  MOV EDX,dword ptr [ESI]
+0040cd6e  CMP EDX,0x4
+0040cd71  JNZ 0x0040cd8c
+0040cd73  PUSH EBX
+0040cd74  CALL 0x00416ca4
+0040cd79  TEST EAX,EAX
+0040cd7b  JZ 0x0040cd8c
+0040cd7d  PUSH EBX
+0040cd7e  CALL 0x0040adf4
+0040cd83  PUSH EBX
+0040cd84  PUSH ESI
+0040cd85  CALL 0x0040b0c0
+0040cd8a  JMP 0x0040cd98
+0040cd8c  PUSH EBX
+0040cd8d  CALL 0x0040adf4
+0040cd92  PUSH EBX
+0040cd93  CALL 0x00475854
+0040cd98  POP ESI
+0040cd99  POP EBX
+0040cd9a  POP EBP
+0040cd9b  RET 0x8
+*/

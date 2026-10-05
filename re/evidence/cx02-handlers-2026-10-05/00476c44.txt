@@ -1,0 +1,44 @@
+// Program: DEADLOCK.EXE
+// Language: x86:LE:32:default
+// Compiler: borlandcpp
+// Function: 00476c44 FUN_00476c44
+
+void __stdcall FUN_00476c44(undefined4 param_1,int param_2)
+
+{
+  if (*(int *)(&DAT_006534fc + param_2 * 4) == 0) {
+    FUN_004779c0();
+    FUN_00474d0c();
+  }
+  else {
+    FUN_004767f0();
+  }
+  return;
+}
+
+
+/* ASSEMBLY
+00476c44  PUSH EBP
+00476c45  MOV EBP,ESP
+00476c47  MOV EDX,dword ptr [EBP + 0xc]
+00476c4a  MOV EAX,dword ptr [EBP + 0x8]
+00476c4d  CMP dword ptr [EDX*0x4 + 0x6534fc],0x0
+00476c55  JZ 0x00476c61
+00476c57  PUSH 0x1
+00476c59  PUSH EAX
+00476c5a  CALL 0x004767f0
+00476c5f  JMP 0x00476c7a
+00476c61  PUSH 0x0
+00476c63  PUSH 0x0
+00476c65  PUSH EDX
+00476c66  PUSH EAX
+00476c67  MOV EDX,dword ptr [EBP + 0x10]
+00476c6a  PUSH EDX
+00476c6b  PUSH 0x3e
+00476c6d  PUSH EAX
+00476c6e  CALL 0x004779c0
+00476c73  PUSH 0x3e
+00476c75  CALL 0x00474d0c
+00476c7a  POP EBP
+00476c7b  RET 0xc
+*/

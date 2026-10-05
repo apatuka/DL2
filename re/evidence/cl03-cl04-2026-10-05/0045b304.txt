@@ -1,0 +1,156 @@
+// Program: DEADLOCK.EXE
+// Language: x86:LE:32:default
+// Compiler: borlandcpp
+// Function: 0045b304 FUN_0045b304
+
+/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
+
+void __stdcall FUN_0045b304(void)
+
+{
+  int iVar1;
+  int iVar2;
+  int *piVar3;
+  tagPOINT local_dc [26];
+  
+  GetCursorPos(local_dc);
+  MapWindowPoints((HWND)0x0,DAT_004d5974,local_dc,1);
+  iVar1 = DAT_004c5b50;
+  if ((DAT_004d5aa0 == '\0') && ((&DAT_005a4436)[DAT_0058f1f4 + DAT_004c5b50 * 0xadc] != '\x04')) {
+    FUN_0042836c();
+  }
+  else if (DAT_004d59b4 == 0) {
+    FUN_004ab450();
+    iVar2 = FUN_0042836c();
+    if (iVar2 == 1) {
+      iVar2 = 0;
+      piVar3 = &DAT_005a4524 + iVar1 * 0x2b7;
+      do {
+        if ((*piVar3 != 0) && (*(char *)(*piVar3 + 5) != '\v')) {
+          FUN_00475a60();
+        }
+        iVar2 = iVar2 + 1;
+        piVar3 = piVar3 + 0xd;
+      } while (iVar2 < 0x24);
+    }
+    FUN_00482f94();
+    if (DAT_004d5aa0 != '\0') {
+      FUN_0046e6b8();
+    }
+    FUN_00449dec();
+    FUN_00449f5c();
+  }
+  else {
+    DAT_004d1c7c = 1;
+    FUN_004590f0();
+    FUN_00458ed8();
+    _DAT_004c5b6c = 1;
+  }
+  return;
+}
+
+
+/* ASSEMBLY
+0045b304  PUSH EBX
+0045b305  PUSH ESI
+0045b306  PUSH EDI
+0045b307  ADD ESP,0xffffff30
+0045b30d  PUSH ESP
+0045b30e  CALL 0x004b4197
+0045b313  PUSH 0x1
+0045b315  LEA EAX,[ESP + 0x4]
+0045b319  PUSH EAX
+0045b31a  MOV EDX,dword ptr [0x004d5974]
+0045b320  PUSH EDX
+0045b321  PUSH 0x0
+0045b323  CALL 0x004b420f
+0045b328  IMUL EBX,dword ptr [0x004c5b50],0xadc
+0045b332  ADD EBX,0x5a43d0
+0045b338  MOV AL,[0x004d5aa0]
+0045b33d  TEST AL,AL
+0045b33f  JNZ 0x0045b355
+0045b341  MOV EDX,dword ptr [0x0058f1f4]
+0045b347  MOVSX ECX,byte ptr [EBX + EDX*0x1 + 0x66]
+0045b34c  CMP ECX,0x4
+0045b34f  JNZ 0x0045b424
+0045b355  MOV EAX,[0x004d59b4]
+0045b35a  TEST EAX,EAX
+0045b35c  JNZ 0x0045b3dd
+0045b35e  PUSH EBX
+0045b35f  MOV EDX,dword ptr [0x00509770]
+0045b365  PUSH EDX
+0045b366  LEA ECX,[ESP + 0x10]
+0045b36a  PUSH ECX
+0045b36b  CALL 0x004ab450
+0045b370  ADD ESP,0xc
+0045b373  PUSH 0x4
+0045b375  PUSH 0x0
+0045b377  PUSH 0x18
+0045b379  LEA EAX,[ESP + 0x14]
+0045b37d  PUSH EAX
+0045b37e  MOV EDX,dword ptr [0x00508fa4]
+0045b384  PUSH EDX
+0045b385  CALL 0x0042836c
+0045b38a  DEC EAX
+0045b38b  JNZ 0x0045b3b6
+0045b38d  XOR EDI,EDI
+0045b38f  LEA ESI,[EBX + 0x154]
+0045b395  MOV EAX,dword ptr [ESI]
+0045b397  TEST EAX,EAX
+0045b399  JZ 0x0045b3ad
+0045b39b  MOVSX EDX,byte ptr [EAX + 0x5]
+0045b39f  CMP EDX,0xb
+0045b3a2  JZ 0x0045b3ad
+0045b3a4  PUSH 0x0
+0045b3a6  PUSH EDI
+0045b3a7  PUSH EBX
+0045b3a8  CALL 0x00475a60
+0045b3ad  INC EDI
+0045b3ae  ADD ESI,0x34
+0045b3b1  CMP EDI,0x24
+0045b3b4  JL 0x0045b395
+0045b3b6  MOV ECX,dword ptr [0x004d5988]
+0045b3bc  PUSH ECX
+0045b3bd  CALL 0x00482f94
+0045b3c2  MOV AL,[0x004d5aa0]
+0045b3c7  TEST AL,AL
+0045b3c9  JZ 0x0045b3d1
+0045b3cb  PUSH EBX
+0045b3cc  CALL 0x0046e6b8
+0045b3d1  CALL 0x00449dec
+0045b3d6  CALL 0x00449f5c
+0045b3db  JMP 0x0045b43d
+0045b3dd  MOV EAX,[0x004d0360]
+0045b3e2  MOV byte ptr [0x004d1c7c],0x1
+0045b3e9  PUSH 0x45b094
+0045b3ee  PUSH 0x0
+0045b3f0  MOVSX EDX,word ptr [EAX + 0x6]
+0045b3f4  PUSH EDX
+0045b3f5  MOVSX ECX,word ptr [EAX + 0x4]
+0045b3f9  PUSH ECX
+0045b3fa  MOV EDX,dword ptr [ESP + 0x14]
+0045b3fe  PUSH EDX
+0045b3ff  MOV ECX,dword ptr [ESP + 0x14]
+0045b403  PUSH ECX
+0045b404  MOV EAX,dword ptr [EAX + 0x8]
+0045b407  PUSH EAX
+0045b408  MOV EAX,[0x004d5974]
+0045b40d  PUSH EAX
+0045b40e  CALL 0x004590f0
+0045b413  CALL 0x00458ed8
+0045b418  MOV dword ptr [0x004c5b6c],0x1
+0045b422  JMP 0x0045b43d
+0045b424  PUSH 0x9
+0045b426  PUSH 0x0
+0045b428  PUSH 0x4
+0045b42a  MOV EDX,dword ptr [0x00509698]
+0045b430  PUSH EDX
+0045b431  MOV ECX,dword ptr [0x00508fa4]
+0045b437  PUSH ECX
+0045b438  CALL 0x0042836c
+0045b43d  ADD ESP,0xd0
+0045b443  POP EDI
+0045b444  POP ESI
+0045b445  POP EBX
+0045b446  RET
+*/

@@ -1,0 +1,37 @@
+// Program: DEADLOCK.EXE
+// Language: x86:LE:32:default
+// Compiler: borlandcpp
+// Function: 004518f8 FUN_004518f8
+
+void __stdcall FUN_004518f8(int param_1)
+
+{
+  int iVar1;
+  
+  iVar1 = FUN_00450de0();
+  if ((iVar1 == 0) && ((&DAT_004faf8d)[*(int *)(param_1 + 4) * 0x24] == '\x03')) {
+    *(undefined1 *)(param_1 + 0x14) = 2;
+  }
+  return;
+}
+
+
+/* ASSEMBLY
+004518f8  PUSH EBP
+004518f9  MOV EBP,ESP
+004518fb  PUSH EBX
+004518fc  MOV EBX,dword ptr [EBP + 0x8]
+004518ff  PUSH EBX
+00451900  CALL 0x00450de0
+00451905  TEST EAX,EAX
+00451907  JNZ 0x00451920
+00451909  MOV EAX,dword ptr [EBX + 0x4]
+0045190c  LEA EAX,[EAX + EAX*0x8]
+0045190f  MOVSX EDX,byte ptr [EAX*0x4 + 0x4faf8d]
+00451917  CMP EDX,0x3
+0045191a  JNZ 0x00451920
+0045191c  MOV byte ptr [EBX + 0x14],0x2
+00451920  POP EBX
+00451921  POP EBP
+00451922  RET 0x4
+*/

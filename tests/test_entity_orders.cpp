@@ -270,13 +270,53 @@ void runtimeOrders() {
     checked(state.prepare(*f.document,error),error);
     require(!state.buildingRemovalContext() && !state.army(ownedUnit) && !state.building(survivor),"reprepare resets continuation and invalidates prior identities");
 }
+void runtimeCollectiveDemolition() {
+    auto d=fixture();
+    const auto later=building(*d,29,35),first=building(*d,29,0);
+    const auto shrine=building(*d,46,14),foreign=building(*d,29,0,3);
+    const auto unit=army(*d); const auto input=bytes(*d);
+    runtime::State state; save::Error error; checked(state.prepare(*d,error),error);
+    const auto firstHandle=state.buildingById(first),laterHandle=state.buildingById(later);
+    const auto shrineHandle=state.buildingById(shrine),foreignHandle=state.buildingById(foreign);
+    const auto unitHandle=state.armyById(unit);
+    const auto territoryHandle=state.territoryByIndex(1);
+    const auto rng=state.sessionRng();
+    BuildingRemovalContext context; context.pendingShrines.entries={{1,3}};
+    context.campaignProgress={11,22,33};
+    DemolishColonyOrderReport report;
+    checked(state.orderDemolishColony({0,1},context,report,error),error);
+    require(report.removedIds==std::vector<uint32_t>({first,later}) &&
+            !state.building(firstHandle) && !state.building(laterHandle) &&
+            state.building(shrineHandle) && state.building(foreignHandle) && state.army(unitHandle) &&
+            state.territoryByIndex(1)==territoryHandle &&
+            state.graph().territories[0].sites[14]==shrineHandle &&
+            !state.graph().territories[0].sites[0] && !state.graph().territories[0].sites[35],
+            "collective order must retire only site-ordered eligible lifetimes and rebuild graph");
+    require(state.stage()==runtime::Stage::EntitiesEdited && state.sessionRng()==rng &&
+            *state.buildingRemovalContext()==context && report.contextAfter==context && bytes(*d)==input,
+            "collective order lost continuation, RNG or source isolation");
+    const auto after=bytes(*state.document()); const auto* pointer=state.document(); const auto saved=report;
+    require(!state.orderDemolishColony({0,1},{},report,error) && report==saved &&
+            state.document()==pointer && bytes(*state.document())==after && state.building(shrineHandle),
+            "collective order must reject a rewound continuation even when no buildings are eligible");
+    require(!state.orderDemolishColony({0,3},context,report,error) && report==saved &&
+            state.document()==pointer && bytes(*state.document())==after,
+            "collective authority rejection must keep graph, document and report");
+    checked(state.orderDemolishColony({0,1},report.contextAfter,report,error),error);
+    require(report.removedIds.empty() && bytes(*state.document())==after &&
+            report.contextAfter==context && state.building(shrineHandle) && state.building(foreignHandle),
+            "empty collective repeat must preserve survivor identities and aliased context");
+    auto captured=fixture(); const auto oldCapture=bytes(*captured);
+    require(!state.capture(*captured,error) && bytes(*captured)==oldCapture && !state.advanceTurn(error),
+            "collective order must not activate export or a partial turn");
+}
 } // namespace
 int main() {
     try {
         std::vector<uint8_t> globalState(sizeof(dl2::gs)),globalMisc(sizeof(dl2::gg));
         std::memcpy(globalState.data(),&dl2::gs,sizeof(dl2::gs)); std::memcpy(globalMisc.data(),&dl2::gg,sizeof(dl2::gg));
         const auto seed=dl2::rtl::seed(),seedHi=dl2::rtl::seedHi();
-        permissionsRefundsAndShrines(); disbandAuthorizationAndDependencies(); platformOrderAndRollback(); marineFlagOracles(); runtimeOrders();
+        permissionsRefundsAndShrines(); disbandAuthorizationAndDependencies(); platformOrderAndRollback(); marineFlagOracles(); runtimeOrders(); runtimeCollectiveDemolition();
         require(std::memcmp(globalState.data(),&dl2::gs,sizeof(dl2::gs))==0 && std::memcmp(globalMisc.data(),&dl2::gg,sizeof(dl2::gg))==0 &&
                 dl2::rtl::seed()==seed && dl2::rtl::seedHi()==seedHi,"all orders preserve global state and both RNG words");
         std::cout<<"entity_orders: authority, native refunds/cascades/marine flags, shrine continuation and rollback passed\n"; return 0;

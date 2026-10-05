@@ -1,0 +1,35 @@
+// Program: DEADLOCK.EXE
+// Language: x86:LE:32:default
+// Compiler: borlandcpp
+// Function: 00450320 FUN_00450320
+
+undefined4 __stdcall FUN_00450320(void)
+
+{
+  int iVar1;
+  
+  iVar1 = FUN_0044fe1c();
+  if (iVar1 != 0) {
+    iVar1 = FUN_0044febc();
+    if (iVar1 != 0) {
+      return 1;
+    }
+  }
+  return 0;
+}
+
+
+/* ASSEMBLY
+00450320  PUSH 0xc
+00450322  CALL 0x0044fe1c
+00450327  TEST EAX,EAX
+00450329  JZ 0x0045033c
+0045032b  PUSH 0xc
+0045032d  CALL 0x0044febc
+00450332  TEST EAX,EAX
+00450334  JZ 0x0045033c
+00450336  MOV EAX,0x1
+0045033b  RET
+0045033c  XOR EAX,EAX
+0045033e  RET
+*/

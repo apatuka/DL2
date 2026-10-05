@@ -545,11 +545,15 @@ void eventReactions() {
             bytes(*d) == beforeSource && report == beforeReport, "failed task-force dissolution leaked preceding effects");
     d->jobs[1][49].parentJob = 0;
     d->aiWarMask[1] = 0; d->players[1].relations[0] = 2;
-    require(!ai.reactEvent(*d,{1,10,0,0},context,*output,report,error) && bytes(*output) == beforeOutput && report == beforeReport,
-            "unsupported pact-break branch was approximated");
-    require(!ai.reactEvent(*d,{1,0x72,0,2},context,*output,report,error) &&
-            !ai.reactEvent(*d,{1,0x73,0,2},context,*output,report,error) && report == beforeReport,
-            "negotiation was answered implicitly or leaked RNG");
+    require(ai.reactEvent(*d,{1,10,0,0},context,*output,report,error) && output->aiWarMask[1]==1 &&
+            report.pacts.size()==1 && !report.pacts[0].accepted && output->players[1].relations[0]==2,
+            "disabled-alliance native ACK was promoted to API failure or masks changed");
+    require(ai.reactEvent(*d,{1,0x72,0,2},context,*output,report,error) && report.draws.size()==1,
+            "neutral event72 incorrectly required negotiation state");
+    const auto beforeNegotiation=bytes(*output); const auto negotiationReport=report;
+    require(!ai.reactEvent(*d,{1,0x73,0,2},context,*output,report,error) &&
+            bytes(*output)==beforeNegotiation && report==negotiationReport,
+            "missing live negotiation context was invented or leaked RNG");
     const auto odd = reactionContext(seedForRoll(1));
     require(ai.reactEvent(*d,{1,0x72,0,2},odd,*output,report,error) && report.draws.size() == 1 && report.messages.empty(),
             "actual skipped negotiation branch rejected or invented effects");
@@ -604,8 +608,10 @@ void warTransitions() {
     require(!ai.reactEvent(*d,{1,10,0,0},context,*d,report,error) && taskForceWitness(*d) == before && report == saved,
             "late war failure leaked alias effects");
     d->jobs[1][49].parentJob = 0; d->players[1].relations[0] = 2;
-    require(!ai.reactEvent(*d,{1,10,0,0},context,*out,report,error) && taskForceWitness(*out) == kept && report == saved,
-            "unported pact broke atomicity after old-war dissolution");
+    d->options.allowAlliances=1; d->players[1].race=7;
+    auto publicContext=context; publicContext.relationChangeMask[1]|=1u;
+    require(!ai.reactEvent(*d,{1,10,0,0},publicContext,*out,report,error) && taskForceWitness(*out) == kept && report == saved,
+            "unsupported public pact continuation broke atomicity after old-war dissolution");
 
     // Ending war0 must also visit every empty record with targetPlayer0, including job0.
     d = fixture(); d->aiWarMask[1] = 1; word(d->scratchJob1,1,2,0); word(d->scratchJob2,1,2,0);

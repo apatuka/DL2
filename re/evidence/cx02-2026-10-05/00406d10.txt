@@ -1,0 +1,129 @@
+// Program: DEADLOCK.EXE
+// Language: x86:LE:32:default
+// Compiler: borlandcpp
+// Function: 00406d10 FUN_00406d10
+
+uint __stdcall FUN_00406d10(undefined4 param_1,undefined4 param_2,uint param_3)
+
+{
+  int iVar1;
+  int iVar2;
+  char *pcVar3;
+  
+  if ((param_3 & 0x10) != 0) {
+    iVar2 = 0;
+    pcVar3 = &DAT_0059f161;
+    do {
+      if ((*pcVar3 != '\0') &&
+         ((iVar1 = FUN_00441388(), iVar1 != 0 || (iVar1 = FUN_00441388(), iVar1 != 0)))) {
+        param_3 = param_3 & 0xffffffef;
+      }
+      iVar2 = iVar2 + 1;
+      pcVar3 = pcVar3 + 0x2d8;
+    } while (iVar2 < 7);
+  }
+  if ((param_3 & 0x10) != 0) {
+    iVar2 = FUN_00441388();
+    if (iVar2 == 0) {
+      param_3 = param_3 | 2;
+    }
+    iVar2 = FUN_00441388();
+    if (iVar2 == 0) {
+      param_3 = param_3 | 8;
+    }
+    iVar2 = FUN_00441388();
+    if (iVar2 == 0) {
+      param_3 = param_3 | 4;
+    }
+  }
+  if ((param_3 & 1) != 0) {
+    if (((param_3 & 2) == 0) && (iVar2 = FUN_00441388(), iVar2 == 0)) {
+      return param_3;
+    }
+    param_3 = param_3 & 0xfffffffe;
+  }
+  return param_3;
+}
+
+
+/* ASSEMBLY
+00406d10  PUSH EBP
+00406d11  MOV EBP,ESP
+00406d13  PUSH EBX
+00406d14  PUSH ESI
+00406d15  PUSH EDI
+00406d16  MOV ESI,dword ptr [EBP + 0x10]
+00406d19  TEST ESI,0x10
+00406d1f  JZ 0x00406d5c
+00406d21  XOR EBX,EBX
+00406d23  MOV EDI,0x59f161
+00406d28  CMP byte ptr [EDI],0x0
+00406d2b  JZ 0x00406d50
+00406d2d  PUSH 0x10
+00406d2f  PUSH EBX
+00406d30  MOV EAX,dword ptr [EBP + 0x8]
+00406d33  PUSH EAX
+00406d34  CALL 0x00441388
+00406d39  TEST EAX,EAX
+00406d3b  JNZ 0x00406d4d
+00406d3d  PUSH 0x10
+00406d3f  PUSH EBX
+00406d40  MOV EDX,dword ptr [EBP + 0xc]
+00406d43  PUSH EDX
+00406d44  CALL 0x00441388
+00406d49  TEST EAX,EAX
+00406d4b  JZ 0x00406d50
+00406d4d  AND ESI,0xffffffef
+00406d50  INC EBX
+00406d51  ADD EDI,0x2d8
+00406d57  CMP EBX,0x7
+00406d5a  JL 0x00406d28
+00406d5c  TEST ESI,0x10
+00406d62  JZ 0x00406da6
+00406d64  PUSH 0x2
+00406d66  MOV ECX,dword ptr [EBP + 0xc]
+00406d69  PUSH ECX
+00406d6a  MOV EAX,dword ptr [EBP + 0x8]
+00406d6d  PUSH EAX
+00406d6e  CALL 0x00441388
+00406d73  TEST EAX,EAX
+00406d75  JNZ 0x00406d7a
+00406d77  OR ESI,0x2
+00406d7a  PUSH 0x8
+00406d7c  MOV EDX,dword ptr [EBP + 0xc]
+00406d7f  PUSH EDX
+00406d80  MOV ECX,dword ptr [EBP + 0x8]
+00406d83  PUSH ECX
+00406d84  CALL 0x00441388
+00406d89  TEST EAX,EAX
+00406d8b  JNZ 0x00406d90
+00406d8d  OR ESI,0x8
+00406d90  PUSH 0x4
+00406d92  MOV EAX,dword ptr [EBP + 0xc]
+00406d95  PUSH EAX
+00406d96  MOV EDX,dword ptr [EBP + 0x8]
+00406d99  PUSH EDX
+00406d9a  CALL 0x00441388
+00406d9f  TEST EAX,EAX
+00406da1  JNZ 0x00406da6
+00406da3  OR ESI,0x4
+00406da6  TEST ESI,0x1
+00406dac  JZ 0x00406dcc
+00406dae  TEST ESI,0x2
+00406db4  JNZ 0x00406dc9
+00406db6  PUSH 0x2
+00406db8  MOV ECX,dword ptr [EBP + 0xc]
+00406dbb  PUSH ECX
+00406dbc  MOV EAX,dword ptr [EBP + 0x8]
+00406dbf  PUSH EAX
+00406dc0  CALL 0x00441388
+00406dc5  TEST EAX,EAX
+00406dc7  JZ 0x00406dcc
+00406dc9  AND ESI,0xfffffffe
+00406dcc  MOV EAX,ESI
+00406dce  POP EDI
+00406dcf  POP ESI
+00406dd0  POP EBX
+00406dd1  POP EBP
+00406dd2  RET 0xc
+*/

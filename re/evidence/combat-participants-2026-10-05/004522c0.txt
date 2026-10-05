@@ -1,0 +1,130 @@
+// Program: DEADLOCK.EXE
+// Language: x86:LE:32:default
+// Compiler: borlandcpp
+// Function: 004522c0 FUN_004522c0
+
+void __stdcall FUN_004522c0(int param_1)
+
+{
+  uint uVar1;
+  int iVar2;
+  int iVar3;
+  int unaff_EBX;
+  int unaff_ESI;
+  uint uStack_10;
+  int iStack_c;
+  int iStack_8;
+  
+  FUN_004a6838();
+  iStack_8 = 0;
+  if (param_1 != 0) {
+    unaff_ESI = *(int *)(param_1 + 6);
+    unaff_EBX = *(int *)(param_1 + 10);
+    iStack_8 = FUN_0044ba18();
+  }
+  if (iStack_8 != 0) {
+    iVar2 = FUN_004511d8();
+    if (iVar2 == 0) {
+      iVar2 = FUN_00451b68();
+      if (iVar2 != 0) {
+        *(int *)(iVar2 + 0x28) = unaff_ESI;
+        *(int *)(iVar2 + 0xc) = unaff_ESI;
+        *(int *)(iVar2 + 0x20) = unaff_ESI;
+        *(int *)(iVar2 + 0x2c) = unaff_EBX;
+        *(int *)(iVar2 + 0x10) = unaff_EBX;
+        *(int *)(iVar2 + 0x24) = unaff_EBX;
+        FUN_004512d4();
+      }
+      iStack_8 = iStack_8 + -1;
+      if (iStack_8 == 0) {
+        return;
+      }
+    }
+    iStack_c = 0x24;
+    uStack_10 = 1;
+    do {
+      iVar2 = -1;
+      if ((uStack_10 & 1) == 0) {
+        iVar2 = 1;
+      }
+      if ((unaff_ESI < 0) || (uVar1 = uStack_10, 0x11 < unaff_ESI)) {
+        unaff_EBX = unaff_EBX + uStack_10 * iVar2;
+      }
+      else {
+        for (; 0 < (int)uVar1; uVar1 = uVar1 - 1) {
+          unaff_EBX = unaff_EBX + iVar2;
+          if (((-1 < unaff_EBX) && (unaff_EBX < 0x12)) && (iVar3 = FUN_004511d8(), iVar3 == 0)) {
+            iVar3 = FUN_00451b68();
+            if (iVar3 != 0) {
+              *(int *)(iVar3 + 0x28) = unaff_ESI;
+              *(int *)(iVar3 + 0xc) = unaff_ESI;
+              *(int *)(iVar3 + 0x20) = unaff_ESI;
+              *(int *)(iVar3 + 0x2c) = unaff_EBX;
+              *(int *)(iVar3 + 0x10) = unaff_EBX;
+              *(int *)(iVar3 + 0x24) = unaff_EBX;
+              FUN_004512d4();
+            }
+            iStack_8 = iStack_8 + -1;
+            if (iStack_8 == 0) {
+              return;
+            }
+          }
+        }
+      }
+      if ((unaff_EBX < 0) || (uVar1 = uStack_10, 0x11 < unaff_EBX)) {
+        unaff_ESI = unaff_ESI + uStack_10 * iVar2;
+      }
+      else {
+        for (; 0 < (int)uVar1; uVar1 = uVar1 - 1) {
+          unaff_ESI = unaff_ESI + iVar2;
+          if (((-1 < unaff_ESI) && (unaff_ESI < 0x12)) && (iVar3 = FUN_004511d8(), iVar3 == 0)) {
+            iVar3 = FUN_00451b68();
+            if (iVar3 != 0) {
+              *(int *)(iVar3 + 0x28) = unaff_ESI;
+              *(int *)(iVar3 + 0xc) = unaff_ESI;
+              *(int *)(iVar3 + 0x20) = unaff_ESI;
+              *(int *)(iVar3 + 0x2c) = unaff_EBX;
+              *(int *)(iVar3 + 0x10) = unaff_EBX;
+              *(int *)(iVar3 + 0x24) = unaff_EBX;
+              FUN_004512d4();
+            }
+            iStack_8 = iStack_8 + -1;
+            if (iStack_8 == 0) {
+              return;
+            }
+          }
+        }
+      }
+      uStack_10 = uStack_10 + 1;
+    } while ((int)uStack_10 < 0x24);
+    if (unaff_ESI < 0x12) {
+      for (; 0 < iStack_c; iStack_c = iStack_c + -1) {
+        unaff_EBX = unaff_EBX + -1;
+        if (((-1 < unaff_EBX) && (unaff_EBX < 0x12)) && (iVar2 = FUN_004511d8(), iVar2 == 0)) {
+          iVar2 = FUN_00451b68();
+          if (iVar2 != 0) {
+            *(int *)(iVar2 + 0x28) = unaff_ESI;
+            *(int *)(iVar2 + 0xc) = unaff_ESI;
+            *(int *)(iVar2 + 0x20) = unaff_ESI;
+            *(int *)(iVar2 + 0x2c) = unaff_EBX;
+            *(int *)(iVar2 + 0x10) = unaff_EBX;
+            *(int *)(iVar2 + 0x24) = unaff_EBX;
+            FUN_004512d4();
+          }
+          iStack_8 = iStack_8 + -1;
+          if (iStack_8 == 0) {
+            return;
+          }
+        }
+      }
+    }
+  }
+  return;
+}
+
+
+/* ASSEMBLY
+004522c0  PUSH EBP
+004522c1  MOV EBP,ESP
+004522c3  ADD ESP,-0x70
+*/

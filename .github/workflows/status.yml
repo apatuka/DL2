@@ -33,26 +33,35 @@ jobs:
           fi
           if [[ -n "$BASE_SHA" ]] && git cat-file -e "$BASE_SHA:tools/status.py" 2>/dev/null; then
             baseline_root="$RUNNER_TEMP/dl2-status-before"
+            mkdir -p "$GITHUB_WORKSPACE/results/ci"
             git worktree add --detach "$baseline_root" "$BASE_SHA"
-            cd "$baseline_root"
-            cmake -S . -B build-ci -G Ninja -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=RelWithDebInfo
-            python -B run-tests --build-dir build-ci || true
-            python -B run-byte-matching --build-dir build-ci --output results/before || test -f results/before/results.json
-            echo "STATUS_BASELINE=$baseline_root/results/before/results.json" >> "$GITHUB_ENV"
+            (
+              cd "$baseline_root"
+              cmake -S . -B build-ci -G Ninja -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=RelWithDebInfo || exit 1
+              python -B run-tests --build-dir build-ci || true
+              python -B run-byte-matching --build-dir build-ci --output results/before
+            ) 2>&1 | tee "$GITHUB_WORKSPACE/results/ci/baseline.log" || true
+            if [[ -f "$baseline_root/results/before/results.json" ]]; then
+              echo "STATUS_BASELINE=$baseline_root/results/before/results.json" >> "$GITHUB_ENV"
+            else
+              echo "::warning title=Baseline unavailable::Base commit $BASE_SHA could not produce a metrics report. Current tests remain required; byte regression comparison is unavailable."
+              echo "Baseline unavailable: base commit $BASE_SHA could not produce a report. See baseline.log. No byte regression comparison was performed." >> "$GITHUB_STEP_SUMMARY"
+            fi
           else
             echo "No baseline infrastructure at base commit; report will explicitly mark baseline unavailable."
           fi
       - name: Build, test and compare current commit
         shell: bash
         run: |
-          cmake -S . -B build-ci -G Ninja -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=RelWithDebInfo
+          mkdir -p results/ci
+          cmake -S . -B build-ci -G Ninja -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=RelWithDebInfo 2>&1 | tee results/ci/configure.log
           set +e
-          python -B run-tests --build-dir build-ci
-          test_exit=$?
+          python -B run-tests --build-dir build-ci 2>&1 | tee results/ci/tests.log
+          test_exit=${PIPESTATUS[0]}
           baseline_args=()
           if [[ -n "${STATUS_BASELINE:-}" ]]; then baseline_args=(--baseline "$STATUS_BASELINE"); fi
-          python -B run-byte-matching --build-dir build-ci --output results/current "${baseline_args[@]}"
-          byte_exit=$?
+          python -B run-byte-matching --build-dir build-ci --output results/current "${baseline_args[@]}" 2>&1 | tee results/ci/byte-matching.log
+          byte_exit=${PIPESTATUS[0]}
           if [[ -f results/current/results.json ]]; then
             python -B generate-status --results results/current/results.json
           fi
@@ -62,6 +71,7 @@ jobs:
         with:
           name: status-${{ github.sha }}
           path: |
+            results/ci/
             results/current/
             build-ci/status-ctest.xml
             build-ci/status-ctest.json

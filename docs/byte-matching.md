@@ -202,6 +202,13 @@ redistribuibles y marca los datos comerciales ausentes; un entorno privado puede
 requiere subir el repositorio a GitHub. Las marcas de tiempo y rutas de ejecución son
 auditoría variable: mismos inputs/build/reglas producen los mismos bytes y métricas.
 
+Si el commit base no compila o no puede generar un informe, el workflow conserva
+`results/ci/baseline.log` y advierte que no pudo comparar regresiones. Esto permite
+validar una corrección sobre una versión rota sin simular una baseline aprobada.
+El commit actual sigue obligado a compilar y pasar las pruebas. Sus logs de
+configuración, build/CTest y byte matching también se publican si falla antes de
+generar JSON/HTML.
+
 ## Pruebas de la infraestructura
 
 ```powershell

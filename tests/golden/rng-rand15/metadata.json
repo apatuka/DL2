@@ -1,0 +1,20 @@
+{
+  "id": "rng-rand15",
+  "module": "session_rng",
+  "function": "rand15",
+  "description": "Seed 1: first eight outputs as little-endian uint32",
+  "version": "recurrence-v1",
+  "provenance": {
+    "kind": "derived-oracle",
+    "source": "re/decompiled_all.c: FUN_004ae5b0; tests/test_session_rng.cpp: goldenSequences",
+    "scope": "Independent fixed recurrence vector; NOT an execution capture of DEADLOCK.EXE"
+  },
+  "critical": true,
+  "command": [
+    "{probe}",
+    "{input}",
+    "{output}"
+  ],
+  "input_sha256": "b1656d3ff9da16cc6f6ee9aec94316be825732364ba12acbc38d27737abef0f1",
+  "expected_sha256": "e755db651da30826b352fd6f6c92e11760fc87d9030c1911d7281f0c303c3a88"
+}

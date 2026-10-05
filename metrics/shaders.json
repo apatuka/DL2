@@ -1,0 +1,5 @@
+{
+  "applicable": false,
+  "reason": "DL2 utiliza renderizado de sprites/paleta mediante SDL2. No existe un decodificador, catálogo ni backend de instrucciones GPU en este proyecto. Las instrucciones internas del driver SDL no son instrucciones reimplementadas por DL2.",
+  "instructions": []
+}

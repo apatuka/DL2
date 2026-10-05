@@ -1,0 +1,68 @@
+name: Status and byte matching
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    env:
+      SDL_VIDEODRIVER: dummy
+      SDL_AUDIODRIVER: dummy
+      SDL_RENDER_DRIVER: software
+      BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install build dependencies
+        run: sudo apt-get update && sudo apt-get install -y libsdl2-dev ninja-build
+      - name: Reproduce base commit when it has the metrics infrastructure
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -z "$BASE_SHA" || "$BASE_SHA" =~ ^0+$ ]]; then
+            BASE_SHA=$(git rev-parse HEAD^ 2>/dev/null || true)
+          fi
+          if [[ -n "$BASE_SHA" ]] && git cat-file -e "$BASE_SHA:tools/status.py" 2>/dev/null; then
+            baseline_root="$RUNNER_TEMP/dl2-status-before"
+            git worktree add --detach "$baseline_root" "$BASE_SHA"
+            cd "$baseline_root"
+            cmake -S . -B build-ci -G Ninja -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=RelWithDebInfo
+            python -B run-tests --build-dir build-ci || true
+            python -B run-byte-matching --build-dir build-ci --output results/before || test -f results/before/results.json
+            echo "STATUS_BASELINE=$baseline_root/results/before/results.json" >> "$GITHUB_ENV"
+          else
+            echo "No baseline infrastructure at base commit; report will explicitly mark baseline unavailable."
+          fi
+      - name: Build, test and compare current commit
+        shell: bash
+        run: |
+          cmake -S . -B build-ci -G Ninja -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=RelWithDebInfo
+          set +e
+          python -B run-tests --build-dir build-ci
+          test_exit=$?
+          baseline_args=()
+          if [[ -n "${STATUS_BASELINE:-}" ]]; then baseline_args=(--baseline "$STATUS_BASELINE"); fi
+          python -B run-byte-matching --build-dir build-ci --output results/current "${baseline_args[@]}"
+          byte_exit=$?
+          if [[ -f results/current/results.json ]]; then
+            python -B generate-status --results results/current/results.json
+          fi
+          [[ "$test_exit" == 0 && "$byte_exit" == 0 ]]
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: status-${{ github.sha }}
+          path: |
+            results/current/
+            build-ci/status-ctest.xml
+            build-ci/status-ctest.json
+          if-no-files-found: error

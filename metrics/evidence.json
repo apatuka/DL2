@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "libraries": [
+    {
+      "id": "004ae5b0",
+      "contract": "rand15 recurrence in SessionRng; includes mixed-order, state isolation and bounds tests. Credits only this primitive, not the complete load/sync workflow.",
+      "golden_tests": [
+        "rng-rand15"
+      ],
+      "ctest": [
+        "session_rng"
+      ],
+      "files": {
+        "src/game/session_rng.cpp": "7f144b0670b131347b0a3467049e54eb2e766bbf2af123a60b2c4d7048f159c1",
+        "src/game/session_rng.h": "92f9bb865a43d747ea5ab2b43d6d802eb97d7d8e9ebfb7e27f14755770f888d7",
+        "tests/test_session_rng.cpp": "b7f30327f9d3214e406627f623ea57762f7c7ae20e571b7382ca85d9c1d75313",
+        "tests/golden_probe.cpp": "a75e00cc7a73205ac5f6665e26202243b3848e97a1cde043da8481febbdc1d01"
+      }
+    },
+    {
+      "id": "004ae5d8",
+      "contract": "long31 recurrence in SessionRng; includes mixed-order, state isolation and bounds tests. Credits only this primitive, not the complete load/sync workflow.",
+      "golden_tests": [
+        "rng-long31"
+      ],
+      "ctest": [
+        "session_rng"
+      ],
+      "files": {
+        "src/game/session_rng.cpp": "7f144b0670b131347b0a3467049e54eb2e766bbf2af123a60b2c4d7048f159c1",
+        "src/game/session_rng.h": "92f9bb865a43d747ea5ab2b43d6d802eb97d7d8e9ebfb7e27f14755770f888d7",
+        "tests/test_session_rng.cpp": "b7f30327f9d3214e406627f623ea57762f7c7ae20e571b7382ca85d9c1d75313",
+        "tests/golden_probe.cpp": "a75e00cc7a73205ac5f6665e26202243b3848e97a1cde043da8481febbdc1d01"
+      }
+    },
+    {
+      "id": "0046ca40",
+      "contract": "secondary15 recurrence in SessionRng; includes mixed-order, state isolation and bounds tests. Credits only this primitive, not the complete load/sync workflow.",
+      "golden_tests": [
+        "rng-secondary15"
+      ],
+      "ctest": [
+        "session_rng"
+      ],
+      "files": {
+        "src/game/session_rng.cpp": "7f144b0670b131347b0a3467049e54eb2e766bbf2af123a60b2c4d7048f159c1",
+        "src/game/session_rng.h": "92f9bb865a43d747ea5ab2b43d6d802eb97d7d8e9ebfb7e27f14755770f888d7",
+        "tests/test_session_rng.cpp": "b7f30327f9d3214e406627f623ea57762f7c7ae20e571b7382ca85d9c1d75313",
+        "tests/golden_probe.cpp": "a75e00cc7a73205ac5f6665e26202243b3848e97a1cde043da8481febbdc1d01"
+      }
+    }
+  ],
+  "shaders": []
+}

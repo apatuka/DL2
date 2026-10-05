@@ -1,6 +1,8 @@
 # Local build products and diagnostic output.
 /build*/
 /out/
+/results/
+/tests/golden/local/
 /.recovery/
 /.vs/
 

@@ -86,6 +86,27 @@ docs/SDL2_VIABILITY.md análisis de viabilidad de SDL2
 
 ## Compilar y verificar (Windows)
 
+### Dashboard de métricas verificables
+
+La página **Status** reúne funciones originales con evidencia registrada, CTest y
+comparación binaria RAW/normalizada. GPU figura como **No aplicable**: el proyecto no
+reimplementa un ISA de shaders. Las tasas se calculan de los resultados reales y no
+equivalen al porcentaje de jugabilidad. La acreditación inicial de funciones es
+conservadora; los módulos sin evidencia registrada quedan pendientes de verificación.
+
+```powershell
+.\run-tests.ps1 --build-dir build-verified --data-dir "C:\GOG Games\Deadlock 2"
+.\run-byte-matching.ps1 --build-dir build-verified --data-dir "C:\GOG Games\Deadlock 2" --output results/current
+.\generate-status.ps1 --results results/current/results.json
+Start-Process results/current/results.html
+```
+
+Usar un destino nuevo en cada ejecución. Para detectar regresiones, añadir
+`--baseline results/before/results.json`. Detalles: [byte matching](docs/byte-matching.md)
+y [dashboard, catálogo y evidencias](docs/status-dashboard.md).
+
+### Compilación habitual
+
 Con Visual Studio C++ Build Tools, CMake y `sdl2:x64-windows` instalado en vcpkg:
 
 ```powershell

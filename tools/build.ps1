@@ -50,7 +50,7 @@ try {
         & cmake --build $BuildDir --config $Configuration
         if ($LASTEXITCODE -ne 0) { throw "Build failed ($LASTEXITCODE)." }
         if ($Test) {
-            & ctest --test-dir $BuildDir -C $Configuration --output-on-failure --no-tests=error
+            & ctest --test-dir $BuildDir -C $Configuration --output-on-failure --no-tests=error --output-junit ctest-results.xml
             if ($LASTEXITCODE -ne 0) { throw "Tests failed ($LASTEXITCODE)." }
         }
     } finally {

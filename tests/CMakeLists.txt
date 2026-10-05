@@ -83,6 +83,11 @@ set_tests_properties(resources PROPERTIES SKIP_RETURN_CODE 77 TIMEOUT 60)
 
 find_package(Python3 QUIET COMPONENTS Interpreter)
 if(Python3_Interpreter_FOUND)
+    add_executable(golden_probe golden_probe.cpp)
+    target_link_libraries(golden_probe PRIVATE dl2game)
+    add_test(NAME status_metrics COMMAND "${Python3_EXECUTABLE}" -B
+        "${CMAKE_CURRENT_SOURCE_DIR}/test_status_metrics.py")
+    set_tests_properties(status_metrics PROPERTIES TIMEOUT 60)
     if(TARGET dl2sim)
         add_test(NAME simulation_cli COMMAND "${Python3_EXECUTABLE}" -B
             "${CMAKE_CURRENT_SOURCE_DIR}/test_sim_cli.py" $<TARGET_FILE:dl2sim>

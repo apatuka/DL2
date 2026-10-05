@@ -1,0 +1,20 @@
+{
+  "id": "rng-secondary15",
+  "module": "session_rng",
+  "function": "secondary15",
+  "description": "Seed 1: first eight outputs as little-endian uint32",
+  "version": "recurrence-v1",
+  "provenance": {
+    "kind": "derived-oracle",
+    "source": "re/decompiled_all.c: FUN_0046ca40; tests/test_session_rng.cpp: goldenSequences",
+    "scope": "Independent fixed recurrence vector; NOT an execution capture of DEADLOCK.EXE"
+  },
+  "critical": true,
+  "command": [
+    "{probe}",
+    "{input}",
+    "{output}"
+  ],
+  "input_sha256": "758fa138ac00c408e5d45b0f560a4338461dabe26ce6dd52b4f26021d54aac42",
+  "expected_sha256": "1741f2c7c0e9dbbb2d35a0fe006cae41ec0e41430847ba045a4223932bda84d9"
+}
